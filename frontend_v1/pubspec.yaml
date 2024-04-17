@@ -78,20 +78,20 @@ flutter:
   fonts:
   - family: Sedan
     fonts:
-    - asset: fonts\Sedan-Italic.ttf
+    - asset: assets\fonts\Sedan-Italic.ttf
       style: italic
-    - asset: fonts\Sedan-Regular.ttf
+    - asset: assets\fonts\Sedan-Regular.ttf
   - family: Karla
     fonts:
-    - asset: fonts\Karla-Bold.ttf
+    - asset: assets\fonts\Karla-Bold.ttf
       weight: 700
-    - asset: fonts\Karla-Italic.ttf
+    - asset: assets\fonts\Karla-Italic.ttf
       style: italic
-    - asset: fonts\Karla-Light.ttf
+    - asset: assets\fonts\Karla-Light.ttf
       weight: 300
-    - asset: fonts\Karla-Medium.ttf
+    - asset: assets\fonts\Karla-Medium.ttf
       weight: 500
-    - asset: fonts\Karla-Regular.ttf
+    - asset: assets\fonts\Karla-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

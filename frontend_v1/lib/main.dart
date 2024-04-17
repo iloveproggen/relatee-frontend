@@ -1,29 +1,69 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyHomePage());
+  runApp(const MyApp());
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Relatee',
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 189, 187, 187),
-          title: const Text("Test"),
+        body: Center(
+          child: WelcometextWidget(),
         ),
-        body: const Column(
-          children: [
-            Text("Text1"),
-            Text("Text1"),
-            Text("Text1"),
-            Text("Text1")
-          ],)
+      ),
+    );
+  }
+}
+
+class WelcometextWidget extends StatelessWidget {
+  const WelcometextWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 327,
+      height: 74,
+      child: Stack(
+        alignment: Alignment.bottomLeft,
+        children: <Widget>[
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Text(
+              'Welcome, Michelle!',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Color.fromRGBO(74, 70, 70, 1),
+                fontFamily: 'Karla',
+                fontSize: 32,
+                letterSpacing: 0,
+                fontWeight: FontWeight.bold,
+                height: 1,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 43,
+            left: 0,
+            child: Text(
+              'time to get productive.',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: Color.fromRGBO(74, 70, 70, 1),
+                fontFamily: 'Karla',
+                fontSize: 20,
+                letterSpacing: 0,
+                fontWeight: FontWeight.normal,
+                height: 1,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
