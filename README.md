@@ -38,7 +38,7 @@ Konkret soll die App folgendes bieten:
 Vermutlich in iOS:
 - Flutter im FrontEnd
 - JavaScript im BackEnd
-- MongoDB als Datenbank
+- PostDB SQL als Datenbank
 
 
 ## Lizenz
