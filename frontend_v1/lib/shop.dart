@@ -5,7 +5,7 @@ void main() {
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({Key? key}) : super(key: key);
+  const FigmaToCodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class FigmaToCodeApp extends StatelessWidget {
 }
 
 class ShopView extends StatelessWidget {
-  const ShopView({Key? key}) : super(key: key);
+  const ShopView({super.key});
 
   @override
   Widget build(BuildContext context) {
