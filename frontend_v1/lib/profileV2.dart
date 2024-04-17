@@ -36,171 +36,118 @@ class ProfileView extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          Container(
-            width: screenWidth * 0.9,
-            height: 400,
-            clipBehavior: Clip.antiAlias,
-            decoration: ShapeDecoration(
-              color: const Color(0xFFF3F3F3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-            child: Stack(
+          SizedBox(
+            width: double.infinity,
+            child: Column(
               children: [
-                Positioned(
-                  left: screenWidth * 0.14,
-                  top: 0,
-                  child: SizedBox(
-                    width: screenWidth * 0.6,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildInfoContainer('1150 pts'),
-                        _buildInfoContainer('lvl 25'),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: -100,
-                  top: -100,
-                  child: SizedBox(
-                    width: 700,
-                    height: 400,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 700,
-                          height: 400,
-                          decoration:
-                              const BoxDecoration(color: Color(0xFFD9D9D9)),
-                        ),
-                        Positioned(
-                          left: 100,
-                          top: 50,
-                          child: Container(
-                            width: 400,
-                            height: 250,
-                            decoration: const BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                    "https://via.placeholder.com/439x273"),
-                                fit: BoxFit.fill,
-                              ),
+                SizedBox(
+                  width: screenWidth * 0.26,
+                  height: screenWidth * 0.26,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: screenWidth * 0.26,
+                        height: screenWidth * 0.26,
+                        decoration: const ShapeDecoration(
+                          color: Color(0xFFD9D9D9),
+                          shape: CircleBorder(
+                            side: BorderSide(
+                              width: 5,
+                              color: Color(0xFF39555E),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        width: screenWidth * 0.26,
+                        height: screenWidth * 0.26,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                "https://via.placeholder.com/185x176"),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  left: screenWidth * 0.06,
-                  top: screenWidth * 0.06,
-                  child: SizedBox(
-                    width: screenWidth * 0.26,
-                    height: screenWidth * 0.26,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: screenWidth * 0.26,
-                          height: screenWidth * 0.26,
-                          decoration: const ShapeDecoration(
-                            color: Color(0xFFD9D9D9),
-                            shape: CircleBorder(
-                              side: BorderSide(
-                                width: 5,
-                                color: Color(0xFF39555E),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: screenWidth * 0.26,
-                          height: screenWidth * 0.26,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                  "https://via.placeholder.com/185x176"),
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildInfoContainer('1150 pts'),
+                    const SizedBox(width: 10),
+                    _buildInfoContainer('lvl 25'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Michelle Gerwald',
+            style: TextStyle(
+              color: Color(0xFF4A4646),
+              fontSize: 32,
+              fontFamily: 'Karla',
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 10),
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: 'part of household "',
+                  style: TextStyle(
+                    color: Color(0xFF4A4646),
+                    fontSize: 16,
+                    fontFamily: 'Karla',
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
-                Positioned(
-                  left: screenWidth * 0.04,
-                  top: screenWidth * 0.44,
-                  child: SizedBox(
-                    width: screenWidth * 0.8,
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Michelle Gerwald',
-                          style: TextStyle(
-                            color: Color(0xFF4A4646),
-                            fontSize: 32,
-                            fontFamily: 'Karla',
-                            fontWeight: FontWeight.w700,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'part of household "',
-                                style: TextStyle(
-                                  color: Color(0xFF4A4646),
-                                  fontSize: 16,
-                                  fontFamily: 'Karla',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'Campus Living',
-                                style: TextStyle(
-                                  color: Color(0xFF4A4646),
-                                  fontSize: 16,
-                                  fontFamily: 'Karla',
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '"',
-                                style: TextStyle(
-                                  color: Color(0xFF4A4646),
-                                  fontSize: 16,
-                                  fontFamily: 'Karla',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          '@michiee123',
-                          style: TextStyle(
-                            color: Color(0xFF4A4646),
-                            fontSize: 16,
-                            fontFamily: 'Karla',
-                            fontWeight: FontWeight.w300,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                TextSpan(
+                  text: 'Campus Living',
+                  style: TextStyle(
+                    color: Color(0xFF4A4646),
+                    fontSize: 16,
+                    fontFamily: 'Karla',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                TextSpan(
+                  text: '"',
+                  style: TextStyle(
+                    color: Color(0xFF4A4646),
+                    fontSize: 16,
+                    fontFamily: 'Karla',
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
             ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            '@michiee123',
+            style: TextStyle(
+              color: Color(0xFF4A4646),
+              fontSize: 16,
+              fontFamily: 'Karla',
+              fontWeight: FontWeight.w300,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          const Divider(
+            color: Color(0xFFB4B4B4),
+            height: 20,
+            thickness: 2,
+            indent: 20,
+            endIndent: 20,
           ),
           const SizedBox(height: 20),
           const Text(
@@ -256,10 +203,10 @@ class TaskItem extends StatelessWidget {
   final String status;
 
   const TaskItem({
-    Key? key,
+    super.key,
     required this.title,
     required this.status,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
