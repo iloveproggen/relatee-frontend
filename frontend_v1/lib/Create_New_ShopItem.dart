@@ -1,6 +1,65 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
-class CreateNewShopitem extends StatelessWidget {
+import 'package:flutter/material.dart';
+
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        fontFamily: 'Karla',
+        textTheme: const TextTheme(
+          bodyText1: TextStyle(
+              color: Color.fromARGB(255, 99, 21, 21), fontSize: 200),
+        ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      ),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              CustomTextField(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomTextField extends StatelessWidget {
+  const CustomTextField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Form(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 100, left: 40),
+              child: TextFormField(
+                decoration: InputDecoration.collapsed(
+                  hintText: 'new item..',
+                ),
+                style: TextStyle(fontSize: 30),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+/*class CreateNewShopitem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -43,59 +102,26 @@ class CreateNewShopitem extends StatelessWidget {
                                     children: [
                                       Positioned(
                                         left: 0,
-                                        top: 0,
-                                        child: Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: NetworkImage("https://via.placeholder.com/34x34"),
-                                              fit: BoxFit.fill,
-                                            ),
+                                        top: 4,
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 40,
+                                          child: IconButton(
+                                            icon: const Icon(Icons.add_box),
+                                            color: Colors.grey,
+                                            onPressed: () { }, )
                                           ),
                                         ),
-                                      ),
-                                      Positioned(
-                                        left: 15,
-                                        top: 10,
-                                        child: Container(
-                                          width: 4,
-                                          height: 14,
-                                          decoration: ShapeDecoration(
-                                            color: Color(0xFFB4B4B4),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(100),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 24,
-                                        top: 15,
-                                        child: Transform(
-                                          transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(1.57),
-                                          child: Container(
-                                            width: 4,
-                                            height: 14,
-                                            decoration: ShapeDecoration(
-                                              color: Color(0xFFB4B4B4),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(100),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                               Positioned(
-                                left: 51,
-                                top: 1,
+                                left: 40,
+                                top: 10,
                                 child: SizedBox(
                                   width: 288,
-                                  height: 31.94,
+                                  height: 32,
                                   child: Text(
                                     'price:',
                                     style: TextStyle(
@@ -108,12 +134,12 @@ class CreateNewShopitem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Positioned(
+                               Positioned(
                                 left: 51,
-                                top: 1,
+                                top: 10,
                                 child: SizedBox(
-                                  width: 274,
-                                  height: 32,
+                                  width: 200,
+                                  height: 60,
                                   child: Text(
                                     '15',
                                     textAlign: TextAlign.right,
@@ -277,55 +303,6 @@ class CreateNewShopitem extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                left: -53,
-                top: -199,
-                child: Container(
-                  width: 496,
-                  height: 258,
-                  decoration: BoxDecoration(color: Color(0xFFF3F3F3)),
-                ),
-              ),
-              Positioned(
-                left: 303,
-                top: 21,
-                child: Container(
-                  height: 16,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 0,
-                        top: 15,
-                        child: Transform(
-                          transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(-1.57),
-                          child: Container(
-                            width: 11,
-                            height: 22,
-                            decoration: ShapeDecoration(
-                              color: Color(0xB2D9D9D9),
-                              shape: StarBorder.polygon(sides: 3),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 23,
-                        top: 0,
-                        child: Text(
-                          'back',
-                          style: TextStyle(
-                            color: Color(0xFFD9D9D9),
-                            fontSize: 14,
-                            fontFamily: 'Karla',
-                            fontWeight: FontWeight.w700,
-                            height: 0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -333,3 +310,4 @@ class CreateNewShopitem extends StatelessWidget {
     );
   }
 }
+*/
