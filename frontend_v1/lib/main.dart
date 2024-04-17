@@ -1,70 +1,117 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainWidget());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: WelcometextWidget(),
-        ),
-      ),
-    );
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+            fontFamily: 'Karla',
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(
+                  fontSize: 40,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Karla",
+                  letterSpacing: 0),
+              bodySmall: TextStyle(
+                  fontSize: 25,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Karla",
+                  letterSpacing: 0),
+              bodyMedium: TextStyle(
+                  fontSize: 25,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Sedan",
+                  letterSpacing: 0),
+            ),
+            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+        home: const Scaffold(
+          body: Padding(
+            padding: EdgeInsets.all(100),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [WelcomeText(), Buttons(), ButtonRow()]),
+          ),
+        ));
   }
 }
 
-class WelcometextWidget extends StatelessWidget {
-  const WelcometextWidget({super.key});
+class WelcomeText extends StatelessWidget {
+  const WelcomeText({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Welcome, Michelle!",
+            style: Theme.of(context).textTheme.bodyLarge),
+        Text("Time to get productive.",
+            style: Theme.of(context).textTheme.bodySmall),
+        Container(height: 70)
+      ],
+    ));
+  }
+}
+
+class Buttons extends StatelessWidget {
+  const Buttons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        child: Column(
+      children: [
+        const SizedBox(
+            height: 150,
+            width: double.infinity,
+            child: DecoratedBox(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                    color: Color.fromARGB(255, 243, 243, 243),
+                    boxShadow: [
+                  BoxShadow(
+                    color: Color.fromARGB(62, 74, 70, 70),
+                    offset: Offset(5.0, 5.0),
+                    blurRadius: 10.0,
+                    spreadRadius: 2.0,
+                  )
+                ]
+              )
+            )
+          ),
+          
+        Container(height: 70)
+      ],
+      
+    )
+  );
+  }
+}
+
+class ButtonRow extends StatelessWidget {
+  const ButtonRow({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
-      width: 327,
-      height: 74,
-      child: Stack(
-        alignment: Alignment.bottomLeft,
-        children: <Widget>[
-          Positioned(
-            top: 0,
-            left: 0,
-            child: Text(
-              'Welcome, Michelle!',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Color.fromRGBO(74, 70, 70, 1),
-                fontFamily: 'Karla',
-                fontSize: 32,
-                letterSpacing: 0,
-                fontWeight: FontWeight.bold,
-                height: 1,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 43,
-            left: 0,
-            child: Text(
-              'time to get productive.',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Color.fromRGBO(74, 70, 70, 1),
-                fontFamily: 'Karla',
-                fontSize: 20,
-                letterSpacing: 0,
-                fontWeight: FontWeight.normal,
-                height: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
+      child: Row(
+        children: <Widget> [
+          Expanded(child: Buttons()),
+          Expanded(child: Buttons()),
+          ],
+        )
     );
   }
 }
