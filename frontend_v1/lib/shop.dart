@@ -5,7 +5,7 @@ void main() {
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
+  const FigmaToCodeApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,9 @@ class FigmaToCodeApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
       home: const Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: ShopView(),
-          ),
+        body: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: ShopView(),
         ),
       ),
     );
@@ -26,7 +24,7 @@ class FigmaToCodeApp extends StatelessWidget {
 }
 
 class ShopView extends StatelessWidget {
-  const ShopView({super.key});
+  const ShopView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,17 +54,13 @@ class ShopView extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 250,
+        Expanded(
           child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _buildItemCard(context, 'Item 1', 'Buy for 1000pts'),
-              const SizedBox(width: 20),
-              _buildItemCard(context, 'Item 2', '500pts'),
-              const SizedBox(width: 20),
-              _buildItemCard(context, 'Item 3', '500pts'),
-            ],
+            scrollDirection: Axis.vertical,
+            children: List.generate(
+              5, // maximum number of items to be displayed initially
+              (index) => _buildItemCard(context, 'Item ${index + 1}', '500pts'),
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -108,6 +102,7 @@ class ShopView extends StatelessWidget {
     return Container(
       width: 200,
       padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: const Color(0xFFECECEB),
         borderRadius: BorderRadius.circular(15),
