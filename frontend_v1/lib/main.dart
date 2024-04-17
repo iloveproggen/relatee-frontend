@@ -35,13 +35,16 @@ class MainWidget extends StatelessWidget {
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
         home: const Scaffold(
-          body: Padding(
-            padding: EdgeInsets.all(100),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [WelcomeText(), Buttons(), ButtonRow()]),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(100),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [WelcomeText(), Buttons(height: 100), ButtonRow()]),
+              ),
+            ),
           ),
-        ));
+        );
   }
 }
 
@@ -66,8 +69,8 @@ class WelcomeText extends StatelessWidget {
 }
 
 class Buttons extends StatelessWidget {
-  const Buttons({super.key});
-
+  const Buttons({super.key, required this.height});
+  final int height;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -92,9 +95,8 @@ class Buttons extends StatelessWidget {
             )
           ),
           
-        Container(height: 70)
+        Container(height: 30)
       ],
-      
     )
   );
   }
@@ -108,8 +110,14 @@ class ButtonRow extends StatelessWidget {
     return const SizedBox(
       child: Row(
         children: <Widget> [
-          Expanded(child: Buttons()),
-          Expanded(child: Buttons()),
+          Expanded(child: Padding(
+            padding: EdgeInsets.only(right:15),
+            child: Buttons(height: 150),
+          )),
+          Expanded(child: Padding(
+            padding: EdgeInsets.only(left: 15),
+            child: Buttons(height: 150),
+          )),
           ],
         )
     );
