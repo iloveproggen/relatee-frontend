@@ -5,7 +5,7 @@ void main() {
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({Key? key}) : super(key: key);
+  const FigmaToCodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +13,10 @@ class FigmaToCodeApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home: Scaffold(
+      home: const Scaffold(
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
             child: ShopView(),
           ),
         ),
@@ -26,7 +26,7 @@ class FigmaToCodeApp extends StatelessWidget {
 }
 
 class ShopView extends StatelessWidget {
-  const ShopView({Key? key}) : super(key: key);
+  const ShopView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +34,10 @@ class ShopView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 20),
-        Text(
+        const Text(
           'The Shop',
           style: TextStyle(
-            color: const Color(0xFF4A4646),
+            color: Color(0xFF4A4646),
             fontSize: 40,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w700,
@@ -45,10 +45,10 @@ class ShopView extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
-        Text(
+        const Text(
           'Spend your hard-earned points for goodies!',
           style: TextStyle(
-            color: const Color(0xFF4A4646),
+            color: Color(0xFF4A4646),
             fontSize: 20,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w300,
@@ -56,7 +56,7 @@ class ShopView extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
-        Container(
+        SizedBox(
           height: 250,
           child: ListView(
             scrollDirection: Axis.horizontal,
@@ -83,9 +83,9 @@ class ShopView extends StatelessWidget {
           onTap: () {
             // Implement your back button functionality here
           },
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.arrow_back, color: Color(0xFFD9D9D9)),
               SizedBox(width: 5),
               Text(
@@ -125,8 +125,8 @@ class ShopView extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
-              color: const Color(0xFF4A4646),
+            style: const TextStyle(
+              color: Color(0xFF4A4646),
               fontSize: 20,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w400,
@@ -136,8 +136,8 @@ class ShopView extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             subTitle,
-            style: TextStyle(
-              color: const Color(0xFF807D7D),
+            style: const TextStyle(
+              color: Color(0xFF807D7D),
               fontSize: 15,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w800,
@@ -158,8 +158,8 @@ class ShopView extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: const Color(0xFFB4B4B4),
+        style: const TextStyle(
+          color: Color(0xFFB4B4B4),
           fontSize: 24,
           fontFamily: 'Karla',
           fontWeight: FontWeight.w700,
