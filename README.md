@@ -37,7 +37,7 @@ Konkret soll die App folgendes bieten:
 **Noch in Arbeit**
 Vermutlich in iOS:
 - Flutter im FrontEnd
-- JavaScript im BackEnd
+- Fastify im BackEnd
 - PostDB SQL als Datenbank
 
 
