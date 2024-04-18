@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'assets/LocaleStrings.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({Key? key}) : super(key: key);
+  const FigmaToCodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      translations: LocaleString(),
+      locale: Locale('de-DE'),
+      fallbackLocale: Locale('en_US'),
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
@@ -24,7 +29,7 @@ class FigmaToCodeApp extends StatelessWidget {
 }
 
 class ShopView extends StatelessWidget {
-  const ShopView({Key? key}) : super(key: key);
+  const ShopView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +48,8 @@ class ShopView extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
-        const Text(
-          'Spend your hard-earned points for goodies!',
+        Text(
+          ('Shop_info'.tr),
           style: TextStyle(
             color: Color(0xFF4A4646),
             fontSize: 20,

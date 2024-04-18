@@ -1,4 +1,7 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
+import 'assets/LocaleStrings.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -9,7 +12,10 @@ class FigmaToCodeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      translations: LocaleString(),
+      locale: Locale('de-DE'),
+      fallbackLocale: Locale('en_US'),
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
       ),
@@ -19,6 +25,14 @@ class FigmaToCodeApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+String getDueDaysInText(int days) {
+  if (days == 1) {
+    return 'day_txt'.tr;
+  } else {
+    return 'days_txt'.tr;
   }
 }
 
@@ -40,13 +54,13 @@ class ProfileView extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top:100),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: screenWidth * 0.4,
-                          height: screenWidth * 0.4,
-                          decoration: const ShapeDecoration(
+                  padding: const EdgeInsets.only(top: 100),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: screenWidth * 0.4,
+                        height: screenWidth * 0.4,
+                        decoration: const ShapeDecoration(
                             shape: CircleBorder(
                               side: BorderSide(
                                 width: 6,
@@ -56,12 +70,12 @@ class ProfileView extends StatelessWidget {
                             image: DecorationImage(
                               image: NetworkImage(
                                   "https://via.placeholder.com/185x176"),
-                              fit: BoxFit.fill,)
-                          ),
-                        ),
-                        Container(height:30)
-                      ],
-                    ),
+                              fit: BoxFit.fill,
+                            )),
+                      ),
+                      Container(height: 30)
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -87,10 +101,10 @@ class ProfileView extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               children: [
                 TextSpan(
-                  text: 'part of household "',
+                  text: ('part_household'.tr),
                   style: TextStyle(
                     color: Color(0xFF4A4646),
                     fontSize: 16,
@@ -105,15 +119,6 @@ class ProfileView extends StatelessWidget {
                     fontSize: 16,
                     fontFamily: 'Karla',
                     fontWeight: FontWeight.w700,
-                  ),
-                ),
-                TextSpan(
-                  text: '"',
-                  style: TextStyle(
-                    color: Color(0xFF4A4646),
-                    fontSize: 16,
-                    fontFamily: 'Karla',
-                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
@@ -140,8 +145,8 @@ class ProfileView extends StatelessWidget {
             endIndent: 20,
           ),
           const SizedBox(height: 20),
-          const Text(
-            'View Michelle’s Tasks',
+          Text(
+            '${'view_txt'.tr} Michelle’s Tasks',
             style: TextStyle(
               color: Color(0xFF4A4646),
               fontSize: 24,
@@ -150,17 +155,17 @@ class ProfileView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const TaskItem(
+          TaskItem(
             title: 'do the dishes',
-            status: 'overdue',
+            status: ('overdue_txt'.tr),
           ),
-          const TaskItem(
+          TaskItem(
             title: 'take out trash',
-            status: 'due in 2 days',
+            status: '${'due_in_txt'.tr} 1 ${getDueDaysInText(1)}',
           ),
-          const TaskItem(
+          TaskItem(
             title: 'mop floor',
-            status: 'due in 2 days',
+            status: '${'due_in_txt'.tr} 2 ${getDueDaysInText(2)}',
           ),
         ],
       ),
