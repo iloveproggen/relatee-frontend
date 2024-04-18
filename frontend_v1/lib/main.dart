@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'assets/LocaleStrings.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const MainWidget());
@@ -13,7 +15,10 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      translations: LocaleString(),
+      locale: Locale('de-DE'),
+      fallbackLocale: Locale('en_US'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -37,18 +42,18 @@ class MainWidget extends StatelessWidget {
                 letterSpacing: 0),
           ),
           scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-      home: const Scaffold(
+      home: Scaffold(
         body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.only(top: 140, left: 40, right: 40),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              WelcomeText(),
+              const WelcomeText(),
               Align(
                   alignment: Alignment.topLeft,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 10),
-                    child: Text("Recommended",
+                    child: Text('Recommended_txt'.tr,
                         style: TextStyle(
                             color: Color.fromARGB(255, 204, 198, 196),
                             fontSize: 20,
@@ -80,14 +85,13 @@ class WelcomeText extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(bottom: 20),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text("ico"),
-              Text("ico2")
-            ]),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [Text("ico"), Text("ico2")]),
           ),
           Text("Welcome, Michelle!",
               style: Theme.of(context).textTheme.bodyLarge),
-          Text("Time to get productive.",
+          Text('welcome_message'.tr,
               style: Theme.of(context).textTheme.bodySmall),
         ],
       )),
