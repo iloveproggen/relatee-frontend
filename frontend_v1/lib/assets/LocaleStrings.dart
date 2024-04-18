@@ -16,6 +16,11 @@ class LocaleString extends Translations {
           'day_txt': 'day',
           'days_txt': 'days',
           'Recommended_txt': 'Recommended',
+          'Your_txt': 'Your',
+          'leftThisWeek_txt': 'left this week',
+          'doneThisWeek_txt': 'done this week',
+          'SeeAllTasks_txt': 'See all Tasks ->',
+          'Household_txt': 'Household ',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -30,6 +35,11 @@ class LocaleString extends Translations {
           'day_txt': 'Tag',
           'days_txt': 'Tagen',
           'Recommended_txt': 'Empfohlen',
+          'Your_txt': 'Deine',
+          'leftThisWeek_txt': 'diese Woche übrig',
+          'doneThisWeek_txt': 'diese Woche erledigt',
+          'SeeAllTasks_txt': 'Siehe alle Tasks ->',
+          'Household_txt': 'Haushalt-',
         }
       };
 }

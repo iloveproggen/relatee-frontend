@@ -82,7 +82,7 @@ class WelcomeText extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [Text("ico"), Text("ico2")]),
               ),
-              Text("Welcome, Michelle!",
+              Text('${'welcome_title'.tr} Michelle!',
                   style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
@@ -295,7 +295,7 @@ class ButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
         child: Row(
       children: <Widget>[
         Expanded(
@@ -303,7 +303,7 @@ class ButtonRow extends StatelessWidget {
           padding: EdgeInsets.only(right: 15),
           child: ButtonShort(
             number: "10",
-            textBelow: "left this week",
+            textBelow: 'leftThisWeek_txt'.tr,
           ),
         )),
         Expanded(
@@ -311,7 +311,7 @@ class ButtonRow extends StatelessWidget {
           padding: EdgeInsets.only(left: 15),
           child: ButtonShort(
             number: "2",
-            textBelow: "done this week",
+            textBelow: ('doneThisWeek_txt'.tr),
           ),
         )),
       ],
@@ -337,16 +337,16 @@ class _TaskState extends State<TaskOverview> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 50, bottom: 20),
-            child: Text("Your Tasks",
+            child: Text('${'Your_txt'.tr} Tasks',
                 style: Theme.of(context).textTheme.bodyLarge),
           ),
           const ButtonRow(),
           const Task(taskName: "do the dishes", taskStatus: 2),
           const Task(
               taskName: "mop the floor (maurice pissed on it)", taskStatus: 1),
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 10),
-            child: Text("See all Tasks ->",
+            child: Text('SeeAllTasks_txt'.tr,
                 style: TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
                     fontSize: 20,
@@ -430,7 +430,7 @@ class _HouseholdTaskState extends State<HouseholdOverview> {
         Container(height: 100),
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: Text("Household Tasks",
+          child: Text('${'Household_txt'.tr}Tasks',
               style: Theme.of(context).textTheme.bodyLarge),
         ),
         const ButtonCompleted(
