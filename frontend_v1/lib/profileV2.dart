@@ -5,15 +5,15 @@ void main() {
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({Key? key}) : super(key: key);
+  const FigmaToCodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
       ),
-      home: Scaffold(
+      home: const Scaffold(
         body: SingleChildScrollView(
           child: ProfileView(),
         ),
@@ -23,6 +23,8 @@ class FigmaToCodeApp extends StatelessWidget {
 }
 
 class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -33,45 +35,33 @@ class ProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 20,
-          ),
           SizedBox(
             width: double.infinity,
             child: Column(
               children: [
-                SizedBox(
-                  width: screenWidth * 0.26,
-                  height: screenWidth * 0.26,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: screenWidth * 0.26,
-                        height: screenWidth * 0.26,
-                        decoration: const ShapeDecoration(
-                          color: Color(0xFFD9D9D9),
-                          shape: CircleBorder(
-                            side: BorderSide(
-                              width: 5,
-                              color: Color(0xFF39555E),
+                Padding(
+                  padding: const EdgeInsets.only(top:100),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: screenWidth * 0.4,
+                          height: screenWidth * 0.4,
+                          decoration: const ShapeDecoration(
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                width: 6,
+                                color: Color(0xFF39555E),
+                              ),
                             ),
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  "https://via.placeholder.com/185x176"),
+                              fit: BoxFit.fill,)
                           ),
                         ),
-                      ),
-                      Container(
-                        width: screenWidth * 0.26,
-                        height: screenWidth * 0.26,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                                "https://via.placeholder.com/185x176"),
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        Container(height:30)
+                      ],
+                    ),
                 ),
                 const SizedBox(height: 10),
                 Row(
