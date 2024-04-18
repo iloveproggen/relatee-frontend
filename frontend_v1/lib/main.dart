@@ -40,7 +40,7 @@ class MainWidget extends StatelessWidget {
       home: const Scaffold(
         body: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(top: 160, left: 40, right: 40),
+            padding: EdgeInsets.only(top: 140, left: 40, right: 40),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               WelcomeText(),
@@ -48,12 +48,15 @@ class MainWidget extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 10),
-                    child: Text("Recommended", style: TextStyle(color: Color.fromARGB(255, 204, 198, 196), fontSize: 20, fontFamily: "Karla")),
+                    child: Text("Recommended",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 204, 198, 196),
+                            fontSize: 20,
+                            fontFamily: "Karla")),
                   )),
               ButtonRecommended(task: "do the dishes"),
-              ButtonRow(),
-              ButtonCompleted(who:"Marvin", what:"do the dishes", time:"today"),
-              TaskOverview()
+              TaskOverview(),
+              HouseholdOverview(),
             ]),
           ),
         ),
@@ -68,18 +71,27 @@ class WelcomeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Welcome, Michelle!",
-            style: Theme.of(context).textTheme.bodyLarge),
-        Text("Time to get productive.",
-            style: Theme.of(context).textTheme.bodySmall),
-        Container(height: 80)
-      ],
-    ));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 50),
+      child: SizedBox(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text("ico"),
+              Text("ico2")
+            ]),
+          ),
+          Text("Welcome, Michelle!",
+              style: Theme.of(context).textTheme.bodyLarge),
+          Text("Time to get productive.",
+              style: Theme.of(context).textTheme.bodySmall),
+        ],
+      )),
+    );
   }
 }
 
@@ -92,54 +104,57 @@ class ButtonRecommended extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        child: Column(
-      children: [
-        Container(
-          height: height,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                )
-              ]),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: SizedBox(
           child: Column(
-              //color: Colors.amber,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Align(
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left:10, right:10),
-                          child: Text(task,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
+        children: [
+          Container(
+            height: height,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(25)),
+                color: Color.fromARGB(255, 243, 243, 243),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromARGB(61, 109, 103, 103),
+                    offset: Offset(5.0, 5.0),
+                    blurRadius: 10.0,
+                    spreadRadius: 2.0,
+                  )
+                ]),
+            child: Column(
+                //color: Colors.amber,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10, right: 10),
+                            child: Text(task,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
                                   fontSize: 30,
                                   fontFamily: "Karla",
                                   //fontWeight: FontWeight.bold
-                                  )),
-                        ),
-                      ],
-                    )),
-              ]),
-        ),
-        const SizedBox(height: 30)
-      ],
-    ));
+                                )),
+                          ),
+                        ],
+                      )),
+                ]),
+          ),
+        ],
+      )),
+    );
   }
 }
 
 class ButtonCompleted extends StatelessWidget {
-  const ButtonCompleted({super.key, required this.who, required this.what, required this.time});
+  const ButtonCompleted(
+      {super.key, required this.who, required this.what, required this.time});
 
   final String who;
   final String what;
@@ -175,24 +190,26 @@ class ButtonCompleted extends StatelessWidget {
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(left:30, right:30),
+                          padding: const EdgeInsets.only(left: 35, right: 35),
                           child: RichText(
                               textAlign: TextAlign.center,
-                              text: 
-                              TextSpan(
-                                text: "$who completed",
-                                style: const TextStyle(color: Color.fromARGB(255, 74, 70, 70), fontFamily: "Karla", fontSize: 25),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: " \"$what\" ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold,)
-                                ),
-                                TextSpan(
-                                  text: "$time.",
-                                )
-                              ]
+                              text: TextSpan(
+                                  text: "$who completed",
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(255, 74, 70, 70),
+                                      fontFamily: "Karla",
+                                      fontSize: 25),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: " \"$what\" ",
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    TextSpan(
+                                      text: "$time.",
+                                    )
+                                  ]
                                   //fontWeight: FontWeight.bold
-                          )),
+                                  )),
                         ),
                       ],
                     )),
@@ -236,18 +253,23 @@ class ButtonShort extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(number,
-                      style: const TextStyle(
-                          fontSize: 55,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.bold),
-                        maxLines: 1,),
+                  Text(
+                    number,
+                    style: const TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Karla"),
+                    maxLines: 1,
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
                     child: Text(textBelow,
                         style: const TextStyle(
-                            fontSize: 17, fontFamily: "Karla", letterSpacing: -0.5),
-                          textAlign: TextAlign.center, maxLines: 1),
+                            fontSize: 20,
+                            fontFamily: "Karla",
+                            letterSpacing: -0.5),
+                        textAlign: TextAlign.center,
+                        maxLines: 1),
                   )
                 ],
               )),
@@ -298,50 +320,114 @@ class TaskOverview extends StatefulWidget {
 class _TaskState extends State<TaskOverview> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(height: 100),
-        Text("All Tasks", style: Theme.of(context).textTheme.bodyLarge),
-        Container(height: 20),
-        Task(taskName: "do the dishes")
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 50, bottom: 20),
+            child: Text("Your Tasks",
+                style: Theme.of(context).textTheme.bodyLarge),
+          ),
+          const ButtonRow(),
+          const Task(taskName: "do the dishes", taskStatus: 2),
+          const Task(
+              taskName: "mop the floor (maurice pissed on it)", taskStatus: 1),
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text("See all Tasks ->",
+                style: TextStyle(
+                    color: Color.fromARGB(255, 204, 198, 196),
+                    fontSize: 20,
+                    fontFamily: "Karla")),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class Task extends StatelessWidget {
-  Task({super.key, required this.taskName});
+  const Task({super.key, required this.taskName, required this.taskStatus});
 
   final String taskName;
+  final int taskStatus;
   /*final Widget green = SvgPicture.asset("assets/images/green.svg");
   final Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
   final Widget red = SvgPicture.asset("assets/images/red.svg");*/
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                )
-              ]),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 30, bottom: 30, left: 20),
-        child: Row(
-          children: [
-            Text(taskName, style: Theme.of(context).textTheme.bodySmall),
-            SvgPicture.asset("assets/images/green.svg"),
-          ],),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(25)),
+            color: Color.fromARGB(255, 243, 243, 243),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromARGB(61, 109, 103, 103),
+                offset: Offset(5.0, 5.0),
+                blurRadius: 10.0,
+                spreadRadius: 2.0,
+              )
+            ]),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 30, bottom: 30, left: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(taskName, style: Theme.of(context).textTheme.bodySmall),
+              Padding(
+                padding: const EdgeInsets.only(right: 30),
+                child: Builder(builder: (context) {
+                  switch (taskStatus) {
+                    case 0:
+                      return SvgPicture.asset("assets/images/green.svg");
+                    case 1:
+                      return SvgPicture.asset("assets/images/yellow.svg");
+                    case 2:
+                      return SvgPicture.asset("assets/images/red.svg");
+                    default:
+                      return SvgPicture.asset("assets/images/red.svg");
+                  }
+                }),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class HouseholdOverview extends StatefulWidget {
+  const HouseholdOverview({super.key});
+
+  @override
+  State<HouseholdOverview> createState() => _HouseholdTaskState();
+}
+
+class _HouseholdTaskState extends State<HouseholdOverview> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(height: 100),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Text("Household Tasks",
+              style: Theme.of(context).textTheme.bodyLarge),
+        ),
+        const ButtonCompleted(
+            who: "Marvin", what: "do the dishes", time: "today"),
+        const Task(taskName: "pick up couch", taskStatus: 0)
+      ],
     );
   }
 }
