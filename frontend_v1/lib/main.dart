@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'assets/LocaleStrings.dart';
 import 'package:get/get.dart';
+
+import 'assets/LocaleStrings.dart';
 
 void main() {
   runApp(const MainWidget());
@@ -17,8 +18,8 @@ class MainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: LocaleString(),
-      locale: Locale('de-DE'),
-      fallbackLocale: Locale('en_US'),
+      locale: const Locale('de-DE'),
+      fallbackLocale: const Locale('en_US'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -42,23 +43,13 @@ class MainWidget extends StatelessWidget {
                 letterSpacing: 0),
           ),
           scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-      home: Scaffold(
+      home: const Scaffold(
         body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.only(top: 140, left: 40, right: 40),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const WelcomeText(),
-              Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text('Recommended_txt'.tr,
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 204, 198, 196),
-                            fontSize: 20,
-                            fontFamily: "Karla")),
-                  )),
+              WelcomeText(),
               ButtonRecommended(task: "do the dishes"),
               TaskOverview(),
               HouseholdOverview(),
@@ -76,25 +67,39 @@ class WelcomeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 50),
-      child: SizedBox(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 20),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Text("ico"), Text("ico2")]),
-          ),
-          Text("Welcome, Michelle!",
-              style: Theme.of(context).textTheme.bodyLarge),
-          Text('welcome_message'.tr,
-              style: Theme.of(context).textTheme.bodySmall),
-        ],
-      )),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 50),
+          child: SizedBox(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Text("ico"), Text("ico2")]),
+              ),
+              Text("Welcome, Michelle!",
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('welcome_message'.tr,
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+          )),
+        ),
+        Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text('Recommended_txt'.tr,
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 204, 198, 196),
+                      fontSize: 20,
+                      fontFamily: "Karla")),
+            )),
+      ],
     );
   }
 }
