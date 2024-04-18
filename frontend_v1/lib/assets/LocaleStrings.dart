@@ -15,6 +15,7 @@ class LocaleString extends Translations {
           'due_in_txt': 'due in',
           'day_txt': 'day',
           'days_txt': 'days',
+          'Recommended_txt': 'Recommended',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -28,6 +29,7 @@ class LocaleString extends Translations {
           'due_in_txt': 'fällig in',
           'day_txt': 'Tag',
           'days_txt': 'Tagen',
+          'Recommended_txt': 'Empfohlen',
         }
       };
 }
