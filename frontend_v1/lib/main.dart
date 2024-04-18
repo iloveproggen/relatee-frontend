@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-
 import 'assets/LocaleStrings.dart';
 
 void main() {
@@ -18,8 +17,8 @@ class MainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: LocaleString(),
-      locale: const Locale('de-DE'),
-      fallbackLocale: const Locale('en_US'),
+      locale: const Locale('en-US'),
+      fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
