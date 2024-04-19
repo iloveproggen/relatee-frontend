@@ -1,16 +1,17 @@
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import 'assets/LocaleStrings.dart';
+import 'profileV2.dart'; // Importing the SecondPage widget
 
 void main() {
   runApp(const MainWidget());
 }
 //hi Michelle bug fising
-//hi maurice 
+//hi maurice
 // MainWidget
 
 class MainWidget extends StatelessWidget {
@@ -20,7 +21,7 @@ class MainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: LocaleString(),
-      locale: const Locale('ru-RU'),
+      locale: const Locale('en-US'),
       fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
@@ -51,6 +52,7 @@ class MainWidget extends StatelessWidget {
             padding: EdgeInsets.only(top: 140, left: 40, right: 40),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              IconRow(),
               WelcomeText(),
               ButtonRecommended(task: "do the dishes"),
               TaskOverview(),
@@ -58,6 +60,63 @@ class MainWidget extends StatelessWidget {
             ]),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class IconRow extends StatelessWidget {
+  const IconRow({super.key});
+
+  final double padding = 10;
+  final double size = 40;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+                Padding(
+                  padding: EdgeInsets.only(right: padding),
+                  child: TextButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ProfileView()));
+                    },
+                    child: Icon(
+                      CupertinoIcons.person_fill,
+                      color: col,
+                      size: size,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(padding),
+                  child:  Icon(
+                    CupertinoIcons.gear_solid,
+                    color:  col,
+                    size: size,
+                    semanticLabel: 'Text to announce in accessibility modes',
+                  ),
+                ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.all(padding),
+            child:  Icon(
+                    CupertinoIcons.cart_fill,
+                    color: col,
+                    size: size,
+                    semanticLabel: 'Text to announce in accessibility modes',
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -74,22 +133,17 @@ class WelcomeText extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 50),
           child: SizedBox(
+              width: double.infinity,
               child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text("ico"), Text("ico2")]),
-              ),
-              Text('${'welcome_title'.tr} Michelle!',
-                  style: Theme.of(context).textTheme.bodyLarge),
-              Text('welcome_message'.tr,
-                  style: Theme.of(context).textTheme.bodySmall),
-            ],
-          )),
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${'welcome_title'.tr} Michelle!',
+                      style: Theme.of(context).textTheme.bodyLarge),
+                  Text('welcome_message'.tr,
+                      style: Theme.of(context).textTheme.bodySmall),
+                ],
+              )),
         ),
         Align(
             alignment: Alignment.topLeft,
@@ -344,8 +398,7 @@ class _TaskState extends State<TaskOverview> {
           ),
           const ButtonRow(),
           const Task(taskName: "do the dishes", taskStatus: 2),
-          const Task(
-              taskName: "mop the floor", taskStatus: 1),
+          const Task(taskName: "mop the floor", taskStatus: 1),
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text('SeeAllTasks_txt'.tr,
