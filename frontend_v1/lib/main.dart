@@ -2,63 +2,80 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 
 import 'assets/LocaleStrings.dart';
-import 'profileV2.dart'; // Importing the SecondPage widget
 
 void main() {
-  runApp(const MainWidget());
+  runApp(const MainApp());
 }
 //hi Michelle bug fising
 //hi maurice
 // MainWidget
 
-class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-          fontFamily: 'Karla',
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(
-                letterSpacing: -1,
-                fontSize: 35,
-                color: Color.fromARGB(255, 74, 70, 70),
-                fontWeight: FontWeight.w800,
-                fontFamily: "Karla"),
-            bodySmall: TextStyle(
-                fontSize: 20,
-                color: Color.fromARGB(255, 74, 70, 70),
-                fontFamily: "Karla",
-                letterSpacing: 0),
-            bodyMedium: TextStyle(
-                fontSize: 20,
-                color: Color.fromARGB(255, 74, 70, 70),
-                fontFamily: "Sedan",
-                letterSpacing: 0),
-          ),
-          scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-      home: const Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(top: 140, left: 40, right: 40),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              IconRow(),
-              WelcomeText(),
-              ButtonRecommended(task: "do the dishes"),
-              TaskOverview(),
-              HouseholdOverview(),
-            ]),
-          ),
+        translations: LocaleString(),
+        locale: const Locale('en-US'),
+        fallbackLocale: const Locale('en-US'),
+        debugShowCheckedModeBanner: false,
+        title: 'Relatee',
+        theme: ThemeData(
+            fontFamily: 'Karla',
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(
+                  letterSpacing: -1,
+                  fontSize: 35,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontWeight: FontWeight.w800,
+                  fontFamily: "Karla"),
+              bodySmall: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Karla",
+                  letterSpacing: 0),
+              bodyMedium: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Sedan",
+                  letterSpacing: 0),
+            ),
+            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+        home: const MainWidget());
+  }
+}
+
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key});
+
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const MainWidget();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(top: 120, left: 40, right: 40),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            IconRow(),
+            WelcomeText(),
+            ButtonRecommended(task: "do the dishes"),
+            TaskOverview(),
+          ]),
         ),
       ),
     );
@@ -68,7 +85,7 @@ class MainWidget extends StatelessWidget {
 class IconRow extends StatelessWidget {
   const IconRow({super.key});
 
-  final double padding = 10;
+  final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
@@ -81,40 +98,50 @@ class IconRow extends StatelessWidget {
         children: [
           Row(
             children: [
-                Padding(
-                  padding: EdgeInsets.only(right: padding),
-                  child: TextButton(
-                    onPressed: (){
-                      Navigator.push(
+              Padding(
+                padding: EdgeInsets.only(right: padding),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  iconSize: size,
+                  onPressed: () {
+                    Navigator.of(context).push(ProfileView.route());
+                  },
+                  icon: Icon(
+                    CupertinoIcons.person_fill,
+                    color: col,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: padding),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  iconSize: size,
+                  onPressed: () {
+                    Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ProfileView()));
-                    },
-                    child: Icon(
-                      CupertinoIcons.person_fill,
-                      color: col,
-                      size: size,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(padding),
-                  child:  Icon(
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileView()));
+                  },
+                  icon: Icon(
                     CupertinoIcons.gear_solid,
-                    color:  col,
-                    size: size,
-                    semanticLabel: 'Text to announce in accessibility modes',
+                    color: col,
                   ),
                 ),
+              ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.all(padding),
-            child:  Icon(
-                    CupertinoIcons.cart_fill,
-                    color: col,
-                    size: size,
-                    semanticLabel: 'Text to announce in accessibility modes',
-                  ),
+          IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: size,
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ShopView()));
+            },
+            icon: Icon(
+              CupertinoIcons.cart_fill,
+              color: col,
+            ),
           ),
         ],
       ),
@@ -131,7 +158,7 @@ class WelcomeText extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 50),
+          padding: const EdgeInsets.only(bottom: 50, top: 10),
           child: SizedBox(
               width: double.infinity,
               child: Column(
@@ -139,7 +166,8 @@ class WelcomeText extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${'welcome_title'.tr} Michelle!',
-                      style: Theme.of(context).textTheme.bodyLarge),
+                      style: const TextStyle(
+                          fontSize: 40, fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                 ],
@@ -383,6 +411,9 @@ class TaskOverview extends StatefulWidget {
 }
 
 class _TaskState extends State<TaskOverview> {
+  final double size = 15;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -401,11 +432,53 @@ class _TaskState extends State<TaskOverview> {
           const Task(taskName: "mop the floor", taskStatus: 1),
           Padding(
             padding: const EdgeInsets.only(top: 10),
-            child: Text('SeeAllTasks_txt'.tr,
-                style: const TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196),
-                    fontSize: 20,
-                    fontFamily: "Karla")),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    
+                  },
+                  child: Row(
+                    children: [
+                      Text('SeeAllTasks_txt'.tr,
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 204, 198, 196),
+                              fontSize: size,
+                              fontFamily: "Karla",
+                              fontWeight: FontWeight.w500)),
+                      Container(width: 5),
+                      Icon(
+                        CupertinoIcons.arrow_right,
+                        color: col,
+                        size: size,
+                      )
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MainHouseholdOverview.route());
+                  },
+                  child: Row(
+                    children: [
+                      Text('See Household Tasks',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 204, 198, 196),
+                              fontSize: size,
+                              fontFamily: "Karla",
+                              fontWeight: FontWeight.w500)),
+                      Container(width: 5),
+                      Icon(
+                        CupertinoIcons.house,
+                        color: col,
+                        size: size,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -464,34 +537,6 @@ class Task extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class HouseholdOverview extends StatefulWidget {
-  const HouseholdOverview({super.key});
-
-  @override
-  State<HouseholdOverview> createState() => _HouseholdTaskState();
-}
-
-class _HouseholdTaskState extends State<HouseholdOverview> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(height: 100),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Text('${'Household_txt'.tr}Tasks',
-              style: Theme.of(context).textTheme.bodyLarge),
-        ),
-        const ButtonCompleted(
-            who: "Marvin", what: "do the dishes", time: "today"),
-        const Task(taskName: "pick up couch", taskStatus: 0)
-      ],
     );
   }
 }

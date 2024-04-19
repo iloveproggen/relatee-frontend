@@ -8,7 +8,7 @@ class LocaleString extends Translations {
           'welcome_message': 'Time to get productive.',
           'back_button_text': 'back',
           'Shop_title': 'Shop',
-          'Shop_info': 'Spend your hard earned points for goodies!',
+          'Shop_info': 'Spend your points for goodies!',
           'part_household': 'part of household ',
           'view_txt': 'view',
           'overdue_txt': 'overdue',
@@ -19,7 +19,7 @@ class LocaleString extends Translations {
           'Your_txt': 'Your',
           'leftThisWeek_txt': 'left this week',
           'doneThisWeek_txt': 'done this week',
-          'SeeAllTasks_txt': 'See all Tasks ->',
+          'SeeAllTasks_txt': 'See all Tasks',
           'Household_txt': 'Household ',
         },
         'de-DE': {
@@ -38,7 +38,7 @@ class LocaleString extends Translations {
           'Your_txt': 'Deine',
           'leftThisWeek_txt': 'diese Woche übrig',
           'doneThisWeek_txt': 'diese Woche erledigt',
-          'SeeAllTasks_txt': 'Siehe alle Tasks ->',
+          'SeeAllTasks_txt': 'Siehe alle Tasks',
           'Household_txt': 'Haushalt-',
         },
         'es-ES': {
@@ -57,7 +57,7 @@ class LocaleString extends Translations {
           'Your_txt': 'Tu',
           'leftThisWeek_txt': 'restante esta semana',
           'doneThisWeek_txt': 'hecho esta semana',
-          'SeeAllTasks_txt': 'Ver todas las tareas ->',
+          'SeeAllTasks_txt': 'Ver todas las tareas',
           'Household_txt': 'Hogar ',
         },
         'ko-KR': {
@@ -76,7 +76,7 @@ class LocaleString extends Translations {
           'Your_txt': '당신의',
           'leftThisWeek_txt': '이번 주 남은',
           'doneThisWeek_txt': '이번 주 완료됨',
-          'SeeAllTasks_txt': '모든 작업 보기 ->',
+          'SeeAllTasks_txt': '모든 작업 보기',
           'Household_txt': '가정 ',
         },
         'ja-JP': {
@@ -95,7 +95,7 @@ class LocaleString extends Translations {
           'Your_txt': 'あなたの',
           'leftThisWeek_txt': '今週残り',
           'doneThisWeek_txt': '今週完了',
-          'SeeAllTasks_txt': 'すべてのタスクを見る ->',
+          'SeeAllTasks_txt': 'すべてのタスクを見る',
           'Household_txt': '世帯 ',
         },
         'sv-SE': {
@@ -114,7 +114,7 @@ class LocaleString extends Translations {
           'Your_txt': 'Din',
           'leftThisWeek_txt': 'kvar den här veckan',
           'doneThisWeek_txt': 'gjort den här veckan',
-          'SeeAllTasks_txt': 'Se alla uppgifter ->',
+          'SeeAllTasks_txt': 'Se alla uppgifter',
           'Household_txt': 'Hushåll ',
         },
         'ru-RU': {
@@ -133,7 +133,7 @@ class LocaleString extends Translations {
           'Your_txt': 'Ваш',
           'leftThisWeek_txt': 'осталось на этой неделе',
           'doneThisWeek_txt': 'сделано на этой неделе',
-          'SeeAllTasks_txt': 'Посмотреть все задачи ->',
+          'SeeAllTasks_txt': 'Посмотреть все задачи',
           'Household_txt': 'Домашнее хозяйство ',
         },
       };

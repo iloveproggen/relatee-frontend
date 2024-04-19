@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+
 import 'assets/LocaleStrings.dart';
 
 void main() {
@@ -13,93 +16,87 @@ class FigmaToCodeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: LocaleString(),
-      locale: Locale('de-DE'),
-      fallbackLocale: Locale('en_US'),
+      locale: const Locale('de-DE'),
+      fallbackLocale: const Locale('en_US'),
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home: const Scaffold(
-        body: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: ShopView(),
-        ),
-      ),
-    );
+      home:const  ShopView(),
+        );
   }
 }
 
 class ShopView extends StatelessWidget {
   const ShopView({super.key});
 
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const ShopView();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 20),
-        const Text(
-          'The Shop',
-          style: TextStyle(
-            color: Color(0xFF4A4646),
-            fontSize: 40,
-            fontFamily: 'Karla',
-            fontWeight: FontWeight.w700,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          ('Shop_info'.tr),
-          style: TextStyle(
-            color: Color(0xFF4A4646),
-            fontSize: 20,
-            fontFamily: 'Karla',
-            fontWeight: FontWeight.w300,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: ListView(
-            scrollDirection: Axis.vertical,
-            children: List.generate(
-              5, // maximum number of items to be displayed initially
-              (index) => _buildItemCard(context, 'Item ${index + 1}', '500pts'),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.only(top: 120, left: 40, right: 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _buildBadge('1150 pts'),
-            const SizedBox(width: 20),
-            _buildBadge('lvl 25'),
-          ],
-        ),
-        const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
-            // Implement your back button functionality here
-          },
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.arrow_back, color: Color(0xFFD9D9D9)),
-              SizedBox(width: 5),
-              Text(
-                'back',
-                style: TextStyle(
-                  color: Color(0xFFD9D9D9),
-                  fontSize: 14,
-                  fontFamily: 'Karla',
-                  fontWeight: FontWeight.w700,
+            const BackIconRow(),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'The Shop',
+                  style: TextStyle(
+                    color: Color(0xFF4A4646),
+                    fontSize: 40,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Icon(
+                  size: 40,
+                  CupertinoIcons.cart_fill,
+                  color: Color.fromARGB(255, 204, 198, 196),
+                )
+              ],
+            ),
+            Text(
+              ('Shop_info'.tr),
+              style: const TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Karla",
+                  letterSpacing: 0),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                scrollDirection: Axis.vertical,
+                children: List.generate(
+                  5, // maximum number of items to be displayed initially
+                  (index) => _buildItemCard(context, 'Item ${index + 1}', '500pts'),
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildBadge('1150 pts'),
+                const SizedBox(width: 20),
+                _buildBadge('lvl 25'),
+              ],
+            ),
+            const SizedBox(height: 20)
+          ],
         ),
-      ],
+      ),
     );
   }
 
