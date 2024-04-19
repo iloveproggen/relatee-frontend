@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,6 +10,7 @@ void main() {
   runApp(const MainWidget());
 }
 //hi Michelle bug fising
+//hi maurice 
 // MainWidget
 
 class MainWidget extends StatelessWidget {
@@ -18,8 +20,8 @@ class MainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: LocaleString(),
-      locale: const Locale('en_US'),
-      fallbackLocale: const Locale('en_US'),
+      locale: const Locale('ru-RU'),
+      fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -82,7 +84,7 @@ class WelcomeText extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [Text("ico"), Text("ico2")]),
               ),
-              Text("Welcome, Michelle!",
+              Text('${'welcome_title'.tr} Michelle!',
                   style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
@@ -295,23 +297,23 @@ class ButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
         child: Row(
       children: <Widget>[
         Expanded(
             child: Padding(
-          padding: EdgeInsets.only(right: 15),
+          padding: const EdgeInsets.only(right: 15),
           child: ButtonShort(
             number: "10",
-            textBelow: "left this week",
+            textBelow: 'leftThisWeek_txt'.tr,
           ),
         )),
         Expanded(
             child: Padding(
-          padding: EdgeInsets.only(left: 15),
+          padding: const EdgeInsets.only(left: 15),
           child: ButtonShort(
             number: "2",
-            textBelow: "done this week",
+            textBelow: ('doneThisWeek_txt'.tr),
           ),
         )),
       ],
@@ -337,17 +339,17 @@ class _TaskState extends State<TaskOverview> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 50, bottom: 20),
-            child: Text("Your Tasks",
+            child: Text('${'Your_txt'.tr} Tasks',
                 style: Theme.of(context).textTheme.bodyLarge),
           ),
           const ButtonRow(),
           const Task(taskName: "do the dishes", taskStatus: 2),
           const Task(
-              taskName: "mop the floor (maurice pissed on it)", taskStatus: 1),
-          const Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text("See all Tasks ->",
-                style: TextStyle(
+              taskName: "mop the floor", taskStatus: 1),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text('SeeAllTasks_txt'.tr,
+                style: const TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
                     fontSize: 20,
                     fontFamily: "Karla")),
@@ -430,7 +432,7 @@ class _HouseholdTaskState extends State<HouseholdOverview> {
         Container(height: 100),
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: Text("Household Tasks",
+          child: Text('${'Household_txt'.tr}Tasks',
               style: Theme.of(context).textTheme.bodyLarge),
         ),
         const ButtonCompleted(
