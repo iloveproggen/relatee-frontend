@@ -1,6 +1,6 @@
 # frontend_v1
 
-A new Flutter project.
+FrontEnd Repository für die App "Relatee"
 
 ## Getting Started
 
