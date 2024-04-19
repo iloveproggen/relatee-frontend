@@ -5,13 +5,13 @@ void main() {
 }
 
 class Leaderboard extends StatelessWidget {
-  const Leaderboard({Key? key}) : super(key: key);
+  const Leaderboard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Container(
+        body: SizedBox(
           width: double.infinity,
           height: double.infinity,
           child: Stack(
@@ -24,10 +24,10 @@ class Leaderboard extends StatelessWidget {
               Positioned(
                 left: MediaQuery.of(context).size.width * 0.085,
                 top: MediaQuery.of(context).size.height * 0.046,
-                child: Text(
+                child: const Text(
                   'Members',
                   style: TextStyle(
-                    color: const Color(0xFF4A4646),
+                    color: Color(0xFF4A4646),
                     fontSize: 24,
                     fontFamily: 'Karla',
                     fontWeight: FontWeight.w700,
@@ -37,7 +37,7 @@ class Leaderboard extends StatelessWidget {
               Positioned(
                 left: MediaQuery.of(context).size.width * 0.085,
                 top: MediaQuery.of(context).size.height * 0.386,
-                child: Container(
+                child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.832,
                   height: MediaQuery.of(context).size.height * 0.34,
                   child: Stack(
@@ -93,15 +93,15 @@ class Leaderboard extends StatelessWidget {
                           decoration: ShapeDecoration(
                             color: const Color(0xFFD9D9D9),
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(
+                              side: const BorderSide(
                                 width: 3,
-                                color: const Color(0xFF39555E),
+                                color: Color(0xFF39555E),
                               ),
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.width * 0.5),
                             ),
                           ),
-                          child: CircleAvatar(
+                          child: const CircleAvatar(
                             backgroundImage: NetworkImage(
                                 "https://via.placeholder.com/75x75"),
                           ),
@@ -116,15 +116,15 @@ class Leaderboard extends StatelessWidget {
                           decoration: ShapeDecoration(
                             color: const Color(0xFFD9D9D9),
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(
+                              side: const BorderSide(
                                 width: 3,
-                                color: const Color(0xFF39555E),
+                                color: Color(0xFF39555E),
                               ),
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.width * 0.5),
                             ),
                           ),
-                          child: CircleAvatar(
+                          child: const CircleAvatar(
                             backgroundImage: NetworkImage(
                                 "https://via.placeholder.com/84x84"),
                           ),
@@ -133,13 +133,13 @@ class Leaderboard extends StatelessWidget {
                       Positioned(
                         left: MediaQuery.of(context).size.width * 0.436,
                         top: MediaQuery.of(context).size.height * 0.239,
-                        child: Text.rich(
+                        child: const Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(
                                 text: '1',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 24,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
@@ -148,7 +148,7 @@ class Leaderboard extends StatelessWidget {
                               TextSpan(
                                 text: 'ST',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 15,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
@@ -161,13 +161,13 @@ class Leaderboard extends StatelessWidget {
                       Positioned(
                         left: MediaQuery.of(context).size.width * 0.151,
                         top: MediaQuery.of(context).size.height * 0.403,
-                        child: Text.rich(
+                        child: const Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(
                                 text: '3',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 24,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
@@ -176,7 +176,7 @@ class Leaderboard extends StatelessWidget {
                               TextSpan(
                                 text: 'RD',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 15,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
@@ -189,13 +189,13 @@ class Leaderboard extends StatelessWidget {
                       Positioned(
                         left: MediaQuery.of(context).size.width * 0.566,
                         top: MediaQuery.of(context).size.height * 0.369,
-                        child: Text.rich(
+                        child: const Text.rich(
                           TextSpan(
                             children: [
                               TextSpan(
                                 text: '2',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 24,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
@@ -204,7 +204,7 @@ class Leaderboard extends StatelessWidget {
                               TextSpan(
                                 text: 'ND',
                                 style: TextStyle(
-                                  color: const Color(0xFFF3F3F3),
+                                  color: Color(0xFFF3F3F3),
                                   fontSize: 15,
                                   fontFamily: 'Karla',
                                   fontWeight: FontWeight.w800,
