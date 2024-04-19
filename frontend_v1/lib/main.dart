@@ -7,7 +7,7 @@ import 'assets/LocaleStrings.dart';
 void main() {
   runApp(const MainWidget());
 }
-
+//hi Michelle bug fising
 // MainWidget
 
 class MainWidget extends StatelessWidget {
