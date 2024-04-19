@@ -21,6 +21,7 @@ class LocaleString extends Translations {
           'doneThisWeek_txt': 'done this week',
           'SeeAllTasks_txt': 'See all Tasks ->',
           'Household_txt': 'Household ',
+          'Members_txt': 'Members',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -40,6 +41,7 @@ class LocaleString extends Translations {
           'doneThisWeek_txt': 'diese Woche erledigt',
           'SeeAllTasks_txt': 'Siehe alle Tasks ->',
           'Household_txt': 'Haushalt-',
+          'Members_txt': 'Mitglieder',
         },
         'es-ES': {
           'welcome_title': 'Bienvenido',

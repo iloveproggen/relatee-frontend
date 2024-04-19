@@ -50,7 +50,7 @@ class ShopView extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           ('Shop_info'.tr),
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF4A4646),
             fontSize: 20,
             fontFamily: 'Karla',
