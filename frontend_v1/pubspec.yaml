@@ -35,6 +35,9 @@ dependencies:
   #for the translations
   flutter_localizations:
     sdk: flutter
+  devicelocale: ^0.7.1
+
+
   flutter_svg: ^2.0.5
 
 
