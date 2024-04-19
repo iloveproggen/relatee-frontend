@@ -35,7 +35,7 @@ class MainHouseholdOverview extends StatelessWidget {
     return const Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 120, left: 40, right: 40),
+          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
               BackIconRow(),

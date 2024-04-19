@@ -1,5 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
@@ -55,6 +59,8 @@ class MainApp extends StatelessWidget {
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key});
 
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+
   static Route<dynamic> route() {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
@@ -68,14 +74,15 @@ class MainWidget extends StatelessWidget {
     return const Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 120, left: 40, right: 40),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            IconRow(),
-            WelcomeText(),
-            ButtonRecommended(task: "do the dishes"),
-            TaskOverview(),
-          ]),
+          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconRow(),
+                WelcomeText(),
+                ButtonRecommended(task: "do the dishes"),
+                TaskOverview(),
+              ]),
         ),
       ),
     );
@@ -416,72 +423,68 @@ class _TaskState extends State<TaskOverview> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 50, bottom: 20),
-            child: Text('${'Your_txt'.tr} Tasks',
-                style: Theme.of(context).textTheme.bodyLarge),
-          ),
-          const ButtonRow(),
-          const Task(taskName: "do the dishes", taskStatus: 2),
-          const Task(taskName: "mop the floor", taskStatus: 1),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    
-                  },
-                  child: Row(
-                    children: [
-                      Text('SeeAllTasks_txt'.tr,
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 204, 198, 196),
-                              fontSize: size,
-                              fontFamily: "Karla",
-                              fontWeight: FontWeight.w500)),
-                      Container(width: 5),
-                      Icon(
-                        CupertinoIcons.arrow_right,
-                        color: col,
-                        size: size,
-                      )
-                    ],
-                  ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Text('${'Your_txt'.tr} Tasks',
+              style: Theme.of(context).textTheme.bodyLarge),
+        ),
+        Container(height: 10),
+        const ButtonRow(),
+        const Task(taskName: "do the dishes", taskStatus: 2),
+        const Task(taskName: "mop the floor", taskStatus: 1),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {},
+                child: Row(
+                  children: [
+                    Text('SeeAllTasks_txt'.tr,
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 204, 198, 196),
+                            fontSize: size,
+                            fontFamily: "Karla",
+                            fontWeight: FontWeight.w500)),
+                    Container(width: 5),
+                    Icon(
+                      CupertinoIcons.arrow_right,
+                      color: col,
+                      size: size,
+                    )
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MainHouseholdOverview.route());
-                  },
-                  child: Row(
-                    children: [
-                      Text('See Household Tasks',
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 204, 198, 196),
-                              fontSize: size,
-                              fontFamily: "Karla",
-                              fontWeight: FontWeight.w500)),
-                      Container(width: 5),
-                      Icon(
-                        CupertinoIcons.house,
-                        color: col,
-                        size: size,
-                      ),
-                    ],
-                  ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MainHouseholdOverview.route());
+                },
+                child: Row(
+                  children: [
+                    Text('See Household Tasks',
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 204, 198, 196),
+                            fontSize: size,
+                            fontFamily: "Karla",
+                            fontWeight: FontWeight.w500)),
+                    Container(width: 5),
+                    Icon(
+                      CupertinoIcons.house,
+                      color: col,
+                      size: size,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

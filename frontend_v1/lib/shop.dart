@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -41,7 +42,7 @@ class ShopView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 120, left: 40, right: 40),
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -79,7 +80,7 @@ class ShopView extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.vertical,
                 children: List.generate(
-                  5, // maximum number of items to be displayed initially
+                  5,
                   (index) => _buildItemCard(context, 'Item ${index + 1}', '500pts'),
                 ),
               ),
@@ -93,7 +94,7 @@ class ShopView extends StatelessWidget {
                 _buildBadge('lvl 25'),
               ],
             ),
-            const SizedBox(height: 20)
+            const SizedBox(height: 50)
           ],
         ),
       ),

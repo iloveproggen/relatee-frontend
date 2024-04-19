@@ -48,7 +48,7 @@ class ProfileView extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 120, left: 40, right: 40),
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
