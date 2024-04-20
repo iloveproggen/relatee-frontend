@@ -17,7 +17,7 @@ class MainWidget extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Karla',
         textTheme: const TextTheme(
-          bodyText1: TextStyle(
+          bodyLarge: TextStyle(
               color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
         ),
         scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
