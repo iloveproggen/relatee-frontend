@@ -48,14 +48,9 @@ class MainHouseholdOverview extends StatelessWidget {
   }
 }
 
-class HouseholdOverview extends StatefulWidget {
+class HouseholdOverview extends StatelessWidget {
   const HouseholdOverview({super.key});
 
-  @override
-  State<HouseholdOverview> createState() => _HouseholdTaskState();
-}
-
-class _HouseholdTaskState extends State<HouseholdOverview> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -65,6 +60,28 @@ class _HouseholdTaskState extends State<HouseholdOverview> {
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
           child: Text('${'Household_txt'.tr}Tasks',
+              style: Theme.of(context).textTheme.bodyLarge),
+        ),
+        const ButtonCompleted(
+            who: "Marvin", what: "do the dishes", time: "today"),
+        const Task(taskName: "pick up couch", taskStatus: 0)
+      ],
+    );
+  }
+}
+
+class HouseholdMembers extends StatelessWidget {
+  const HouseholdMembers({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Text('HouseholdMembers_txt'.tr,
               style: Theme.of(context).textTheme.bodyLarge),
         ),
         const ButtonCompleted(

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/new_task.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 
@@ -23,7 +25,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('en-US'),
+        locale: const Locale('sv-SE'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -121,11 +123,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfileView()));
-                  },
+                    Navigator.of(context).push(Settings.route());},
                   icon: Icon(
                     CupertinoIcons.gear_solid,
                     color: col,
@@ -138,9 +136,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const ShopView()));
-            },
+               Navigator.of(context).push(ShopView.route());},
             icon: Icon(
               CupertinoIcons.cart_fill,
               color: col,
@@ -425,8 +421,23 @@ class _TaskState extends State<TaskOverview> {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 50),
-          child: Text('${'Your_txt'.tr} Tasks',
-              style: Theme.of(context).textTheme.bodyLarge),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('${'Your_txt'.tr} Tasks',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              TextButton(
+                onPressed: (){
+                  Navigator.of(context).push(CreateTaskView.route());
+                },
+                child: Icon(
+                  CupertinoIcons.add,
+                  color: col,
+                  size: 35)
+              )
+            ],
+          ),
         ),
         Container(height: 10),
         const ButtonRow(),
@@ -462,13 +473,6 @@ class _TaskState extends State<TaskOverview> {
                 },
                 child: Row(
                   children: [
-                    Text('See Household Tasks',
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 204, 198, 196),
-                            fontSize: size,
-                            fontFamily: "Karla",
-                            fontWeight: FontWeight.w500)),
-                    Container(width: 5),
                     Icon(
                       CupertinoIcons.house,
                       color: col,
