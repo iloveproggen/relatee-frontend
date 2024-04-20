@@ -1,178 +1,144 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
+import 'package:get/get.dart';
+
+import 'assets/LocaleStrings.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
 }
 
 class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({Key? key}) : super(key: key);
+  const FigmaToCodeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
-      ),
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: ProfileView(),
-        ),
-      ),
+    return GetMaterialApp(
+      translations: LocaleString(),
+      locale: const Locale('en-US'),
+      fallbackLocale: const Locale('en-US'),
+      home: const ProfileView(),
     );
   }
 }
 
+String getDueDaysInText(int days) {
+  if (days == 1) {
+    return 'day_txt'.tr;
+  } else {
+    return 'days_txt'.tr;
+  }
+}
+
 class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
+
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const ProfileView();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Container(
-      width: screenWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(
-            height: 20,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: Column(
-              children: [
-                SizedBox(
-                  width: screenWidth * 0.26,
-                  height: screenWidth * 0.26,
-                  child: Stack(
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const BackIconRow(),
+              Column(
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: const ShapeDecoration(
+                        shape: CircleBorder(
+                          side: BorderSide(
+                            width: 6,
+                            color: Color.fromARGB(255, 114, 111, 110),
+                          ),
+                        ),
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              "https://fakeimg.pl/200x200/f7f7f7/9c9390?font=bebas"),
+                          fit: BoxFit.fill,
+                        )),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: screenWidth * 0.26,
-                        height: screenWidth * 0.26,
-                        decoration: const ShapeDecoration(
-                          color: Color(0xFFD9D9D9),
-                          shape: CircleBorder(
-                            side: BorderSide(
-                              width: 5,
-                              color: Color(0xFF39555E),
-                            ),
-                          ),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 50, right: 10, bottom: 50),
+                        child: _buildInfoContainer('1150 pts'),
                       ),
-                      Container(
-                        width: screenWidth * 0.26,
-                        height: screenWidth * 0.26,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                                "https://via.placeholder.com/185x176"),
-                            fit: BoxFit.fill,
-                          ),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, bottom: 50),
+                        child: _buildInfoContainer('lvl 25'),
                       ),
                     ],
                   ),
+                ],
+              ),
+              const Text(
+                'Michelle Gerwald',
+                style: TextStyle(
+                  color: Color(0xFF4A4646),
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              RichText(
+                text: TextSpan(
                   children: [
-                    _buildInfoContainer('1150 pts'),
-                    const SizedBox(width: 10),
-                    _buildInfoContainer('lvl 25'),
+                    TextSpan(
+                      text: ('part_household'.tr),
+                      style: const TextStyle(
+                        color: Color(0xFF4A4646),
+                        fontSize: 15,
+                        fontFamily: 'Karla',
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: '"Campus Living"',
+                      style: TextStyle(
+                        color: Color(0xFF4A4646),
+                        fontSize: 15,
+                        fontFamily: 'Karla',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Michelle Gerwald',
-            style: TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 32,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 10),
-          RichText(
-            text: const TextSpan(
-              children: [
-                TextSpan(
-                  text: 'part of household "',
-                  style: TextStyle(
-                    color: Color(0xFF4A4646),
-                    fontSize: 16,
-                    fontFamily: 'Karla',
-                    fontWeight: FontWeight.w300,
-                  ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '@michiee123',
+                style: TextStyle(
+                  color: Color(0xFF4A4646),
+                  fontSize: 16,
+                  fontFamily: 'Karla',
+                  fontWeight: FontWeight.w300,
                 ),
-                TextSpan(
-                  text: 'Campus Living',
-                  style: TextStyle(
-                    color: Color(0xFF4A4646),
-                    fontSize: 16,
-                    fontFamily: 'Karla',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                TextSpan(
-                  text: '"',
-                  style: TextStyle(
-                    color: Color(0xFF4A4646),
-                    fontSize: 16,
-                    fontFamily: 'Karla',
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
+                textAlign: TextAlign.center,
+              ),
+              const Divider(
+                  color: Color(0xFFEDECEC), height: 100, thickness: 2),
+              const TaskOverview(),
+            ],
           ),
-          const SizedBox(height: 10),
-          const Text(
-            '@michiee123',
-            style: TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 16,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w300,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          const Divider(
-            color: Color(0xFFB4B4B4),
-            height: 20,
-            thickness: 2,
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'View Michelle’s Tasks',
-            style: TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 24,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 10),
-          const TaskItem(
-            title: 'do the dishes',
-            status: 'overdue',
-          ),
-          const TaskItem(
-            title: 'take out trash',
-            status: 'due in 2 days',
-          ),
-          const TaskItem(
-            title: 'mop floor',
-            status: 'due in 2 days',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -198,42 +164,114 @@ class ProfileView extends StatelessWidget {
   }
 }
 
-class TaskItem extends StatelessWidget {
-  final String title;
-  final String status;
+class BackIconRow extends StatelessWidget {
+  const BackIconRow({super.key});
 
-  const TaskItem({
-    super.key,
-    required this.title,
-    required this.status,
-  });
+  final double padding = 20;
+  final double size = 40;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 20,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w400,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: padding),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,),
+              onPressed: () {
+                Navigator.of(context).push(MainWidget.route());
+              },
+              child: Row(
+                children: [
+                  Icon(
+                    CupertinoIcons.arrowtriangle_left_fill,
+                    color: col,
+                    size: 18,
+                  ),
+                  Container(width: 5),
+                  // Icon(
+                  //   CupertinoIcons.house_fill,
+                  //   color: col,
+                  //   size: 18,
+                  // )
+                  const Text("back",
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 204, 198, 196),
+                          fontSize: 15,
+                          fontFamily: "Karla",
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
-            overflow: TextOverflow.ellipsis,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class TaskOverview extends StatelessWidget {
+  const TaskOverview({super.key});
+
+  final double size = 15;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 20),
+          child:
+              Text('Their Tasks', style: Theme.of(context).textTheme.bodyLarge),
         ),
-        Text(
-          status,
-          style: TextStyle(
-            color: status == 'overdue'
-                ? const Color(0xFFEC5656)
-                : const Color(0xFFB4B4B4),
-            fontSize: 20,
-            fontFamily: 'Karla',
-            fontWeight: FontWeight.w400,
+        const Task(taskName: "do the dishes", taskStatus: 2),
+        const Task(taskName: "mop the floor", taskStatus: 1),
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 50),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text('SeeAllTasks_txt'.tr,
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 204, 198, 196),
+                          fontSize: size,
+                          fontFamily: "Karla",
+                          fontWeight: FontWeight.w500)),
+                  Container(width: 5),
+                  Icon(
+                    CupertinoIcons.arrow_right,
+                    color: col,
+                    size: size,
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  Text('See Household Tasks',
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 204, 198, 196),
+                          fontSize: size,
+                          fontFamily: "Karla",
+                          fontWeight: FontWeight.w500)),
+                  Container(width: 5),
+                  Icon(
+                    CupertinoIcons.house,
+                    color: col,
+                    size: size,
+                  )
+                ],
+              ),
+            ],
           ),
         ),
       ],
