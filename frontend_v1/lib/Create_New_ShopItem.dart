@@ -50,7 +50,7 @@ class CustomTextField extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(top: 100, left: 40),
+              padding: EdgeInsets.only(top: 100, left: 20),
               child: TextFormField(
                 decoration: InputDecoration.collapsed(
                   hintText: 'new item..',
@@ -74,10 +74,10 @@ class Price extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(top: 100, left: 20),
-          child: Icon(CupertinoIcons.add, size: 25),
+          child: Icon(CupertinoIcons.add_circled, size: 30),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 90, left: 20),
+          padding: EdgeInsets.only(top: 90, left: 10),
           child: Text(
             'price:',
             style: TextStyle(
@@ -87,14 +87,12 @@ class Price extends StatelessWidget {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(top: 90, right: 60, left: 150),
+            padding: EdgeInsets.only(top: 90, left: 50),
             child: TextField(
-              textAlign: TextAlign.end,
+              textAlign: TextAlign.start,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(right: 25, bottom: 5),
-                filled: true,
-                fillColor: Color.fromARGB(220, 220, 220, 220),
                 hintText: "price",
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color.fromARGB(0, 0, 0, 0)),
@@ -129,7 +127,7 @@ class _SliderWidgetState extends State<SliderWidget> {
       child: Padding( // Hinzufügen von Padding um den Container
         padding: EdgeInsets.only(top: 60.0), // Verschieben Sie den Slider nach unten
         child: Container(
-          width: 327,
+          width: 386,
           height: 46,
           decoration: BoxDecoration(
             color: Color(0x7FD9D9D9),
@@ -142,7 +140,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                 duration: Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Container(
-                  width: 165,
+                  width: 193,
                   height: 46,
                   decoration: BoxDecoration(
                     color: Color(0xFFD9D9D9),
@@ -155,7 +153,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Permanent',
+                        'permanent',
                         style: TextStyle(
                           color: _isPermanent ? Colors.black : Color(0xFF4A4646),
                           fontSize: 20,
@@ -169,7 +167,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Only once',
+                        'only once',
                         style: TextStyle(
                           color: !_isPermanent ? Colors.black : Color(0xFF4A4646),
                           fontSize: 20,
