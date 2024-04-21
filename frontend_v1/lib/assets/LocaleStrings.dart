@@ -22,7 +22,8 @@ class LocaleString extends Translations {
           'SeeAllTasks_txt': 'See all Tasks',
           'Household_txt': 'Household ',
           'HouseholdMembers_txt': "Household Members",
-          'settings_txt': "Settings"
+          'settings_txt': "Settings",
+          'Members_txt': 'Members',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -42,8 +43,7 @@ class LocaleString extends Translations {
           'doneThisWeek_txt': 'diese Woche erledigt',
           'SeeAllTasks_txt': 'Siehe alle Tasks',
           'Household_txt': 'Haushalt-',
-          'HouseholdMembers_txt': "Haushaltsmitglieder",
-          'settings_txt': "Einstellungen"
-        },
+          'Members_txt': 'Mitglieder',
+        }
       };
 }

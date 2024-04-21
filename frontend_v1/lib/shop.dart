@@ -95,7 +95,7 @@ class _ShopIconState extends State<ShopIcon>
 class ShopView extends StatelessWidget {
   const ShopView({super.key});
 
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243) ;
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
   final Color colText = const Color(0xFF4A4646);
 
@@ -129,14 +129,11 @@ class ShopView extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                onPressed: (){
-                  Navigator.of(context).push(NewShopItem.route());
-                },
-                child: const Icon(
-                  CupertinoIcons.add,
-                  color:  Color.fromARGB(255, 204, 198, 196),
-                  size: 35)
-              )
+                    onPressed: () {
+                      Navigator.of(context).push(NewShopItem.route());
+                    },
+                    child: const Icon(CupertinoIcons.add,
+                        color: Color.fromARGB(255, 204, 198, 196), size: 35))
               ],
             ),
             Text(
@@ -153,8 +150,8 @@ class ShopView extends StatelessWidget {
                 scrollDirection: Axis.vertical,
                 children: List.generate(
                   2,
-                  (index) =>
-                      _buildItemCard(context, 'Item Name No ${index + 1}', '500pts'),
+                  (index) => _buildItemCard(
+                      context, 'Item Name No ${index + 1}', '500pts'),
                 ),
               ),
             ),
@@ -195,7 +192,7 @@ class ShopView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left:20),
+            padding: const EdgeInsets.only(left: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,17 +228,18 @@ class ShopView extends StatelessWidget {
                   color: colMid,
                 ),
                 child: const Padding(
-                  padding: EdgeInsets.only(top:10, bottom: 10, left: 15, right: 15),
+                  padding:
+                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                   child: Align(
                     alignment: Alignment.center,
                     child: Text(
-                        "BUY",
-                        style: TextStyle(
-                            fontFamily: "Karla",
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 243, 243, 243)),
-                        ),
+                      "BUY",
+                      style: TextStyle(
+                          fontFamily: "Karla",
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 243, 243, 243)),
+                    ),
                   ),
                 )),
           )
