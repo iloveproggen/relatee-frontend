@@ -21,7 +21,6 @@ class MainLeaderboard extends StatelessWidget {
           child: Column(
             children: [
               MembersText(),
-              LeaderBoardMemberImages(),
               ChartLeaderboard(),
             ],
           ),
@@ -53,122 +52,135 @@ class ChartLeaderboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+
     return SizedBox(
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-                width: 250,
-                height: 200,
-                decoration: const BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.all(Radius.circular(25))),
-                child: const Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Text(
-                    'rd',
-                    style: TextStyle(
-                      fontSize: 20,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 2,
+                  bottom: 2,
+                ),
+                child: Container(
+                    width: width * 0.2,
+                    height: height * 0.4,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                    width: width * 0.2,
+                    height: height * 0.1,
+                    decoration: const BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.all(Radius.circular(25))),
+                    child: const Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Text(
+                        'rd',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )),
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 0,
+                  bottom: 0,
+                ),
+                child: Container(
+                    width: width * 0.2,
+                    height: height * 0.4,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    )),
+              ),
+              SizedBox(
+                height: height * 0.05,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  width: width * 0.2,
+                  height: height * 0.3,
+                  decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(25))),
+                  child: const Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Text(
+                      'st',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              width: 250,
-              height: 500,
-              decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(25))),
-              child: const Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Text(
-                  'st',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              width: 250,
-              height: 350,
-              decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(25))),
-              child: const Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Text(
-                  'nd',
-                  style: TextStyle(
-                    fontSize: 20,
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 0,
+                  bottom: 0,
+                ),
+                child: Container(
+                    width: width * 0.2,
+                    height: height * 0.4,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    )),
+              ),
+              SizedBox(
+                height: height * 0.05,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  width: width * 0.2,
+                  height: height * 0.2,
+                  decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(25))),
+                  child: const Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Text(
+                      'nd',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
-    );
-  }
-}
-
-class LeaderBoardMemberImages extends StatelessWidget {
-  const LeaderBoardMemberImages({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 0,
-                bottom: 0,
-              ),
-              child: Container(
-                  width: 250,
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Container(
-                  width: 250,
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Container(
-                  width: 250,
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  )),
-            ),
-          ]),
     );
   }
 }
