@@ -136,7 +136,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-               Navigator.of(context).push(ShopView.route());},
+              Navigator.of(context).push(ShopView.route());},
             icon: Icon(
               CupertinoIcons.cart_fill,
               color: col,
