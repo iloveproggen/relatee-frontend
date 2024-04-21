@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
-
 import 'assets/LocaleStrings.dart';
 
 void main() {
@@ -183,30 +182,34 @@ class BackIconRow extends StatelessWidget {
             padding: EdgeInsets.only(right: padding),
             child: TextButton(
               style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,),
+                padding: EdgeInsets.zero,
+              ),
               onPressed: () {
                 Navigator.of(context).push(MainWidget.route());
               },
-              child: Row(
-                children: [
-                  Icon(
-                    CupertinoIcons.arrowtriangle_left_fill,
-                    color: col,
-                    size: 18,
-                  ),
-                  Container(width: 5),
-                  // Icon(
-                  //   CupertinoIcons.house_fill,
-                  //   color: col,
-                  //   size: 18,
-                  // )
-                  const Text("back",
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
-                          fontSize: 15,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.bold)),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2, right: 3, bottom: 2),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.arrowtriangle_left_fill,
+                      color: col,
+                      size: 18,
+                    ),
+                    Container(width: 5),
+                    // Icon(
+                    //   CupertinoIcons.house_fill,
+                    //   color: col,
+                    //   size: 18,
+                    // )
+                    Text('back_txt'.tr,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 204, 198, 196),
+                            fontSize: 15,
+                            fontFamily: "Karla",
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
             ),
           ),

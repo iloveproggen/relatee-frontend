@@ -1,15 +1,23 @@
 // ignore: file_names
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'assets/LocaleStrings.dart';
 
 void main() {
-  runApp(const MainLeaderboard());
+  runApp(const MainLeaderboardView());
 }
 
-class MainLeaderboard extends StatelessWidget {
-  const MainLeaderboard({super.key});
+class MainLeaderboardView extends StatelessWidget {
+  const MainLeaderboardView({super.key});
+
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const MainLeaderboardView();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
