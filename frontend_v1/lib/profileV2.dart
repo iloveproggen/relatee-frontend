@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 
@@ -255,21 +256,15 @@ class TaskOverview extends StatelessWidget {
                   )
                 ],
               ),
-              Row(
-                children: [
-                  Text('See Household Tasks',
-                      style: TextStyle(
-                          color: const Color.fromARGB(255, 204, 198, 196),
-                          fontSize: size,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.w500)),
-                  Container(width: 5),
-                  Icon(
-                    CupertinoIcons.house,
-                    color: col,
-                    size: size,
-                  )
-                ],
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MainHouseholdOverview.route());
+                },
+                child: Icon(
+                  CupertinoIcons.house,
+                  color: col,
+                  size: size,
+                ),
               ),
             ],
           ),

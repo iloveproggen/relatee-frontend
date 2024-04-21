@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
-import 'package:frontend_v1/new_task.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('en-US '),
+        locale: const Locale('en-US'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -429,7 +429,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyLarge),
               TextButton(
                 onPressed: (){
-                  Navigator.of(context).push(CreateTaskView.route());
+                  Navigator.of(context).push(NewTask.route());
                 },
                 child: Icon(
                   CupertinoIcons.add,

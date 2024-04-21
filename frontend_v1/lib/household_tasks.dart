@@ -99,7 +99,7 @@ class Member extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top:10),
+      padding: const EdgeInsets.only(top:15),
       child: TextButton(
         onPressed: () {
           Navigator.of(context).push(ProfileView.route());

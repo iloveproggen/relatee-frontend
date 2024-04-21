@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:frontend_v1/profileV2.dart';
 
 void main() {
   runApp(const MainWidget());
@@ -12,23 +12,44 @@ class MainWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        fontFamily: 'Karla',
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(
-              color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          fontFamily: 'Karla',
+          textTheme: const TextTheme(
+            bodyLarge:
+                TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
+          ),
+          scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
         ),
-        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const Scaffold(
-        body: SingleChildScrollView(
+        home: const NewTask());
+  }
+}
+
+class NewTask extends StatelessWidget {
+  const NewTask({super.key});
+
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const NewTask();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
+              BackIconRow(),
               CustomTextField(),
               SliderWidgetRepeat(),
               SliderWidgetWho(),
+              SizedBox(height: 40),
               AssignTo(),
               Repeats()
             ],
@@ -48,14 +69,14 @@ class CustomTextField extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: Form(
         child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 100, left: 20),
-              child: TextFormField(
-                decoration: const InputDecoration.collapsed(
-                  hintText: 'new task..',
-                ),
-                style: const TextStyle(fontSize: 30, color: Colors.black),
+          children: [
+            TextFormField(
+              decoration: const InputDecoration.collapsed(
+                hintText: 'new task..',
+              ),
+              style: const TextStyle(
+                fontSize: 30,
+                color: Color.fromARGB(255, 74, 70, 70),
               ),
             ),
           ],
@@ -69,8 +90,9 @@ class SliderWidgetRepeat extends StatefulWidget {
   const SliderWidgetRepeat({super.key});
 
   @override
-  _SliderWidgetState createState() => _SliderWidgetState();
+  State<SliderWidgetRepeat> createState() => _SliderWidgetState();
 }
+
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
   bool _isPermanent = true;
 
@@ -82,8 +104,10 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
           _isPermanent = !_isPermanent;
         });
       },
-      child: Padding( // Hinzufügen von Padding um den Container
-        padding: const EdgeInsets.only(top: 60.0), // Verschieben Sie den Slider nach unten
+      child: Padding(
+        // Hinzufügen von Padding um den Container
+        padding: const EdgeInsets.only(
+            top: 60.0), // Verschieben Sie den Slider nach unten
         child: Container(
           width: 386,
           height: 46,
@@ -94,7 +118,8 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
           child: Stack(
             children: [
               AnimatedAlign(
-                alignment: _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
+                alignment:
+                    _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Container(
@@ -113,10 +138,13 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                       child: Text(
                         'repeat',
                         style: TextStyle(
-                          color: _isPermanent ? Colors.black : const Color(0xFF4A4646),
+                          color: _isPermanent
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
                           fontSize: 20,
                           fontFamily: 'Karla',
-                          fontWeight: _isPermanent ? FontWeight.w700 : FontWeight.w300,
+                          fontWeight:
+                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
                           height: 0,
                         ),
                       ),
@@ -127,10 +155,13 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                       child: Text(
                         'only once',
                         style: TextStyle(
-                          color: !_isPermanent ? Colors.black : const Color(0xFF4A4646),
+                          color: !_isPermanent
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
                           fontSize: 20,
                           fontFamily: 'Karla',
-                          fontWeight: !_isPermanent ? FontWeight.w700 : FontWeight.w300,
+                          fontWeight:
+                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
                           height: 0,
                         ),
                       ),
@@ -150,7 +181,7 @@ class SliderWidgetWho extends StatefulWidget {
   const SliderWidgetWho({super.key});
 
   @override
-  _SliderWidgetStateWho createState() => _SliderWidgetStateWho();
+  State<SliderWidgetWho> createState() => _SliderWidgetStateWho();
 }
 
 class _SliderWidgetStateWho extends State<SliderWidgetWho> {
@@ -209,17 +240,23 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
                       width: 193,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: _selectedOption == i ? const Color(0xFFD9D9D9) : Colors.transparent,
+                        color: _selectedOption == i
+                            ? const Color(0xFFD9D9D9)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Center(
                         child: Text(
                           _getOptionText(i),
                           style: TextStyle(
-                            color: _selectedOption == i ? Colors.black : const Color(0xFF4A4646),
+                            color: _selectedOption == i
+                                ? Colors.black
+                                : const Color(0xFF4A4646),
                             fontSize: 20,
                             fontFamily: 'Karla',
-                            fontWeight: _selectedOption == i ? FontWeight.w700 : FontWeight.w300,
+                            fontWeight: _selectedOption == i
+                                ? FontWeight.w700
+                                : FontWeight.w300,
                             height: 0,
                           ),
                         ),
@@ -256,27 +293,33 @@ class AssignTo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(left: 20, top: 75),
-        child: Icon(CupertinoIcons.person_alt_circle_fill, size: 40),
+        Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              child: Icon(
+                CupertinoIcons.person_fill,
+                size: 40,
+                color: Color.fromARGB(255, 204, 198, 196),
+              ),
+            ),
+            Text("assign to: ",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: "Karla",
+                  color: Color.fromARGB(255, 74, 70, 70),
+                )),
+          ],
         ),
-        Padding(
-          padding: EdgeInsets.only(left: 20, top: 75),
-          child: Text("assign to: ",
-            style: TextStyle(
-              fontSize: 20
-            ) ,
-          ),
-        ),
-        Padding(
-            padding: EdgeInsets.only(left: 70, top: 75),
-            child: Text("Name",
-              style: TextStyle(
-                  fontSize: 20
-              ) ,
-            )
-        )
+        Text(
+        "Name",
+        style: TextStyle(
+          fontSize: 20,
+          fontFamily: "Karla",
+          color: Color.fromARGB(255, 74, 70, 70),
+        ),),
       ],
     );
   }
@@ -288,34 +331,41 @@ class Repeats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.only(left: 20, top: 20),
-          child: Icon(CupertinoIcons.clock_fill, size: 40),
+          padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+          child: Icon(
+            CupertinoIcons.clock,
+            size: 40,
+            color: Color.fromARGB(255, 204, 198, 196),
+          ),
         ),
-        Padding(
-          padding: EdgeInsets.only(left: 20, top: 20),
-          child: Text("repeats: ",
-            style: TextStyle(
-                fontSize: 20
-            ) ,
+        Text(
+          "repeats: ",
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: "Karla",
+            color: Color.fromARGB(255, 74, 70, 70),
           ),
         ),
       ],
     );
   }
 }
+
 /*
+
 class WeekdaySelector extends StatefulWidget {
   const WeekdaySelector({super.key})
 
   @override
-  _WeekdaySelectorState createState() => _WeekdaySelectorState();
+  State<WeekdaySelector> createState() => _WeekdaySelectorState();
 }
 
 class _WeekdaySelectorState extends State<WeekdaySelector> {
   Set<String> _selectedDays = {};
-
+  
   void _toggleDay(String day) {
     setState(() {
       if (_selectedDays.contains(day)) {
@@ -358,6 +408,5 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
     );
   }
 }
- */
 
-
+*/

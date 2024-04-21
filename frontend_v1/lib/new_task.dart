@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -184,10 +184,9 @@ class NotesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      width: deviceWidth,
+      width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F3F3),
