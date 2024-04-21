@@ -34,6 +34,8 @@ class LocaleString extends Translations {
           'assign_to_txt': 'assign to:',
           'repeats_txt': 'repeats: ',
           'back_txt': 'back',
+          'Choose_your_language_txt': 'Choose your language:',
+          'Change_Language_txt': 'Change Language',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -66,6 +68,8 @@ class LocaleString extends Translations {
           'assign_to_txt': 'zuweisen an:',
           'repeats_txt': 'Wiederholungen:',
           'back_txt': 'zurück',
+          'Choose_your_language_txt': 'Wähle deine Sprache:',
+          'Change_Language_txt': 'Sprache ändern',
         }
       };
 }
