@@ -29,8 +29,9 @@ class MainWidget extends StatelessWidget {
   }
 }
 
-class NewShopItem extends StatelessWidget {
+class NewShopItem extends StatefulWidget {
   const NewShopItem({super.key});
+
 
   static Route<dynamic> route() {
     return CupertinoPageRoute(
@@ -41,97 +42,166 @@ class NewShopItem extends StatelessWidget {
   }
 
   @override
+  State<NewShopItem> createState() => _NewShopItemState();
+}
+
+class _NewShopItemState extends State<NewShopItem> {
+
+  TextEditingController taskName = TextEditingController();
+  TextEditingController taskPrice = TextEditingController();
+  
+    bool required = false;
+
+    void _updateRequired() {
+    setState(() {
+      required = _checkInputs(); // Update required based on inputs
+    });
+  }
+
+  bool _checkInputs() {
+    return taskName.text.isNotEmpty && taskPrice.text.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listener to text controllers to update required variable
+    taskName.addListener(_updateRequired);
+    taskPrice.addListener(_updateRequired);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 243, 243, 243),
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(),
-              CustomTextField(),
-              SliderWidget(),
-              Price(),
-              AddDescription(),
-              ConfirmButton(),
+              const BackIconRow(),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Form(
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: taskName,
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'new item...',
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Sedan",
+                            fontSize: 40,
+                            color: Color.fromARGB(255, 204, 198, 196),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Sedan",
+                          fontSize: 40,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SliderWidget(),
+              Padding(
+                padding: const EdgeInsets.only(top: 60, bottom: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      CupertinoIcons.add_circled,
+                      size: 25,
+                      color: Color.fromARGB(255, 204, 198, 196),
+                    ),
+                    const SizedBox(width: 20),
+                    const Text(
+                      'price:',
+                      style: TextStyle(fontSize: 25, fontFamily: "Karla"),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: const InputDecoration(
+                            hintText: "add price",
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const AddDescription(),
+              Padding(
+                padding: const EdgeInsets.only(top:80),
+                child: Container(
+                    decoration: required
+                    ?const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Color.fromARGB(255, 74, 70, 70),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromARGB(61, 109, 103, 103),
+                            offset: Offset(5.0, 5.0),
+                            blurRadius: 10.0,
+                            spreadRadius: 2.0,
+                          )
+                        ])
+                    :BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        border: Border.all(
+                          strokeAlign: BorderSide.strokeAlignOutside,
+                          width: 5,
+                          color: const Color.fromARGB(255, 204, 198, 196)
+                        ),
+                        color: const Color.fromARGB(255, 243, 243, 243),),
+                    child: TextButton(
+                      onPressed: () {
+                        if (required == false) {
+                          Navigator.of(context).push(ShopView.route());
+                        } else {
+                          //implement here: add shopitem to shop
+                          Navigator.of(context).push(ShopView.route());
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 15, right: 15),
+                        child: Text(
+                          required
+                              ? "Confirm"
+                              : "Cancel",
+                          style: required
+                              ? const TextStyle(
+                                  color: Color.fromARGB(255, 243, 243, 243),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                )
+                              : const TextStyle(
+                                  color:  Color.fromARGB(255, 204, 198, 196),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                ),
+                        ),
+                      ),
+                    )),
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Form(
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              decoration: const InputDecoration.collapsed(
-                hintText: 'new item..',
-                hintStyle: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Sedan",
-                  fontSize: 40,
-                  color: Color.fromARGB(255, 204, 198, 196),
-                ),
-              ),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: "Sedan",
-                fontSize: 40,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Price extends StatelessWidget {
-  const Price({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 60, bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(
-            CupertinoIcons.add_circled,
-            size: 25,
-            color: Color.fromARGB(255, 204, 198, 196),
-          ),
-          const SizedBox(width: 20),
-          const Text(
-            'price:',
-            style: TextStyle(fontSize: 25, fontFamily: "Karla"),
-          ),
-          Expanded(
-            child: TextField(
-              textAlign: TextAlign.end,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                  hintText: "add price",
-                  hintStyle: TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
-                  border: InputBorder.none),
-              style: const TextStyle(
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -234,7 +304,7 @@ class AddDescription extends StatelessWidget {
     return const Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 40), // Fügt Padding um das Text-Widget
+          padding: EdgeInsets.only(top: 20), // Fügt Padding um das Text-Widget
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -255,6 +325,7 @@ class AddDescription extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(top: 20), // Fügt Padding um das Text-Widget
           child: TextField(
+            maxLines: 3,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
                 hintText: 'None Yet',
@@ -270,44 +341,6 @@ class AddDescription extends StatelessWidget {
           ),
         )
       ],
-    );
-  }
-}
-
-class ConfirmButton extends StatelessWidget {
-  const ConfirmButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(80),
-      child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color:  Color.fromARGB(255, 74, 70, 70),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                )
-              ]),
-          child: TextButton(
-            onPressed: (){
-              Navigator.of(context).push(ShopView.route());
-            },
-            child: const Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-              child: Text(
-                "Confirm",
-                style: TextStyle(
-                    color: Color.fromARGB(255, 243, 243, 243),
-                    fontFamily: "Karla", 
-                    fontSize: 30),
-              ),
-            ),
-          )),
     );
   }
 }
