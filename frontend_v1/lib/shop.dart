@@ -24,13 +24,13 @@ class FigmaToCodeApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
       ),
-      home: const ShopView(),
     );
   }
 }
 
+// ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
-  const ShopIcon({super.key});
+  const ShopIcon({super.key,});
 
   @override
   State<ShopIcon> createState() => _ShopIconState();
@@ -92,12 +92,8 @@ class _ShopIconState extends State<ShopIcon>
   }
 }
 
-class ShopView extends StatelessWidget {
+class ShopView extends StatefulWidget {
   const ShopView({super.key});
-
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color colText = const Color(0xFF4A4646);
 
   static Route<dynamic> route() {
     return CupertinoPageRoute(
@@ -107,6 +103,18 @@ class ShopView extends StatelessWidget {
     );
   }
 
+  @override
+  State<ShopView> createState() => ShopViewState();
+
+
+}
+
+class ShopViewState extends State<ShopView> {
+
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,20 +156,16 @@ class ShopView extends StatelessWidget {
             Expanded(
               child: ListView(
                 scrollDirection: Axis.vertical,
-                children: List.generate(
-                  2,
-                  (index) => _buildItemCard(
-                      context, 'Item Name No ${index + 1}', '500pts'),
+                children: const [ ItemCard(taskName: "taskName", taskPrice: "9999"),]
                 ),
               ),
-            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildBadge('1150 pts'),
+                buildBadge('1150 pts'),
                 const SizedBox(width: 20),
-                _buildBadge('lvl 25'),
+                buildBadge('lvl 25'),
               ],
             ),
             const SizedBox(height: 50)
@@ -171,7 +175,40 @@ class ShopView extends StatelessWidget {
     );
   }
 
-  Widget _buildItemCard(BuildContext context, String title, String subTitle) {
+  Widget buildBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEDECEC),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFFB4B4B4),
+          fontSize: 24,
+          fontFamily: 'Karla',
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class ItemCard extends StatelessWidget {
+  const ItemCard({
+    super.key, required this.taskName, required this.taskPrice,
+  });
+
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
+
+  final String taskName;
+  final String taskPrice;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 200,
       padding: const EdgeInsets.all(20),
@@ -200,7 +237,7 @@ class ShopView extends StatelessWidget {
                 Container(
                   constraints: const BoxConstraints(maxWidth: 200),
                   child: Text(
-                    title,
+                    taskName,
                     style: const TextStyle(
                       color: Color(0xFF4A4646),
                       fontSize: 20,
@@ -210,7 +247,7 @@ class ShopView extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  subTitle,
+                  "$taskPrice pts",
                   style: const TextStyle(
                       color: Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
@@ -244,25 +281,6 @@ class ShopView extends StatelessWidget {
                 )),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _buildBadge(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEDECEC),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFFB4B4B4),
-          fontSize: 24,
-          fontFamily: 'Karla',
-          fontWeight: FontWeight.w700,
-        ),
       ),
     );
   }

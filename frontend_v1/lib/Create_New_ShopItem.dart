@@ -32,7 +32,6 @@ class MainWidget extends StatelessWidget {
 class NewShopItem extends StatefulWidget {
   const NewShopItem({super.key});
 
-
   static Route<dynamic> route() {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
@@ -46,13 +45,12 @@ class NewShopItem extends StatefulWidget {
 }
 
 class _NewShopItemState extends State<NewShopItem> {
-
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
-  
-    bool required = false;
 
-    void _updateRequired() {
+  bool required = false;
+
+  void _updateRequired() {
     setState(() {
       required = _checkInputs(); // Update required based on inputs
     });
@@ -146,28 +144,30 @@ class _NewShopItemState extends State<NewShopItem> {
               ),
               const AddDescription(),
               Padding(
-                padding: const EdgeInsets.only(top:80),
+                padding: const EdgeInsets.only(top: 80),
                 child: Container(
                     decoration: required
-                    ?const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Color.fromARGB(255, 74, 70, 70),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromARGB(61, 109, 103, 103),
-                            offset: Offset(5.0, 5.0),
-                            blurRadius: 10.0,
-                            spreadRadius: 2.0,
-                          )
-                        ])
-                    :BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                          strokeAlign: BorderSide.strokeAlignOutside,
-                          width: 5,
-                          color: const Color.fromARGB(255, 204, 198, 196)
-                        ),
-                        color: const Color.fromARGB(255, 243, 243, 243),),
+                        ? const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(61, 109, 103, 103),
+                                  offset: Offset(5.0, 5.0),
+                                  blurRadius: 10.0,
+                                  spreadRadius: 2.0,
+                                )
+                              ])
+                        : BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            border: Border.all(
+                                strokeAlign: BorderSide.strokeAlignOutside,
+                                width: 5,
+                                color:
+                                    const Color.fromARGB(255, 204, 198, 196)),
+                            color: const Color.fromARGB(255, 243, 243, 243),
+                          ),
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
@@ -175,15 +175,14 @@ class _NewShopItemState extends State<NewShopItem> {
                         } else {
                           //implement here: add shopitem to shop
                           Navigator.of(context).push(ShopView.route());
+
                         }
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required
-                              ? "Confirm"
-                              : "Cancel",
+                          required ? "Confirm" : "Cancel",
                           style: required
                               ? const TextStyle(
                                   color: Color.fromARGB(255, 243, 243, 243),
@@ -191,7 +190,7 @@ class _NewShopItemState extends State<NewShopItem> {
                                   fontSize: 30,
                                 )
                               : const TextStyle(
-                                  color:  Color.fromARGB(255, 204, 198, 196),
+                                  color: Color.fromARGB(255, 204, 198, 196),
                                   fontFamily: "Karla",
                                   fontSize: 30,
                                 ),
@@ -304,7 +303,7 @@ class AddDescription extends StatelessWidget {
     return const Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 20), 
+          padding: EdgeInsets.only(top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
