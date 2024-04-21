@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
-
+import 'main.dart';
 import 'assets/LocaleStrings.dart';
 
 class MainApp extends StatelessWidget {
@@ -72,6 +72,42 @@ class Settings extends StatelessWidget {
         });
   }
 
+  Future<String?> changeName(BuildContext context) async {
+    showDialog<String>(
+        context: context,
+        builder: (builder) {
+          String newName = '';
+          return AlertDialog(
+            title: Text('Change name'),
+            content: Container(
+              width: double.maxFinite,
+              child: TextField(
+                  maxLength: 30,
+                  onChanged: (value) {
+                    newName = value;
+                  }),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(newName);
+                  print(newName);
+                },
+                child: Text('Okay'),
+              )
+            ],
+          );
+        });
+  }
+
+  String? globalName;
+
+  void updateName(String newName) {
+    Get.back();
+    globalName = newName;
+    //Get.updateName(newName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,6 +123,13 @@ class Settings extends StatelessWidget {
                   builddialog(context);
                 },
                 child: Text('Change_Language_txt'.tr)),
+            ElevatedButton(
+              onPressed: () async {
+                var newName = await changeName(context);
+                updateName(newName!);
+              },
+              child: Text('Change Name'),
+            ),
           ]),
         ),
       ),

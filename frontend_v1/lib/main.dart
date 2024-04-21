@@ -73,14 +73,14 @@ class MainWidget extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IconRow(),
-                WelcomeText(),
-                ButtonRecommended(task: "do the dishes"),
-                TaskOverview(),
-              ]),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            IconRow(),
+            //WelcomeText(newName: '',),
+            WelcomeText(),
+            ButtonRecommended(task: "do the dishes"),
+            TaskOverview(),
+          ]),
         ),
       ),
     );
@@ -123,7 +123,8 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Navigator.of(context).push(Settings.route());},
+                    Navigator.of(context).push(Settings.route());
+                  },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
                     color: col,
@@ -136,7 +137,8 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Navigator.of(context).push(ShopView.route());},
+              Navigator.of(context).push(ShopView.route());
+            },
             icon: Icon(
               CupertinoIcons.cart_fill,
               color: col,
@@ -150,6 +152,8 @@ class IconRow extends StatelessWidget {
 
 // TextWidget
 class WelcomeText extends StatelessWidget {
+  //final String newName;
+  //const WelcomeText({required this.newName, super.key});
   const WelcomeText({super.key});
 
   @override
@@ -164,7 +168,8 @@ class WelcomeText extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${'welcome_title'.tr} Michelle!',
+                  //Text('${'welcome_title'.tr} ${newName}',
+                  Text('${'welcome_title'.tr} Michelle',
                       style: const TextStyle(
                           fontSize: 40, fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
@@ -428,14 +433,10 @@ class _TaskState extends State<TaskOverview> {
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyLarge),
               TextButton(
-                onPressed: (){
-                  Navigator.of(context).push(NewTask.route());
-                },
-                child: Icon(
-                  CupertinoIcons.add,
-                  color: col,
-                  size: 35)
-              )
+                  onPressed: () {
+                    Navigator.of(context).push(NewTask.route());
+                  },
+                  child: Icon(CupertinoIcons.add, color: col, size: 35))
             ],
           ),
         ),
