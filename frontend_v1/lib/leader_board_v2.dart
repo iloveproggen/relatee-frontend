@@ -1,7 +1,8 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
-import 'assets/LocaleStrings.dart';
 import 'package:get/get.dart';
+
+import 'assets/LocaleStrings.dart';
 
 void main() {
   runApp(const MainLeaderboard());
@@ -62,8 +63,6 @@ class ChartLeaderboard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
                 padding: const EdgeInsets.only(
@@ -72,11 +71,14 @@ class ChartLeaderboard extends StatelessWidget {
                 ),
                 child: Container(
                     width: width * 0.2,
-                    height: height * 0.4,
+                    height: width * 0.2,
                     decoration: const BoxDecoration(
                       color: Colors.blue,
                       shape: BoxShape.circle,
                     )),
+              ),
+              SizedBox(
+                height: height * 0.05,
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -108,7 +110,7 @@ class ChartLeaderboard extends StatelessWidget {
                 ),
                 child: Container(
                     width: width * 0.2,
-                    height: height * 0.4,
+                    height: width * 0.2,
                     decoration: const BoxDecoration(
                       color: Colors.blue,
                       shape: BoxShape.circle,
@@ -148,7 +150,7 @@ class ChartLeaderboard extends StatelessWidget {
                 ),
                 child: Container(
                     width: width * 0.2,
-                    height: height * 0.4,
+                    height: width * 0.2,
                     decoration: const BoxDecoration(
                       color: Colors.blue,
                       shape: BoxShape.circle,

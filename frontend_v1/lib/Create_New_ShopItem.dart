@@ -304,7 +304,7 @@ class AddDescription extends StatelessWidget {
     return const Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 20), // Fügt Padding um das Text-Widget
+          padding: EdgeInsets.only(top: 20), 
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -316,14 +316,14 @@ class AddDescription extends StatelessWidget {
               SizedBox(width: 20),
               Text(
                 'description',
-                textAlign: TextAlign.left, // Setzt den Text linksbündig
+                textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 25, fontFamily: "Karla"),
               ),
             ],
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 20), // Fügt Padding um das Text-Widget
+          padding: EdgeInsets.only(top: 20),
           child: TextField(
             maxLines: 3,
             textAlign: TextAlign.center,
