@@ -24,7 +24,7 @@ class FigmaToCodeApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home:const  ShopView(),
+      home:const ShopView(),
         );
   }
 }
@@ -53,25 +53,19 @@ class ShopView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'The Shop',
-                  style: TextStyle(
+                Text(
+                  'Shop_title'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF4A4646),
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: 10),
                 SvgPicture.asset(
                   "assets/images/relatee.svg" ,
                   height: 40,
                   colorFilter: const ColorFilter.mode(Color.fromARGB(255, 204, 198, 196,), BlendMode.srcIn),
                 ),
-                const Icon(
-                  CupertinoIcons.cart_fill,
-                  size: 40,
-                  color: Color.fromARGB(255, 204, 198, 196),
-                )
               ],
             ),
             Text(
@@ -82,7 +76,7 @@ class ShopView extends StatelessWidget {
                   fontFamily: "Karla",
                   letterSpacing: 0),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height:20),
             Expanded(
               child: ListView(
                 scrollDirection: Axis.vertical,

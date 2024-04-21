@@ -43,9 +43,6 @@ class Settings extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 BackIconRow(),
-                Icon(
-                  CupertinoIcons.add,
-                ),
                 SettingsWidget(),
               ]),
         ),
@@ -69,24 +66,12 @@ class SettingsWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${'welcome_title'.tr} Michelle!',
+                  Text(('settings_txt'.tr),
                       style: const TextStyle(
                           fontSize: 40, fontWeight: FontWeight.bold)),
-                  Text('welcome_message'.tr,
-                      style: Theme.of(context).textTheme.bodySmall),
                 ],
               )),
         ),
-        Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text('Recommended_txt'.tr,
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196),
-                      fontSize: 20,
-                      fontFamily: "Karla")),
-            )),
       ],
     );
   }
