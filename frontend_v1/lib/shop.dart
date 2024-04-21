@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'assets/LocaleStrings.dart';
 
 void main() {
@@ -48,10 +50,10 @@ class ShopView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const BackIconRow(),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'The Shop',
                   style: TextStyle(
                     color: Color(0xFF4A4646),
@@ -59,10 +61,15 @@ class ShopView extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(width: 10),
-                Icon(
-                  size: 40,
+                const SizedBox(width: 10),
+                SvgPicture.asset(
+                  "assets/images/relatee.svg" ,
+                  height: 40,
+                  colorFilter: const ColorFilter.mode(Color.fromARGB(255, 204, 198, 196,), BlendMode.srcIn),
+                ),
+                const Icon(
                   CupertinoIcons.cart_fill,
+                  size: 40,
                   color: Color.fromARGB(255, 204, 198, 196),
                 )
               ],

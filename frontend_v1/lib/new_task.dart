@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:frontend_v1/assets/LocaleStrings.dart';
+import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -9,14 +13,16 @@ class FigmaToCodeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      translations: LocaleString(),
+      locale: const Locale('en-US'),
+      fallbackLocale: const Locale('en-US'),
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+      scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
       ),
-      home: Scaffold(
-        body: ListView(
-          children: const [CreateTaskView()],
-        ),
+      home: const Scaffold(
+        body: CreateTaskView(),
       ),
     );
   }
@@ -25,33 +31,38 @@ class FigmaToCodeApp extends StatelessWidget {
 class CreateTaskView extends StatelessWidget {
   const CreateTaskView({super.key});
 
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const CreateTaskView();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    final double deviceHeight = MediaQuery.of(context).size.height;
-
-    return Container(
-      width: deviceWidth,
-      height: deviceHeight,
-      padding: const EdgeInsets.all(20),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          Text(
-            'New Task...',
-            style: TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 32,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w700,
+    return const Scaffold(
+      body: Padding(
+        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BackIconRow(),
+            Text(
+              'New Task...',
+              style: TextStyle(
+                color: Color(0xFF4A4646),
+                fontSize: 32,
+                fontFamily: 'Karla',
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          TaskDetailsWidget(),
-          SizedBox(height: 20),
-          NotesWidget(),
-        ],
+            SizedBox(height: 20),
+            TaskDetailsWidget(),
+            SizedBox(height: 20),
+            NotesWidget(),
+          ],
+        ),
       ),
     );
   }
