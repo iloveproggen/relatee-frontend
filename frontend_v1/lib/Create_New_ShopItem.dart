@@ -1,335 +1,313 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/shop.dart';
 
-class CreateNewShopitem extends StatelessWidget {
+void main() {
+  runApp(const MainWidget());
+}
+
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 393,
-          height: 870,
-          clipBehavior: Clip.antiAlias,
-          decoration: ShapeDecoration(
-            color: Color(0xFFF3F3F3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        fontFamily: 'Karla',
+        textTheme: const TextTheme(
+          bodyLarge:
+              TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
+        ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      ),
+      home: const NewShopItem(),
+    );
+  }
+}
+
+class NewShopItem extends StatelessWidget {
+  const NewShopItem({super.key});
+
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const NewShopItem();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color.fromARGB(255, 243, 243, 243),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+            children: [
+              BackIconRow(),
+              CustomTextField(),
+              SliderWidget(),
+              Price(),
+              AddDescription(),
+              ConfirmButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomTextField extends StatelessWidget {
+  const CustomTextField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Form(
+        child: Column(
+          children: <Widget>[
+            TextFormField(
+              decoration: const InputDecoration.collapsed(
+                hintText: 'new item..',
+                hintStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Sedan",
+                  fontSize: 40,
+                  color: Color.fromARGB(255, 204, 198, 196),
+                ),
+              ),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Sedan",
+                fontSize: 40,
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Price extends StatelessWidget {
+  const Price({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 60, bottom: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(
+            CupertinoIcons.add_circled,
+            size: 25,
+            color: Color.fromARGB(255, 204, 198, 196),
+          ),
+          const SizedBox(width: 20),
+          const Text(
+            'price:',
+            style: TextStyle(fontSize: 25, fontFamily: "Karla"),
+          ),
+          Expanded(
+            child: TextField(
+              textAlign: TextAlign.end,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                  hintText: "add price",
+                  hintStyle: TextStyle(
+                      color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
+                  border: InputBorder.none),
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SliderWidget extends StatefulWidget {
+  const SliderWidget({super.key});
+
+  @override
+  _SliderWidgetState createState() => _SliderWidgetState();
+}
+
+class _SliderWidgetState extends State<SliderWidget> {
+  bool _isPermanent = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isPermanent = !_isPermanent;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Container(
+          width: 386,
+          height: 46,
+          decoration: BoxDecoration(
+            color: const Color(0x7FD9D9D9),
+            borderRadius: BorderRadius.circular(7),
           ),
           child: Stack(
             children: [
-              Positioned(
-                left: 28,
-                top: 211,
+              AnimatedAlign(
+                alignment:
+                    _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
                 child: Container(
-                  width: 339,
-                  height: 253,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 0,
-                        top: 0,
-                        child: Container(
-                          width: 339,
-                          height: 34,
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 34,
-                                  height: 34,
-                                  child: Stack(
-                                    children: [
-                                      Positioned(
-                                        left: 0,
-                                        top: 0,
-                                        child: Container(
-                                          width: 34,
-                                          height: 34,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: NetworkImage("https://via.placeholder.com/34x34"),
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 15,
-                                        top: 10,
-                                        child: Container(
-                                          width: 4,
-                                          height: 14,
-                                          decoration: ShapeDecoration(
-                                            color: Color(0xFFB4B4B4),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(100),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 24,
-                                        top: 15,
-                                        child: Transform(
-                                          transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(1.57),
-                                          child: Container(
-                                            width: 4,
-                                            height: 14,
-                                            decoration: ShapeDecoration(
-                                              color: Color(0xFFB4B4B4),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(100),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 51,
-                                top: 1,
-                                child: SizedBox(
-                                  width: 288,
-                                  height: 31.94,
-                                  child: Text(
-                                    'price:',
-                                    style: TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w300,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 51,
-                                top: 1,
-                                child: SizedBox(
-                                  width: 274,
-                                  height: 32,
-                                  child: Text(
-                                    '15',
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w500,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 4,
-                        top: 82,
-                        child: Container(
-                          width: 327,
-                          height: 46,
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 327,
-                                  height: 46,
-                                  decoration: ShapeDecoration(
-                                    color: Color(0x7FD9D9D9),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 165,
-                                  height: 46,
-                                  decoration: ShapeDecoration(
-                                    color: Color(0xFFD9D9D9),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 21,
-                                top: 12,
-                                child: SizedBox(
-                                  width: 122,
-                                  height: 22,
-                                  child: Text(
-                                    'permanent',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w700,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 187,
-                                top: 12,
-                                child: SizedBox(
-                                  width: 116,
-                                  height: 22,
-                                  child: Text(
-                                    'only once',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w300,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 4,
-                        top: 183,
-                        child: Container(
-                          width: 327,
-                          height: 70,
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                left: 2,
-                                top: 0,
-                                child: SizedBox(
-                                  width: 288,
-                                  height: 31.94,
-                                  child: Text(
-                                    'Add description:',
-                                    style: TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w300,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: 0,
-                                top: 38,
-                                child: SizedBox(
-                                  width: 327,
-                                  height: 32,
-                                  child: Text(
-                                    'None yet.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Color(0xFFB4B4B4),
-                                      fontSize: 20,
-                                      fontStyle: FontStyle.italic,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w300,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  width: 193,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD9D9D9),
+                    borderRadius: BorderRadius.circular(7),
                   ),
                 ),
               ),
-              Positioned(
-                left: 33,
-                top: 108,
-                child: SizedBox(
-                  width: 327,
-                  height: 32,
-                  child: Text(
-                    'new item...',
-                    style: TextStyle(
-                      color: Color(0xFF4A4646),
-                      fontSize: 32,
-                      fontFamily: 'Karla',
-                      fontWeight: FontWeight.w700,
-                      height: 0,
+              Row(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'permanent',
+                        style: TextStyle(
+                          color: _isPermanent
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
+                          fontSize: 20,
+                          fontFamily: 'Karla',
+                          fontWeight:
+                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
+                          height: 0,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Positioned(
-                left: -53,
-                top: -199,
-                child: Container(
-                  width: 496,
-                  height: 258,
-                  decoration: BoxDecoration(color: Color(0xFFF3F3F3)),
-                ),
-              ),
-              Positioned(
-                left: 303,
-                top: 21,
-                child: Container(
-                  height: 16,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 0,
-                        top: 15,
-                        child: Transform(
-                          transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(-1.57),
-                          child: Container(
-                            width: 11,
-                            height: 22,
-                            decoration: ShapeDecoration(
-                              color: Color(0xB2D9D9D9),
-                              shape: StarBorder.polygon(sides: 3),
-                            ),
-                          ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'only once',
+                        style: TextStyle(
+                          color: !_isPermanent
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
+                          fontSize: 20,
+                          fontFamily: 'Karla',
+                          fontWeight:
+                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
+                          height: 0,
                         ),
                       ),
-                      Positioned(
-                        left: 23,
-                        top: 0,
-                        child: Text(
-                          'back',
-                          style: TextStyle(
-                            color: Color(0xFFD9D9D9),
-                            fontSize: 14,
-                            fontFamily: 'Karla',
-                            fontWeight: FontWeight.w700,
-                            height: 0,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AddDescription extends StatelessWidget {
+  const AddDescription({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 40), // Fügt Padding um das Text-Widget
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                CupertinoIcons.text_aligncenter,
+                size: 25,
+                color: Color.fromARGB(255, 204, 198, 196),
+              ),
+              SizedBox(width: 20),
+              Text(
+                'description',
+                textAlign: TextAlign.left, // Setzt den Text linksbündig
+                style: TextStyle(fontSize: 25, fontFamily: "Karla"),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 20), // Fügt Padding um das Text-Widget
+          child: TextField(
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+                hintText: 'None Yet',
+                hintStyle: TextStyle(
+                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
+                border: InputBorder.none),
+            style: TextStyle(
+              color: Color.fromARGB(255, 74, 70, 70),
+              fontWeight: FontWeight.bold,
+              fontSize: 25,
+              letterSpacing: 0,
+            ),
+          ),
+        )
       ],
+    );
+  }
+}
+
+class ConfirmButton extends StatelessWidget {
+  const ConfirmButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(80),
+      child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color:  Color.fromARGB(255, 74, 70, 70),
+              boxShadow: [
+                BoxShadow(
+                  color: Color.fromARGB(61, 109, 103, 103),
+                  offset: Offset(5.0, 5.0),
+                  blurRadius: 10.0,
+                  spreadRadius: 2.0,
+                )
+              ]),
+          child: TextButton(
+            onPressed: (){
+              Navigator.of(context).push(ShopView.route());
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+              child: Text(
+                "Confirm",
+                style: TextStyle(
+                    color: Color.fromARGB(255, 243, 243, 243),
+                    fontFamily: "Karla", 
+                    fontSize: 30),
+              ),
+            ),
+          )),
     );
   }
 }
