@@ -22,7 +22,7 @@ class LocaleString extends Translations {
           'SeeAllTasks_txt': 'See all Tasks',
           'Household_txt': 'Household ',
           'HouseholdMembers_txt': "Household Members",
-          'settings_txt': "Settings"
+          'settings_txt': "Settings",
           'Members_txt': 'Members',
         },
         'de-DE': {

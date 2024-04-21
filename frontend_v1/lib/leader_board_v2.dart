@@ -135,8 +135,11 @@ class LeaderBoardMemberImages extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Positioned(
-              bottom: 20,
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 0,
+                bottom: 0,
+              ),
               child: Container(
                   width: 250,
                   height: 200,
