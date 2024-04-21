@@ -93,9 +93,39 @@ class _ShopIconState extends State<ShopIcon>
 }
 
 class ShopView extends StatefulWidget {
-  const ShopView({super.key});
+  const ShopView({super.key, this.itemToAdd});
 
-  static Route<dynamic> route() {
+  final ItemCard? itemToAdd; // Define itemToAdd parameter
+  
+  Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return ShopView(itemToAdd: itemToAdd);
+      },
+    );
+  }
+
+  @override
+  State<ShopView> createState() => ShopViewState();
+}
+class ShopViewState extends State<ShopView> {
+  final List<Widget> itemCards = [
+    const ItemCard(taskName: "Task 1", taskPrice: "9999")
+  ];
+
+  void initState() {
+    super.initState();
+    // Add item if passed through route arguments
+    if (widget.itemToAdd != null) {
+      addItem(widget.itemToAdd!);
+    }
+  }
+
+  void addItem(ItemCard item) {
+      itemCards.add(item);
+  }
+
+    static Route<dynamic> route() {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
         return const ShopView();
@@ -103,18 +133,15 @@ class ShopView extends StatefulWidget {
     );
   }
 
-  @override
-  State<ShopView> createState() => ShopViewState();
-
-
-}
-
-class ShopViewState extends State<ShopView> {
+  // Getter for the itemCards list
+  List<Widget> get getItemCards => itemCards;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+
   final Color colText = const Color(0xFF4A4646);
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,7 +165,8 @@ class ShopViewState extends State<ShopView> {
                 ),
                 TextButton(
                     onPressed: () {
-                      Navigator.of(context).push(NewShopItem.route());
+                    Navigator.of(context).push(NewShopItem.route());
+                      
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -154,9 +182,12 @@ class ShopViewState extends State<ShopView> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView(
+              child: ListView.builder(
                 scrollDirection: Axis.vertical,
-                children: const [ ItemCard(taskName: "taskName", taskPrice: "9999"),]
+                itemCount: itemCards.length,
+                itemBuilder: (context, index) {
+                  return itemCards[index];
+                },
                 ),
               ),
             const SizedBox(height: 20),

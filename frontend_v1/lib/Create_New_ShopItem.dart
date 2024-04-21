@@ -171,11 +171,20 @@ class _NewShopItemState extends State<NewShopItem> {
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
-                          Navigator.of(context).push(ShopView.route());
+                          Navigator.of(context).push(ShopViewState.route());
                         } else {
                           //implement here: add shopitem to shop
-                          Navigator.of(context).push(ShopView.route());
-
+                          /*ShopViewState? shopViewState = ShopViewState();
+                          shopViewState.addItem(ItemCard(
+                              taskName: taskName.text, taskPrice: taskPrice.text));
+                          Navigator.of(context).push(ShopView.route());*/
+                          Navigator.of(context).push(
+                            ShopView(
+                                itemToAdd: ItemCard(
+                              taskName: taskName.text,
+                              taskPrice: taskPrice.text,
+                            )).route(), // Call the route method on the ShopView instance
+                          );
                         }
                       },
                       child: Padding(
