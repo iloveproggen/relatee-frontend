@@ -59,7 +59,29 @@ class ProfileView extends StatelessWidget {
                   const BackIconRow(),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).push(LoginWidget.route());
+                      showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                        title: Text('Log out?'),
+                        content: Text('To access your tasks, you need to log in. Do you want to continue?'),
+                        actions: [
+                          CupertinoDialogAction(
+                          child: Text('Cancel', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          ),
+                          CupertinoDialogAction(
+                          child: Text('Continue'),
+                          onPressed: () {
+                            Navigator.of(context).push(LoginWidget.route());
+                          },
+                          ),
+                        ],
+                        );
+                      },
+                      );
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -212,7 +234,7 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () {
-                Navigator.of(context).push(MainWidget.route("trostmarvin"));
+                Navigator.of(context).push(MainWidget.route(""));
               },
               child: Row(
                 children: [

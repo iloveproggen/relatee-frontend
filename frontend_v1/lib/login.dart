@@ -7,7 +7,8 @@ import 'package:postgres/postgres.dart';
 void main() {
   runApp(const LoginApp());
 }
-Future<List<Map<String, dynamic>>> authUser(String usern, String psw) async {
+
+Future<bool> authUser(String username, String password) async {
   final connection = PostgreSQLConnection(
     'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
     5432,
@@ -17,11 +18,16 @@ Future<List<Map<String, dynamic>>> authUser(String usern, String psw) async {
     useSSL: true,
   );
   await connection.open();
-  List<List<dynamic>> results =
-      await connection.query('SELECT id, username,	password,	email FROM users WHERE username=usern, password = psw;');
+  List<List<dynamic>> results = await connection.query(
+      'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
+      substitutionValues: {'username': username, 'password': password});
   await connection.close();
 
-  return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
+  print(results);
+  print(results.isNotEmpty);
+  print('SELECT id, username, password, email FROM users WHERE username = $username AND password = $password;',);
+
+  return results.isNotEmpty;
 }
 
 class LoginApp extends StatelessWidget {
@@ -75,6 +81,8 @@ class LoginWidgetState extends State<LoginWidget> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool wrongPassword = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,27 +109,26 @@ class LoginWidgetState extends State<LoginWidget> {
             TextField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all( Radius.circular(10)),
-                  borderSide: BorderSide(
-                    color: Color.fromARGB(255, 204, 198, 196), 
-                    width: 5,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 204, 198, 196),
+                      width: 5,
+                    ),
                   ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    width: 5,
-                    color:
-                        Color.fromARGB(255, 74, 70, 70), 
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(
+                      width: 5,
+                      color: Color.fromARGB(255, 74, 70, 70),
+                    ),
                   ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    width: 5,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(
+                      width: 5,
+                    ),
                   ),
-                ),
                   hintText: 'Username or Email',
                   contentPadding: EdgeInsets.all(20),
                   hintStyle: TextStyle(
@@ -137,9 +144,9 @@ class LoginWidgetState extends State<LoginWidget> {
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
                 enabledBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all( Radius.circular(10)),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    color: Color.fromARGB(255, 204, 198, 196), 
+                    color: Color.fromARGB(255, 204, 198, 196),
                     width: 5,
                   ),
                 ),
@@ -147,8 +154,7 @@ class LoginWidgetState extends State<LoginWidget> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
                     width: 5,
-                    color:
-                        Color.fromARGB(255, 74, 70, 70), 
+                    color: Color.fromARGB(255, 74, 70, 70),
                   ),
                 ),
                 border: const OutlineInputBorder(
@@ -160,8 +166,8 @@ class LoginWidgetState extends State<LoginWidget> {
                 hintText: 'Password',
                 contentPadding: EdgeInsets.all(20),
                 hintStyle: const TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196),
-                  ),
+                  color: Color.fromARGB(255, 204, 198, 196),
+                ),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: IconButton(
@@ -169,7 +175,8 @@ class LoginWidgetState extends State<LoginWidget> {
                       _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: const Color.fromARGB(255, 204, 198, 196), // Set the color to grey
+                      color: const Color.fromARGB(
+                          255, 204, 198, 196), // Set the color to grey
                     ),
                     onPressed: () {
                       setState(() {
@@ -208,36 +215,60 @@ class LoginWidgetState extends State<LoginWidget> {
                         color: const Color.fromARGB(255, 243, 243, 243),
                       ),
                 child: TextButton(
-                  onPressed: () {
-                    // Perform login logic here
+                  onPressed: () async {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
 
-                    
-                    print('Username: $username');
-                    print('Password: $password');
+                    print("Username: $username, Password: $password");
+
+                    if (await authUser(username, password)) {
+                      Navigator.of(context).push(ProfileView.route());
+                      print("User authenticated");
+                    } else {
+                      //Navigator.of(context).push(ProfileView.route());
+                      print("User not authenticated");
+                      setState(() {
+                        wrongPassword = true;
+                      });
+                    }
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 10, bottom: 10, left: 15, right: 15),
-                    child: Text(
-                      "Log In",
-                      style: requiredFields
-                          ? const TextStyle(
-                              color: Color.fromARGB(255, 243, 243, 243),
-                              fontFamily: "Karla",
-                              fontSize: 20,
-                            )
-                          : const TextStyle(
-                              color: Color.fromARGB(255, 204, 198, 196),
-                              fontFamily: "Karla",
-                              fontSize: 20,
-                            ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 10, bottom: 10, left: 15, right: 15),
+                      child: Text(
+                        "Log In",
+                        style: requiredFields
+                            ? const TextStyle(
+                                color: Color.fromARGB(255, 243, 243, 243),
+                                fontFamily: "Karla",
+                                fontSize: 20,
+                              )
+                            : const TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontFamily: "Karla",
+                                fontSize: 20,
+                              ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
+            if (wrongPassword)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "Wrong username or password!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
