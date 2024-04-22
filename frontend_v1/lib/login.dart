@@ -2,9 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:postgres/postgres.dart';
 
 void main() {
   runApp(const LoginApp());
+}
+Future<List<Map<String, dynamic>>> authUser(String usern, String psw) async {
+  final connection = PostgreSQLConnection(
+    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+    5432,
+    'relateeDB',
+    username: 'relateeDB_owner',
+    password: 'bCTNHdw8mJL3',
+    useSSL: true,
+  );
+  await connection.open();
+  List<List<dynamic>> results =
+      await connection.query('SELECT id, username,	password,	email FROM users WHERE username=usern, password = psw;');
+  await connection.close();
+
+  return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
 }
 
 class LoginApp extends StatelessWidget {
@@ -196,10 +213,7 @@ class LoginWidgetState extends State<LoginWidget> {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
 
-                    // Make GraphQL API call to authenticate user
-                    // Your GraphQL integration code goes here
-
-                    // Example of how to print username and password
+                    
                     print('Username: $username');
                     print('Password: $password');
                   },

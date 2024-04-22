@@ -212,7 +212,7 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () {
-                Navigator.of(context).push(MainWidget.route());
+                Navigator.of(context).push(MainWidget.route("trostmarvin"));
               },
               child: Row(
                 children: [

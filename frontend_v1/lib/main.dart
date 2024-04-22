@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
@@ -19,7 +20,9 @@ void main() {
 //hi maurice
 // MainWidget
 
-Future<List<Map<String, dynamic>>> fetchUsers() async {
+bool auth = true;
+
+Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async {
   final connection = PostgreSQLConnection(
     'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
     5432,
@@ -29,8 +32,9 @@ Future<List<Map<String, dynamic>>> fetchUsers() async {
     useSSL: true,
   );
   await connection.open();
-  List<List<dynamic>> results =
-      await connection.query('SELECT id, forename FROM users');
+  List<List<dynamic>> results = await connection.query(
+      'SELECT id, forename FROM users WHERE username = @username;',
+      substitutionValues: {'username': username});
   await connection.close();
 
   return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
@@ -68,16 +72,20 @@ class MainApp extends StatelessWidget {
                   letterSpacing: 0),
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-        home: const MainWidget());
+        home: auth 
+        ? const MainWidget()
+        : const LoginWidget());
   }
 }
 
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key});
 
+  final String user = 'trostmarvin';
+
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
-  static Route<dynamic> route() {
+  static Route<dynamic> route(String user) {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
         return const MainWidget();
@@ -87,16 +95,16 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            IconRow(),
-            WelcomeText(),
-            ButtonRecommended(task: "do the dishes"),
-            TaskOverview(),
+            const IconRow(),
+            WelcomeText(user: user),
+            const ButtonRecommended(task: "do the dishes"),
+            const TaskOverview(),
           ]),
         ),
       ),
@@ -169,8 +177,9 @@ class IconRow extends StatelessWidget {
 
 // TextWidget
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key});
 
+  const WelcomeText({super.key, required this.user});
+  final String user;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -178,47 +187,53 @@ class WelcomeText extends StatelessWidget {
         Padding(
             padding: const EdgeInsets.only(bottom: 50, top: 10),
             child: SizedBox(
-                width: double.infinity,
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: fetchUsers(),
-                  builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    print('Error: ${snapshot.error}');
-                    return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${'welcome_title'.tr}, hackerman!!!!',
-                        style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
-                      Text('welcome_message'.tr,
-                        style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                    );
-                  } else {
-                    return ListView.builder(
-                    itemCount: snapshot.data?.length,
-                    itemBuilder: (context, index) {
-                      return Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
-                          style: const TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold)),
-                        Text('welcome_message'.tr,
-                          style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                      );
-                    },
-                    );
-                  }
-                  },
-                ))),
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchUsers(username: 'trostmarvin'),
+                builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator(
+                  color:  Color.fromARGB(255, 204, 198, 196),
+                  strokeWidth: 5,
+                  strokeCap: StrokeCap.round,
+                );
+                } else if (snapshot.hasError) {
+                print('Error: ${snapshot.error}');
+                return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${'welcome_title'.tr}, hackerman!!!!',
+                  style: const TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.bold)),
+                  Text('welcome_message'.tr,
+                  style: Theme.of(context).textTheme.bodySmall),
+                ],
+                );
+                } else {
+                return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: snapshot.data?.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  Text(
+                    '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
+                    maxLines: 2,
+                    style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold)),
+                  Text('welcome_message'.tr,
+                    style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                  );
+                },
+                );
+                }
+                },
+              ))),
         Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -227,7 +242,7 @@ class WelcomeText extends StatelessWidget {
                   style: const TextStyle(
                       color: Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
-                      fontFamily: "Karla")),
+                      fontFamily: "Karla", fontWeight: FontWeight.bold)),
             )),
       ],
     );
