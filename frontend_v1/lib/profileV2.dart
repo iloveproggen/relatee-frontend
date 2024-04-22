@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
-
 import 'assets/LocaleStrings.dart';
 
 void main() {
@@ -53,7 +53,33 @@ class ProfileView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const BackIconRow(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const BackIconRow(),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(LoginWidget.route());
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromARGB(255, 204, 198, 196),
+                      ),
+                        child: const Padding(
+                          padding: EdgeInsets.only(top:10, bottom: 10, left: 10, right: 10),
+                          child: /*Text("log out",
+                              style: TextStyle(
+                                  height: 1,
+                                  color: Color.fromARGB(255, 243, 243, 243),
+                                  fontSize: 15,
+                                  fontFamily: "Karla",
+                                  fontWeight: FontWeight.w700)),*/
+                                  Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Color.fromARGB(255, 243, 243, 243), size: 20,)
+                        )),
+                  ),
+                ],
+              ),
               Column(
                 children: [
                   Container(
@@ -183,7 +209,8 @@ class BackIconRow extends StatelessWidget {
             padding: EdgeInsets.only(right: padding),
             child: TextButton(
               style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,),
+                padding: EdgeInsets.zero,
+              ),
               onPressed: () {
                 Navigator.of(context).push(MainWidget.route());
               },
