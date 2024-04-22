@@ -76,3 +76,15 @@ class SettingsWidget extends StatelessWidget {
     );
   }
 }
+
+class OneSetting extends StatelessWidget {
+  const OneSetting({super.key, required this.settingname, required this.setter});
+
+  final String settingname;
+  final Widget setter;
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
