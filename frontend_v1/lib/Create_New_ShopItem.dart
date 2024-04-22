@@ -174,10 +174,6 @@ class _NewShopItemState extends State<NewShopItem> {
                           Navigator.of(context).push(ShopViewState.route());
                         } else {
                           //implement here: add shopitem to shop
-                          /*ShopViewState? shopViewState = ShopViewState();
-                          shopViewState.addItem(ItemCard(
-                              taskName: taskName.text, taskPrice: taskPrice.text));
-                          Navigator.of(context).push(ShopView.route());*/
                           Navigator.of(context).push(
                             ShopView(
                                 itemToAdd: ItemCard(

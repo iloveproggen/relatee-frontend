@@ -8,6 +8,7 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
+import 'package:postgres/postgres.dart';
 
 import 'assets/LocaleStrings.dart';
 
@@ -17,6 +18,23 @@ void main() {
 //hi Michelle bug fising
 //hi maurice
 // MainWidget
+
+Future<List<Map<String, dynamic>>> fetchUsers() async {
+  final connection = PostgreSQLConnection(
+    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+    5432,
+    'relateeDB',
+    username: 'relateeDB_owner',
+    password: 'bCTNHdw8mJL3',
+    useSSL: true,
+  );
+  await connection.open();
+  List<List<dynamic>> results =
+      await connection.query('SELECT id, forename FROM users');
+  await connection.close();
+
+  return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
+}
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -158,21 +176,49 @@ class WelcomeText extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 50, top: 10),
-          child: SizedBox(
-              width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${'welcome_title'.tr}, Michelle!',
-                      style: const TextStyle(
+            padding: const EdgeInsets.only(bottom: 50, top: 10),
+            child: SizedBox(
+                width: double.infinity,
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: fetchUsers(),
+                  builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    print('Error: ${snapshot.error}');
+                    return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${'welcome_title'.tr}, hackerman!!!!',
+                        style: const TextStyle(
                           fontSize: 40, fontWeight: FontWeight.bold)),
-                  Text('welcome_message'.tr,
-                      style: Theme.of(context).textTheme.bodySmall),
-                ],
-              )),
-        ),
+                      Text('welcome_message'.tr,
+                        style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                    );
+                  } else {
+                    return ListView.builder(
+                    itemCount: snapshot.data?.length,
+                    itemBuilder: (context, index) {
+                      return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold)),
+                        Text('welcome_message'.tr,
+                          style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                      );
+                    },
+                    );
+                  }
+                  },
+                ))),
         Align(
             alignment: Alignment.topLeft,
             child: Padding(
