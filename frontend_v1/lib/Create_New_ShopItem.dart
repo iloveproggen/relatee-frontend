@@ -77,7 +77,7 @@ class _NewShopItemState extends State<NewShopItem> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              const BackIconRow(),
+              const BackIconRow(username: ""),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(

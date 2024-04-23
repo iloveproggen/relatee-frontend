@@ -37,7 +37,7 @@ class MainHouseholdOverview extends StatelessWidget {
             child: Padding(
       padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
-        children: [BackIconRow(), HouseholdOverview()],
+        children: [BackIconRow(username: ""), HouseholdOverview()],
       ),
     )));
   }
@@ -84,7 +84,7 @@ class HouseholdMembers extends StatelessWidget {
         const Member(name: "Marvin Trost", user: "@trostmarvin"),
         const Member(name: "Maurice Halilovic", user: "@lugia75"),
         const Member(name: "Rene Schomburg", user: "@mrmagnas"),
-        const SizedBox(height:50)
+        const SizedBox(height: 50)
       ],
     );
   }
@@ -99,10 +99,12 @@ class Member extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top:15),
+      padding: const EdgeInsets.only(top: 15),
       child: TextButton(
         onPressed: () {
-          Navigator.of(context).push(ProfileView.route());
+          Get.to(() => const ProfileView(
+                username: "",
+              ));
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -128,19 +130,17 @@ class Member extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(
-                  fontFamily: "Karla",
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                )),
-                Text(
-                  user,
-                  style: const TextStyle(
-                    fontFamily: "Karla",
-                    color: Color.fromARGB(255, 204, 198, 196)
-                  )
-                ),
+                Text(name,
+                    style: const TextStyle(
+                      fontFamily: "Karla",
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 74, 70, 70),
+                    )),
+                Text(user,
+                    style: const TextStyle(
+                        fontFamily: "Karla",
+                        color: Color.fromARGB(255, 204, 198, 196))),
               ],
             ),
           ],

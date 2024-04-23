@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 
 import 'assets/LocaleStrings.dart';
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class SettingsMain extends StatelessWidget {
+  const SettingsMain({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class Settings extends StatelessWidget {
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BackIconRow(),
+                BackIconRow(username:""),
                 SettingsWidget(),
               ]),
         ),

@@ -4,25 +4,7 @@ import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
-import 'assets/LocaleStrings.dart';
-
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      home: const ProfileView(),
-    );
-  }
-}
+import 'package:postgres/postgres.dart';
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -32,13 +14,47 @@ String getDueDaysInText(int days) {
   }
 }
 
-class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
+  final connection = PostgreSQLConnection(
+    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+    5432,
+    'relateeDB',
+    username: 'relateeDB_owner',
+    password: 'bCTNHdw8mJL3',
+    useSSL: true,
+  );
+  await connection.open();
+  print(' fetching $username\'s data');
+  List<List<dynamic>> results = await connection.query(
+      'SELECT users.forename, users.surname, users.username FROM users WHERE username = @username',
+      substitutionValues: {'username': username});
+  await connection.close();
 
-  static Route<dynamic> route() {
+  print(results);
+  print(results.isNotEmpty);
+  print(
+    'SELECT users.forename, users.surname, users.username FROM users WHERE username = $username',
+  );
+
+  return results
+      .map((row) => {
+            'id': row[0],
+            'forename': row[1],
+            'surname': row[2],
+            'username': row[3],
+          })
+      .toList();
+}
+
+class ProfileView extends StatelessWidget {
+  const ProfileView({super.key, required this.username});
+
+  final String username;
+
+  static Route<dynamic> route({required String username}) {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
-        return const ProfileView();
+        return ProfileView(username: username);
       },
     );
   }
@@ -56,49 +72,60 @@ class ProfileView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const BackIconRow(),
+                  BackIconRow(username: username),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
-                        title: Text('Log out?'),
-                        content: Text('To access your tasks, you need to log in. Do you want to continue?'),
-                        actions: [
-                          CupertinoDialogAction(
-                          child: Text('Cancel', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          ),
-                          CupertinoDialogAction(
-                          child: Text('Continue'),
-                          onPressed: () {
-                            Navigator.of(context).push(LoginWidget.route());
-                          },
-                          ),
-                        ],
-                        );
-                      },
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoAlertDialog(
+                            title: const Text('Log out?'),
+                            content: const Text(
+                                'To access your tasks, you need to log in. Do you want to continue?'),
+                            actions: [
+                              CupertinoDialogAction(
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              CupertinoDialogAction(
+                                child: const Text('Continue'),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .push(LoginWidget.route());
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                     child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromARGB(255, 204, 198, 196),
-                      ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color.fromARGB(255, 204, 198, 196),
+                        ),
                         child: const Padding(
-                          padding: EdgeInsets.only(top:10, bottom: 10, left: 10, right: 10),
-                          child: /*Text("log out",
+                            padding: EdgeInsets.only(
+                                top: 10, bottom: 10, left: 10, right: 10),
+                            child: /*Text("log out",
                               style: TextStyle(
                                   height: 1,
                                   color: Color.fromARGB(255, 243, 243, 243),
                                   fontSize: 15,
                                   fontFamily: "Karla",
                                   fontWeight: FontWeight.w700)),*/
-                                  Icon(CupertinoIcons.arrowshape_turn_up_right_fill, color: Color.fromARGB(255, 243, 243, 243), size: 20,)
-                        )),
+                                Icon(
+                              CupertinoIcons.arrowshape_turn_up_right_fill,
+                              color: Color.fromARGB(255, 243, 243, 243),
+                              size: 20,
+                            ))),
                   ),
                 ],
               ),
@@ -124,27 +151,52 @@ class ProfileView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            top: 50, right: 10, bottom: 50),
+                        padding: const EdgeInsets.only(top: 50, right: 10),
                         child: _buildInfoContainer('1150 pts'),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 50, bottom: 50),
+                        padding: const EdgeInsets.only(top: 50),
                         child: _buildInfoContainer('lvl 25'),
                       ),
                     ],
                   ),
                 ],
               ),
-              const Text(
-                'Michelle Gerwald',
-                style: TextStyle(
-                  color: Color(0xFF4A4646),
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              // FutureBuilder<List<Map<String, dynamic>>>(
+              //   future: fetchUser(username: username),
+              //   builder: (context, snapshot) {
+              //     return ListView.builder(
+              //       shrinkWrap: true,
+              //       physics: const NeverScrollableScrollPhysics(),
+              //       itemCount: snapshot.data?.length,
+              //       itemBuilder: (context, index) {
+              //         return Column(
+              //           mainAxisAlignment: MainAxisAlignment.start,
+              //           crossAxisAlignment: CrossAxisAlignment.center,
+              //           children: [
+              //             Text(
+              //               '${snapshot.data?[index]['forename']} ${snapshot.data?[index]['surname']}',
+              //               style: const TextStyle(
+              //                 color: Color(0xFF4A4646),
+              //                 fontSize: 32,
+              //                 fontWeight: FontWeight.w700,
+              //               ),
+              //           ),
+              //           ],
+              //         );
+              //       },
+              //     );
+              //   },
+              // ),
+              // const Text(
+              //   'Michelle Gerwald',
+              //   style: TextStyle(
+              //     color: Color(0xFF4A4646),
+              //     fontSize: 32,
+              //     fontWeight: FontWeight.w700,
+              //   ),
+              //   textAlign: TextAlign.center,
+              // ),
               const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
@@ -214,8 +266,9 @@ class ProfileView extends StatelessWidget {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key});
+  const BackIconRow({super.key, required this.username});
 
+  final String username;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -232,10 +285,10 @@ class BackIconRow extends StatelessWidget {
             child: TextButton(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-              ),
-              onPressed: () {
-                Navigator.of(context).push(MainWidget.route(""));
-              },
+                ),
+                onPressed: () {
+                Get.offAll(() => MainWidget(user: username));
+                },
               child: Row(
                 children: [
                   Icon(
@@ -307,7 +360,7 @@ class TaskOverview extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(MainHouseholdOverview.route());
+                  Get.to(const MainHouseholdOverview());
                 },
                 child: Icon(
                   CupertinoIcons.house,

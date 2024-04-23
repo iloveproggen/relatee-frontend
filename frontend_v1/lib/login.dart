@@ -1,6 +1,11 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/assets/LocaleStrings.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:postgres/postgres.dart';
 
@@ -8,6 +13,7 @@ void main() {
   runApp(const LoginApp());
 }
 
+/*
 Future<bool> authUser(String username, String password) async {
   final connection = PostgreSQLConnection(
     'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
@@ -28,14 +34,47 @@ Future<bool> authUser(String username, String password) async {
   print('SELECT id, username, password, email FROM users WHERE username = $username AND password = $password;',);
 
   return results.isNotEmpty;
-}
+}*/
 
-class LoginApp extends StatelessWidget {
+class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
 
   @override
+  State<LoginApp> createState() => _LoginAppState();
+}
+
+class _LoginAppState extends State<LoginApp> {
+
+  @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(title: 'Login App', home: LoginWidget());
+    return GetMaterialApp(
+        translations: LocaleString(),
+        locale: const Locale('en-US'),
+        fallbackLocale: const Locale('en-US'),
+        debugShowCheckedModeBanner: false,
+        title: 'Relatee',
+        theme: ThemeData(
+            fontFamily: 'Karla',
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(
+                  letterSpacing: -1,
+                  fontSize: 35,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontWeight: FontWeight.w800,
+                  fontFamily: "Karla"),
+              bodySmall: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Karla",
+                  letterSpacing: 0),
+              bodyMedium: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 74, 70, 70),
+                  fontFamily: "Sedan",
+                  letterSpacing: 0),
+            ),
+            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+        home: LoginWidget());
   }
 }
 
@@ -55,9 +94,44 @@ class LoginWidget extends StatefulWidget {
 }
 
 class LoginWidgetState extends State<LoginWidget> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   bool _isPasswordVisible = false;
 
   bool requiredFields = false;
+
+    void _login() async {
+    setState(() {
+    });
+    final connection = PostgreSQLConnection(
+      'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+      5432,
+      'relateeDB',
+      username: 'relateeDB_owner',
+      password: 'bCTNHdw8mJL3',
+      useSSL: true,
+    );
+    await connection.open();
+    List<List<dynamic>> results = await connection.query(
+        'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
+        substitutionValues: {
+          'username': _usernameController.text,
+          'password': _passwordController.text
+        });
+    await connection.close();
+    if (results.isNotEmpty) {
+      Get.to(() => MainWidget(user: _usernameController.text));
+    }
+    else
+      {
+        setState(() {
+          wrongPassword = true;
+        });
+      }
+    setState(() {
+    });
+  }
 
   void _updateRequired() {
     setState(() {
@@ -78,9 +152,6 @@ class LoginWidgetState extends State<LoginWidget> {
         _passwordController.text.isNotEmpty;
   }
 
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
   bool wrongPassword = false;
 
   @override
@@ -92,7 +163,7 @@ class LoginWidgetState extends State<LoginWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BackIconRow(),
+            const BackIconRow(username:""),
             const SizedBox(
               height: 50,
             ),
@@ -215,23 +286,25 @@ class LoginWidgetState extends State<LoginWidget> {
                         color: const Color.fromARGB(255, 243, 243, 243),
                       ),
                 child: TextButton(
-                  onPressed: () async {
+                  onPressed: requiredFields
+                  ? () async {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
-
+                    _login();
                     print("Username: $username, Password: $password");
 
-                    if (await authUser(username, password)) {
-                      Navigator.of(context).push(ProfileView.route());
-                      print("User authenticated");
-                    } else {
-                      //Navigator.of(context).push(ProfileView.route());
-                      print("User not authenticated");
-                      setState(() {
-                        wrongPassword = true;
-                      });
-                    }
-                  },
+                    // if (await authUser(username, password)) {
+                    //   Navigator.of(context).push(ProfileView.route());
+                    //   print("User authenticated");
+                    // } else {
+                    //   //Navigator.of(context).push(ProfileView.route());
+                    //   print("User not authenticated");
+                    //   setState(() {
+                    //     wrongPassword = true;
+                    //   });
+                    // }
+                  }
+                  : null,
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.only(

@@ -14,13 +14,13 @@ import 'package:postgres/postgres.dart';
 import 'assets/LocaleStrings.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const LoginApp());
 }
 //hi Michelle bug fising
 //hi maurice
 // MainWidget
 
-bool auth = true;
+bool auth = false;
 
 Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async {
   final connection = PostgreSQLConnection(
@@ -41,8 +41,9 @@ Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async 
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({super.key, required this.user});
 
+  final String user;
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -72,23 +73,21 @@ class MainApp extends StatelessWidget {
                   letterSpacing: 0),
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-        home: auth 
-        ? const MainWidget()
-        : const LoginWidget());
+        home: MainWidget(user: user));
   }
 }
 
 class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
+  const MainWidget({super.key, required this.user});
 
-  final String user = 'trostmarvin';
+  final String user;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
   static Route<dynamic> route(String user) {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
-        return const MainWidget();
+        return MainWidget(user: user);
       },
     );
   }
@@ -101,7 +100,7 @@ class MainWidget extends StatelessWidget {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const IconRow(),
+            IconRow(username: user,),
             WelcomeText(user: user),
             const ButtonRecommended(task: "do the dishes"),
             const TaskOverview(),
@@ -113,7 +112,9 @@ class MainWidget extends StatelessWidget {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key});
+  const IconRow({super.key, required this.username});
+
+  final String username;
 
   final double padding = 20;
   final double size = 40;
@@ -132,10 +133,11 @@ class IconRow extends StatelessWidget {
                 padding: EdgeInsets.only(right: padding),
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  iconSize: size,
-                  onPressed: () {
-                    Navigator.of(context).push(ProfileView.route());
-                  },
+                    iconSize: size,
+                    onPressed: () {
+                        Get.to(() => ProfileView(username: username,));
+                    print(username);
+                    },
                   icon: Icon(
                     CupertinoIcons.person_fill,
                     color: col,
@@ -147,9 +149,9 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                  onPressed: () {
-                    Navigator.of(context).push(Settings.route());
-                  },
+                    onPressed: () {
+                    Get.to(() => SettingsWidget());
+                    },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
                     color: col,
@@ -162,7 +164,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Navigator.of(context).push(ShopViewState.route());
+              Get.to(() => ShopView());
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
@@ -188,7 +190,7 @@ class WelcomeText extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 50, top: 10),
             child: SizedBox(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchUsers(username: 'trostmarvin'),
+                future: fetchUsers(username: user),
                 builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator(

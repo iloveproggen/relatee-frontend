@@ -151,7 +151,7 @@ class ShopViewState extends State<ShopView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const BackIconRow(),
+            const BackIconRow(username: ""),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
