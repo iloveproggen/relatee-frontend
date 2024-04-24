@@ -150,7 +150,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                     onPressed: () {
-                    Get.to(() => SettingsWidget());
+                    Get.to(() => Settings(username: username));
                     },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
@@ -164,7 +164,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Get.to(() => ShopView());
+              Get.to(() => ShopView(username: username));
             },
             icon: Icon(
               CupertinoIcons.cart_fill,

@@ -6,28 +6,6 @@ import 'package:frontend_v1/Create_New_ShopItem.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-import 'assets/LocaleStrings.dart';
-
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('de-DE'),
-      fallbackLocale: const Locale('en_US'),
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-    );
-  }
-}
-
 // ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
   const ShopIcon({super.key,});
@@ -93,18 +71,11 @@ class _ShopIconState extends State<ShopIcon>
 }
 
 class ShopView extends StatefulWidget {
-  const ShopView({super.key, this.itemToAdd});
+  const ShopView({super.key, this.itemToAdd, required this.username});
 
-  final ItemCard? itemToAdd; // Define itemToAdd parameter
+  final ItemCard? itemToAdd; 
+  final String username;
   
-  Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return ShopView(itemToAdd: itemToAdd);
-      },
-    );
-  }
-
   @override
   State<ShopView> createState() => ShopViewState();
 }
@@ -113,6 +84,7 @@ class ShopViewState extends State<ShopView> {
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
   ];
 
+  @override
   void initState() {
     super.initState();
     // Add item if passed through route arguments
@@ -125,21 +97,12 @@ class ShopViewState extends State<ShopView> {
       itemCards.add(item);
   }
 
-    static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const ShopView();
-      },
-    );
-  }
-
   // Getter for the itemCards list
   List<Widget> get getItemCards => itemCards;
+  String get username => widget.username;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-
   final Color colText = const Color(0xFF4A4646);
 
   @override
@@ -151,7 +114,7 @@ class ShopViewState extends State<ShopView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const BackIconRow(username: ""),
+            BackIconRow(username: username),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -165,7 +128,7 @@ class ShopViewState extends State<ShopView> {
                 ),
                 TextButton(
                     onPressed: () {
-                    Navigator.of(context).push(NewShopItem.route());
+                    Get.to(NewShopItem(username: username));
                       
                     },
                     child: const Icon(CupertinoIcons.add,
