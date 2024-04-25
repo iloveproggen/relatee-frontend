@@ -1,41 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get.dart';
 
-void main() {
-  runApp(const MainWidget());
-}
 
-class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          fontFamily: 'Karla',
-          textTheme: const TextTheme(
-            bodyLarge:
-                TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
-          ),
-          scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-        ),
-        home: const NewTask());
-  }
-}
 
 class NewTask extends StatelessWidget {
-  const NewTask({super.key});
+  const NewTask({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const NewTask();
-      },
-    );
-  }
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -45,16 +19,13 @@ class NewTask extends StatelessWidget {
           padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(username: ""),
+              BackIconRow(),
               CustomTextField(),
               SliderWidgetRepeat(),
               SliderWidgetWho(),
               SizedBox(height: 40),
               AssignTo(),
-              Repeats(),
-              WeekdaySelector(),
-              Points()
-              ,AddDescription()
+              Repeats()
             ],
           ),
         ),
@@ -74,8 +45,8 @@ class CustomTextField extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
-              decoration: const InputDecoration.collapsed(
-                hintText: 'new task..',
+              decoration: InputDecoration.collapsed(
+                hintText: ('new_task_txt'.tr),
               ),
               style: const TextStyle(
                 fontSize: 30,
@@ -126,7 +97,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Container(
-                  width: 175,
+                  width: 193,
                   height: 46,
                   decoration: BoxDecoration(
                     color: const Color(0xFFD9D9D9),
@@ -139,7 +110,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'repeat',
+                        'repeat_txt'.tr,
                         style: TextStyle(
                           color: _isPermanent
                               ? Colors.black
@@ -156,7 +127,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'only once',
+                        'only_once_txt'.tr,
                         style: TextStyle(
                           color: !_isPermanent
                               ? Colors.black
@@ -216,7 +187,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.only(top: 30.0),
+        padding: const EdgeInsets.only(top: 60.0),
         child: Container(
           width: 386,
           height: 100,
@@ -240,7 +211,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
                       });
                     },
                     child: Container(
-                      width: 170,
+                      width: 193,
                       height: 50,
                       decoration: BoxDecoration(
                         color: _selectedOption == i
@@ -277,13 +248,13 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   String _getOptionText(int optionIndex) {
     switch (optionIndex) {
       case 0:
-        return 'anyone';
+        return 'anyone_txt'.tr;
       case 1:
-        return 'everyone';
+        return 'everyone_txt'.tr;
       case 2:
-        return 'someone';
+        return 'someone_txt'.tr;
       case 3:
-        return 'rotate';
+        return 'rotate_txt'.tr;
       default:
         return '';
     }
@@ -295,58 +266,29 @@ class AssignTo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Row(
           children: [
-          Padding(
-            padding: EdgeInsets.only(top: 10, right: 15, bottom: 10),
-            child: Icon(
-                  CupertinoIcons.person_alt_circle_fill,
-                  size: 40,
-                  color: Color.fromARGB(255, 204, 198, 196),
-                ),
-          ),
-            Text("assign to: ",
-                style: TextStyle(
+            const Padding(
+              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              child: Icon(
+                CupertinoIcons.person_fill,
+                size: 40,
+                color: Color.fromARGB(255, 204, 198, 196),
+              ),
+            ),
+            Text(('assign_to_txt'.tr),
+                style: const TextStyle(
                   fontSize: 20,
                   fontFamily: "Karla",
                   color: Color.fromARGB(255, 74, 70, 70),
                 )),
           ],
         ),
-        Text(
-        "Name",
-        style: TextStyle(
-          fontSize: 20,
-          fontFamily: "Karla",
-          color: Color.fromARGB(255, 74, 70, 70),
-        ),
-        ),
-      ],
-    );
-  }
-}
-
-class Repeats extends StatelessWidget {
-  const Repeats({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 10, right: 15, bottom: 10),
-          child: Icon(
-            CupertinoIcons.clock,
-            size: 40,
-            color: Color.fromARGB(255, 204, 198, 196),
-          ),
-        ),
-        Text(
-          "repeats: ",
+        const Text(
+          "Name",
           style: TextStyle(
             fontSize: 20,
             fontFamily: "Karla",
@@ -358,16 +300,47 @@ class Repeats extends StatelessWidget {
   }
 }
 
+class Repeats extends StatelessWidget {
+  const Repeats({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        const Padding(
+          padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+          child: Icon(
+            CupertinoIcons.clock,
+            size: 40,
+            color: Color.fromARGB(255, 204, 198, 196),
+          ),
+        ),
+        Text(
+          ('repeats_txt'.tr),
+          style: const TextStyle(
+            fontSize: 20,
+            fontFamily: "Karla",
+            color: Color.fromARGB(255, 74, 70, 70),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/*
+
 class WeekdaySelector extends StatefulWidget {
-  const WeekdaySelector({super.key});
+  const WeekdaySelector({super.key})
 
   @override
   State<WeekdaySelector> createState() => _WeekdaySelectorState();
 }
 
 class _WeekdaySelectorState extends State<WeekdaySelector> {
-  final Set<String> _selectedDays = {};
-
+  Set<String> _selectedDays = {};
+  
   void _toggleDay(String day) {
     setState(() {
       if (_selectedDays.contains(day)) {
@@ -379,25 +352,21 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
   }
 
   List<Widget> _buildWeekdayWidgets() {
-    return ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'].map((day) {
+    return ['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day) {
       return GestureDetector(
         onTap: () => _toggleDay(day),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15, bottom: 15), // Hier kannst du den Abstand nach unten anpassen
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _selectedDays.contains(day) ? const Color.fromARGB(255, 99, 21, 21) : Colors.grey[300],
-            ),
-            child: Center(
-              child: Text(
-                day,
-                style: TextStyle(
-                  color: _selectedDays.contains(day) ? Colors.white : Colors.black,
-                  textBaseline: TextBaseline.alphabetic, // Dies verschiebt den Text nach unten
-                ),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _selectedDays.contains(day) ? Colors.blue : Colors.grey[300],
+          ),
+          child: Center(
+            child: Text(
+              day,
+              style: TextStyle(
+                color: _selectedDays.contains(day) ? Colors.white : Colors.black,
               ),
             ),
           ),
@@ -405,7 +374,6 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
       );
     }).toList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -416,78 +384,4 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
   }
 }
 
-class Points extends StatelessWidget {
-  const Points({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 10, right: 5),
-          child: Icon(
-            CupertinoIcons.add_circled_solid,
-            size: 40,
-            color: Color.fromARGB(255, 204, 198, 196),
-          ),
-        ),
-          Padding(
-            padding: EdgeInsets.only(top: 20, right: 20, bottom: 10),
-            child: Text(
-            "points: ",
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: "Karla",
-              color: Color.fromARGB(255, 74, 70, 70),
-            ),
-                    ),
-          ),
-      ],
-    );
-  }
-}
-
-class AddDescription extends StatelessWidget {
-  const AddDescription({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 40),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(width: 20),
-              Text(
-                'Notes:',
-                textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 20, fontFamily: "Karla"),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: TextField(
-            maxLines: 3,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-                hintText: 'None Yet',
-                hintStyle: TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
-                border: InputBorder.none),
-            style: TextStyle(
-              color: Color.fromARGB(255, 74, 70, 70),
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              letterSpacing: 0,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
+*/

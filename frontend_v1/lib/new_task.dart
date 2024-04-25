@@ -1,43 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
 
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const Scaffold(
-        body: CreateTaskView(),
-      ),
-    );
-  }
-}
 
 class CreateTaskView extends StatelessWidget {
-  const CreateTaskView({super.key});
+  const CreateTaskView({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const CreateTaskView();
-      },
-    );
-  }
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +17,7 @@ class CreateTaskView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BackIconRow(username: ""),
+            BackIconRow(),
             Text(
               'New Task...',
               style: TextStyle(

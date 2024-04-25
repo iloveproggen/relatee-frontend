@@ -4,12 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key, required this.username});
+  const NewShopItem({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   State<NewShopItem> createState() => _NewShopItemState();
@@ -19,7 +18,7 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
 
-  String get username => widget.username;
+  Future<List<Map<String, dynamic>>> get userData => widget.userData;
   bool required = false;
 
   void _updateRequired() {
@@ -49,7 +48,7 @@ class _NewShopItemState extends State<NewShopItem> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(username: username),
+              const BackIconRow(),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -143,11 +142,11 @@ class _NewShopItemState extends State<NewShopItem> {
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
-                          Get.to(() => ShopView(username: username));
+                          Get.back();
                         } else {
                           //implement here: add shopitem to shop
                           Get.to(() => ShopView(
-                            username: "",
+                            userData: userData,
                             itemToAdd: ItemCard(
                               taskName: taskName.text,
                               taskPrice: taskPrice.text,

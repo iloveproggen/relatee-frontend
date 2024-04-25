@@ -6,10 +6,6 @@ import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
-void main() {
-  runApp(const LoginApp());
-}
-
 /*
 Future<bool> authUser(String username, String password) async {
   final connection = PostgreSQLConnection(
@@ -46,7 +42,7 @@ class _LoginAppState extends State<LoginApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('en-US'),
+        locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -71,20 +67,12 @@ class _LoginAppState extends State<LoginApp> {
                   letterSpacing: 0),
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-        home: LoginWidget());
+        home: const LoginWidget());
   }
 }
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
-
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const LoginWidget();
-      },
-    );
-  }
 
   @override
   LoginWidgetState createState() => LoginWidgetState();
@@ -111,7 +99,7 @@ class LoginWidgetState extends State<LoginWidget> {
     );
     await connection.open();
     List<List<dynamic>> results = await connection.query(
-        'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username AND users.password = @password;',
         substitutionValues: {
           'username': _usernameController.text,
           'password': _passwordController.text
@@ -124,6 +112,7 @@ class LoginWidgetState extends State<LoginWidget> {
       {
         setState(() {
           wrongPassword = true;
+          timeOut = true; 
         });
       }
     setState(() {
@@ -150,6 +139,7 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   bool wrongPassword = false;
+  bool timeOut = false;
 
   @override
   Widget build(BuildContext context) {
@@ -163,9 +153,9 @@ class LoginWidgetState extends State<LoginWidget> {
             const SizedBox(
               height: 50,
             ),
-            const Text(
-              'Log In to Relatee',
-              style: TextStyle(
+            Text(
+              'Log_In_to_Relatee_txt'.tr,
+              style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
@@ -175,30 +165,30 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
             TextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(
-                  enabledBorder: OutlineInputBorder(
+                decoration: InputDecoration(
+                  enabledBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       color: Color.fromARGB(255, 204, 198, 196),
                       width: 5,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
                       color: Color.fromARGB(255, 74, 70, 70),
                     ),
                   ),
-                  border: OutlineInputBorder(
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
                     ),
                   ),
-                  hintText: 'Username or Email',
-                  contentPadding: EdgeInsets.all(20),
-                  hintStyle: TextStyle(
+                  hintText: 'Username_or_Email_txt'.tr,
+                  contentPadding: const EdgeInsets.all(20),
+                  hintStyle: const TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
                   ),
                 ),
@@ -230,8 +220,8 @@ class LoginWidgetState extends State<LoginWidget> {
                     width: 5,
                   ),
                 ),
-                hintText: 'Password',
-                contentPadding: EdgeInsets.all(20),
+                hintText: 'Password_txt'.tr,
+                contentPadding: const EdgeInsets.all(20),
                 hintStyle: const TextStyle(
                   color: Color.fromARGB(255, 204, 198, 196),
                 ),
@@ -306,7 +296,7 @@ class LoginWidgetState extends State<LoginWidget> {
                       padding: const EdgeInsets.only(
                           top: 10, bottom: 10, left: 15, right: 15),
                       child: Text(
-                        "Log In",
+                        'Log_In_txt'.tr,
                         style: requiredFields
                             ? const TextStyle(
                                 color: Color.fromARGB(255, 243, 243, 243),
@@ -330,6 +320,20 @@ class LoginWidgetState extends State<LoginWidget> {
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
                   child: Text(
                     "Wrong username or password!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              if (timeOut) // change this to show error on timeout
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "Issues connecting to the server, try again later.",
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",

@@ -14,49 +14,50 @@ String getDueDaysInText(int days) {
   }
 }
 
-Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
-  final connection = PostgreSQLConnection(
-    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-    5432,
-    'relateeDB',
-    username: 'relateeDB_owner',
-    password: 'bCTNHdw8mJL3',
-    useSSL: true,
-  );
-  await connection.open();
-  print(' fetching $username\'s data');
-  List<List<dynamic>> results = await connection.query(
-      'SELECT users.forename, users.surname, users.username FROM users WHERE username = @username',
-      substitutionValues: {'username': username});
-  await connection.close();
-
-  print(results);
-  print(results.isNotEmpty);
-  print(
-    'SELECT users.forename, users.surname, users.username FROM users WHERE username = $username',
-  );
-
-  return results
-      .map((row) => {
-            'id': row[0],
-            'forename': row[1],
-            'surname': row[2],
-            'username': row[3],
-          })
-      .toList();
-}
-
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.username});
+  const ProfileView({super.key, required this.userData});
 
-  final String username;
+  final  Future<List<Map<String, dynamic>>> userData;
 
-  static Route<dynamic> route({required String username}) {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return ProfileView(username: username);
-      },
+  Future<List<Map<String, dynamic>>> fetchUser(
+      {required String username}) async {
+    final connection = PostgreSQLConnection(
+      'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+      5432,
+      'relateeDB',
+      username: 'relateeDB_owner',
+      password: 'bCTNHdw8mJL3',
+      useSSL: true,
     );
+    await connection.open();
+    print('fetching $username\'s data');
+    List<List<dynamic>> results = await connection.query(
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username',
+        substitutionValues: {'username': username});
+    await connection.close();
+
+    print(results
+        .map((row) => {
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
+            })
+        .toList());
+    return results
+        .map((row) => {
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
+            })
+        .toList();
   }
 
   @override
@@ -72,7 +73,7 @@ class ProfileView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BackIconRow(username: username),
+                  const BackIconRow(),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
@@ -97,8 +98,7 @@ class ProfileView extends StatelessWidget {
                               CupertinoDialogAction(
                                 child: const Text('Continue'),
                                 onPressed: () {
-                                  Navigator.of(context)
-                                      .push(LoginWidget.route());
+                                  Get.to(() => const LoginWidget());
                                 },
                               ),
                             ],
@@ -162,32 +162,79 @@ class ProfileView extends StatelessWidget {
                   ),
                 ],
               ),
-              // FutureBuilder<List<Map<String, dynamic>>>(
-              //   future: fetchUser(username: username),
-              //   builder: (context, snapshot) {
-              //     return ListView.builder(
-              //       shrinkWrap: true,
-              //       physics: const NeverScrollableScrollPhysics(),
-              //       itemCount: snapshot.data?.length,
-              //       itemBuilder: (context, index) {
-              //         return Column(
-              //           mainAxisAlignment: MainAxisAlignment.start,
-              //           crossAxisAlignment: CrossAxisAlignment.center,
-              //           children: [
-              //             Text(
-              //               '${snapshot.data?[index]['forename']} ${snapshot.data?[index]['surname']}',
-              //               style: const TextStyle(
-              //                 color: Color(0xFF4A4646),
-              //                 fontSize: 32,
-              //                 fontWeight: FontWeight.w700,
-              //               ),
-              //           ),
-              //           ],
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: userData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    print('Error: ${snapshot.error}');
+                    return const Placeholder();
+                  } else if (snapshot.hasData) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${snapshot.data![index]['forename']} ${snapshot.data![index]['surname']}',
+                              style: const TextStyle(
+                                color: Color(0xFF4A4646),
+                                fontSize: 40,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: ('part_household'.tr),
+                                    style: const TextStyle(
+                                      color: Color(0xFF4A4646),
+                                      fontSize: 20,
+                                      fontFamily: 'Karla',
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        '"${snapshot.data![index]['householdName']}"',
+                                    style: const TextStyle(
+                                      color: Color(0xFF4A4646),
+                                      fontSize: 15,
+                                      fontFamily: 'Karla',
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '@${snapshot.data![index]['username']}',
+                              style: const TextStyle(
+                                color: Color(0xFF4A4646),
+                                fontSize: 20,
+                                fontFamily: 'Karla',
+                                fontWeight: FontWeight.w300,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    return const Text('No data available');
+                  }
+                },
+              ),
               // const Text(
               //   'Michelle Gerwald',
               //   style: TextStyle(
@@ -197,46 +244,10 @@ class ProfileView extends StatelessWidget {
               //   ),
               //   textAlign: TextAlign.center,
               // ),
-              const SizedBox(height: 10),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: ('part_household'.tr),
-                      style: const TextStyle(
-                        color: Color(0xFF4A4646),
-                        fontSize: 15,
-                        fontFamily: 'Karla',
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    const TextSpan(
-                      text: '"Campus Living"',
-                      style: TextStyle(
-                        color: Color(0xFF4A4646),
-                        fontSize: 15,
-                        fontFamily: 'Karla',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                '@michiee123',
-                style: TextStyle(
-                  color: Color(0xFF4A4646),
-                  fontSize: 16,
-                  fontFamily: 'Karla',
-                  fontWeight: FontWeight.w300,
-                ),
-                textAlign: TextAlign.center,
-              ),
+
               const Divider(
                   color: Color(0xFFEDECEC), height: 100, thickness: 2),
-              const TaskOverview(),
+              TaskOverview(userData: userData),
             ],
           ),
         ),
@@ -266,9 +277,8 @@ class ProfileView extends StatelessWidget {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key, required this.username});
+  const BackIconRow({super.key});
 
-  final String username;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -285,10 +295,10 @@ class BackIconRow extends StatelessWidget {
             child: TextButton(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-                ),
-                onPressed: () {
-                Get.offAll(() => MainWidget(user: username));
-                },
+              ),
+              onPressed: () async {
+                Get.back();
+              },
               child: Row(
                 children: [
                   Icon(
@@ -302,8 +312,8 @@ class BackIconRow extends StatelessWidget {
                   //   color: col,
                   //   size: 18,
                   // )
-                  const Text("back",
-                      style: TextStyle(
+                  Text('back_button_text'.tr,
+                      style: const TextStyle(
                           color: Color.fromARGB(255, 204, 198, 196),
                           fontSize: 15,
                           fontFamily: "Karla",
@@ -319,7 +329,9 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData});
+
+  final Future<List<Map<String, dynamic>>> userData; 
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -360,7 +372,7 @@ class TaskOverview extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(const MainHouseholdOverview());
+                  Get.to(MainHouseholdOverview(userData: userData));
                 },
                 child: Icon(
                   CupertinoIcons.house,
