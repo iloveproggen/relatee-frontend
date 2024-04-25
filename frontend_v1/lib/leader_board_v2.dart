@@ -21,26 +21,28 @@ class MainLeaderboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-            body: SingleChildScrollView(
-          child: Column(
-            children: [
-              MembersText(),
-              ChartLeaderboard(),
-            ],
-          ),
-        ));
+        body: SingleChildScrollView(
+      child: Column(
+        children: [
+          MembersText(),
+          ChartLeaderboard(),
+        ],
+      ),
+    ));
   }
 }
 
 class MembersText extends StatelessWidget {
   const MembersText({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.only(left: 15.0, right: 15, bottom: 15, top: 70),
+        padding:
+            const EdgeInsets.only(left: 15.0, right: 15, bottom: 15, top: 70),
         child: Text(
           'Members_txt'.tr,
           style: TextStyle(fontSize: 20),
@@ -53,6 +55,9 @@ class MembersText extends StatelessWidget {
 
 class ChartLeaderboard extends StatelessWidget {
   const ChartLeaderboard({super.key});
+
+final Color col = const Color.fromARGB(255, 204, 198, 196);
+
 
   @override
   Widget build(BuildContext context) {
