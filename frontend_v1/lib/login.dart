@@ -6,10 +6,6 @@ import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
-void main() {
-  runApp(const LoginApp());
-}
-
 /*
 Future<bool> authUser(String username, String password) async {
   final connection = PostgreSQLConnection(
@@ -78,14 +74,6 @@ class _LoginAppState extends State<LoginApp> {
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const LoginWidget();
-      },
-    );
-  }
-
   @override
   LoginWidgetState createState() => LoginWidgetState();
 }
@@ -111,7 +99,7 @@ class LoginWidgetState extends State<LoginWidget> {
     );
     await connection.open();
     List<List<dynamic>> results = await connection.query(
-        'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username AND users.password = @password;',
         substitutionValues: {
           'username': _usernameController.text,
           'password': _passwordController.text
@@ -325,6 +313,20 @@ class LoginWidgetState extends State<LoginWidget> {
               ),
             ),
             if (wrongPassword)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "Wrong username or password!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              if (wrongPassword) // change this to show error on timeout
               const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
