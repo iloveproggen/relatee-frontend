@@ -36,6 +36,10 @@ class LocaleString extends Translations {
           'back_txt': 'back',
           'Choose_your_language_txt': 'Choose your language:',
           'Change_Language_txt': 'Change Language',
+          'Log_In_to_Relatee_txt': 'Log In to Relatee,',
+          'Username_or_Email_txt': 'Username or Email',
+          'Password_txt': 'Password',
+          'Log_In_txt': 'Log in',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -70,6 +74,10 @@ class LocaleString extends Translations {
           'back_txt': 'zurück',
           'Choose_your_language_txt': 'Wähle deine Sprache:',
           'Change_Language_txt': 'Sprache ändern',
+          'Log_In_to_Relatee_txt': 'Anmelden bei Relatee,',
+          'Username_or_Email_txt': 'Benutzername oder Email',
+          'Password_txt': 'Passwort',
+          'Log_In_txt': 'Log in',
         }
       };
 }
