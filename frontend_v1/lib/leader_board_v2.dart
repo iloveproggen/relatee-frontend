@@ -2,7 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'assets/LocaleStrings.dart';
 
 void main() {
   runApp(const MainLeaderboardView());
@@ -21,11 +20,7 @@ class MainLeaderboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-        translations: LocaleString(),
-        locale: Locale('de-DE'),
-        fallbackLocale: Locale('en-US'),
-        home: const Scaffold(
+    return const Scaffold(
             body: SingleChildScrollView(
           child: Column(
             children: [
@@ -33,7 +28,7 @@ class MainLeaderboardView extends StatelessWidget {
               ChartLeaderboard(),
             ],
           ),
-        )));
+        ));
   }
 }
 
@@ -45,7 +40,7 @@ class MembersText extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.only(left: 15.0, right: 15, bottom: 15, top: 70),
         child: Text(
           'Members_txt'.tr,
           style: TextStyle(fontSize: 20),
