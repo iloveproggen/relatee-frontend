@@ -1,54 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
 
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const Scaffold(
-        body: CreateTaskView(),
-      ),
-    );
-  }
-}
 
 class CreateTaskView extends StatelessWidget {
-  const CreateTaskView({super.key});
+  const CreateTaskView({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const CreateTaskView();
-      },
-    );
-  }
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BackIconRow(username: ""),
-            Text(
+            BackIconRow(userData: userData),
+            const Text(
               'New Task...',
               style: TextStyle(
                 color: Color(0xFF4A4646),
@@ -57,10 +27,10 @@ class CreateTaskView extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 20),
-            TaskDetailsWidget(),
-            SizedBox(height: 20),
-            NotesWidget(),
+            const SizedBox(height: 20),
+            const TaskDetailsWidget(),
+            const SizedBox(height: 20),
+            const NotesWidget(),
           ],
         ),
       ),

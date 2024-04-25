@@ -3,9 +3,9 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
 class Settings extends StatelessWidget {
-  const Settings({super.key, required this.username});
+  const Settings({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
@@ -18,7 +18,7 @@ class Settings extends StatelessWidget {
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BackIconRow(username: username),
+                BackIconRow(userData: userData),
                 const SettingsWidget(),
               ]),
         ),

@@ -2,56 +2,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 
-void main() {
-  runApp(const MainWidget());
-}
 
-class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          fontFamily: 'Karla',
-          textTheme: const TextTheme(
-            bodyLarge:
-                TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
-          ),
-          scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-        ),
-        home: const NewTask());
-  }
-}
 
 class NewTask extends StatelessWidget {
-  const NewTask({super.key});
+  const NewTask({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const NewTask();
-      },
-    );
-  }
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(username: ""),
-              CustomTextField(),
-              SliderWidgetRepeat(),
-              SliderWidgetWho(),
-              SizedBox(height: 40),
-              AssignTo(),
-              Repeats()
+              BackIconRow(userData: userData),
+              const CustomTextField(),
+              const SliderWidgetRepeat(),
+              const SliderWidgetWho(),
+              const SizedBox(height: 40),
+              const AssignTo(),
+              const Repeats()
             ],
           ),
         ),

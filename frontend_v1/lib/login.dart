@@ -112,6 +112,7 @@ class LoginWidgetState extends State<LoginWidget> {
       {
         setState(() {
           wrongPassword = true;
+          timeOut = true; 
         });
       }
     setState(() {
@@ -138,6 +139,7 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   bool wrongPassword = false;
+  bool timeOut = false;
 
   @override
   Widget build(BuildContext context) {
@@ -326,12 +328,12 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
               ),
-              if (wrongPassword) // change this to show error on timeout
+              if (timeOut) // change this to show error on timeout
               const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
                   child: Text(
-                    "Wrong username or password!",
+                    "Issues connecting to the server, try again later.",
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",

@@ -15,9 +15,9 @@ String getDueDaysInText(int days) {
 }
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.username});
+  const ProfileView({super.key, required this.userData});
 
-  final String username;
+  final  Future<List<Map<String, dynamic>>> userData;
 
   Future<List<Map<String, dynamic>>> fetchUser(
       {required String username}) async {
@@ -32,22 +32,30 @@ class ProfileView extends StatelessWidget {
     await connection.open();
     print('fetching $username\'s data');
     List<List<dynamic>> results = await connection.query(
-        'SELECT forename, surname, username FROM users WHERE username = @username',
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username',
         substitutionValues: {'username': username});
     await connection.close();
 
     print(results
         .map((row) => {
-              'forename': row[0],
-              'surname': row[1],
-              'username': row[2],
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
             })
         .toList());
     return results
         .map((row) => {
-              'forename': row[0],
-              'surname': row[1],
-              'username': row[2],
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
             })
         .toList();
   }
@@ -65,7 +73,7 @@ class ProfileView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BackIconRow(username: username),
+                  BackIconRow(userData: userData),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
@@ -155,7 +163,7 @@ class ProfileView extends StatelessWidget {
                 ],
               ),
               FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchUser(username: username),
+                future: userData,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
@@ -176,7 +184,7 @@ class ProfileView extends StatelessWidget {
                               '${snapshot.data![index]['forename']} ${snapshot.data![index]['surname']}',
                               style: const TextStyle(
                                 color: Color(0xFF4A4646),
-                                fontSize: 32,
+                                fontSize: 40,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -188,14 +196,15 @@ class ProfileView extends StatelessWidget {
                                     text: ('part_household'.tr),
                                     style: const TextStyle(
                                       color: Color(0xFF4A4646),
-                                      fontSize: 15,
+                                      fontSize: 20,
                                       fontFamily: 'Karla',
                                       fontWeight: FontWeight.w300,
                                     ),
                                   ),
-                                  const TextSpan(
-                                    text: '"Campus Living"',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '"${snapshot.data![index]['householdName']}"',
+                                    style: const TextStyle(
                                       color: Color(0xFF4A4646),
                                       fontSize: 15,
                                       fontFamily: 'Karla',
@@ -211,7 +220,7 @@ class ProfileView extends StatelessWidget {
                               '@${snapshot.data![index]['username']}',
                               style: const TextStyle(
                                 color: Color(0xFF4A4646),
-                                fontSize: 16,
+                                fontSize: 20,
                                 fontFamily: 'Karla',
                                 fontWeight: FontWeight.w300,
                               ),
@@ -238,7 +247,7 @@ class ProfileView extends StatelessWidget {
 
               const Divider(
                   color: Color(0xFFEDECEC), height: 100, thickness: 2),
-              const TaskOverview(),
+              TaskOverview(userData: userData),
             ],
           ),
         ),
@@ -268,9 +277,9 @@ class ProfileView extends StatelessWidget {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key, required this.username});
+  const BackIconRow({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -288,8 +297,9 @@ class BackIconRow extends StatelessWidget {
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
               ),
-              onPressed: () {
-                Get.offAll(() => MainWidget(user: username));
+              onPressed: () async {
+                List<Map<String, dynamic>> userDataList = await userData; 
+                Get.offAll(() => MainWidget(user: userDataList[0]['username']));
               },
               child: Row(
                 children: [
@@ -321,7 +331,9 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData});
+
+  final Future<List<Map<String, dynamic>>> userData; 
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -362,7 +374,7 @@ class TaskOverview extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(const MainHouseholdOverview());
+                  Get.to(MainHouseholdOverview(userData: userData));
                 },
                 child: Icon(
                   CupertinoIcons.house,

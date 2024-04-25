@@ -70,6 +70,7 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final Future<List<Map<String, dynamic>>> userData = fetchUser(username: user);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -77,11 +78,11 @@ class MainWidget extends StatelessWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             IconRow(
-              username: user,
+              userData: userData,
             ),
-            WelcomeText(user: user),
+            WelcomeText(userData: userData),
             const ButtonRecommended(task: "do the dishes"),
-            const TaskOverview(),
+            TaskOverview(userData: userData),
           ]),
         ),
       ),
@@ -90,9 +91,10 @@ class MainWidget extends StatelessWidget {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.username});
+  const IconRow({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
+  
 
   final double padding = 20;
   final double size = 40;
@@ -112,9 +114,10 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                  onPressed: () {
-                    Get.to(() => ProfileView(username: username));
-                    print(username);
+                  onPressed: () async {
+                    Get.to(() => ProfileView(userData: userData));
+                    List<Map<String, dynamic>> userDataList = await userData; 
+                    print(userDataList[0]['username']);
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -128,7 +131,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Get.to(() => Settings(username: username));
+                    Get.to(() => Settings(userData: userData));
                   },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
@@ -142,7 +145,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Get.to(() => ShopView(username: username));
+              Get.to(() => ShopView(userData: userData));
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
@@ -157,8 +160,10 @@ class IconRow extends StatelessWidget {
 
 // TextWidget
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key, required this.user});
-  final String user;
+  const WelcomeText({super.key, required this.userData});
+
+  final  Future<List<Map<String, dynamic>>> userData;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -167,7 +172,7 @@ class WelcomeText extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 50, top: 10),
             child: SizedBox(
                 child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchUser(username: user),
+              future: userData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator(
@@ -444,15 +449,21 @@ class ButtonRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData});
+
+  
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
-  State<TaskOverview> createState() => _TaskState();
+  State<TaskOverview> createState() => _TaskState(userData: userData);
 }
 
 class _TaskState extends State<TaskOverview> {
+  _TaskState({required this.userData});
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
+  final Future<List<Map<String, dynamic>>> userData;
+
 
   @override
   Widget build(BuildContext context) {
@@ -470,7 +481,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyLarge),
               TextButton(
                   onPressed: () {
-                    Navigator.of(context).push(NewTask.route());
+                    Get.to(()=> NewTask(userData: userData));
                   },
                   child: Icon(CupertinoIcons.add, color: col, size: 35))
             ],
@@ -506,7 +517,7 @@ class _TaskState extends State<TaskOverview> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(MainHouseholdOverview.route());
+                  Get.to(() => MainHouseholdOverview(userData: userData));
                 },
                 child: Row(
                   children: [
