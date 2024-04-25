@@ -48,7 +48,7 @@ class _NewShopItemState extends State<NewShopItem> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(userData: userData),
+              const BackIconRow(),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -142,7 +142,7 @@ class _NewShopItemState extends State<NewShopItem> {
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
-                          Get.to(() => ShopView(userData: userData));
+                          Get.back();
                         } else {
                           //implement here: add shopitem to shop
                           Get.to(() => ShopView(

@@ -13,19 +13,19 @@ class NewTask extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(userData: userData),
-              const CustomTextField(),
-              const SliderWidgetRepeat(),
-              const SliderWidgetWho(),
-              const SizedBox(height: 40),
-              const AssignTo(),
-              const Repeats()
+              BackIconRow(),
+              CustomTextField(),
+              SliderWidgetRepeat(),
+              SliderWidgetWho(),
+              SizedBox(height: 40),
+              AssignTo(),
+              Repeats()
             ],
           ),
         ),

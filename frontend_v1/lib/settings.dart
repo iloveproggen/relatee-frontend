@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -15,16 +16,37 @@ class Settings extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-              child:
+          child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-             BackIconRow(userData: userData),
-             const SettingsWidget(),
-             ElevatedButton(
-                 onPressed: () {
-                   builddialog(context);
-                 },
-                 child: Text('Change_Language_txt'.tr)),
-           ]),
+            const BackIconRow(),
+            const SettingsWidget(),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                      border: Border.all(
+                          strokeAlign: BorderSide.strokeAlignInside,
+                          width: 5,
+                          color: const Color.fromARGB(255, 204, 198, 196)),
+                      color: const Color.fromARGB(255, 204, 198, 196),
+                    ),
+              child: TextButton(
+                onPressed: () {
+                    cupertinoBuildDialog(context);
+                  },
+                child: Padding(
+                    padding: const EdgeInsets.only(
+                          top: 10, bottom: 10, left: 15, right: 15),
+                    child: Text('Change_Language_txt'.tr, style: const TextStyle(
+                                color:  Color.fromARGB(255, 243, 243, 243),
+                                fontFamily: "Karla",
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900)),
+                  ),
+              ),
+            ),
+          ]),
         ),
       ),
     );
@@ -58,7 +80,8 @@ class SettingsWidget extends StatelessWidget {
 }
 
 class OneSetting extends StatelessWidget {
-  const OneSetting({super.key, required this.settingname, required this.setter});
+  const OneSetting(
+      {super.key, required this.settingname, required this.setter});
 
   final String settingname;
   final Widget setter;
@@ -70,40 +93,43 @@ class OneSetting extends StatelessWidget {
 }
 
 updateLanguage(Locale locale) {
-     Get.back();
-     Get.updateLocale(locale);
-   }
+  Get.back();
+  Get.updateLocale(locale);
+}
 
-   final List locale = [
-     {'name': 'english', 'locale': Locale('en-US')},
-     {'name': 'german', 'locale': Locale('de-DE')}
-   ];
 
-   builddialog(BuildContext context) {
-     showDialog(
-         context: context,
-         builder: (builder) {
-           return AlertDialog(
-             title: Text('Choose_your_language_txt'.tr),
-             content: Container(
-               width: double.maxFinite,
-               child: ListView.separated(
-                   shrinkWrap: true,
-                   itemBuilder: (context, index) {
-                     return Padding(
-                       padding: const EdgeInsets.all(8.0),
-                       child: GestureDetector(
-                           onTap: () {
-                             updateLanguage(locale[index]['locale']);
-                           },
-                           child: Text(locale[index]['name'])),
-                     );
-                   },
-                   separatorBuilder: (context, index) {
-                     return Divider(color: Colors.blue);
-                   },
-                   itemCount: locale.length),
-             ),
-           );
-         });
-   }
+cupertinoBuildDialog(BuildContext context) {
+  showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: const Text('Select Language'),
+          actions: <Widget>[
+            CupertinoActionSheetAction(
+              child: const Text('German'),
+              onPressed: () {
+                updateLanguage(const Locale('de-DE'));
+                // Add logic for selecting German language
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text('English'),
+              onPressed: () {
+                // Add logic for selecting English language
+                Navigator.pop(context);
+                updateLanguage(const Locale('en-US'));
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: const Text('Cancel'),
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
+}

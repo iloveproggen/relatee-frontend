@@ -42,7 +42,7 @@ class _LoginAppState extends State<LoginApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('de-DE'),
+        locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -67,7 +67,7 @@ class _LoginAppState extends State<LoginApp> {
                   letterSpacing: 0),
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-        home: LoginWidget());
+        home: const LoginWidget());
   }
 }
 
@@ -155,7 +155,7 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
             Text(
               'Log_In_to_Relatee_txt'.tr,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
@@ -166,29 +166,29 @@ class LoginWidgetState extends State<LoginWidget> {
             TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
+                  enabledBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       color: Color.fromARGB(255, 204, 198, 196),
                       width: 5,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
                       color: Color.fromARGB(255, 74, 70, 70),
                     ),
                   ),
-                  border: OutlineInputBorder(
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
                     ),
                   ),
                   hintText: 'Username_or_Email_txt'.tr,
-                  contentPadding: EdgeInsets.all(20),
-                  hintStyle: TextStyle(
+                  contentPadding: const EdgeInsets.all(20),
+                  hintStyle: const TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
                   ),
                 ),
@@ -221,7 +221,7 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
                 hintText: 'Password_txt'.tr,
-                contentPadding: EdgeInsets.all(20),
+                contentPadding: const EdgeInsets.all(20),
                 hintStyle: const TextStyle(
                   color: Color.fromARGB(255, 204, 198, 196),
                 ),

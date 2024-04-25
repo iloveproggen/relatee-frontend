@@ -11,14 +11,14 @@ class CreateTaskView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BackIconRow(userData: userData),
-            const Text(
+            BackIconRow(),
+            Text(
               'New Task...',
               style: TextStyle(
                 color: Color(0xFF4A4646),
@@ -27,10 +27,10 @@ class CreateTaskView extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 20),
-            const TaskDetailsWidget(),
-            const SizedBox(height: 20),
-            const NotesWidget(),
+            SizedBox(height: 20),
+            TaskDetailsWidget(),
+            SizedBox(height: 20),
+            NotesWidget(),
           ],
         ),
       ),

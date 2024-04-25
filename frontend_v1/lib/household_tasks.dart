@@ -19,7 +19,7 @@ class MainHouseholdOverview extends StatelessWidget {
             child: Padding(
       padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
-        children: [BackIconRow(userData: userData), HouseholdOverview(userData: userData)],
+        children: [const BackIconRow(), HouseholdOverview(userData: userData)],
       ),
     )));
   }

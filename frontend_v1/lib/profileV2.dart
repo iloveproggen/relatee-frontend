@@ -73,7 +73,7 @@ class ProfileView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BackIconRow(userData: userData),
+                  const BackIconRow(),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
@@ -277,9 +277,8 @@ class ProfileView extends StatelessWidget {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key, required this.userData});
+  const BackIconRow({super.key});
 
-  final Future<List<Map<String, dynamic>>> userData;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -298,8 +297,7 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                List<Map<String, dynamic>> userDataList = await userData; 
-                Get.offAll(() => MainWidget(user: userDataList[0]['username']));
+                Get.back();
               },
               child: Row(
                 children: [
@@ -315,7 +313,7 @@ class BackIconRow extends StatelessWidget {
                   //   size: 18,
                   // )
                   Text('back_button_text'.tr,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Color.fromARGB(255, 204, 198, 196),
                           fontSize: 15,
                           fontFamily: "Karla",
