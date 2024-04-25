@@ -57,19 +57,7 @@ class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.user});
 
   final String user;
-
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
-  static Route<dynamic> route(String user) {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return MainWidget(user: user);
-      },
-    );
-  }
-
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -400,17 +388,19 @@ class ButtonShort extends StatelessWidget {
                         fontSize: 60,
                         fontWeight: FontWeight.bold,
                         fontFamily: "Karla"),
-                    maxLines: 1,
+                    maxLines: 2,
+                    
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                     child: Text(textBelow,
                         style: const TextStyle(
                             fontSize: 20,
+                            height: 1,
                             fontFamily: "Karla",
                             letterSpacing: -0.5),
                         textAlign: TextAlign.center,
-                        maxLines: 1),
+                        maxLines: 2),
                   )
                 ],
               )),
