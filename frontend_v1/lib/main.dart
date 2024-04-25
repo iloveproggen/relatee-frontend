@@ -2,30 +2,53 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
-import 'package:frontend_v1/new_task.dart';
+import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
+import 'package:postgres/postgres.dart';
 
 import 'assets/LocaleStrings.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const LoginApp());
 }
 //hi Michelle bug fising
 //hi maurice
 // MainWidget
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+bool auth = false;
 
+Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async {
+  final connection = PostgreSQLConnection(
+    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+    5432,
+    'relateeDB',
+    username: 'relateeDB_owner',
+    password: 'bCTNHdw8mJL3',
+    useSSL: true,
+  );
+  await connection.open();
+  List<List<dynamic>> results = await connection.query(
+      'SELECT id, forename FROM users WHERE username = @username;',
+      substitutionValues: {'username': username});
+  await connection.close();
+
+  return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key, required this.user});
+
+  final String user;
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('sv-SE'),
+        locale: const Locale('en-US'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -50,37 +73,38 @@ class MainApp extends StatelessWidget {
                   letterSpacing: 0),
             ),
             scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
-        home: const MainWidget());
+        home: MainWidget(user: user));
   }
 }
 
 class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
+  const MainWidget({super.key, required this.user});
+
+  final String user;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
-  static Route<dynamic> route() {
+  static Route<dynamic> route(String user) {
     return CupertinoPageRoute(
       builder: (BuildContext context) {
-        return const MainWidget();
+        return MainWidget(user: user);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IconRow(),
-                WelcomeText(),
-                ButtonRecommended(task: "do the dishes"),
-                TaskOverview(),
-              ]),
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            IconRow(username: user,),
+            WelcomeText(user: user),
+            const ButtonRecommended(task: "do the dishes"),
+            const TaskOverview(),
+          ]),
         ),
       ),
     );
@@ -88,7 +112,9 @@ class MainWidget extends StatelessWidget {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key});
+  const IconRow({super.key, required this.username});
+
+  final String username;
 
   final double padding = 20;
   final double size = 40;
@@ -107,10 +133,11 @@ class IconRow extends StatelessWidget {
                 padding: EdgeInsets.only(right: padding),
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  iconSize: size,
-                  onPressed: () {
-                    Navigator.of(context).push(ProfileView.route());
-                  },
+                    iconSize: size,
+                    onPressed: () {
+                        Get.to(() => ProfileView(username: username,));
+                    print(username);
+                    },
                   icon: Icon(
                     CupertinoIcons.person_fill,
                     color: col,
@@ -122,8 +149,9 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                  onPressed: () {
-                    Navigator.of(context).push(Settings.route());},
+                    onPressed: () {
+                    Get.to(() => Settings(username: username));
+                    },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
                     color: col,
@@ -136,7 +164,8 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-               Navigator.of(context).push(ShopView.route());},
+              Get.to(() => ShopView(username: username));
+            },
             icon: Icon(
               CupertinoIcons.cart_fill,
               color: col,
@@ -150,28 +179,63 @@ class IconRow extends StatelessWidget {
 
 // TextWidget
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key});
 
+  const WelcomeText({super.key, required this.user});
+  final String user;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 50, top: 10),
-          child: SizedBox(
-              width: double.infinity,
-              child: Column(
+            padding: const EdgeInsets.only(bottom: 50, top: 10),
+            child: SizedBox(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchUsers(username: user),
+                builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator(
+                  color:  Color.fromARGB(255, 204, 198, 196),
+                  strokeWidth: 5,
+                  strokeCap: StrokeCap.round,
+                );
+                } else if (snapshot.hasError) {
+                print('Error: ${snapshot.error}');
+                return Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${'welcome_title'.tr} Michelle!',
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
+                  Text('${'welcome_title'.tr}, hackerman!!!!',
+                  style: const TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
-                      style: Theme.of(context).textTheme.bodySmall),
+                  style: Theme.of(context).textTheme.bodySmall),
                 ],
-              )),
-        ),
+                );
+                } else {
+                return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: snapshot.data?.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  Text(
+                    '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
+                    maxLines: 2,
+                    style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold)),
+                  Text('welcome_message'.tr,
+                    style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                  );
+                },
+                );
+                }
+                },
+              ))),
         Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -180,7 +244,7 @@ class WelcomeText extends StatelessWidget {
                   style: const TextStyle(
                       color: Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
-                      fontFamily: "Karla")),
+                      fontFamily: "Karla", fontWeight: FontWeight.bold)),
             )),
       ],
     );
@@ -428,14 +492,10 @@ class _TaskState extends State<TaskOverview> {
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyLarge),
               TextButton(
-                onPressed: (){
-                  Navigator.of(context).push(CreateTaskView.route());
-                },
-                child: Icon(
-                  CupertinoIcons.add,
-                  color: col,
-                  size: 35)
-              )
+                  onPressed: () {
+                    Navigator.of(context).push(NewTask.route());
+                  },
+                  child: Icon(CupertinoIcons.add, color: col, size: 35))
             ],
           ),
         ),

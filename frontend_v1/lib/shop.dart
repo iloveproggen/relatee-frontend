@@ -1,44 +1,109 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/Create_New_ShopItem.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
-import 'assets/LocaleStrings.dart';
+// ignore: must_be_immutable
+class ShopIcon extends StatefulWidget {
+  const ShopIcon({super.key,});
 
-void main() {
-  runApp(const FigmaToCodeApp());
+  @override
+  State<ShopIcon> createState() => _ShopIconState();
 }
 
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
+class _ShopIconState extends State<ShopIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _colorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration:
+          const Duration(milliseconds: 300), // Adjust the duration as needed
+    );
+    _colorAnimation = ColorTween(
+      begin: const Color.fromARGB(255, 204, 198, 196), // Initial color
+      end: const Color.fromARGB(255, 112, 80, 228), // Target color
+    ).animate(_controller);
+    _controller.addListener(() {
+      setState(() {}); // Trigger rebuild when animation value changes
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleColor() {
+    if (_controller.status == AnimationStatus.completed) {
+      _controller.reverse(); // If animation is completed, reverse it
+    } else {
+      _controller.forward(); // Otherwise, start the animation
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('de-DE'),
-      fallbackLocale: const Locale('en_US'),
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+    return GestureDetector(
+      onTap: () {
+        _toggleColor(); // Toggle the color animation
+      },
+      child: SvgPicture.asset(
+        "assets/images/relatee.svg",
+        height: 40,
+        colorFilter: ColorFilter.mode(
+          _colorAnimation.value ??
+              Colors
+                  .transparent, // Provide a default color if _colorAnimation.value is null
+          BlendMode.srcIn,
+        ),
       ),
-      home:const  ShopView(),
-        );
+    );
   }
 }
 
-class ShopView extends StatelessWidget {
-  const ShopView({super.key});
+class ShopView extends StatefulWidget {
+  const ShopView({super.key, this.itemToAdd, required this.username});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const ShopView();
-      },
-    );
+  final ItemCard? itemToAdd; 
+  final String username;
+  
+  @override
+  State<ShopView> createState() => ShopViewState();
+}
+class ShopViewState extends State<ShopView> {
+  final List<Widget> itemCards = [
+    const ItemCard(taskName: "Task 1", taskPrice: "9999")
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Add item if passed through route arguments
+    if (widget.itemToAdd != null) {
+      addItem(widget.itemToAdd!);
+    }
   }
+
+  void addItem(ItemCard item) {
+      itemCards.add(item);
+  }
+
+  // Getter for the itemCards list
+  List<Widget> get getItemCards => itemCards;
+  String get username => widget.username;
+
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
 
   @override
   Widget build(BuildContext context) {
@@ -49,29 +114,25 @@ class ShopView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const BackIconRow(),
+            BackIconRow(username: username),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'The Shop',
-                  style: TextStyle(
+                Text(
+                  'Shop_title'.tr,
+                  style: const TextStyle(
                     color: Color(0xFF4A4646),
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: 10),
-                SvgPicture.asset(
-                  "assets/images/relatee.svg" ,
-                  height: 40,
-                  colorFilter: const ColorFilter.mode(Color.fromARGB(255, 204, 198, 196,), BlendMode.srcIn),
-                ),
-                const Icon(
-                  CupertinoIcons.cart_fill,
-                  size: 40,
-                  color: Color.fromARGB(255, 204, 198, 196),
-                )
+                TextButton(
+                    onPressed: () {
+                    Get.to(NewShopItem(username: username));
+                      
+                    },
+                    child: const Icon(CupertinoIcons.add,
+                        color: Color.fromARGB(255, 204, 198, 196), size: 35))
               ],
             ),
             Text(
@@ -84,21 +145,21 @@ class ShopView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView(
+              child: ListView.builder(
                 scrollDirection: Axis.vertical,
-                children: List.generate(
-                  5,
-                  (index) => _buildItemCard(context, 'Item ${index + 1}', '500pts'),
+                itemCount: itemCards.length,
+                itemBuilder: (context, index) {
+                  return itemCards[index];
+                },
                 ),
               ),
-            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildBadge('1150 pts'),
+                buildBadge('1150 pts'),
                 const SizedBox(width: 20),
-                _buildBadge('lvl 25'),
+                buildBadge('lvl 25'),
               ],
             ),
             const SizedBox(height: 50)
@@ -108,53 +169,7 @@ class ShopView extends StatelessWidget {
     );
   }
 
-  Widget _buildItemCard(BuildContext context, String title, String subTitle) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFECECEB),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x3F000000),
-            blurRadius: 4,
-            offset: Offset(0, 4),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF4A4646),
-              fontSize: 20,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            subTitle,
-            style: const TextStyle(
-              color: Color(0xFF807D7D),
-              fontSize: 15,
-              fontFamily: 'Karla',
-              fontWeight: FontWeight.w800,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBadge(String text) {
+  Widget buildBadge(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
       decoration: BoxDecoration(
@@ -169,6 +184,97 @@ class ShopView extends StatelessWidget {
           fontFamily: 'Karla',
           fontWeight: FontWeight.w700,
         ),
+      ),
+    );
+  }
+}
+
+class ItemCard extends StatelessWidget {
+  const ItemCard({
+    super.key, required this.taskName, required this.taskPrice,
+  });
+
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
+
+  final String taskName;
+  final String taskPrice;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 243, 243, 243),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(61, 109, 103, 103),
+            offset: Offset(5.0, 5.0),
+            blurRadius: 10.0,
+            spreadRadius: 2.0,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Text(
+                    taskName,
+                    style: const TextStyle(
+                      color: Color(0xFF4A4646),
+                      fontSize: 20,
+                      fontFamily: 'Karla',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text(
+                  "$taskPrice pts",
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 204, 198, 196),
+                      fontSize: 20,
+                      fontFamily: "Karla"),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
+                  color: colMid,
+                ),
+                child: const Padding(
+                  padding:
+                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "BUY",
+                      style: TextStyle(
+                          fontFamily: "Karla",
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 243, 243, 243)),
+                    ),
+                  ),
+                )),
+          )
+        ],
       ),
     );
   }
