@@ -3,56 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/shop.dart';
-
-void main() {
-  runApp(const MainWidget());
-}
-
-class MainWidget extends StatelessWidget {
-  const MainWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        fontFamily: 'Karla',
-        textTheme: const TextTheme(
-          bodyLarge:
-              TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
-        ),
-        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const NewShopItem(),
-    );
-  }
-}
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key});
+  const NewShopItem({super.key, required this.username});
 
-
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const NewShopItem();
-      },
-    );
-  }
+  final String username;
 
   @override
   State<NewShopItem> createState() => _NewShopItemState();
 }
 
 class _NewShopItemState extends State<NewShopItem> {
-
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
-  
-    bool required = false;
 
-    void _updateRequired() {
+  String get username => widget.username;
+  bool required = false;
+
+  void _updateRequired() {
     setState(() {
       required = _checkInputs(); // Update required based on inputs
     });
@@ -79,7 +49,7 @@ class _NewShopItemState extends State<NewShopItem> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              const BackIconRow(),
+              BackIconRow(username: username),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -146,44 +116,50 @@ class _NewShopItemState extends State<NewShopItem> {
               ),
               const AddDescription(),
               Padding(
-                padding: const EdgeInsets.only(top:80),
+                padding: const EdgeInsets.only(top: 80),
                 child: Container(
                     decoration: required
-                    ?const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Color.fromARGB(255, 74, 70, 70),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromARGB(61, 109, 103, 103),
-                            offset: Offset(5.0, 5.0),
-                            blurRadius: 10.0,
-                            spreadRadius: 2.0,
-                          )
-                        ])
-                    :BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                          strokeAlign: BorderSide.strokeAlignOutside,
-                          width: 5,
-                          color: const Color.fromARGB(255, 204, 198, 196)
-                        ),
-                        color: const Color.fromARGB(255, 243, 243, 243),),
+                        ? const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(61, 109, 103, 103),
+                                  offset: Offset(5.0, 5.0),
+                                  blurRadius: 10.0,
+                                  spreadRadius: 2.0,
+                                )
+                              ])
+                        : BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            border: Border.all(
+                                strokeAlign: BorderSide.strokeAlignOutside,
+                                width: 5,
+                                color:
+                                    const Color.fromARGB(255, 204, 198, 196)),
+                            color: const Color.fromARGB(255, 243, 243, 243),
+                          ),
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
-                          Navigator.of(context).push(ShopView.route());
+                          Get.to(() => ShopView(username: username));
                         } else {
                           //implement here: add shopitem to shop
-                          Navigator.of(context).push(ShopView.route());
+                          Get.to(() => ShopView(
+                            username: "",
+                            itemToAdd: ItemCard(
+                              taskName: taskName.text,
+                              taskPrice: taskPrice.text,
+                            ),
+                          ));
                         }
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required
-                              ? "Confirm"
-                              : "Cancel",
+                          required ? "Confirm" : "Cancel",
                           style: required
                               ? const TextStyle(
                                   color: Color.fromARGB(255, 243, 243, 243),
@@ -191,7 +167,7 @@ class _NewShopItemState extends State<NewShopItem> {
                                   fontSize: 30,
                                 )
                               : const TextStyle(
-                                  color:  Color.fromARGB(255, 204, 198, 196),
+                                  color: Color.fromARGB(255, 204, 198, 196),
                                   fontFamily: "Karla",
                                   fontSize: 30,
                                 ),
@@ -304,7 +280,7 @@ class AddDescription extends StatelessWidget {
     return const Column(
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 20), 
+          padding: EdgeInsets.only(top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

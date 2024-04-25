@@ -6,31 +6,9 @@ import 'package:frontend_v1/Create_New_ShopItem.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-import 'assets/LocaleStrings.dart';
-
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('de-DE'),
-      fallbackLocale: const Locale('en_US'),
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const ShopView(),
-    );
-  }
-}
-
+// ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
-  const ShopIcon({super.key});
+  const ShopIcon({super.key,});
 
   @override
   State<ShopIcon> createState() => _ShopIconState();
@@ -92,20 +70,40 @@ class _ShopIconState extends State<ShopIcon>
   }
 }
 
-class ShopView extends StatelessWidget {
-  const ShopView({super.key});
+class ShopView extends StatefulWidget {
+  const ShopView({super.key, this.itemToAdd, required this.username});
+
+  final ItemCard? itemToAdd; 
+  final String username;
+  
+  @override
+  State<ShopView> createState() => ShopViewState();
+}
+class ShopViewState extends State<ShopView> {
+  final List<Widget> itemCards = [
+    const ItemCard(taskName: "Task 1", taskPrice: "9999")
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Add item if passed through route arguments
+    if (widget.itemToAdd != null) {
+      addItem(widget.itemToAdd!);
+    }
+  }
+
+  void addItem(ItemCard item) {
+      itemCards.add(item);
+  }
+
+  // Getter for the itemCards list
+  List<Widget> get getItemCards => itemCards;
+  String get username => widget.username;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
   final Color colText = const Color(0xFF4A4646);
-
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const ShopView();
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +114,7 @@ class ShopView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const BackIconRow(),
+            BackIconRow(username: username),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -130,7 +128,8 @@ class ShopView extends StatelessWidget {
                 ),
                 TextButton(
                     onPressed: () {
-                      Navigator.of(context).push(NewShopItem.route());
+                    Get.to(NewShopItem(username: username));
+                      
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -146,22 +145,21 @@ class ShopView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView(
+              child: ListView.builder(
                 scrollDirection: Axis.vertical,
-                children: List.generate(
-                  2,
-                  (index) => _buildItemCard(
-                      context, 'Item Name No ${index + 1}', '500pts'),
+                itemCount: itemCards.length,
+                itemBuilder: (context, index) {
+                  return itemCards[index];
+                },
                 ),
               ),
-            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildBadge('1150 pts'),
+                buildBadge('1150 pts'),
                 const SizedBox(width: 20),
-                _buildBadge('lvl 25'),
+                buildBadge('lvl 25'),
               ],
             ),
             const SizedBox(height: 50)
@@ -171,7 +169,40 @@ class ShopView extends StatelessWidget {
     );
   }
 
-  Widget _buildItemCard(BuildContext context, String title, String subTitle) {
+  Widget buildBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEDECEC),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFFB4B4B4),
+          fontSize: 24,
+          fontFamily: 'Karla',
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class ItemCard extends StatelessWidget {
+  const ItemCard({
+    super.key, required this.taskName, required this.taskPrice,
+  });
+
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
+
+  final String taskName;
+  final String taskPrice;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 200,
       padding: const EdgeInsets.all(20),
@@ -200,7 +231,7 @@ class ShopView extends StatelessWidget {
                 Container(
                   constraints: const BoxConstraints(maxWidth: 200),
                   child: Text(
-                    title,
+                    taskName,
                     style: const TextStyle(
                       color: Color(0xFF4A4646),
                       fontSize: 20,
@@ -210,7 +241,7 @@ class ShopView extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  subTitle,
+                  "$taskPrice pts",
                   style: const TextStyle(
                       color: Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
@@ -244,25 +275,6 @@ class ShopView extends StatelessWidget {
                 )),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _buildBadge(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEDECEC),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFFB4B4B4),
-          fontSize: 24,
-          fontFamily: 'Karla',
-          fontWeight: FontWeight.w700,
-        ),
       ),
     );
   }

@@ -47,7 +47,7 @@ class CreateTaskView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BackIconRow(),
+            BackIconRow(username: ""),
             Text(
               'New Task...',
               style: TextStyle(

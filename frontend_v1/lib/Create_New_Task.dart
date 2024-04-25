@@ -50,7 +50,7 @@ class NewTask extends StatelessWidget {
           padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(),
+              BackIconRow(username: ""),
               CustomTextField(),
               SliderWidgetRepeat(),
               SliderWidgetWho(),
