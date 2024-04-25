@@ -51,7 +51,10 @@ class NewTask extends StatelessWidget {
               SliderWidgetWho(),
               SizedBox(height: 40),
               AssignTo(),
-              Repeats()
+              Repeats(),
+              WeekdaySelector(),
+              Points()
+              ,AddDescription()
             ],
           ),
         ),
@@ -123,7 +126,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Container(
-                  width: 193,
+                  width: 175,
                   height: 46,
                   decoration: BoxDecoration(
                     color: const Color(0xFFD9D9D9),
@@ -213,7 +216,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.only(top: 60.0),
+        padding: const EdgeInsets.only(top: 30.0),
         child: Container(
           width: 386,
           height: 100,
@@ -237,7 +240,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
                       });
                     },
                     child: Container(
-                      width: 193,
+                      width: 170,
                       height: 50,
                       decoration: BoxDecoration(
                         color: _selectedOption == i
@@ -276,7 +279,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
       case 0:
         return 'anyone';
       case 1:
-        return 'everyvone';
+        return 'everyone';
       case 2:
         return 'someone';
       case 3:
@@ -297,14 +300,14 @@ class AssignTo extends StatelessWidget {
       children: <Widget>[
         Row(
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
-              child: Icon(
-                CupertinoIcons.person_fill,
-                size: 40,
-                color: Color.fromARGB(255, 204, 198, 196),
-              ),
-            ),
+          Padding(
+            padding: EdgeInsets.only(top: 10, right: 15, bottom: 10),
+            child: Icon(
+                  CupertinoIcons.person_alt_circle_fill,
+                  size: 40,
+                  color: Color.fromARGB(255, 204, 198, 196),
+                ),
+          ),
             Text("assign to: ",
                 style: TextStyle(
                   fontSize: 20,
@@ -319,7 +322,8 @@ class AssignTo extends StatelessWidget {
           fontSize: 20,
           fontFamily: "Karla",
           color: Color.fromARGB(255, 74, 70, 70),
-        ),),
+        ),
+        ),
       ],
     );
   }
@@ -334,7 +338,7 @@ class Repeats extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+          padding: EdgeInsets.only(top: 10, right: 15, bottom: 10),
           child: Icon(
             CupertinoIcons.clock,
             size: 40,
@@ -354,18 +358,16 @@ class Repeats extends StatelessWidget {
   }
 }
 
-/*
-
 class WeekdaySelector extends StatefulWidget {
-  const WeekdaySelector({super.key})
+  const WeekdaySelector({super.key});
 
   @override
   State<WeekdaySelector> createState() => _WeekdaySelectorState();
 }
 
 class _WeekdaySelectorState extends State<WeekdaySelector> {
-  Set<String> _selectedDays = {};
-  
+  final Set<String> _selectedDays = {};
+
   void _toggleDay(String day) {
     setState(() {
       if (_selectedDays.contains(day)) {
@@ -377,21 +379,25 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
   }
 
   List<Widget> _buildWeekdayWidgets() {
-    return ['M', 'D', 'M', 'D', 'F', 'S', 'S'].map((day) {
+    return ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'].map((day) {
       return GestureDetector(
         onTap: () => _toggleDay(day),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _selectedDays.contains(day) ? Colors.blue : Colors.grey[300],
-          ),
-          child: Center(
-            child: Text(
-              day,
-              style: TextStyle(
-                color: _selectedDays.contains(day) ? Colors.white : Colors.black,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15, bottom: 15), // Hier kannst du den Abstand nach unten anpassen
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _selectedDays.contains(day) ? const Color.fromARGB(255, 99, 21, 21) : Colors.grey[300],
+            ),
+            child: Center(
+              child: Text(
+                day,
+                style: TextStyle(
+                  color: _selectedDays.contains(day) ? Colors.white : Colors.black,
+                  textBaseline: TextBaseline.alphabetic, // Dies verschiebt den Text nach unten
+                ),
               ),
             ),
           ),
@@ -399,6 +405,7 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
       );
     }).toList();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -409,4 +416,78 @@ class _WeekdaySelectorState extends State<WeekdaySelector> {
   }
 }
 
-*/
+class Points extends StatelessWidget {
+  const Points({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 10, right: 5),
+          child: Icon(
+            CupertinoIcons.add_circled_solid,
+            size: 40,
+            color: Color.fromARGB(255, 204, 198, 196),
+          ),
+        ),
+          Padding(
+            padding: EdgeInsets.only(top: 20, right: 20, bottom: 10),
+            child: Text(
+            "points: ",
+            style: TextStyle(
+              fontSize: 20,
+              fontFamily: "Karla",
+              color: Color.fromARGB(255, 74, 70, 70),
+            ),
+                    ),
+          ),
+      ],
+    );
+  }
+}
+
+class AddDescription extends StatelessWidget {
+  const AddDescription({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(width: 20),
+              Text(
+                'Notes:',
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: 20, fontFamily: "Karla"),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: TextField(
+            maxLines: 3,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+                hintText: 'None Yet',
+                hintStyle: TextStyle(
+                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
+                border: InputBorder.none),
+            style: TextStyle(
+              color: Color.fromARGB(255, 74, 70, 70),
+              fontWeight: FontWeight.bold,
+              fontSize: 25,
+              letterSpacing: 0,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
