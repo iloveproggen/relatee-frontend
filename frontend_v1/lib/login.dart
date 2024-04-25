@@ -42,7 +42,7 @@ class _LoginAppState extends State<LoginApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('en-US'),
+        locale: const Locale('de-DE'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
@@ -153,8 +153,8 @@ class LoginWidgetState extends State<LoginWidget> {
             const SizedBox(
               height: 50,
             ),
-            const Text(
-              'Log In to Relatee',
+            Text(
+              'Log_In_to_Relatee_txt'.tr,
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
             TextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
@@ -186,7 +186,7 @@ class LoginWidgetState extends State<LoginWidget> {
                       width: 5,
                     ),
                   ),
-                  hintText: 'Username or Email',
+                  hintText: 'Username_or_Email_txt'.tr,
                   contentPadding: EdgeInsets.all(20),
                   hintStyle: TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
@@ -220,7 +220,7 @@ class LoginWidgetState extends State<LoginWidget> {
                     width: 5,
                   ),
                 ),
-                hintText: 'Password',
+                hintText: 'Password_txt'.tr,
                 contentPadding: EdgeInsets.all(20),
                 hintStyle: const TextStyle(
                   color: Color.fromARGB(255, 204, 198, 196),
@@ -296,7 +296,7 @@ class LoginWidgetState extends State<LoginWidget> {
                       padding: const EdgeInsets.only(
                           top: 10, bottom: 10, left: 15, right: 15),
                       child: Text(
-                        "Log In",
+                        'Log_In_txt'.tr,
                         style: requiredFields
                             ? const TextStyle(
                                 color: Color.fromARGB(255, 243, 243, 243),

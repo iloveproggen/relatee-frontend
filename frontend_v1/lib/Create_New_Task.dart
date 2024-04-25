@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get.dart';
 
 
 
@@ -44,8 +45,8 @@ class CustomTextField extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
-              decoration: const InputDecoration.collapsed(
-                hintText: 'new task..',
+              decoration: InputDecoration.collapsed(
+                hintText: ('new_task_txt'.tr),
               ),
               style: const TextStyle(
                 fontSize: 30,
@@ -109,7 +110,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'repeat',
+                        'repeat_txt'.tr,
                         style: TextStyle(
                           color: _isPermanent
                               ? Colors.black
@@ -126,7 +127,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'only once',
+                        'only_once_txt'.tr,
                         style: TextStyle(
                           color: !_isPermanent
                               ? Colors.black
@@ -247,13 +248,13 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   String _getOptionText(int optionIndex) {
     switch (optionIndex) {
       case 0:
-        return 'anyone';
+        return 'anyone_txt'.tr;
       case 1:
-        return 'everyvone';
+        return 'everyone_txt'.tr;
       case 2:
-        return 'someone';
+        return 'someone_txt'.tr;
       case 3:
-        return 'rotate';
+        return 'rotate_txt'.tr;
       default:
         return '';
     }
@@ -265,12 +266,12 @@ class AssignTo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Row(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
                 CupertinoIcons.person_fill,
@@ -278,21 +279,22 @@ class AssignTo extends StatelessWidget {
                 color: Color.fromARGB(255, 204, 198, 196),
               ),
             ),
-            Text("assign to: ",
-                style: TextStyle(
+            Text(('assign_to_txt'.tr),
+                style: const TextStyle(
                   fontSize: 20,
                   fontFamily: "Karla",
                   color: Color.fromARGB(255, 74, 70, 70),
                 )),
           ],
         ),
-        Text(
-        "Name",
-        style: TextStyle(
-          fontSize: 20,
-          fontFamily: "Karla",
-          color: Color.fromARGB(255, 74, 70, 70),
-        ),),
+        const Text(
+          "Name",
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: "Karla",
+            color: Color.fromARGB(255, 74, 70, 70),
+          ),
+        ),
       ],
     );
   }
@@ -303,10 +305,10 @@ class Repeats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
           child: Icon(
             CupertinoIcons.clock,
@@ -315,8 +317,8 @@ class Repeats extends StatelessWidget {
           ),
         ),
         Text(
-          "repeats: ",
-          style: TextStyle(
+          ('repeats_txt'.tr),
+          style: const TextStyle(
             fontSize: 20,
             fontFamily: "Karla",
             color: Color.fromARGB(255, 74, 70, 70),

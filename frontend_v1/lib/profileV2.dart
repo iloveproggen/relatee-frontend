@@ -314,7 +314,7 @@ class BackIconRow extends StatelessWidget {
                   //   color: col,
                   //   size: 18,
                   // )
-                  const Text("back",
+                  Text('back_button_text'.tr,
                       style: TextStyle(
                           color: Color.fromARGB(255, 204, 198, 196),
                           fontSize: 15,
