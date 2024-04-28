@@ -222,10 +222,12 @@ class WelcomeText extends StatelessWidget {
                   Text('${'welcome_title'.tr}, hackerman!!!!',
                   style: TextStyle(
                     fontSize: 40, fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary)),
+                    color: Theme.of(context).colorScheme.secondary
+                    )),
                   Text('welcome_message'.tr,
                   style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: Theme.of(context).colorScheme.secondary,)),
+                  color: Theme.of(context).colorScheme.secondary,
+                  )),
                 ],
                 );
                 } else {
@@ -247,7 +249,8 @@ class WelcomeText extends StatelessWidget {
                     fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
                     style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                    color: Theme.of(context).colorScheme.secondary)),
+                    color: Theme.of(context).colorScheme.secondary
+                    )),
                   ],
                   );
                 },
@@ -294,7 +297,7 @@ class ButtonRecommended extends StatelessWidget {
                 //Color.fromARGB(255, 243, 243, 243),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                     //Color.fromARGB(61, 109, 103, 103),
                     offset: Offset(5.0, 5.0),
                     blurRadius: 10.0,
@@ -314,9 +317,10 @@ class ButtonRecommended extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(task,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 30,
                                   fontFamily: "Karla",
+                                  color: Theme.of(context).colorScheme.secondary,
                                   //fontWeight: FontWeight.bold
                                 )),
                           ),
@@ -353,7 +357,7 @@ class ButtonCompleted extends StatelessWidget {
               //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                   //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
@@ -423,7 +427,7 @@ class ButtonShort extends StatelessWidget {
               //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                   //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
@@ -521,7 +525,8 @@ class _TaskState extends State<TaskOverview> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('${'Your_txt'.tr} Tasks',
-                  style: Theme.of(context).textTheme.bodyLarge),
+                  style: TextStyle(fontSize:  Theme.of(context).textTheme.bodyLarge?.fontSize,
+                  color: Theme.of(context).colorScheme.secondary)),
               TextButton(
                   onPressed: () {
                     Navigator.of(context).push(NewTask.route());
@@ -545,7 +550,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     Text('SeeAllTasks_txt'.tr,
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.secondary,
                             //const Color.fromARGB(255, 204, 198, 196),
                             fontSize: size,
                             fontFamily: "Karla",
@@ -602,7 +607,7 @@ class Task extends StatelessWidget {
             //Color.fromARGB(255, 243, 243, 243),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
 //Color.fromARGB(61, 109, 103, 103),
                 offset: Offset(5.0, 5.0),
                 blurRadius: 10.0,
@@ -614,7 +619,8 @@ class Task extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(taskName, style: Theme.of(context).textTheme.bodySmall),
+              Text(taskName, style:TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+              color: Theme.of(context).colorScheme.secondary)),
               Padding(
                 padding: const EdgeInsets.only(right: 30),
                 child: Builder(builder: (context) {
