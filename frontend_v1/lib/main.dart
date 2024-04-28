@@ -12,6 +12,8 @@ import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
 import 'assets/LocaleStrings.dart';
+import 'package:frontend_v1/theme/dark_theme.dart';
+import 'package:frontend_v1/theme/light_theme.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -46,13 +48,17 @@ class MainApp extends StatelessWidget {
   final String user;
   @override
   Widget build(BuildContext context) {
+
+final brightness = MediaQuery.of(context).platformBrightness;
+
     return GetMaterialApp(
         translations: LocaleString(),
         locale: const Locale('en-US'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        theme: ThemeData(
+        darkTheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme: darktheme,/* ThemeData(
             fontFamily: 'Karla',
             textTheme: const TextTheme(
               bodyLarge: TextStyle(
@@ -72,7 +78,8 @@ class MainApp extends StatelessWidget {
                   fontFamily: "Sedan",
                   letterSpacing: 0),
             ),
-            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+            scaffoldBackgroundColor: Theme.of(context).colorScheme.background), */
+            //const Color.fromARGB(255, 243, 243, 243)),
         home: MainWidget(user: user));
   }
 }
@@ -121,10 +128,14 @@ class IconRow extends StatelessWidget {
 
   final double padding = 20;
   final double size = 40;
-  final Color col = const Color.fromARGB(255, 204, 198, 196);
+  
 
   @override
   Widget build(BuildContext context) {
+
+    final Color col = Theme.of(context).colorScheme.secondary;
+    //const Color.fromARGB(255, 204, 198, 196);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -196,8 +207,9 @@ class WelcomeText extends StatelessWidget {
                 future: fetchUsers(username: user),
                 builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(
-                  color:  Color.fromARGB(255, 204, 198, 196),
+                return CircularProgressIndicator(
+                  color:  Theme.of(context).colorScheme.primary,
+                  //Color.fromARGB(255, 204, 198, 196),
                   strokeWidth: 5,
                   strokeCap: StrokeCap.round,
                 );
@@ -208,10 +220,12 @@ class WelcomeText extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${'welcome_title'.tr}, hackerman!!!!',
-                  style: const TextStyle(
-                    fontSize: 40, fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary)),
                   Text('welcome_message'.tr,
-                  style: Theme.of(context).textTheme.bodySmall),
+                  style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                  color: Theme.of(context).colorScheme.secondary,)),
                 ],
                 );
                 } else {
@@ -227,11 +241,13 @@ class WelcomeText extends StatelessWidget {
                   Text(
                     '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
                     maxLines: 2,
-                    style: const TextStyle(
+                    style: TextStyle(
                     fontSize: 40,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
-                    style: Theme.of(context).textTheme.bodySmall),
+                    style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                    color: Theme.of(context).colorScheme.secondary)),
                   ],
                   );
                 },
@@ -244,8 +260,9 @@ class WelcomeText extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text('Recommended_txt'.tr,
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      //Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
                       fontFamily: "Karla", fontWeight: FontWeight.bold)),
             )),
@@ -271,12 +288,14 @@ class ButtonRecommended extends StatelessWidget {
           Container(
             height: height,
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(25)),
-                color: Color.fromARGB(255, 243, 243, 243),
+                color: Theme.of(context).colorScheme.primary,
+                //Color.fromARGB(255, 243, 243, 243),
                 boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(61, 109, 103, 103),
+                    color: Theme.of(context).colorScheme.primary,
+                    //Color.fromARGB(61, 109, 103, 103),
                     offset: Offset(5.0, 5.0),
                     blurRadius: 10.0,
                     spreadRadius: 2.0,
@@ -328,12 +347,14 @@ class ButtonCompleted extends StatelessWidget {
         Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
+              color: Theme.of(context).colorScheme.primary,
+              //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
+                  color: Theme.of(context).colorScheme.primary,
+                  //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
@@ -354,8 +375,9 @@ class ButtonCompleted extends StatelessWidget {
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                   text: "$who completed",
-                                  style: const TextStyle(
-                                      color: Color.fromARGB(255, 74, 70, 70),
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.secondary,
+                                      //Color.fromARGB(255, 74, 70, 70),
                                       fontFamily: "Karla",
                                       fontSize: 25),
                                   children: <TextSpan>[
@@ -395,12 +417,14 @@ class ButtonShort extends StatelessWidget {
         Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration:  BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
+              color: Theme.of(context).colorScheme.primary,
+              //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
+                  color: Theme.of(context).colorScheme.primary,
+                  //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
@@ -414,19 +438,21 @@ class ButtonShort extends StatelessWidget {
                 children: [
                   Text(
                     number,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 60,
                         fontWeight: FontWeight.bold,
-                        fontFamily: "Karla"),
+                        fontFamily: "Karla",
+                        color: Theme.of(context).colorScheme.secondary),
                     maxLines: 1,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
                     child: Text(textBelow,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 20,
                             fontFamily: "Karla",
-                            letterSpacing: -0.5),
+                            letterSpacing: -0.5,
+                            color: Theme.of(context).colorScheme.secondary),
                         textAlign: TextAlign.center,
                         maxLines: 1),
                   )
@@ -478,10 +504,12 @@ class TaskOverview extends StatefulWidget {
 
 class _TaskState extends State<TaskOverview> {
   final double size = 15;
-  final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
+
+  final Color col = Theme.of(context).colorScheme.secondary;
+  //const Color.fromARGB(255, 204, 198, 196);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,7 +545,8 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     Text('SeeAllTasks_txt'.tr,
                         style: TextStyle(
-                            color: const Color.fromARGB(255, 204, 198, 196),
+                            color: Theme.of(context).colorScheme.primary,
+                            //const Color.fromARGB(255, 204, 198, 196),
                             fontSize: size,
                             fontFamily: "Karla",
                             fontWeight: FontWeight.w500)),
@@ -567,12 +596,14 @@ class Task extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 15),
       child: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(25)),
-            color: Color.fromARGB(255, 243, 243, 243),
+            color: Theme.of(context).colorScheme.primary,
+            //Color.fromARGB(255, 243, 243, 243),
             boxShadow: [
               BoxShadow(
-                color: Color.fromARGB(61, 109, 103, 103),
+                color: Theme.of(context).colorScheme.primary,
+//Color.fromARGB(61, 109, 103, 103),
                 offset: Offset(5.0, 5.0),
                 blurRadius: 10.0,
                 spreadRadius: 2.0,

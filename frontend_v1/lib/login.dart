@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/theme/dark_theme.dart';
+import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
@@ -44,13 +46,17 @@ class _LoginAppState extends State<LoginApp> {
 
   @override
   Widget build(BuildContext context) {
+
+final brightness = MediaQuery.of(context).platformBrightness;
+
     return GetMaterialApp(
         translations: LocaleString(),
         locale: const Locale('de-DE'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        theme: ThemeData(
+        darkTheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme: darktheme,  /* ThemeData(
             fontFamily: 'Karla',
             textTheme: const TextTheme(
               bodyLarge: TextStyle(
@@ -70,7 +76,8 @@ class _LoginAppState extends State<LoginApp> {
                   fontFamily: "Sedan",
                   letterSpacing: 0),
             ),
-            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+            scaffoldBackgroundColor: Theme.of(context).colorScheme.background), */
+            //const Color.fromARGB(255, 243, 243, 243)),
         home: LoginWidget());
   }
 }
@@ -154,7 +161,7 @@ class LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
@@ -166,6 +173,7 @@ class LoginWidgetState extends State<LoginWidget> {
             Text(
               'Log_In_to_Relatee_txt'.tr,
               style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
@@ -179,7 +187,8 @@ class LoginWidgetState extends State<LoginWidget> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      color: Color.fromARGB(255, 204, 198, 196),
+                      color: Theme.of(context).colorScheme.primary,
+                      //Color.fromARGB(255, 204, 198, 196),
                       width: 5,
                     ),
                   ),
@@ -187,7 +196,8 @@ class LoginWidgetState extends State<LoginWidget> {
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
-                      color: Color.fromARGB(255, 74, 70, 70),
+                      color: Theme.of(context).colorScheme.secondary,
+                      //Color.fromARGB(255, 74, 70, 70),
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -199,7 +209,8 @@ class LoginWidgetState extends State<LoginWidget> {
                   hintText: 'Username_or_Email_txt'.tr,
                   contentPadding: EdgeInsets.all(20),
                   hintStyle: TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196),
+                    color: Theme.of(context).colorScheme.secondary,
+                    //Color.fromARGB(255, 204, 198, 196),
                   ),
                 ),
                 style: const TextStyle(
@@ -210,18 +221,20 @@ class LoginWidgetState extends State<LoginWidget> {
               controller: _passwordController,
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                enabledBorder: const OutlineInputBorder(
+                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    color: Color.fromARGB(255, 204, 198, 196),
+                    color: Theme.of(context).colorScheme.primary,
+                    //Color.fromARGB(255, 204, 198, 196),
                     width: 5,
                   ),
                 ),
-                focusedBorder: const OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
                     width: 5,
-                    color: Color.fromARGB(255, 74, 70, 70),
+                    color: Theme.of(context).colorScheme.secondary,
+                    //Color.fromARGB(255, 74, 70, 70),
                   ),
                 ),
                 border: const OutlineInputBorder(
@@ -232,8 +245,9 @@ class LoginWidgetState extends State<LoginWidget> {
                 ),
                 hintText: 'Password_txt'.tr,
                 contentPadding: EdgeInsets.all(20),
-                hintStyle: const TextStyle(
-                  color: Color.fromARGB(255, 204, 198, 196),
+                hintStyle:  TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  //Color.fromARGB(255, 204, 198, 196),
                 ),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
@@ -242,8 +256,8 @@ class LoginWidgetState extends State<LoginWidget> {
                       _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: const Color.fromARGB(
-                          255, 204, 198, 196), // Set the color to grey
+                      color: Theme.of(context).colorScheme.primary,
+                      // Color.fromARGB(255, 204, 198, 196), // Set the color to grey
                     ),
                     onPressed: () {
                       setState(() {
@@ -261,12 +275,14 @@ class LoginWidgetState extends State<LoginWidget> {
               padding: const EdgeInsets.only(top: 40),
               child: Container(
                 decoration: requiredFields
-                    ? const BoxDecoration(
+                    ?  BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Color.fromARGB(255, 74, 70, 70),
+                        color: Theme.of(context).colorScheme.primary,
+                        //Color.fromARGB(255, 74, 70, 70),
                         boxShadow: [
                             BoxShadow(
-                              color: Color.fromARGB(61, 109, 103, 103),
+                              color: Theme.of(context).colorScheme.secondary,
+                              //Color.fromARGB(61, 109, 103, 103),
                               offset: Offset(5.0, 5.0),
                               blurRadius: 10.0,
                               spreadRadius: 2.0,
@@ -278,8 +294,10 @@ class LoginWidgetState extends State<LoginWidget> {
                         border: Border.all(
                             strokeAlign: BorderSide.strokeAlignInside,
                             width: 5,
-                            color: const Color.fromARGB(255, 204, 198, 196)),
-                        color: const Color.fromARGB(255, 243, 243, 243),
+                            color:  Theme.of(context).colorScheme.primary),
+                            //Color.fromARGB(255, 204, 198, 196)),
+                        color:  Theme.of(context).colorScheme.primary,
+                        //Color.fromARGB(255, 243, 243, 243),
                       ),
                 child: TextButton(
                   onPressed: requiredFields
@@ -308,13 +326,15 @@ class LoginWidgetState extends State<LoginWidget> {
                       child: Text(
                         'Log_In_txt'.tr,
                         style: requiredFields
-                            ? const TextStyle(
-                                color: Color.fromARGB(255, 243, 243, 243),
+                            ?  TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                //Color.fromARGB(255, 243, 243, 243),
                                 fontFamily: "Karla",
                                 fontSize: 20,
                               )
-                            : const TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
+                            :  TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                //Color.fromARGB(255, 204, 198, 196),
                                 fontFamily: "Karla",
                                 fontSize: 20,
                               ),

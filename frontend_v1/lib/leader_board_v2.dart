@@ -70,7 +70,7 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.only(top: 30, bottom: 50),
+        padding: const EdgeInsets.only(top: 30, bottom: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -216,13 +216,10 @@ class WeeklyInfo extends StatelessWidget {
         itemBuilder: (context, index) {
           IconData iconData;
           if (index == 0) {
-            // Icon für das erste Element
             iconData = Icons.looks_one;
           } else if (index == 1) {
-            // Icon für das zweite Element
             iconData = Icons.looks_two;
           } else {
-            // Standard-Icon für die restlichen Elemente
             iconData = Icons.looks_3;
           }
           return Padding(
@@ -237,12 +234,12 @@ class WeeklyInfo extends StatelessWidget {
                     Text('Name ${index + 1}'),
                   ],
                 ),
-                Text('${index * 2 + 2} pts'),
+                Text('${index * 10 + 86} pts'),
                 Row(
                   children: [
                     Icon(CupertinoIcons.checkmark_circle_fill),
                     const SizedBox(width: 8.0),
-                    Text('${index + 3} tasks'),
+                    Text('${index * 4 + 3} tasks'),
                   ],
                 ),
               ],
