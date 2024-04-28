@@ -4,6 +4,7 @@ import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:postgres/postgres.dart';
 
 String getDueDaysInText(int days) {
@@ -61,8 +62,12 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+final Color primColor = Theme.of(context).colorScheme.primary;
+final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.background,//const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -79,9 +84,10 @@ class ProfileView extends StatelessWidget {
                         context: context,
                         builder: (BuildContext context) {
                           return CupertinoAlertDialog(
-                            title: const Text('Log out?'),
-                            content: const Text(
-                                'To access your tasks, you need to log in. Do you want to continue?'),
+                            title: Text('Log out?', style: TextStyle(color: secColor),),
+                            content: Text(
+                                'To access your tasks, you need to log in. Do you want to continue?',
+                                style: TextStyle(color: secColor),),
                             actions: [
                               CupertinoDialogAction(
                                 child: const Text(
@@ -95,7 +101,8 @@ class ProfileView extends StatelessWidget {
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: const Text('Continue'),
+                                child: Text('Continue',
+                                style: TextStyle(color: secColor),),
                                 onPressed: () {
                                   Navigator.of(context)
                                       .push(LoginWidget.route());
@@ -109,9 +116,9 @@ class ProfileView extends StatelessWidget {
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: const Color.fromARGB(255, 204, 198, 196),
+                          color: primColor, //const Color.fromARGB(255, 204, 198, 196),
                         ),
-                        child: const Padding(
+                        child: Padding(
                             padding: EdgeInsets.only(
                                 top: 10, bottom: 10, left: 10, right: 10),
                             child: /*Text("log out",
@@ -123,7 +130,7 @@ class ProfileView extends StatelessWidget {
                                   fontWeight: FontWeight.w700)),*/
                                 Icon(
                               CupertinoIcons.arrowshape_turn_up_right_fill,
-                              color: Color.fromARGB(255, 243, 243, 243),
+                              color: secColor, //Color.fromARGB(255, 243, 243, 243),
                               size: 20,
                             ))),
                   ),
@@ -134,11 +141,11 @@ class ProfileView extends StatelessWidget {
                   Container(
                     height: 200,
                     width: 200,
-                    decoration: const ShapeDecoration(
+                    decoration: ShapeDecoration(
                         shape: CircleBorder(
                           side: BorderSide(
                             width: 6,
-                            color: Color.fromARGB(255, 114, 111, 110),
+                            color: primColor, //Color.fromARGB(255, 114, 111, 110),
                           ),
                         ),
                         image: DecorationImage(
@@ -152,11 +159,11 @@ class ProfileView extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 50, right: 10),
-                        child: _buildInfoContainer('1150 pts'),
+                        child: _buildInfoContainer(context, '1150 pts'), //Michelle help
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 50),
-                        child: _buildInfoContainer('lvl 25'),
+                        child: _buildInfoContainer(context,'lvl 25'),
                       ),
                     ],
                   ),
@@ -203,17 +210,18 @@ class ProfileView extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: ('part_household'.tr),
-                      style: const TextStyle(
-                        color: Color(0xFF4A4646),
+                      style: TextStyle(
+                        color: secColor,
+                        //Color(0xFF4A4646),
                         fontSize: 15,
                         fontFamily: 'Karla',
                         fontWeight: FontWeight.w300,
                       ),
                     ),
-                    const TextSpan(
+                    TextSpan(
                       text: '"Campus Living"',
                       style: TextStyle(
-                        color: Color(0xFF4A4646),
+                        color: secColor, //Color(0xFF4A4646),
                         fontSize: 15,
                         fontFamily: 'Karla',
                         fontWeight: FontWeight.w700,
@@ -224,10 +232,10 @@ class ProfileView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 '@michiee123',
                 style: TextStyle(
-                  color: Color(0xFF4A4646),
+                  color: secColor, //Color(0xFF4A4646),
                   fontSize: 16,
                   fontFamily: 'Karla',
                   fontWeight: FontWeight.w300,
@@ -244,11 +252,14 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoContainer(String text) {
+  Widget _buildInfoContainer(BuildContext context, String text) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: const BoxDecoration(
-        color: Color(0xFFEDECEC),
+      decoration: BoxDecoration(
+        color: primColor,//Color(0xFFEDECEC),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Text(
@@ -271,10 +282,13 @@ class BackIconRow extends StatelessWidget {
   final String username;
   final double padding = 20;
   final double size = 40;
-  final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
+
+  final Color secColor = Theme.of(context).colorScheme.secondary;
+  //const Color.fromARGB(255, 204, 198, 196);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -293,7 +307,7 @@ class BackIconRow extends StatelessWidget {
                 children: [
                   Icon(
                     CupertinoIcons.arrowtriangle_left_fill,
-                    color: col,
+                    color: secColor,
                     size: 18,
                   ),
                   Container(width: 5),
@@ -304,7 +318,7 @@ class BackIconRow extends StatelessWidget {
                   // )
                   Text('back_button_text'.tr,
                       style: TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
+                          color: secColor, //Color.fromARGB(255, 204, 198, 196),
                           fontSize: 15,
                           fontFamily: "Karla",
                           fontWeight: FontWeight.bold)),
@@ -322,10 +336,13 @@ class TaskOverview extends StatelessWidget {
   const TaskOverview({super.key});
 
   final double size = 15;
-  final Color col = const Color.fromARGB(255, 204, 198, 196);
-
   @override
   Widget build(BuildContext context) {
+
+  final Color secColor = Theme.of(context).colorScheme.secondary;
+  //const Color.fromARGB(255, 204, 198, 196);
+
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +350,8 @@ class TaskOverview extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
           child:
-              Text('Their Tasks', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Their Tasks', style: TextStyle(fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
+              color: secColor)),
         ),
         const Task(taskName: "do the dishes", taskStatus: 2),
         const Task(taskName: "mop the floor", taskStatus: 1),
@@ -346,14 +364,14 @@ class TaskOverview extends StatelessWidget {
                 children: [
                   Text('SeeAllTasks_txt'.tr,
                       style: TextStyle(
-                          color: const Color.fromARGB(255, 204, 198, 196),
+                          color: secColor, //const Color.fromARGB(255, 204, 198, 196),
                           fontSize: size,
                           fontFamily: "Karla",
                           fontWeight: FontWeight.w500)),
                   Container(width: 5),
                   Icon(
                     CupertinoIcons.arrow_right,
-                    color: col,
+                    color: secColor,
                     size: size,
                   )
                 ],
@@ -364,7 +382,7 @@ class TaskOverview extends StatelessWidget {
                 },
                 child: Icon(
                   CupertinoIcons.house,
-                  color: col,
+                  color: secColor,
                   size: size,
                 ),
               ),

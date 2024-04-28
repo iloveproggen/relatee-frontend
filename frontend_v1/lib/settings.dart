@@ -6,11 +6,14 @@ class Settings extends StatelessWidget {
   const Settings({super.key, required this.username});
 
   final String username;
-
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
   @override
   Widget build(BuildContext context) {
+
+  //final Color primColor = Theme.of(context).colorScheme.primary;
+  //const Color.fromARGB(255, 243, 243, 243);
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -23,7 +26,10 @@ class Settings extends StatelessWidget {
                  onPressed: () {
                    builddialog(context);
                  },
-                 child: Text('Change_Language_txt'.tr)),
+                 child: Text('Change_Language_txt'.tr,
+                 style: TextStyle(
+                  color: textColor
+                 ),)),
            ]),
         ),
       ),
@@ -36,6 +42,9 @@ class SettingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+
     return Column(
       children: [
         Padding(
@@ -47,8 +56,9 @@ class SettingsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(('settings_txt'.tr),
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 40, fontWeight: FontWeight.bold,
+                          color: textColor)),
                 ],
               )),
         ),
@@ -80,11 +90,18 @@ updateLanguage(Locale locale) {
    ];
 
    builddialog(BuildContext context) {
+
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+  final Color primColor = Theme.of(context).colorScheme.primary;
+
+
      showDialog(
          context: context,
          builder: (builder) {
            return AlertDialog(
-             title: Text('Choose_your_language_txt'.tr),
+            backgroundColor: primColor,
+             title: Text('Choose_your_language_txt'.tr,
+            style: TextStyle(color: textColor),),
              content: Container(
                width: double.maxFinite,
                child: ListView.separated(
@@ -96,11 +113,12 @@ updateLanguage(Locale locale) {
                            onTap: () {
                              updateLanguage(locale[index]['locale']);
                            },
-                           child: Text(locale[index]['name'])),
+                           child: Text(locale[index]['name'],
+                           style: TextStyle(color: textColor),)),
                      );
                    },
                    separatorBuilder: (context, index) {
-                     return Divider(color: Colors.blue);
+                     return Divider(color: textColor);
                    },
                    itemCount: locale.length),
              ),
