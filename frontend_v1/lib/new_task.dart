@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
@@ -19,7 +21,8 @@ class FigmaToCodeApp extends StatelessWidget {
       fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      scaffoldBackgroundColor: Theme.of(context).colorScheme.background,
+      //const Color.fromARGB(255, 243, 243, 243),
       ),
       home: const Scaffold(
         body: CreateTaskView(),
@@ -41,7 +44,10 @@ class CreateTaskView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
+    return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
@@ -49,9 +55,10 @@ class CreateTaskView extends StatelessWidget {
           children: [
             BackIconRow(username: ""),
             Text(
-              'New Task...',
+              'new_task_txt'.tr,
               style: TextStyle(
-                color: Color(0xFF4A4646),
+                color: secColor,
+                //Color(0xFF4A4646),
                 fontSize: 32,
                 fontFamily: 'Karla',
                 fontWeight: FontWeight.w700,
@@ -73,28 +80,33 @@ class TaskDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     final double deviceWidth = MediaQuery.of(context).size.width;
 
     return Container(
       width: deviceWidth,
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F3F3),
+        color: primColor,
+        //const Color(0xFFF3F3F3),
         borderRadius: BorderRadius.circular(28),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Row(
             children: [
               TaskAttributeWidget(
                 iconUrl: 'https://via.placeholder.com/34x34',
-                label: 'repeats:',
+                label: 'repeat_txt'.tr,
                 value: '',
               ),
               SizedBox(width: 10),
               TaskAttributeWidget(
                 iconUrl: 'https://via.placeholder.com/34x34',
-                label: 'assign to:',
+                label: 'assign_to_txt'.tr,
                 value: 'Michelle (you)',
               ),
             ],
@@ -103,7 +115,8 @@ class TaskDetailsWidget extends StatelessWidget {
           Text(
             'Points:',
             style: TextStyle(
-              color: Color(0xFF4A4646),
+              color: secColor,
+              //Color(0xFF4A4646),
               fontSize: 20,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w300,
@@ -114,7 +127,8 @@ class TaskDetailsWidget extends StatelessWidget {
             '15',
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: Color(0xFF4A4646),
+              color: secColor,
+              //Color(0xFF4A4646),
               fontSize: 20,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w500,
@@ -140,6 +154,10 @@ class TaskAttributeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,8 +174,9 @@ class TaskAttributeWidget extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF4A4646),
+          style: TextStyle(
+            color: secColor,
+            //Color(0xFF4A4646),
             fontSize: 16,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w300,
@@ -167,8 +186,9 @@ class TaskAttributeWidget extends StatelessWidget {
         Text(
           value,
           textAlign: TextAlign.right,
-          style: const TextStyle(
-            color: Color(0xFF4A4646),
+          style: TextStyle(
+            color: secColor,
+            //Color(0xFF4A4646),
             fontSize: 16,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w500,
