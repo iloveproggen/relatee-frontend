@@ -42,8 +42,13 @@ class _NewShopItemState extends State<NewShopItem> {
 
   @override
   Widget build(BuildContext context) {
+
+final Color primColor = Theme.of(context).colorScheme.primary;
+final Color secColor = Theme.of(context).colorScheme.secondary;
+    
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      //const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -57,8 +62,8 @@ class _NewShopItemState extends State<NewShopItem> {
                     children: [
                       TextField(
                         controller: taskName,
-                        decoration: const InputDecoration.collapsed(
-                          hintText: 'new item...',
+                        decoration: InputDecoration.collapsed(
+                          hintText: 'new_item_txt'.tr,
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: "Sedan",
@@ -88,8 +93,8 @@ class _NewShopItemState extends State<NewShopItem> {
                       color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
-                    const Text(
-                      'price:',
+                    Text(
+                      'price_txt'.tr,
                       style: TextStyle(fontSize: 25, fontFamily: "Karla"),
                     ),
                     Expanded(
@@ -99,8 +104,8 @@ class _NewShopItemState extends State<NewShopItem> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly
                         ],
-                        decoration: const InputDecoration(
-                            hintText: "add price",
+                        decoration: InputDecoration(
+                            hintText: 'add_price_txt'.tr,
                             hintStyle: TextStyle(
                                 color: Color.fromARGB(255, 204, 198, 196),
                                 fontSize: 20),
@@ -159,7 +164,7 @@ class _NewShopItemState extends State<NewShopItem> {
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required ? "Confirm" : "Cancel",
+                          required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
                           style: required
                               ? const TextStyle(
                                   color: Color.fromARGB(255, 243, 243, 243),
@@ -231,7 +236,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'permanent',
+                        'permanent_txt'.tr,
                         style: TextStyle(
                           color: _isPermanent
                               ? Colors.black
@@ -248,7 +253,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'only once',
+                        'only_once_txt'.tr,
                         style: TextStyle(
                           color: !_isPermanent
                               ? Colors.black
@@ -277,7 +282,7 @@ class AddDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 20),
@@ -291,7 +296,7 @@ class AddDescription extends StatelessWidget {
               ),
               SizedBox(width: 20),
               Text(
-                'description',
+                'description_txt'.tr,
                 textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 25, fontFamily: "Karla"),
               ),
@@ -304,7 +309,7 @@ class AddDescription extends StatelessWidget {
             maxLines: 3,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
-                hintText: 'None Yet',
+                hintText: 'None_Yet_txt'.tr,
                 hintStyle: TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
                 border: InputBorder.none),

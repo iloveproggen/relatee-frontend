@@ -51,7 +51,7 @@ final brightness = MediaQuery.of(context).platformBrightness;
 
     return GetMaterialApp(
         translations: LocaleString(),
-        locale: const Locale('de-DE'),
+        locale: const Locale('en-US'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
