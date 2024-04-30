@@ -48,7 +48,6 @@ class MainApp extends StatelessWidget {
   final String user;
   @override
   Widget build(BuildContext context) {
-
 final brightness = MediaQuery.of(context).platformBrightness;
 
     return GetMaterialApp(
@@ -132,8 +131,7 @@ class IconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color col = Theme.of(context).colorScheme.secondary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
     //const Color.fromARGB(255, 204, 198, 196);
 
     return Padding(
@@ -154,7 +152,7 @@ class IconRow extends StatelessWidget {
                     },
                   icon: Icon(
                     CupertinoIcons.person_fill,
-                    color: col,
+                    color: secColor,
                   ),
                 ),
               ),
@@ -168,7 +166,7 @@ class IconRow extends StatelessWidget {
                     },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
-                    color: col,
+                    color: secColor,
                   ),
                 ),
               ),
@@ -182,7 +180,7 @@ class IconRow extends StatelessWidget {
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
-              color: col,
+              color: secColor,
             ),
           ),
         ],
@@ -198,6 +196,9 @@ class WelcomeText extends StatelessWidget {
   final String user;
   @override
   Widget build(BuildContext context) {
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return Column(
       children: [
         Padding(
@@ -208,7 +209,7 @@ class WelcomeText extends StatelessWidget {
                 builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator(
-                  color:  Theme.of(context).colorScheme.primary,
+                  color:  primColor,
                   //Color.fromARGB(255, 204, 198, 196),
                   strokeWidth: 5,
                   strokeCap: StrokeCap.round,
@@ -222,11 +223,11 @@ class WelcomeText extends StatelessWidget {
                   Text('${'welcome_title'.tr}, hackerman!!!!',
                   style: TextStyle(
                     fontSize: 40, fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary
+                    color: secColor
                     )),
                   Text('welcome_message'.tr,
                   style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: secColor,
                   )),
                 ],
                 );
@@ -245,11 +246,11 @@ class WelcomeText extends StatelessWidget {
                     maxLines: 2,
                     style: TextStyle(
                     fontSize: 40,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: secColor,
                     fontWeight: FontWeight.bold)),
                   Text('welcome_message'.tr,
                     style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                    color: Theme.of(context).colorScheme.secondary
+                    color: secColor
                     )),
                   ],
                   );
@@ -264,7 +265,7 @@ class WelcomeText extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Text('Recommended_txt'.tr,
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: secColor,
                       //Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
                       fontFamily: "Karla", fontWeight: FontWeight.bold)),
@@ -283,6 +284,10 @@ class ButtonRecommended extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -293,11 +298,11 @@ class ButtonRecommended extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(25)),
-                color: Theme.of(context).colorScheme.primary,
+                color: primColor,
                 //Color.fromARGB(255, 243, 243, 243),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: secColor,
                     //Color.fromARGB(61, 109, 103, 103),
                     offset: Offset(5.0, 5.0),
                     blurRadius: 10.0,
@@ -320,7 +325,7 @@ class ButtonRecommended extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 30,
                                   fontFamily: "Karla",
-                                  color: Theme.of(context).colorScheme.secondary,
+                                  color: secColor,
                                   //fontWeight: FontWeight.bold
                                 )),
                           ),
@@ -345,6 +350,10 @@ class ButtonCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return SizedBox(
         child: Column(
       children: [
@@ -353,11 +362,11 @@ class ButtonCompleted extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Theme.of(context).colorScheme.primary,
+              color: primColor,
               //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: secColor,
                   //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
@@ -380,7 +389,7 @@ class ButtonCompleted extends StatelessWidget {
                               text: TextSpan(
                                   text: "$who completed",
                                   style: TextStyle(
-                                      color: Theme.of(context).colorScheme.secondary,
+                                      color: secColor,
                                       //Color.fromARGB(255, 74, 70, 70),
                                       fontFamily: "Karla",
                                       fontSize: 25),
@@ -415,6 +424,10 @@ class ButtonShort extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return SizedBox(
         child: Column(
       children: [
@@ -423,11 +436,11 @@ class ButtonShort extends StatelessWidget {
           width: double.infinity,
           decoration:  BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Theme.of(context).colorScheme.primary,
+              color: primColor,
               //Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: secColor,
                   //Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
@@ -446,7 +459,7 @@ class ButtonShort extends StatelessWidget {
                         fontSize: 60,
                         fontWeight: FontWeight.bold,
                         fontFamily: "Karla",
-                        color: Theme.of(context).colorScheme.secondary),
+                        color: secColor),
                     maxLines: 1,
                   ),
                   Padding(
@@ -456,7 +469,7 @@ class ButtonShort extends StatelessWidget {
                             fontSize: 20,
                             fontFamily: "Karla",
                             letterSpacing: -0.5,
-                            color: Theme.of(context).colorScheme.secondary),
+                            color: secColor),
                         textAlign: TextAlign.center,
                         maxLines: 1),
                   )
@@ -512,7 +525,7 @@ class _TaskState extends State<TaskOverview> {
   @override
   Widget build(BuildContext context) {
 
-  final Color col = Theme.of(context).colorScheme.secondary;
+  final Color secColor = Theme.of(context).colorScheme.secondary;
   //const Color.fromARGB(255, 204, 198, 196);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -526,12 +539,12 @@ class _TaskState extends State<TaskOverview> {
             children: [
               Text('${'Your_txt'.tr} Tasks',
                   style: TextStyle(fontSize:  Theme.of(context).textTheme.bodyLarge?.fontSize,
-                  color: Theme.of(context).colorScheme.secondary)),
+                  color: secColor)),
               TextButton(
                   onPressed: () {
                     Navigator.of(context).push(NewTask.route());
                   },
-                  child: Icon(CupertinoIcons.add, color: col, size: 35))
+                  child: Icon(CupertinoIcons.add, color: secColor, size: 35))
             ],
           ),
         ),
@@ -550,7 +563,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     Text('SeeAllTasks_txt'.tr,
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: secColor,
                             //const Color.fromARGB(255, 204, 198, 196),
                             fontSize: size,
                             fontFamily: "Karla",
@@ -558,7 +571,7 @@ class _TaskState extends State<TaskOverview> {
                     Container(width: 5),
                     Icon(
                       CupertinoIcons.arrow_right,
-                      color: col,
+                      color: secColor,
                       size: size,
                     )
                   ],
@@ -572,7 +585,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     Icon(
                       CupertinoIcons.house,
-                      color: col,
+                      color: secColor,
                       size: size,
                     ),
                   ],
@@ -597,17 +610,21 @@ class Task extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Container(
         width: double.infinity,
         decoration:  BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(25)),
-            color: Theme.of(context).colorScheme.primary,
+            color: primColor,
             //Color.fromARGB(255, 243, 243, 243),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.secondary,
+                color: secColor,
 //Color.fromARGB(61, 109, 103, 103),
                 offset: Offset(5.0, 5.0),
                 blurRadius: 10.0,
@@ -620,7 +637,7 @@ class Task extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(taskName, style:TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-              color: Theme.of(context).colorScheme.secondary)),
+              color: secColor)),
               Padding(
                 padding: const EdgeInsets.only(right: 30),
                 child: Builder(builder: (context) {
