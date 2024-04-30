@@ -1,4 +1,6 @@
 // ignore: file_names
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -45,11 +47,15 @@ class MembersText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+final Color secColor = Theme.of(context).colorScheme.secondary;
+
     return Container(
       width: double.infinity,
       child: Text(
         'Members_txt'.tr,
-        style: const TextStyle(fontSize: 20),
+        style: TextStyle(fontSize: 20,
+        color: secColor),
         textAlign: TextAlign.left,
       ),
     );
@@ -59,11 +65,15 @@ class MembersText extends StatelessWidget {
 class ChartLeaderboard extends StatelessWidget {
   const ChartLeaderboard({super.key});
 
-final Color col = const Color.fromARGB(255, 204, 198, 196);
+//final Color col = const Color.fromARGB(255, 204, 198, 196);
 
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
@@ -85,8 +95,8 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                       width: width * 0.2,
                       height: width * 0.2,
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
+                      decoration: BoxDecoration(
+                        color: secColor, //Colors.blue,
                         shape: BoxShape.circle,
                       )),
                 ),
@@ -98,15 +108,16 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                       width: width * 0.2,
                       height: height * 0.1,
-                      decoration: const BoxDecoration(
-                          color: Colors.red,
+                      decoration: BoxDecoration(
+                          color: primColor,
                           borderRadius: BorderRadius.all(Radius.circular(25))),
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.all(15.0),
                         child: Text(
                           'rd',
                           style: TextStyle(
                             fontSize: 20,
+                            color: secColor
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -124,8 +135,8 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                       width: width * 0.2,
                       height: width * 0.2,
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
+                      decoration: BoxDecoration(
+                        color: secColor,
                         shape: BoxShape.circle,
                       )),
                 ),
@@ -137,15 +148,16 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                     width: width * 0.2,
                     height: height * 0.3,
-                    decoration: const BoxDecoration(
-                        color: Colors.red,
+                    decoration: BoxDecoration(
+                        color: primColor,
                         borderRadius: BorderRadius.all(Radius.circular(25))),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(15.0),
                       child: Text(
                         'st',
                         style: TextStyle(
                           fontSize: 20,
+                          color: secColor
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -164,8 +176,8 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                       width: width * 0.2,
                       height: width * 0.2,
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
+                      decoration: BoxDecoration(
+                        color: secColor,
                         shape: BoxShape.circle,
                       )),
                 ),
@@ -177,15 +189,16 @@ final Color col = const Color.fromARGB(255, 204, 198, 196);
                   child: Container(
                     width: width * 0.2,
                     height: height * 0.2,
-                    decoration: const BoxDecoration(
-                        color: Colors.red,
+                    decoration: BoxDecoration(
+                        color: primColor,
                         borderRadius: BorderRadius.all(Radius.circular(25))),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(15.0),
                       child: Text(
                         'nd',
                         style: TextStyle(
                           fontSize: 20,
+                          color: secColor,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -206,6 +219,10 @@ class WeeklyInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primColor = Theme.of(context).colorScheme.primary;
+    final Color secColor = Theme.of(context).colorScheme.secondary;
+
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
     return Container(
@@ -231,15 +248,24 @@ class WeeklyInfo extends StatelessWidget {
                   children: [
                     Icon(iconData),
                     const SizedBox(width: 8.0),
-                    Text('Name ${index + 1}'),
+                    Text('Name ${index + 1}',
+                style: TextStyle(
+                  color: secColor
+                ),),
                   ],
                 ),
-                Text('${index * 10 + 86} pts'),
+                Text('${index * 10 + 86} pts',
+                style: TextStyle(
+                  color: secColor
+                ),),
                 Row(
                   children: [
                     Icon(CupertinoIcons.checkmark_circle_fill),
                     const SizedBox(width: 8.0),
-                    Text('${index * 4 + 3} tasks'),
+                    Text('${index * 4 + 3} tasks',
+                style: TextStyle(
+                  color: secColor
+                ),),
                   ],
                 ),
               ],
