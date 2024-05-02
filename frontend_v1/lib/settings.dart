@@ -1,52 +1,37 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
 class Settings extends StatelessWidget {
-  const Settings({super.key, required this.userData});
+  const Settings({super.key, required this.username});
 
-  final Future<List<Map<String, dynamic>>> userData;
-
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
+  final String username;
   @override
   Widget build(BuildContext context) {
+
+  //final Color primColor = Theme.of(context).colorScheme.primary;
+  //const Color.fromARGB(255, 243, 243, 243); g
+  //test
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-          child:
+              child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const BackIconRow(),
-            const SettingsWidget(),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(
-                          strokeAlign: BorderSide.strokeAlignInside,
-                          width: 5,
-                          color: const Color.fromARGB(255, 204, 198, 196)),
-                      color: const Color.fromARGB(255, 204, 198, 196),
-                    ),
-              child: TextButton(
-                onPressed: () {
-                    cupertinoBuildDialog(context);
-                  },
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                          top: 10, bottom: 10, left: 15, right: 15),
-                    child: Text('Change_Language_txt'.tr, style: const TextStyle(
-                                color:  Color.fromARGB(255, 243, 243, 243),
-                                fontFamily: "Karla",
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900)),
-                  ),
-              ),
-            ),
-          ]),
+             BackIconRow(username: username),
+             SettingsWidget(),
+             ElevatedButton(
+                 onPressed: () {
+                   builddialog(context);
+                 },
+                 child: Text('Change_Language_txt'.tr,
+                 style: TextStyle(
+                  color: textColor
+                 ),)),
+           ]),
         ),
       ),
     );
@@ -58,6 +43,9 @@ class SettingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+
     return Column(
       children: [
         Padding(
@@ -69,8 +57,9 @@ class SettingsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(('settings_txt'.tr),
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 40, fontWeight: FontWeight.bold,
+                          color: textColor)),
                 ],
               )),
         ),
@@ -80,8 +69,7 @@ class SettingsWidget extends StatelessWidget {
 }
 
 class OneSetting extends StatelessWidget {
-  const OneSetting(
-      {super.key, required this.settingname, required this.setter});
+  const OneSetting({super.key, required this.settingname, required this.setter});
 
   final String settingname;
   final Widget setter;
@@ -93,43 +81,48 @@ class OneSetting extends StatelessWidget {
 }
 
 updateLanguage(Locale locale) {
-  Get.back();
-  Get.updateLocale(locale);
-}
+     Get.back();
+     Get.updateLocale(locale);
+   }
+
+   final List locale = [
+     {'name': 'english', 'locale': Locale('en-US')},
+     {'name': 'german', 'locale': Locale('de-DE')}
+   ];
+
+   builddialog(BuildContext context) {
+
+  final Color textColor = Theme.of(context).colorScheme.secondary;
+  final Color primColor = Theme.of(context).colorScheme.primary;
 
 
-cupertinoBuildDialog(BuildContext context) {
-  showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoActionSheet(
-          title: const Text('Select Language'),
-          actions: <Widget>[
-            CupertinoActionSheetAction(
-              child: const Text('German'),
-              onPressed: () {
-                updateLanguage(const Locale('de-DE'));
-                // Add logic for selecting German language
-                Navigator.pop(context);
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: const Text('English'),
-              onPressed: () {
-                // Add logic for selecting English language
-                Navigator.pop(context);
-                updateLanguage(const Locale('en-US'));
-              },
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            child: const Text('Cancel'),
-            isDefaultAction: true,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        );
-      },
-    );
-}
+     showDialog(
+         context: context,
+         builder: (builder) {
+           return AlertDialog(
+            backgroundColor: primColor,
+             title: Text('Choose_your_language_txt'.tr,
+            style: TextStyle(color: textColor),),
+             content: Container(
+               width: double.maxFinite,
+               child: ListView.separated(
+                   shrinkWrap: true,
+                   itemBuilder: (context, index) {
+                     return Padding(
+                       padding: const EdgeInsets.all(8.0),
+                       child: GestureDetector(
+                           onTap: () {
+                             updateLanguage(locale[index]['locale']);
+                           },
+                           child: Text(locale[index]['name'],
+                           style: TextStyle(color: textColor),)),
+                     );
+                   },
+                   separatorBuilder: (context, index) {
+                     return Divider(color: textColor);
+                   },
+                   itemCount: locale.length),
+             ),
+           );
+         });
+   }
