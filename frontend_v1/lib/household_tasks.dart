@@ -4,11 +4,8 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-
-
 class MainHouseholdOverview extends StatelessWidget {
   const MainHouseholdOverview({super.key, required this.userData});
-
 
   final Future<List<Map<String, dynamic>>> userData;
 
@@ -27,7 +24,6 @@ class MainHouseholdOverview extends StatelessWidget {
 
 class HouseholdOverview extends StatelessWidget {
   const HouseholdOverview({super.key, required this.userData});
-
 
   final Future<List<Map<String, dynamic>>> userData;
 
@@ -52,7 +48,10 @@ class HouseholdOverview extends StatelessWidget {
 }
 
 class HouseholdMembers extends StatelessWidget {
-  const HouseholdMembers({super.key, required this.userData, });
+  const HouseholdMembers({
+    super.key,
+    required this.userData,
+  });
 
   final Future<List<Map<String, dynamic>>> userData;
 
@@ -68,9 +67,14 @@ class HouseholdMembers extends StatelessWidget {
           child: Text('HouseholdMembers_txt'.tr,
               style: Theme.of(context).textTheme.bodyLarge),
         ),
-        Member(name: "Marvin Trost", username: "@trostmarvin", userData: userData),
-        Member(name: "Maurice Halilovic", username: "@lugia75", userData: userData),
-        Member(name: "Rene Schomburg", username: "@mrmagnas", userData: userData),
+        Member(
+            name: "Marvin Trost", username: "@trostmarvin", userData: userData),
+        Member(
+            name: "Maurice Halilovic",
+            username: "@lugia75",
+            userData: userData),
+        Member(
+            name: "Rene Schomburg", username: "@mrmagnas", userData: userData),
         const SizedBox(height: 50)
       ],
     );
@@ -78,7 +82,11 @@ class HouseholdMembers extends StatelessWidget {
 }
 
 class Member extends StatelessWidget {
-  const Member({super.key, required this.name, required this.username, required this.userData});
+  const Member(
+      {super.key,
+      required this.name,
+      required this.username,
+      required this.userData});
 
   final String name;
   final String username;
@@ -89,6 +97,9 @@ class Member extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 15),
       child: TextButton(
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+        ),
         onPressed: () {
           Get.to(() => ProfileView(
                 userData: userData,
@@ -105,7 +116,7 @@ class Member extends StatelessWidget {
                   shape: CircleBorder(
                     side: BorderSide(
                       width: 4,
-                      color: Color.fromARGB(255, 114, 111, 110),
+                      color: Color.fromARGB(255, 197, 191, 189),
                     ),
                   ),
                   image: DecorationImage(

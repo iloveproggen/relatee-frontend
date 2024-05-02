@@ -8,6 +8,7 @@ import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
+import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
@@ -490,7 +491,9 @@ class _TaskState extends State<TaskOverview> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(()=> const SeeAllTasks());
+                },
                 child: Row(
                   children: [
                     Text('SeeAllTasks_txt'.tr,

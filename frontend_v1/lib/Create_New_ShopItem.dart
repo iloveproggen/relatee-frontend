@@ -144,7 +144,7 @@ class _NewShopItemState extends State<NewShopItem> {
                         if (required == false) {
                           Get.back();
                         } else {
-                          //implement here: add shopitem to shop
+                          //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
                           Get.to(() => ShopView(
                             userData: userData,
                             itemToAdd: ItemCard(

@@ -128,7 +128,7 @@ class ShopViewState extends State<ShopView> {
                 ),
                 TextButton(
                     onPressed: () {
-                    Get.to(NewShopItem(userData: userData));
+                    Get.to(() => NewShopItem(userData: userData));
                       
                     },
                     child: const Icon(CupertinoIcons.add,
@@ -229,7 +229,7 @@ class ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 200),
+                  constraints: const BoxConstraints(maxWidth: 150),
                   child: Text(
                     taskName,
                     style: const TextStyle(
