@@ -10,7 +10,8 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
 
   //final Color primColor = Theme.of(context).colorScheme.primary;
-  //const Color.fromARGB(255, 243, 243, 243);
+  //const Color.fromARGB(255, 243, 243, 243); g
+  //test
   final Color textColor = Theme.of(context).colorScheme.secondary;
 
 
