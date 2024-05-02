@@ -2,14 +2,45 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'assets/LocaleStrings.dart';
 
+void main() {
+  runApp(const MainWidget());
+}
 
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+        translations: LocaleString(),
+        locale: const Locale('de-DE'),
+        fallbackLocale: const Locale('en_US'),
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          fontFamily: 'Karla',
+          textTheme: const TextTheme(
+            bodyLarge:
+                TextStyle(color: Color.fromARGB(255, 99, 21, 21), fontSize: 20),
+          ),
+          scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243),
+        ),
+        home: const NewTask());
+  }
+}
 
 class NewTask extends StatelessWidget {
-  const NewTask({super.key, required this.userData});
+  const NewTask({super.key});
 
-
-  final Future<List<Map<String, dynamic>>> userData;
+  static Route<dynamic> route() {
+    return CupertinoPageRoute(
+      builder: (BuildContext context) {
+        return const NewTask();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +50,7 @@ class NewTask extends StatelessWidget {
           padding: EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(),
+              BackIconRow(username: ""),
               CustomTextField(),
               SliderWidgetRepeat(),
               SliderWidgetWho(),
@@ -271,7 +302,7 @@ class AssignTo extends StatelessWidget {
       children: <Widget>[
         Row(
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
                 CupertinoIcons.person_fill,
@@ -280,14 +311,14 @@ class AssignTo extends StatelessWidget {
               ),
             ),
             Text(('assign_to_txt'.tr),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontFamily: "Karla",
                   color: Color.fromARGB(255, 74, 70, 70),
                 )),
           ],
         ),
-        const Text(
+        Text(
           "Name",
           style: TextStyle(
             fontSize: 20,
@@ -308,7 +339,7 @@ class Repeats extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
           child: Icon(
             CupertinoIcons.clock,
@@ -318,7 +349,7 @@ class Repeats extends StatelessWidget {
         ),
         Text(
           ('repeats_txt'.tr),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontFamily: "Karla",
             color: Color.fromARGB(255, 74, 70, 70),
