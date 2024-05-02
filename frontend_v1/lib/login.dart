@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/theme/dark_theme.dart';
+import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
@@ -31,42 +33,45 @@ Future<bool> authUser(String username, String password) async {
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
+  
 
   @override
   State<LoginApp> createState() => _LoginAppState();
 }
 
 class _LoginAppState extends State<LoginApp> {
-
   @override
   Widget build(BuildContext context) {
+    final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
+        darkTheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme: darktheme,
         translations: LocaleString(),
         locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        theme: ThemeData(
-            fontFamily: 'Karla',
-            textTheme: const TextTheme(
-              bodyLarge: TextStyle(
-                  letterSpacing: -1,
-                  fontSize: 35,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontWeight: FontWeight.w800,
-                  fontFamily: "Karla"),
-              bodySmall: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Karla",
-                  letterSpacing: 0),
-              bodyMedium: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Sedan",
-                  letterSpacing: 0),
-            ),
-            scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+        // theme: ThemeData(
+        //     fontFamily: 'Karla',
+        //     textTheme: const TextTheme(
+        //       bodyLarge: TextStyle(
+        //           letterSpacing: -1,
+        //           fontSize: 35,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontWeight: FontWeight.w800,
+        //           fontFamily: "Karla"),
+        //       bodySmall: TextStyle(
+        //           fontSize: 20,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontFamily: "Karla",
+        //           letterSpacing: 0),
+        //       bodyMedium: TextStyle(
+        //           fontSize: 20,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontFamily: "Sedan",
+        //           letterSpacing: 0),
+        //     ),
+        //     scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
         home: const LoginWidget());
   }
 }
@@ -143,8 +148,9 @@ class LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
@@ -155,10 +161,7 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
             Text(
               'Log_In_to_Relatee_txt'.tr,
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(
               height: 20,
@@ -166,10 +169,10 @@ class LoginWidgetState extends State<LoginWidget> {
             TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      color: Color.fromARGB(255, 204, 198, 196),
+                      color: Theme.of(context).colorScheme.secondary,
                       width: 5,
                     ),
                   ),

@@ -182,7 +182,7 @@ class WelcomeText extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 40, fontWeight: FontWeight.bold)),
                       Text('welcome_message'.tr,
-                          style: Theme.of(context).textTheme.bodySmall),
+                          style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   );
                 } else {
@@ -198,8 +198,7 @@ class WelcomeText extends StatelessWidget {
                           Text(
                               '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
                               maxLines: 2,
-                              style: const TextStyle(
-                                  fontSize: 40, fontWeight: FontWeight.bold)),
+                              style: Theme.of(context).textTheme.bodyLarge),
                           Text('welcome_message'.tr,
                               style: Theme.of(context).textTheme.bodySmall),
                         ],
@@ -214,11 +213,7 @@ class WelcomeText extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text('Recommended_txt'.tr,
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196),
-                      fontSize: 20,
-                      fontFamily: "Karla",
-                      fontWeight: FontWeight.bold)),
+                  style: Theme.of(context).textTheme.labelSmall),
             )),
       ],
     );
@@ -242,13 +237,13 @@ class ButtonRecommended extends StatelessWidget {
           Container(
             height: height,
             width: double.infinity,
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(25)),
-                color: Color.fromARGB(255, 243, 243, 243),
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                color: Theme.of(context).colorScheme.primary,
                 boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(61, 109, 103, 103),
-                    offset: Offset(5.0, 5.0),
+                    color: Theme.of(context).colorScheme.secondary,
+                    offset: const Offset(5.0, 5.0),
                     blurRadius: 10.0,
                     spreadRadius: 2.0,
                   )
@@ -266,11 +261,7 @@ class ButtonRecommended extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(task,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  fontFamily: "Karla",
-                                  //fontWeight: FontWeight.bold
-                                )),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 30)),
                           ),
                         ],
                       )),
@@ -325,20 +316,15 @@ class ButtonCompleted extends StatelessWidget {
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                   text: "$who completed",
-                                  style: const TextStyle(
-                                      color: Color.fromARGB(255, 74, 70, 70),
-                                      fontFamily: "Karla",
-                                      fontSize: 25),
+                                  style: Theme.of(context).textTheme.bodySmall,
                                   children: <TextSpan>[
                                     TextSpan(
                                         text: " \"$what\" ",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
                                     TextSpan(
                                       text: "$time.",
                                     )
                                   ]
-                                  //fontWeight: FontWeight.bold
                                   )),
                         ),
                       ],
@@ -366,13 +352,13 @@ class ButtonShort extends StatelessWidget {
         Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(25)),
+              color: Theme.of(context).colorScheme.primary,
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
+                  color: Theme.of(context).colorScheme.secondary,
+                  offset: const Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
                 )
@@ -385,21 +371,14 @@ class ButtonShort extends StatelessWidget {
                 children: [
                   Text(
                     number,
-                    style: const TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Karla"),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 60),
                     maxLines: 2,
                     
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                     child: Text(textBelow,
-                        style: const TextStyle(
-                            fontSize: 20,
-                            height: 1,
-                            fontFamily: "Karla",
-                            letterSpacing: -0.5),
+                        style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                         maxLines: 2),
                   )
@@ -455,7 +434,6 @@ class TaskOverview extends StatefulWidget {
 class _TaskState extends State<TaskOverview> {
   _TaskState({required this.userData});
   final double size = 15;
-  final Color col = const Color.fromARGB(255, 204, 198, 196);
   final Future<List<Map<String, dynamic>>> userData;
 
 
@@ -469,15 +447,15 @@ class _TaskState extends State<TaskOverview> {
           padding: const EdgeInsets.only(top: 50),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('${'Your_txt'.tr} Tasks',
-                  style: Theme.of(context).textTheme.bodyLarge),
+                  style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                   onPressed: () {
                     Get.to(()=> NewTask(userData: userData));
                   },
-                  child: Icon(CupertinoIcons.add, color: col, size: 35))
+                  child: Icon(CupertinoIcons.add, color: Theme.of(context).colorScheme.tertiary, size: 30))
             ],
           ),
         ),
@@ -497,15 +475,11 @@ class _TaskState extends State<TaskOverview> {
                 child: Row(
                   children: [
                     Text('SeeAllTasks_txt'.tr,
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 204, 198, 196),
-                            fontSize: size,
-                            fontFamily: "Karla",
-                            fontWeight: FontWeight.w500)),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 15)),
                     Container(width: 5),
                     Icon(
                       CupertinoIcons.arrow_right,
-                      color: col,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: size,
                     )
                   ],
@@ -519,7 +493,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     Icon(
                       CupertinoIcons.house,
-                      color: col,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: size,
                     ),
                   ],
@@ -538,9 +512,6 @@ class Task extends StatelessWidget {
 
   final String taskName;
   final int taskStatus;
-  /*final Widget green = SvgPicture.asset("assets/images/green.svg");
-  final Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
-  final Widget red = SvgPicture.asset("assets/images/red.svg");*/
 
   @override
   Widget build(BuildContext context) {
@@ -548,13 +519,13 @@ class Task extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 15),
       child: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(25)),
-            color: Color.fromARGB(255, 243, 243, 243),
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(25)),
+            color: Theme.of(context).colorScheme.primary,
             boxShadow: [
               BoxShadow(
-                color: Color.fromARGB(61, 109, 103, 103),
-                offset: Offset(5.0, 5.0),
+                color: Theme.of(context).colorScheme.secondary,
+                offset: const Offset(5.0, 5.0),
                 blurRadius: 10.0,
                 spreadRadius: 2.0,
               )
