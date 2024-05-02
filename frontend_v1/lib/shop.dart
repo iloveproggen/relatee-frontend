@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -73,10 +71,10 @@ class _ShopIconState extends State<ShopIcon>
 }
 
 class ShopView extends StatefulWidget {
-  const ShopView({super.key, this.itemToAdd, required this.username});
+  const ShopView({super.key, this.itemToAdd, required this.userData});
 
   final ItemCard? itemToAdd; 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
   
   @override
   State<ShopView> createState() => ShopViewState();
@@ -101,7 +99,7 @@ class ShopViewState extends State<ShopView> {
 
   // Getter for the itemCards list
   List<Widget> get getItemCards => itemCards;
-  String get username => widget.username;
+  Future<List<Map<String, dynamic>>> get userData => widget.userData;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
@@ -109,10 +107,6 @@ class ShopViewState extends State<ShopView> {
 
   @override
   Widget build(BuildContext context) {
-
-  final Color primColor = Theme.of(context).colorScheme.primary;//const Color.fromARGB(255, 243, 243, 243);  colLight
-  final Color secColor = Theme.of(context).colorScheme.secondary; //const Color(0xFF4A4646); colText
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -120,7 +114,7 @@ class ShopViewState extends State<ShopView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            BackIconRow(username: username),
+            const BackIconRow(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -134,11 +128,11 @@ class ShopViewState extends State<ShopView> {
                 ),
                 TextButton(
                     onPressed: () {
-                    Get.to(NewShopItem(username: username));
+                    Get.to(() => NewShopItem(userData: userData));
                       
                     },
-                    child: Icon(CupertinoIcons.add,
-                        color: secColor, size: 35))//Color.fromARGB(255, 204, 198, 196), size: 35))
+                    child: const Icon(CupertinoIcons.add,
+                        color: Color.fromARGB(255, 204, 198, 196), size: 35))
               ],
             ),
             Text(
@@ -163,9 +157,9 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge(context ,'1150 pts', backgroundColor: primColor, textColor: secColor), //help Michelle, habe cmd + . und den parameter hinzugefügt
+                buildBadge('1150 pts'),
                 const SizedBox(width: 20),
-                buildBadge(context, 'lvl 25', backgroundColor: primColor, textColor: secColor),
+                buildBadge('lvl 25'),
               ],
             ),
             const SizedBox(height: 50)
@@ -175,22 +169,17 @@ class ShopViewState extends State<ShopView> {
     );
   }
 
-  Widget buildBadge(BuildContext context, String text, {required backgroundColor, required Color textColor}) {  //help Michelle habe context hinzugefügt
-    
-  final Color primColor = Theme.of(context).colorScheme.primary;//const Color.fromARGB(255, 243, 243, 243);  colLight
-  final Color secColor = Theme.of(context).colorScheme.secondary; //const Color(0xFF4A4646); colText
-    
-   
+  Widget buildBadge(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
       decoration: BoxDecoration(
-        color: primColor, //const Color(0xFFEDECEC),
+        color: const Color(0xFFEDECEC),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: secColor, //Color(0xFFB4B4B4),
+        style: const TextStyle(
+          color: Color(0xFFB4B4B4),
           fontSize: 24,
           fontFamily: 'Karla',
           fontWeight: FontWeight.w700,
@@ -205,26 +194,25 @@ class ItemCard extends StatelessWidget {
     super.key, required this.taskName, required this.taskPrice,
   });
 
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
+  final Color colText = const Color(0xFF4A4646);
+
   final String taskName;
   final String taskPrice;
 
   @override
   Widget build(BuildContext context) {
-
-  final Color primColor = Theme.of(context).colorScheme.primary;//const Color.fromARGB(255, 243, 243, 243);  colLight
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color secColor = Theme.of(context).colorScheme.secondary; //const Color(0xFF4A4646); colText
-
     return Container(
       width: 200,
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: primColor,//const Color.fromARGB(255, 243, 243, 243),
+        color: const Color.fromARGB(255, 243, 243, 243),
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: secColor,//Color.fromARGB(61, 109, 103, 103),
+            color: Color.fromARGB(61, 109, 103, 103),
             offset: Offset(5.0, 5.0),
             blurRadius: 10.0,
             spreadRadius: 2.0,
@@ -241,11 +229,11 @@ class ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 200),
+                  constraints: const BoxConstraints(maxWidth: 150),
                   child: Text(
                     taskName,
-                    style: TextStyle(
-                      color: secColor,//Color(0xFF4A4646),
+                    style: const TextStyle(
+                      color: Color(0xFF4A4646),
                       fontSize: 20,
                       fontFamily: 'Karla',
                       fontWeight: FontWeight.bold,
@@ -254,8 +242,8 @@ class ItemCard extends StatelessWidget {
                 ),
                 Text(
                   "$taskPrice pts",
-                  style: TextStyle(
-                      color: secColor,//Color.fromARGB(255, 204, 198, 196),
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 204, 198, 196),
                       fontSize: 20,
                       fontFamily: "Karla"),
                   textAlign: TextAlign.center,
@@ -268,9 +256,9 @@ class ItemCard extends StatelessWidget {
             child: Container(
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  color: secColor,//colMid,
+                  color: colMid,
                 ),
-                child: Padding(
+                child: const Padding(
                   padding:
                       EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                   child: Align(
@@ -281,8 +269,7 @@ class ItemCard extends StatelessWidget {
                           fontFamily: "Karla",
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: primColor,//Color.fromARGB(255, 243, 243, 243)),
-                      )
+                          color: Color.fromARGB(255, 243, 243, 243)),
                     ),
                   ),
                 )),

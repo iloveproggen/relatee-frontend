@@ -1,64 +1,27 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
 
-void main() {
-  runApp(const FigmaToCodeApp());
-}
-
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: Theme.of(context).colorScheme.background,
-      //const Color.fromARGB(255, 243, 243, 243),
-      ),
-      home: const Scaffold(
-        body: CreateTaskView(),
-      ),
-    );
-  }
-}
 
 class CreateTaskView extends StatelessWidget {
-  const CreateTaskView({super.key});
+  const CreateTaskView({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const CreateTaskView();
-      },
-    );
-  }
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
-
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
-    return Scaffold(
+    return const Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BackIconRow(username: ""),
+            BackIconRow(),
             Text(
-              'new_task_txt'.tr,
+              'New Task...',
               style: TextStyle(
-                color: secColor,
-                //Color(0xFF4A4646),
+                color: Color(0xFF4A4646),
                 fontSize: 32,
                 fontFamily: 'Karla',
                 fontWeight: FontWeight.w700,
@@ -80,33 +43,28 @@ class TaskDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     final double deviceWidth = MediaQuery.of(context).size.width;
 
     return Container(
       width: deviceWidth,
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: primColor,
-        //const Color(0xFFF3F3F3),
+        color: const Color(0xFFF3F3F3),
         borderRadius: BorderRadius.circular(28),
       ),
-      child: Column(
+      child: const Column(
         children: [
           Row(
             children: [
               TaskAttributeWidget(
                 iconUrl: 'https://via.placeholder.com/34x34',
-                label: 'repeat_txt'.tr,
+                label: 'repeats:',
                 value: '',
               ),
               SizedBox(width: 10),
               TaskAttributeWidget(
                 iconUrl: 'https://via.placeholder.com/34x34',
-                label: 'assign_to_txt'.tr,
+                label: 'assign to:',
                 value: 'Michelle (you)',
               ),
             ],
@@ -115,8 +73,7 @@ class TaskDetailsWidget extends StatelessWidget {
           Text(
             'Points:',
             style: TextStyle(
-              color: secColor,
-              //Color(0xFF4A4646),
+              color: Color(0xFF4A4646),
               fontSize: 20,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w300,
@@ -127,8 +84,7 @@ class TaskDetailsWidget extends StatelessWidget {
             '15',
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: secColor,
-              //Color(0xFF4A4646),
+              color: Color(0xFF4A4646),
               fontSize: 20,
               fontFamily: 'Karla',
               fontWeight: FontWeight.w500,
@@ -154,10 +110,6 @@ class TaskAttributeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -174,9 +126,8 @@ class TaskAttributeWidget extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           label,
-          style: TextStyle(
-            color: secColor,
-            //Color(0xFF4A4646),
+          style: const TextStyle(
+            color: Color(0xFF4A4646),
             fontSize: 16,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w300,
@@ -186,9 +137,8 @@ class TaskAttributeWidget extends StatelessWidget {
         Text(
           value,
           textAlign: TextAlign.right,
-          style: TextStyle(
-            color: secColor,
-            //Color(0xFF4A4646),
+          style: const TextStyle(
+            color: Color(0xFF4A4646),
             fontSize: 16,
             fontFamily: 'Karla',
             fontWeight: FontWeight.w500,
