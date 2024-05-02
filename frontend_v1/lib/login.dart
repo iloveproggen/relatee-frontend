@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
@@ -170,17 +171,17 @@ class LoginWidgetState extends State<LoginWidget> {
                 controller: _usernameController,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       width: 5,
                     ),
                   ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
-                      color: Color.fromARGB(255, 74, 70, 70),
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                   border: const OutlineInputBorder(
@@ -203,18 +204,18 @@ class LoginWidgetState extends State<LoginWidget> {
               controller: _passwordController,
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                enabledBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    color: Color.fromARGB(255, 204, 198, 196),
+                    color: Theme.of(context).colorScheme.onPrimary,
                     width: 5,
                   ),
                 ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
                     width: 5,
-                    color: Color.fromARGB(255, 74, 70, 70),
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
                 border: const OutlineInputBorder(
@@ -225,8 +226,8 @@ class LoginWidgetState extends State<LoginWidget> {
                 ),
                 hintText: 'Password_txt'.tr,
                 contentPadding: const EdgeInsets.all(20),
-                hintStyle: const TextStyle(
-                  color: Color.fromARGB(255, 204, 198, 196),
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
@@ -254,13 +255,13 @@ class LoginWidgetState extends State<LoginWidget> {
               padding: const EdgeInsets.only(top: 40),
               child: Container(
                 decoration: requiredFields
-                    ? const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Color.fromARGB(255, 74, 70, 70),
+                    ? BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        color: const Color.fromARGB(255, 74, 70, 70),
                         boxShadow: [
                             BoxShadow(
-                              color: Color.fromARGB(61, 109, 103, 103),
-                              offset: Offset(5.0, 5.0),
+                              color: Theme.of(context).colorScheme.secondary,
+                              offset: const Offset(5.0, 5.0),
                               blurRadius: 10.0,
                               spreadRadius: 2.0,
                             )
@@ -271,8 +272,8 @@ class LoginWidgetState extends State<LoginWidget> {
                         border: Border.all(
                             strokeAlign: BorderSide.strokeAlignInside,
                             width: 5,
-                            color: const Color.fromARGB(255, 204, 198, 196)),
-                        color: const Color.fromARGB(255, 243, 243, 243),
+                            color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                 child: TextButton(
                   onPressed: requiredFields

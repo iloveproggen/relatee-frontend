@@ -35,6 +35,8 @@ ThemeData lighttheme = ThemeData(
     colorScheme: const ColorScheme.light(
       background: Color.fromARGB(255, 243, 243, 243),
       primary: Color.fromARGB(255, 243, 243, 243),
-      secondary: Color.fromARGB(61, 109, 103, 103),
+      secondary: Color.fromARGB(60, 83, 76, 76),
       tertiary: Color.fromARGB(255, 204, 198, 196),
+      onPrimary:Color.fromARGB(255, 204, 198, 196),
+      onSecondary:Color.fromARGB(255, 130, 122, 122),
     ));

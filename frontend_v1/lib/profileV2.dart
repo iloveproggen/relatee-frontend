@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
@@ -63,7 +64,7 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -109,10 +110,10 @@ class ProfileView extends StatelessWidget {
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: const Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        child: const Padding(
-                            padding: EdgeInsets.only(
+                        child: Padding(
+                            padding: const EdgeInsets.only(
                                 top: 10, bottom: 10, left: 10, right: 10),
                             child: /*Text("log out",
                               style: TextStyle(
@@ -123,7 +124,7 @@ class ProfileView extends StatelessWidget {
                                   fontWeight: FontWeight.w700)),*/
                                 Icon(
                               CupertinoIcons.arrowshape_turn_up_right_fill,
-                              color: Color.fromARGB(255, 243, 243, 243),
+                              color: Theme.of(context).colorScheme.primary,
                               size: 20,
                             ))),
                   ),
@@ -134,18 +135,13 @@ class ProfileView extends StatelessWidget {
                   Container(
                     height: 200,
                     width: 200,
-                    decoration: const ShapeDecoration(
+                    decoration: ShapeDecoration(
                         shape: CircleBorder(
                           side: BorderSide(
                             width: 6,
-                            color: Color.fromARGB(255, 114, 111, 110),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
-                        ),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              "https://fakeimg.pl/200x200/f7f7f7/9c9390?font=bebas"),
-                          fit: BoxFit.fill,
-                        )),
+                        ),),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -182,11 +178,7 @@ class ProfileView extends StatelessWidget {
                           children: [
                             Text(
                               '${snapshot.data![index]['forename']} ${snapshot.data![index]['surname']}',
-                              style: const TextStyle(
-                                color: Color(0xFF4A4646),
-                                fontSize: 40,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: Theme.of(context).textTheme.bodyLarge
                             ),
                             const SizedBox(height: 10),
                             RichText(
@@ -194,22 +186,12 @@ class ProfileView extends StatelessWidget {
                                 children: [
                                   TextSpan(
                                     text: ('part_household'.tr),
-                                    style: const TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 20,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w300,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall
                                   ),
                                   TextSpan(
                                     text:
                                         '"${snapshot.data![index]['householdName']}"',
-                                    style: const TextStyle(
-                                      color: Color(0xFF4A4646),
-                                      fontSize: 15,
-                                      fontFamily: 'Karla',
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
                                   ),
                                 ],
                               ),
@@ -218,12 +200,7 @@ class ProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             Text(
                               '@${snapshot.data![index]['username']}',
-                              style: const TextStyle(
-                                color: Color(0xFF4A4646),
-                                fontSize: 20,
-                                fontFamily: 'Karla',
-                                fontWeight: FontWeight.w300,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -246,7 +223,7 @@ class ProfileView extends StatelessWidget {
               // ),
 
               const Divider(
-                  color: Color(0xFFEDECEC), height: 100, thickness: 2),
+                  color: Color.fromARGB(238, 126, 126, 126), height: 100, thickness: 2),
               TaskOverview(userData: userData),
             ],
           ),
@@ -303,7 +280,7 @@ class BackIconRow extends StatelessWidget {
                 children: [
                   Icon(
                     CupertinoIcons.arrowtriangle_left_fill,
-                    color: col,
+                    color: Theme.of(context).colorScheme.tertiary,
                     size: 18,
                   ),
                   Container(width: 5),
@@ -313,8 +290,8 @@ class BackIconRow extends StatelessWidget {
                   //   size: 18,
                   // )
                   Text('back_button_text'.tr,
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
                           fontSize: 15,
                           fontFamily: "Karla",
                           fontWeight: FontWeight.bold)),
@@ -345,39 +322,44 @@ class TaskOverview extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
           child:
-              Text('Their Tasks', style: Theme.of(context).textTheme.bodyLarge),
+              Text('Their Tasks', style: Theme.of(context).textTheme.bodyMedium),
         ),
         const Task(taskName: "do the dishes", taskStatus: 2),
         const Task(taskName: "mop the floor", taskStatus: 1),
         Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 50),
+          padding: const EdgeInsets.only(bottom: 40),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text('SeeAllTasks_txt'.tr,
-                      style: TextStyle(
-                          color: const Color.fromARGB(255, 204, 198, 196),
-                          fontSize: size,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.w500)),
-                  Container(width: 5),
-                  Icon(
-                    CupertinoIcons.arrow_right,
-                    color: col,
-                    size: size,
-                  )
-                ],
+              TextButton(
+                onPressed: () {
+                  Get.to(()=> const SeeAllTasks());
+                },
+                child: Row(
+                  children: [
+                    Text('SeeAllTasks_txt'.tr,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 15)),
+                    Container(width: 5),
+                    Icon(
+                      CupertinoIcons.arrow_right,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      size: size,
+                    )
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(MainHouseholdOverview(userData: userData));
+                  Get.to(() => MainHouseholdOverview(userData: userData));
                 },
-                child: Icon(
-                  CupertinoIcons.house,
-                  color: col,
-                  size: size,
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.house,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      size: size,
+                    ),
+                  ],
                 ),
               ),
             ],
