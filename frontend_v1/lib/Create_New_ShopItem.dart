@@ -4,12 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key, required this.username});
+  const NewShopItem({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   State<NewShopItem> createState() => _NewShopItemState();
@@ -19,7 +18,7 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
 
-  String get username => widget.username;
+  Future<List<Map<String, dynamic>>> get userData => widget.userData;
   bool required = false;
 
   void _updateRequired() {
@@ -42,19 +41,14 @@ class _NewShopItemState extends State<NewShopItem> {
 
   @override
   Widget build(BuildContext context) {
-
-final Color primColor = Theme.of(context).colorScheme.primary;
-final Color secColor = Theme.of(context).colorScheme.secondary;
-    
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      //const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              BackIconRow(username: username),
+              const BackIconRow(),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -62,21 +56,19 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                     children: [
                       TextField(
                         controller: taskName,
-                        decoration: InputDecoration.collapsed(
-                          hintText: 'new_item_txt'.tr,
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'new item...',
                           hintStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: "Sedan",
                             fontSize: 40,
-                            color: secColor, 
-                            //Color.fromARGB(255, 204, 198, 196),
+                            color: Color.fromARGB(255, 204, 198, 196),
                           ),
                         ),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: "Sedan",
                           fontSize: 40,
-                          color: secColor,
                         ),
                       ),
                     ],
@@ -89,16 +81,15 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       CupertinoIcons.add_circled,
                       size: 25,
-                      color: secColor,
-                      //Color.fromARGB(255, 204, 198, 196),
+                      color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
-                    Text(
-                      'price_txt'.tr,
-                      style: TextStyle(fontSize: 25, fontFamily: "Karla", color: secColor),
+                    const Text(
+                      'price:',
+                      style: TextStyle(fontSize: 25, fontFamily: "Karla"),
                     ),
                     Expanded(
                       child: TextField(
@@ -107,16 +98,14 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly
                         ],
-                        decoration: InputDecoration(
-                            hintText: 'add_price_txt'.tr,
+                        decoration: const InputDecoration(
+                            hintText: "add price",
                             hintStyle: TextStyle(
-                                color: secColor,
-                                 //Color.fromARGB(255, 204, 198, 196),
+                                color: Color.fromARGB(255, 204, 198, 196),
                                 fontSize: 20),
                             border: InputBorder.none),
-                        style: TextStyle(
-                            color: primColor,
-                            //Color.fromARGB(255, 74, 70, 70),
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 74, 70, 70),
                             fontWeight: FontWeight.bold,
                             fontSize: 25),
                       ),
@@ -129,14 +118,12 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                 padding: const EdgeInsets.only(top: 80),
                 child: Container(
                     decoration: required
-                        ? BoxDecoration(
+                        ? const BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: primColor,
-                            //Color.fromARGB(255, 74, 70, 70),
+                            color: Color.fromARGB(255, 74, 70, 70),
                             boxShadow: [
                                 BoxShadow(
-                                  color: secColor,
-                                  //Color.fromARGB(61, 109, 103, 103),
+                                  color: Color.fromARGB(61, 109, 103, 103),
                                   offset: Offset(5.0, 5.0),
                                   blurRadius: 10.0,
                                   spreadRadius: 2.0,
@@ -144,22 +131,22 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                               ])
                         : BoxDecoration(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(10)),
+                                const BorderRadius.all(Radius.circular(10)),
                             border: Border.all(
                                 strokeAlign: BorderSide.strokeAlignOutside,
                                 width: 5,
                                 color:
-                                    secColor), //const Color.fromARGB(255, 204, 198, 196)),
-                            color: primColor//const Color.fromARGB(255, 243, 243, 243),
+                                    const Color.fromARGB(255, 204, 198, 196)),
+                            color: const Color.fromARGB(255, 243, 243, 243),
                           ),
                     child: TextButton(
                       onPressed: () {
                         if (required == false) {
-                          Get.to(() => ShopView(username: username));
+                          Get.back();
                         } else {
-                          //implement here: add shopitem to shop
+                          //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
                           Get.to(() => ShopView(
-                            username: "",
+                            userData: userData,
                             itemToAdd: ItemCard(
                               taskName: taskName.text,
                               taskPrice: taskPrice.text,
@@ -171,17 +158,15 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
+                          required ? "Confirm" : "Cancel",
                           style: required
-                              ? TextStyle(
-                                  color: secColor,
-                                  //Color.fromARGB(255, 243, 243, 243),
+                              ? const TextStyle(
+                                  color: Color.fromARGB(255, 243, 243, 243),
                                   fontFamily: "Karla",
                                   fontSize: 30,
                                 )
-                              : TextStyle(
-                                  color: secColor,
-                                  //Color.fromARGB(255, 204, 198, 196),
+                              : const TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
                                   fontFamily: "Karla",
                                   fontSize: 30,
                                 ),
@@ -209,10 +194,6 @@ class _SliderWidgetState extends State<SliderWidget> {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-    
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -220,13 +201,12 @@ class _SliderWidgetState extends State<SliderWidget> {
         });
       },
       child: Padding(
-        padding: EdgeInsets.only(top: 40),
+        padding: const EdgeInsets.only(top: 40),
         child: Container(
           width: 386,
           height: 46,
           decoration: BoxDecoration(
-            color: primColor,
-            //const Color(0x7FD9D9D9),
+            color: const Color(0x7FD9D9D9),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Stack(
@@ -240,8 +220,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   width: 193,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: secColor,
-                    //const Color(0xFFD9D9D9),
+                    color: const Color(0xFFD9D9D9),
                     borderRadius: BorderRadius.circular(7),
                   ),
                 ),
@@ -251,11 +230,11 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'permanent_txt'.tr,
+                        'permanent',
                         style: TextStyle(
                           color: _isPermanent
-                              ? primColor //Colors.black
-                              : secColor,//const Color(0xFF4A4646),
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
                           fontSize: 20,
                           fontFamily: 'Karla',
                           fontWeight:
@@ -268,11 +247,11 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'only_once_txt'.tr,
+                        'only once',
                         style: TextStyle(
                           color: !_isPermanent
-                              ? primColor//Colors.black
-                              : secColor, //const Color(0xFF4A4646),
+                              ? Colors.black
+                              : const Color(0xFF4A4646),
                           fontSize: 20,
                           fontFamily: 'Karla',
                           fontWeight:
@@ -297,11 +276,7 @@ class AddDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
-    return Column(
+    return const Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 20),
@@ -311,13 +286,13 @@ class AddDescription extends StatelessWidget {
               Icon(
                 CupertinoIcons.text_aligncenter,
                 size: 25,
-                color: secColor, //Color.fromARGB(255, 204, 198, 196),
+                color: Color.fromARGB(255, 204, 198, 196),
               ),
               SizedBox(width: 20),
               Text(
-                'description_txt'.tr,
+                'description',
                 textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 25, fontFamily: "Karla", color: secColor),
+                style: TextStyle(fontSize: 25, fontFamily: "Karla"),
               ),
             ],
           ),
@@ -328,14 +303,12 @@ class AddDescription extends StatelessWidget {
             maxLines: 3,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
-                hintText: 'None_Yet_txt'.tr,
+                hintText: 'None Yet',
                 hintStyle: TextStyle(
-                    color: secColor, //Color.fromARGB(255, 204, 198, 196),
-                     fontSize: 20),
+                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
                 border: InputBorder.none),
             style: TextStyle(
-              color: primColor,
-              //Color.fromARGB(255, 74, 70, 70),
+              color: Color.fromARGB(255, 74, 70, 70),
               fontWeight: FontWeight.bold,
               fontSize: 25,
               letterSpacing: 0,

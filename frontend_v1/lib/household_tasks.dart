@@ -1,52 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-import 'leader_board_v2.dart';
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      translations: LocaleString(),
-      locale: const Locale('en-US'),
-      fallbackLocale: const Locale('en-US'),
-      home: const MainHouseholdOverview(),
-    );
-  }
-}
-
 class MainHouseholdOverview extends StatelessWidget {
-  const MainHouseholdOverview({super.key});
+  const MainHouseholdOverview({super.key, required this.userData});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const MainHouseholdOverview();
-      },
-    );
-  }
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
         body: SingleChildScrollView(
             child: Padding(
-      padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+      padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
-        children: [BackIconRow(username: ""), HouseholdOverview()],
+        children: [const BackIconRow(), HouseholdOverview(userData: userData)],
       ),
     )));
   }
 }
 
 class HouseholdOverview extends StatelessWidget {
-  const HouseholdOverview({super.key});
+  const HouseholdOverview({super.key, required this.userData});
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -56,29 +35,25 @@ class HouseholdOverview extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('${'Household_txt'.tr}Tasks',
-                  style: Theme.of(context).textTheme.bodyLarge),
-                  IconButton(onPressed: () {
-                    Get.to(() => const MainLeaderboardView());
-                  }, icon: const Icon(CupertinoIcons.chart_bar_square_fill, size: 40)),
-            ],
-          ),
+          child: Text('${'Household_txt'.tr}Tasks',
+              style: Theme.of(context).textTheme.bodyLarge),
         ),
         const ButtonCompleted(
             who: "Marvin", what: "do the dishes", time: "today"),
         const Task(taskName: "pick up couch", taskStatus: 0),
-        const HouseholdMembers()
+        HouseholdMembers(userData: userData)
       ],
     );
   }
 }
 
 class HouseholdMembers extends StatelessWidget {
-  const HouseholdMembers({super.key});
+  const HouseholdMembers({
+    super.key,
+    required this.userData,
+  });
+
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +67,14 @@ class HouseholdMembers extends StatelessWidget {
           child: Text('HouseholdMembers_txt'.tr,
               style: Theme.of(context).textTheme.bodyLarge),
         ),
-        const Member(name: "Marvin Trost", user: "@trostmarvin"),
-        const Member(name: "Maurice Halilovic", user: "@lugia75"),
-        const Member(name: "Rene Schomburg", user: "@mrmagnas"),
+        Member(
+            name: "Marvin Trost", username: "@trostmarvin", userData: userData),
+        Member(
+            name: "Maurice Halilovic",
+            username: "@lugia75",
+            userData: userData),
+        Member(
+            name: "Rene Schomburg", username: "@mrmagnas", userData: userData),
         const SizedBox(height: 50)
       ],
     );
@@ -102,19 +82,27 @@ class HouseholdMembers extends StatelessWidget {
 }
 
 class Member extends StatelessWidget {
-  const Member({super.key, required this.name, required this.user});
+  const Member(
+      {super.key,
+      required this.name,
+      required this.username,
+      required this.userData});
 
   final String name;
-  final String user;
+  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 15),
       child: TextButton(
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+        ),
         onPressed: () {
-          Get.to(() => const ProfileView(
-                username: "",
+          Get.to(() => ProfileView(
+                userData: userData,
               ));
         },
         child: Row(
@@ -128,7 +116,7 @@ class Member extends StatelessWidget {
                   shape: CircleBorder(
                     side: BorderSide(
                       width: 4,
-                      color: Color.fromARGB(255, 114, 111, 110),
+                      color: Color.fromARGB(255, 197, 191, 189),
                     ),
                   ),
                   image: DecorationImage(
@@ -148,7 +136,7 @@ class Member extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(255, 74, 70, 70),
                     )),
-                Text(user,
+                Text(username,
                     style: const TextStyle(
                         fontFamily: "Karla",
                         color: Color.fromARGB(255, 204, 198, 196))),
