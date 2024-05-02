@@ -7,12 +7,12 @@ class SeeAllTasks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Padding(
-      padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+    return const Scaffold(body: Padding(
+      padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
         children: [
-          const BackIconRow(),
-          const SliderWidgetRepeat(),
+          BackIconRow(),
+          SliderWidgetRepeat(),
         ],
       ),
     ));
@@ -105,8 +105,34 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Column(
+              children: _isPermanent
+                  ? [const TaskWidget()]
+                  : [const RoutineWidget()],
+            ),
+          )
         ],
       ),
     );
+  }
+}
+
+class TaskWidget extends StatelessWidget {
+  const TaskWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text("Tasks");
+  }
+}
+
+class RoutineWidget extends StatelessWidget {
+  const RoutineWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text("Routines");
   }
 }
