@@ -11,26 +11,16 @@ void main() {
 class MainLeaderboardView extends StatelessWidget {
   const MainLeaderboardView({super.key});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const MainLeaderboardView();
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-        home: const Scaffold(
-            body: SingleChildScrollView(
+    return SingleChildScrollView(
       child: Column(
         children: [
           MembersText(),
           ChartLeaderboard(),
         ],
       ),
-    )));
+    );
   }
 }
 
@@ -43,10 +33,18 @@ class MembersText extends StatelessWidget {
       width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Text(
-          'Members_txt'.tr,
-          style: TextStyle(fontSize: 20),
-          textAlign: TextAlign.left,
+        child: Row(
+          children: [
+            const BackIconRow(),
+            Padding(
+              padding: const EdgeInsets.only(top: 90),
+              child: Text(
+                'Members_txt'.tr,
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ],
         ),
       ),
     );
