@@ -8,12 +8,9 @@ import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
+import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
-
-import 'assets/LocaleStrings.dart';
-import 'package:frontend_v1/theme/dark_theme.dart';
-import 'package:frontend_v1/theme/light_theme.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -24,7 +21,7 @@ void main() {
 
 bool auth = false;
 
-Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async {
+Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
   final connection = PostgreSQLConnection(
     'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
     5432,
@@ -34,85 +31,50 @@ Future<List<Map<String, dynamic>>> fetchUsers({required String username}) async 
     useSSL: true,
   );
   await connection.open();
+  print('fetching $username\'s data');
   List<List<dynamic>> results = await connection.query(
-      'SELECT id, forename FROM users WHERE username = @username;',
+      'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username;',
       substitutionValues: {'username': username});
   await connection.close();
 
-  return results.map((row) => {'id': row[0], 'forename': row[1]}).toList();
+  List<Map<String, dynamic>> mappedResults = results
+      .map((row) => {
+            'id':row[0],
+            'forename': row[1],
+            'surname': row[2],
+            'username': row[3],
+            'email': row[4],
+            'balance': row[5],
+            'householdName': row[6],
+          })
+      .toList();
+
+  print(mappedResults);
+  return mappedResults;
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key, required this.user});
-
-  final String user;
-  @override
-  Widget build(BuildContext context) {
-final brightness = MediaQuery.of(context).platformBrightness;
-
-    return GetMaterialApp(
-        translations: LocaleString(),
-        locale: const Locale('en-US'),
-        fallbackLocale: const Locale('en-US'),
-        debugShowCheckedModeBanner: false,
-        title: 'Relatee',
-        darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme: darktheme,/* ThemeData(
-            fontFamily: 'Karla',
-            textTheme: const TextTheme(
-              bodyLarge: TextStyle(
-                  letterSpacing: -1,
-                  fontSize: 35,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontWeight: FontWeight.w800,
-                  fontFamily: "Karla"),
-              bodySmall: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Karla",
-                  letterSpacing: 0),
-              bodyMedium: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Sedan",
-                  letterSpacing: 0),
-            ),
-            scaffoldBackgroundColor: Theme.of(context).colorScheme.background), */
-            //const Color.fromARGB(255, 243, 243, 243)),
-        home: MainWidget(user: user));
-  }
-}
 
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.user});
 
   final String user;
-
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
-  static Route<dynamic> route(String user) {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return MainWidget(user: user);
-      },
-    );
-  }
-
-
-  
 
   @override
   Widget build(BuildContext context) {
+  final Future<List<Map<String, dynamic>>> userData = fetchUser(username: user);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            IconRow(username: user,),
-            WelcomeText(user: user),
+            IconRow(
+              userData: userData,
+            ),
+            WelcomeText(userData: userData),
             const ButtonRecommended(task: "do the dishes"),
-            const TaskOverview(),
+            TaskOverview(userData: userData),
           ]),
         ),
       ),
@@ -121,19 +83,17 @@ class MainWidget extends StatelessWidget {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.username});
+  const IconRow({super.key, required this.userData});
 
-  final String username;
+  final Future<List<Map<String, dynamic>>> userData;
+  
 
   final double padding = 20;
   final double size = 40;
-  
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-    //const Color.fromARGB(255, 204, 198, 196);
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -145,14 +105,15 @@ class IconRow extends StatelessWidget {
                 padding: EdgeInsets.only(right: padding),
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                    iconSize: size,
-                    onPressed: () {
-                        Get.to(() => ProfileView(username: username,));
-                    print(username);
-                    },
+                  iconSize: size,
+                  onPressed: () async {
+                    Get.to(() => ProfileView(userData: userData));
+                    List<Map<String, dynamic>> userDataList = await userData; 
+                    print(userDataList[0]['username']);
+                  },
                   icon: Icon(
                     CupertinoIcons.person_fill,
-                    color: secColor,
+                    color: col,
                   ),
                 ),
               ),
@@ -161,12 +122,12 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                    onPressed: () {
-                    Get.to(() => Settings(username: username));
-                    },
+                  onPressed: () {
+                    Get.to(() => Settings(userData: userData));
+                  },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
-                    color: secColor,
+                    color: col,
                   ),
                 ),
               ),
@@ -176,11 +137,11 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Get.to(() => ShopView(username: username));
+              Get.to(() => ShopView(userData: userData));
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
-              color: secColor,
+              color: col,
             ),
           ),
         ],
@@ -191,84 +152,68 @@ class IconRow extends StatelessWidget {
 
 // TextWidget
 class WelcomeText extends StatelessWidget {
+  const WelcomeText({super.key, required this.userData});
 
-  const WelcomeText({super.key, required this.user});
-  final String user;
+  final  Future<List<Map<String, dynamic>>> userData;
+
   @override
   Widget build(BuildContext context) {
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return Column(
       children: [
         Padding(
             padding: const EdgeInsets.only(bottom: 50, top: 10),
             child: SizedBox(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchUsers(username: user),
-                builder: (context, snapshot) {
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: userData,
+              builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(
-                  color:  primColor,
-                  //Color.fromARGB(255, 204, 198, 196),
-                  strokeWidth: 5,
-                  strokeCap: StrokeCap.round,
-                );
-                } else if (snapshot.hasError) {
-                print('Error: ${snapshot.error}');
-                return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${'welcome_title'.tr}, hackerman!!!!',
-                  style: TextStyle(
-                    fontSize: 40, fontWeight: FontWeight.bold,
-                    color: secColor
-                    )),
-                  Text('welcome_message'.tr,
-                  style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                  color: secColor,
-                  )),
-                ],
-                );
-                } else {
-                return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: snapshot.data?.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Text(
-                    '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
-                    maxLines: 2,
-                    style: TextStyle(
-                    fontSize: 40,
-                    color: secColor,
-                    fontWeight: FontWeight.bold)),
-                  Text('welcome_message'.tr,
-                    style: TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-                    color: secColor
-                    )),
-                  ],
+                  return const CircularProgressIndicator(
+                    color: Color.fromARGB(255, 204, 198, 196),
+                    strokeWidth: 5,
+                    strokeCap: StrokeCap.round,
                   );
-                },
-                );
+                } else if (snapshot.hasError) {
+                  print('Error: ${snapshot.error}');
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${'welcome_title'.tr}, hackerman!!!!',
+                          style: const TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.bold)),
+                      Text('welcome_message'.tr,
+                          style: Theme.of(context).textTheme.bodyLarge),
+                    ],
+                  );
+                } else {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data?.length,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
+                              maxLines: 2,
+                              style: Theme.of(context).textTheme.bodyLarge),
+                          Text('welcome_message'.tr,
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      );
+                    },
+                  );
                 }
-                },
-              ))),
+              },
+            ))),
         Align(
             alignment: Alignment.topLeft,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text('Recommended_txt'.tr,
-                  style: TextStyle(
-                      color: secColor,
-                      //Color.fromARGB(255, 204, 198, 196),
-                      fontSize: 20,
-                      fontFamily: "Karla", fontWeight: FontWeight.bold)),
+                  style: Theme.of(context).textTheme.labelSmall),
             )),
       ],
     );
@@ -284,10 +229,6 @@ class ButtonRecommended extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -297,14 +238,12 @@ class ButtonRecommended extends StatelessWidget {
             height: height,
             width: double.infinity,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(25)),
-                color: primColor,
-                //Color.fromARGB(255, 243, 243, 243),
+                borderRadius: const BorderRadius.all(Radius.circular(25)),
+                color: Theme.of(context).colorScheme.primary,
                 boxShadow: [
                   BoxShadow(
-                    color: secColor,
-                    //Color.fromARGB(61, 109, 103, 103),
-                    offset: Offset(5.0, 5.0),
+                    color: Theme.of(context).colorScheme.secondary,
+                    offset: const Offset(5.0, 5.0),
                     blurRadius: 10.0,
                     spreadRadius: 2.0,
                   )
@@ -322,12 +261,7 @@ class ButtonRecommended extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(task,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontFamily: "Karla",
-                                  color: secColor,
-                                  //fontWeight: FontWeight.bold
-                                )),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 30)),
                           ),
                         ],
                       )),
@@ -350,24 +284,18 @@ class ButtonCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return SizedBox(
         child: Column(
       children: [
         Container(
           height: height,
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: primColor,
-              //Color.fromARGB(255, 243, 243, 243),
+              color: Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
                 BoxShadow(
-                  color: secColor,
-                  //Color.fromARGB(61, 109, 103, 103),
+                  color: Color.fromARGB(61, 109, 103, 103),
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
@@ -388,21 +316,15 @@ class ButtonCompleted extends StatelessWidget {
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                   text: "$who completed",
-                                  style: TextStyle(
-                                      color: secColor,
-                                      //Color.fromARGB(255, 74, 70, 70),
-                                      fontFamily: "Karla",
-                                      fontSize: 25),
+                                  style: Theme.of(context).textTheme.bodySmall,
                                   children: <TextSpan>[
                                     TextSpan(
                                         text: " \"$what\" ",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
                                     TextSpan(
                                       text: "$time.",
                                     )
                                   ]
-                                  //fontWeight: FontWeight.bold
                                   )),
                         ),
                       ],
@@ -424,25 +346,19 @@ class ButtonShort extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return SizedBox(
         child: Column(
       children: [
         Container(
           height: height,
           width: double.infinity,
-          decoration:  BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: primColor,
-              //Color.fromARGB(255, 243, 243, 243),
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(25)),
+              color: Theme.of(context).colorScheme.primary,
               boxShadow: [
                 BoxShadow(
-                  color: secColor,
-                  //Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
+                  color: Theme.of(context).colorScheme.secondary,
+                  offset: const Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
                 )
@@ -455,23 +371,16 @@ class ButtonShort extends StatelessWidget {
                 children: [
                   Text(
                     number,
-                    style: TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Karla",
-                        color: secColor),
-                    maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 60),
+                    maxLines: 2,
+                    
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                     child: Text(textBelow,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: "Karla",
-                            letterSpacing: -0.5,
-                            color: secColor),
+                        style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
-                        maxLines: 1),
+                        maxLines: 2),
                   )
                 ],
               )),
@@ -513,20 +422,23 @@ class ButtonRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData});
+
+  
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
-  State<TaskOverview> createState() => _TaskState();
+  State<TaskOverview> createState() => _TaskState(userData: userData);
 }
 
 class _TaskState extends State<TaskOverview> {
+  _TaskState({required this.userData});
   final double size = 15;
+  final Future<List<Map<String, dynamic>>> userData;
+
 
   @override
   Widget build(BuildContext context) {
-
-  final Color secColor = Theme.of(context).colorScheme.secondary;
-  //const Color.fromARGB(255, 204, 198, 196);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,16 +447,15 @@ class _TaskState extends State<TaskOverview> {
           padding: const EdgeInsets.only(top: 50),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('${'Your_txt'.tr} Tasks',
-                  style: TextStyle(fontSize:  Theme.of(context).textTheme.bodyLarge?.fontSize,
-                  color: secColor)),
+                  style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                   onPressed: () {
-                    Navigator.of(context).push(NewTask.route());
+                    Get.to(()=> NewTask(userData: userData));
                   },
-                  child: Icon(CupertinoIcons.add, color: secColor, size: 35))
+                  child: Icon(CupertinoIcons.add, color: Theme.of(context).colorScheme.tertiary, size: 30))
             ],
           ),
         ),
@@ -558,20 +469,17 @@ class _TaskState extends State<TaskOverview> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.to(()=> const SeeAllTasks());
+                },
                 child: Row(
                   children: [
                     Text('SeeAllTasks_txt'.tr,
-                        style: TextStyle(
-                            color: secColor,
-                            //const Color.fromARGB(255, 204, 198, 196),
-                            fontSize: size,
-                            fontFamily: "Karla",
-                            fontWeight: FontWeight.w500)),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 15)),
                     Container(width: 5),
                     Icon(
                       CupertinoIcons.arrow_right,
-                      color: secColor,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: size,
                     )
                   ],
@@ -579,13 +487,13 @@ class _TaskState extends State<TaskOverview> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(MainHouseholdOverview.route());
+                  Get.to(() => MainHouseholdOverview(userData: userData));
                 },
                 child: Row(
                   children: [
                     Icon(
                       CupertinoIcons.house,
-                      color: secColor,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: size,
                     ),
                   ],
@@ -604,29 +512,20 @@ class Task extends StatelessWidget {
 
   final String taskName;
   final int taskStatus;
-  /*final Widget green = SvgPicture.asset("assets/images/green.svg");
-  final Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
-  final Widget red = SvgPicture.asset("assets/images/red.svg");*/
 
   @override
   Widget build(BuildContext context) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-    final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Container(
         width: double.infinity,
-        decoration:  BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(25)),
-            color: primColor,
-            //Color.fromARGB(255, 243, 243, 243),
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(25)),
+            color: Theme.of(context).colorScheme.primary,
             boxShadow: [
               BoxShadow(
-                color: secColor,
-//Color.fromARGB(61, 109, 103, 103),
-                offset: Offset(5.0, 5.0),
+                color: Theme.of(context).colorScheme.secondary,
+                offset: const Offset(5.0, 5.0),
                 blurRadius: 10.0,
                 spreadRadius: 2.0,
               )
@@ -636,8 +535,7 @@ class Task extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(taskName, style:TextStyle(fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-              color: secColor)),
+              Text(taskName, style: Theme.of(context).textTheme.bodySmall),
               Padding(
                 padding: const EdgeInsets.only(right: 30),
                 child: Builder(builder: (context) {

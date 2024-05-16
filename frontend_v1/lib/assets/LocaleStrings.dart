@@ -40,15 +40,6 @@ class LocaleString extends Translations {
           'Username_or_Email_txt': 'Username or Email',
           'Password_txt': 'Password',
           'Log_In_txt': 'Log in',
-          //new for Create_New_ShopItem
-          'new_item_txt': 'new item...',
-          'permanent_txt': 'permanent',
-          'price_txt': 'price',
-          'description_txt': 'description',
-          'None_Yet_txt': 'None Yet',
-          'Cancel_txt': 'Cancel',
-          'add_price_txt': 'add price',
-          'Confirm_txt': 'Confirm',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -87,14 +78,6 @@ class LocaleString extends Translations {
           'Username_or_Email_txt': 'Benutzername oder Email',
           'Password_txt': 'Passwort',
           'Log_In_txt': 'Log in',
-          'new_item_txt': 'neuer Artikel...',
-          'permanent_txt': 'permanent',
-          'price_txt': 'Preis',
-          'description_txt': 'Beschreibung',
-          'None_Yet_txt': 'Noch keine',
-          'Cancel_txt': 'Abbrechen',
-          'add_price_txt': 'Preis hinzufügen',
-          'Confirm_txt': 'Bestätigen',
         }
       };
 }

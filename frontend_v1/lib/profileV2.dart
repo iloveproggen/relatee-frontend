@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:postgres/postgres.dart';
 
 String getDueDaysInText(int days) {
@@ -15,59 +15,56 @@ String getDueDaysInText(int days) {
   }
 }
 
-Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
-  final connection = PostgreSQLConnection(
-    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-    5432,
-    'relateeDB',
-    username: 'relateeDB_owner',
-    password: 'bCTNHdw8mJL3',
-    useSSL: true,
-  );
-  await connection.open();
-  print(' fetching $username\'s data');
-  List<List<dynamic>> results = await connection.query(
-      'SELECT users.forename, users.surname, users.username FROM users WHERE username = @username',
-      substitutionValues: {'username': username});
-  await connection.close();
-
-  print(results);
-  print(results.isNotEmpty);
-  print(
-    'SELECT users.forename, users.surname, users.username FROM users WHERE username = $username',
-  );
-
-  return results
-      .map((row) => {
-            'id': row[0],
-            'forename': row[1],
-            'surname': row[2],
-            'username': row[3],
-          })
-      .toList();
-}
-
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.username});
+  const ProfileView({super.key, required this.userData});
 
-  final String username;
+  final  Future<List<Map<String, dynamic>>> userData;
 
-  static Route<dynamic> route({required String username}) {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return ProfileView(username: username);
-      },
+  Future<List<Map<String, dynamic>>> fetchUser(
+      {required String username}) async {
+    final connection = PostgreSQLConnection(
+      'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
+      5432,
+      'relateeDB',
+      username: 'relateeDB_owner',
+      password: 'bCTNHdw8mJL3',
+      useSSL: true,
     );
+    await connection.open();
+    print('fetching $username\'s data');
+    List<List<dynamic>> results = await connection.query(
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username',
+        substitutionValues: {'username': username});
+    await connection.close();
+
+    print(results
+        .map((row) => {
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
+            })
+        .toList());
+    return results
+        .map((row) => {
+              'id': row[0],
+              'forename': row[1],
+              'surname': row[2],
+              'username': row[3],
+              'email': row[4],
+              'balance': row[5],
+              'householdName': row[6],
+            })
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-
-final Color primColor = Theme.of(context).colorScheme.primary;
-final Color secColor = Theme.of(context).colorScheme.secondary;
-
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,//const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -77,17 +74,16 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BackIconRow(username: username),
+                  const BackIconRow(),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return CupertinoAlertDialog(
-                            title: Text('Log out?', style: TextStyle(color: secColor),),
-                            content: Text(
-                                'To access your tasks, you need to log in. Do you want to continue?',
-                                style: TextStyle(color: secColor),),
+                            title: const Text('Log out?'),
+                            content: const Text(
+                                'To access your tasks, you need to log in. Do you want to continue?'),
                             actions: [
                               CupertinoDialogAction(
                                 child: const Text(
@@ -101,11 +97,9 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: Text('Continue',
-                                style: TextStyle(color: secColor),),
+                                child: const Text('Continue'),
                                 onPressed: () {
-                                  Navigator.of(context)
-                                      .push(LoginWidget.route());
+                                  Get.to(() => const LoginWidget());
                                 },
                               ),
                             ],
@@ -116,10 +110,10 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                     child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: primColor, //const Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
                         child: Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 top: 10, bottom: 10, left: 10, right: 10),
                             child: /*Text("log out",
                               style: TextStyle(
@@ -130,7 +124,7 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                                   fontWeight: FontWeight.w700)),*/
                                 Icon(
                               CupertinoIcons.arrowshape_turn_up_right_fill,
-                              color: secColor, //Color.fromARGB(255, 243, 243, 243),
+                              color: Theme.of(context).colorScheme.primary,
                               size: 20,
                             ))),
                   ),
@@ -145,56 +139,79 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
                         shape: CircleBorder(
                           side: BorderSide(
                             width: 6,
-                            color: primColor, //Color.fromARGB(255, 114, 111, 110),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
-                        ),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              "https://fakeimg.pl/200x200/f7f7f7/9c9390?font=bebas"),
-                          fit: BoxFit.fill,
-                        )),
+                        ),),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 50, right: 10),
-                        child: _buildInfoContainer(context, '1150 pts'), //Michelle help
+                        child: _buildInfoContainer('1150 pts'),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 50),
-                        child: _buildInfoContainer(context,'lvl 25'),
+                        child: _buildInfoContainer('lvl 25'),
                       ),
                     ],
                   ),
                 ],
               ),
-              // FutureBuilder<List<Map<String, dynamic>>>(
-              //   future: fetchUser(username: username),
-              //   builder: (context, snapshot) {
-              //     return ListView.builder(
-              //       shrinkWrap: true,
-              //       physics: const NeverScrollableScrollPhysics(),
-              //       itemCount: snapshot.data?.length,
-              //       itemBuilder: (context, index) {
-              //         return Column(
-              //           mainAxisAlignment: MainAxisAlignment.start,
-              //           crossAxisAlignment: CrossAxisAlignment.center,
-              //           children: [
-              //             Text(
-              //               '${snapshot.data?[index]['forename']} ${snapshot.data?[index]['surname']}',
-              //               style: const TextStyle(
-              //                 color: Color(0xFF4A4646),
-              //                 fontSize: 32,
-              //                 fontWeight: FontWeight.w700,
-              //               ),
-              //           ),
-              //           ],
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: userData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    print('Error: ${snapshot.error}');
+                    return const Placeholder();
+                  } else if (snapshot.hasData) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${snapshot.data![index]['forename']} ${snapshot.data![index]['surname']}',
+                              style: Theme.of(context).textTheme.bodyLarge
+                            ),
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: ('part_household'.tr),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        '"${snapshot.data![index]['householdName']}"',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '@${snapshot.data![index]['username']}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    return const Text('No data available');
+                  }
+                },
+              ),
               // const Text(
               //   'Michelle Gerwald',
               //   style: TextStyle(
@@ -204,47 +221,10 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
               //   ),
               //   textAlign: TextAlign.center,
               // ),
-              const SizedBox(height: 10),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: ('part_household'.tr),
-                      style: TextStyle(
-                        color: secColor,
-                        //Color(0xFF4A4646),
-                        fontSize: 15,
-                        fontFamily: 'Karla',
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '"Campus Living"',
-                      style: TextStyle(
-                        color: secColor, //Color(0xFF4A4646),
-                        fontSize: 15,
-                        fontFamily: 'Karla',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                '@michiee123',
-                style: TextStyle(
-                  color: secColor, //Color(0xFF4A4646),
-                  fontSize: 16,
-                  fontFamily: 'Karla',
-                  fontWeight: FontWeight.w300,
-                ),
-                textAlign: TextAlign.center,
-              ),
+
               const Divider(
-                  color: Color(0xFFEDECEC), height: 100, thickness: 2),
-              const TaskOverview(),
+                  color: Color.fromARGB(238, 126, 126, 126), height: 100, thickness: 2),
+              TaskOverview(userData: userData),
             ],
           ),
         ),
@@ -252,14 +232,11 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
     );
   }
 
-  Widget _buildInfoContainer(BuildContext context, String text) {
-
-    final Color primColor = Theme.of(context).colorScheme.primary;
-
+  Widget _buildInfoContainer(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: BoxDecoration(
-        color: primColor,//Color(0xFFEDECEC),
+      decoration: const BoxDecoration(
+        color: Color(0xFFEDECEC),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Text(
@@ -277,18 +254,14 @@ final Color secColor = Theme.of(context).colorScheme.secondary;
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key, required this.username});
+  const BackIconRow({super.key});
 
-  final String username;
   final double padding = 20;
   final double size = 40;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
-
-  final Color secColor = Theme.of(context).colorScheme.secondary;
-  //const Color.fromARGB(255, 204, 198, 196);
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -299,15 +272,15 @@ class BackIconRow extends StatelessWidget {
             child: TextButton(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-                ),
-                onPressed: () {
-                Get.offAll(() => MainWidget(user: username));
-                },
+              ),
+              onPressed: () async {
+                Get.back();
+              },
               child: Row(
                 children: [
                   Icon(
                     CupertinoIcons.arrowtriangle_left_fill,
-                    color: secColor,
+                    color: Theme.of(context).colorScheme.tertiary,
                     size: 18,
                   ),
                   Container(width: 5),
@@ -318,7 +291,7 @@ class BackIconRow extends StatelessWidget {
                   // )
                   Text('back_button_text'.tr,
                       style: TextStyle(
-                          color: secColor, //Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary,
                           fontSize: 15,
                           fontFamily: "Karla",
                           fontWeight: FontWeight.bold)),
@@ -333,16 +306,15 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData});
+
+  final Future<List<Map<String, dynamic>>> userData; 
 
   final double size = 15;
+  final Color col = const Color.fromARGB(255, 204, 198, 196);
+
   @override
   Widget build(BuildContext context) {
-
-  final Color secColor = Theme.of(context).colorScheme.secondary;
-  //const Color.fromARGB(255, 204, 198, 196);
-
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,40 +322,44 @@ class TaskOverview extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
           child:
-              Text('Their Tasks', style: TextStyle(fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
-              color: secColor)),
+              Text('Their Tasks', style: Theme.of(context).textTheme.bodyMedium),
         ),
         const Task(taskName: "do the dishes", taskStatus: 2),
         const Task(taskName: "mop the floor", taskStatus: 1),
         Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 50),
+          padding: const EdgeInsets.only(bottom: 40),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text('SeeAllTasks_txt'.tr,
-                      style: TextStyle(
-                          color: secColor, //const Color.fromARGB(255, 204, 198, 196),
-                          fontSize: size,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.w500)),
-                  Container(width: 5),
-                  Icon(
-                    CupertinoIcons.arrow_right,
-                    color: secColor,
-                    size: size,
-                  )
-                ],
+              TextButton(
+                onPressed: () {
+                  Get.to(()=> const SeeAllTasks());
+                },
+                child: Row(
+                  children: [
+                    Text('SeeAllTasks_txt'.tr,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 15)),
+                    Container(width: 5),
+                    Icon(
+                      CupertinoIcons.arrow_right,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      size: size,
+                    )
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(const MainHouseholdOverview());
+                  Get.to(() => MainHouseholdOverview(userData: userData));
                 },
-                child: Icon(
-                  CupertinoIcons.house,
-                  color: secColor,
-                  size: size,
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.house,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      size: size,
+                    ),
+                  ],
                 ),
               ),
             ],

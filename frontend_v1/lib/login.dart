@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
@@ -7,10 +8,6 @@ import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
-
-void main() {
-  runApp(const LoginApp());
-}
 
 /*
 Future<bool> authUser(String username, String password) async {
@@ -37,61 +34,51 @@ Future<bool> authUser(String username, String password) async {
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
+  
 
   @override
   State<LoginApp> createState() => _LoginAppState();
 }
 
 class _LoginAppState extends State<LoginApp> {
-
   @override
   Widget build(BuildContext context) {
-
-final brightness = MediaQuery.of(context).platformBrightness;
-
+    final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
+        darkTheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme: darktheme,
         translations: LocaleString(),
-        locale: const Locale('en-US'),
+        locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme: darktheme,  /* ThemeData(
-            fontFamily: 'Karla',
-            textTheme: const TextTheme(
-              bodyLarge: TextStyle(
-                  letterSpacing: -1,
-                  fontSize: 35,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontWeight: FontWeight.w800,
-                  fontFamily: "Karla"),
-              bodySmall: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Karla",
-                  letterSpacing: 0),
-              bodyMedium: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Sedan",
-                  letterSpacing: 0),
-            ),
-            scaffoldBackgroundColor: Theme.of(context).colorScheme.background), */
-            //const Color.fromARGB(255, 243, 243, 243)),
-        home: LoginWidget());
+        // theme: ThemeData(
+        //     fontFamily: 'Karla',
+        //     textTheme: const TextTheme(
+        //       bodyLarge: TextStyle(
+        //           letterSpacing: -1,
+        //           fontSize: 35,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontWeight: FontWeight.w800,
+        //           fontFamily: "Karla"),
+        //       bodySmall: TextStyle(
+        //           fontSize: 20,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontFamily: "Karla",
+        //           letterSpacing: 0),
+        //       bodyMedium: TextStyle(
+        //           fontSize: 20,
+        //           color: Color.fromARGB(255, 74, 70, 70),
+        //           fontFamily: "Sedan",
+        //           letterSpacing: 0),
+        //     ),
+        //     scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
+        home: const LoginWidget());
   }
 }
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
-
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const LoginWidget();
-      },
-    );
-  }
 
   @override
   LoginWidgetState createState() => LoginWidgetState();
@@ -118,7 +105,7 @@ class LoginWidgetState extends State<LoginWidget> {
     );
     await connection.open();
     List<List<dynamic>> results = await connection.query(
-        'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
+        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username AND users.password = @password;',
         substitutionValues: {
           'username': _usernameController.text,
           'password': _passwordController.text
@@ -131,6 +118,7 @@ class LoginWidgetState extends State<LoginWidget> {
       {
         setState(() {
           wrongPassword = true;
+          timeOut = true; 
         });
       }
     setState(() {
@@ -157,11 +145,13 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   bool wrongPassword = false;
+  bool timeOut = false;
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: Column(
@@ -172,11 +162,7 @@ class LoginWidgetState extends State<LoginWidget> {
             ),
             Text(
               'Log_In_to_Relatee_txt'.tr,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(
               height: 20,
@@ -185,32 +171,29 @@ class LoginWidgetState extends State<LoginWidget> {
                 controller: _usernameController,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      //Color.fromARGB(255, 204, 198, 196),
+                      color: Theme.of(context).colorScheme.onPrimary,
                       width: 5,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
-                      color: Theme.of(context).colorScheme.secondary,
-                      //Color.fromARGB(255, 74, 70, 70),
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
-                  border: OutlineInputBorder(
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       width: 5,
                     ),
                   ),
                   hintText: 'Username_or_Email_txt'.tr,
-                  contentPadding: EdgeInsets.all(20),
-                  hintStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    //Color.fromARGB(255, 204, 198, 196),
+                  contentPadding: const EdgeInsets.all(20),
+                  hintStyle: const TextStyle(
+                    color: Color.fromARGB(255, 204, 198, 196),
                   ),
                 ),
                 style: const TextStyle(
@@ -222,19 +205,17 @@ class LoginWidgetState extends State<LoginWidget> {
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                    //Color.fromARGB(255, 204, 198, 196),
+                    color: Theme.of(context).colorScheme.onPrimary,
                     width: 5,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
                     width: 5,
-                    color: Theme.of(context).colorScheme.secondary,
-                    //Color.fromARGB(255, 74, 70, 70),
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
                 border: const OutlineInputBorder(
@@ -244,10 +225,9 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
                 hintText: 'Password_txt'.tr,
-                contentPadding: EdgeInsets.all(20),
-                hintStyle:  TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  //Color.fromARGB(255, 204, 198, 196),
+                contentPadding: const EdgeInsets.all(20),
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
@@ -256,8 +236,8 @@ class LoginWidgetState extends State<LoginWidget> {
                       _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: Theme.of(context).colorScheme.primary,
-                      // Color.fromARGB(255, 204, 198, 196), // Set the color to grey
+                      color: const Color.fromARGB(
+                          255, 204, 198, 196), // Set the color to grey
                     ),
                     onPressed: () {
                       setState(() {
@@ -275,15 +255,13 @@ class LoginWidgetState extends State<LoginWidget> {
               padding: const EdgeInsets.only(top: 40),
               child: Container(
                 decoration: requiredFields
-                    ?  BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color: Theme.of(context).colorScheme.primary,
-                        //Color.fromARGB(255, 74, 70, 70),
+                    ? BoxDecoration(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        color: const Color.fromARGB(255, 74, 70, 70),
                         boxShadow: [
                             BoxShadow(
                               color: Theme.of(context).colorScheme.secondary,
-                              //Color.fromARGB(61, 109, 103, 103),
-                              offset: Offset(5.0, 5.0),
+                              offset: const Offset(5.0, 5.0),
                               blurRadius: 10.0,
                               spreadRadius: 2.0,
                             )
@@ -294,10 +272,8 @@ class LoginWidgetState extends State<LoginWidget> {
                         border: Border.all(
                             strokeAlign: BorderSide.strokeAlignInside,
                             width: 5,
-                            color:  Theme.of(context).colorScheme.primary),
-                            //Color.fromARGB(255, 204, 198, 196)),
-                        color:  Theme.of(context).colorScheme.primary,
-                        //Color.fromARGB(255, 243, 243, 243),
+                            color: Theme.of(context).colorScheme.tertiary),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                 child: TextButton(
                   onPressed: requiredFields
@@ -326,15 +302,13 @@ class LoginWidgetState extends State<LoginWidget> {
                       child: Text(
                         'Log_In_txt'.tr,
                         style: requiredFields
-                            ?  TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                                //Color.fromARGB(255, 243, 243, 243),
+                            ? const TextStyle(
+                                color: Color.fromARGB(255, 243, 243, 243),
                                 fontFamily: "Karla",
                                 fontSize: 20,
                               )
-                            :  TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                                //Color.fromARGB(255, 204, 198, 196),
+                            : const TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
                                 fontFamily: "Karla",
                                 fontSize: 20,
                               ),
@@ -350,6 +324,20 @@ class LoginWidgetState extends State<LoginWidget> {
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
                   child: Text(
                     "Wrong username or password!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              if (timeOut) // change this to show error on timeout
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "Issues connecting to the server, try again later.",
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",
