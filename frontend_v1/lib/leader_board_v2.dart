@@ -13,15 +13,30 @@ class MainLeaderboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          MembersText(),
-          ChartLeaderboard(),
-        ],
+    return Container(
+      color: Theme.of(context).colorScheme.primary,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            MembersText(),
+            ChartLeaderboard(),
+          ],
+        ),
       ),
     );
   }
+}
+
+@override
+Widget build(BuildContext context) {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        MembersText(),
+        ChartLeaderboard(),
+      ],
+    ),
+  );
 }
 
 class MembersText extends StatelessWidget {
@@ -32,12 +47,12 @@ class MembersText extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Row(
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+        child: Column(
           children: [
             const BackIconRow(),
             Padding(
-              padding: const EdgeInsets.only(top: 90),
+              padding: const EdgeInsets.only(top: 20, bottom: 60),
               child: Text(
                 'Members_txt'.tr,
                 style: TextStyle(fontSize: 20),
@@ -76,8 +91,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -89,8 +104,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: height * 0.1,
-                    decoration: const BoxDecoration(
-                        color: Colors.red,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
                         borderRadius: BorderRadius.all(Radius.circular(25))),
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
@@ -115,8 +130,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -128,8 +143,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                   width: width * 0.2,
                   height: height * 0.3,
-                  decoration: const BoxDecoration(
-                      color: Colors.red,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
                   child: const Padding(
                     padding: EdgeInsets.all(15.0),
@@ -155,8 +170,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -168,8 +183,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                   width: width * 0.2,
                   height: height * 0.2,
-                  decoration: const BoxDecoration(
-                      color: Colors.red,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
                   child: const Padding(
                     padding: EdgeInsets.all(15.0),
