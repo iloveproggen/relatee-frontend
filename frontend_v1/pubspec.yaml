@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   google_fonts: ^6.2.1
   postgres: ^2.3.2
+  intl: ^0.17.0
+
   
   #for the translations
   flutter_localizations:
