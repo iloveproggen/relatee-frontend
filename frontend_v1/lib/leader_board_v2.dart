@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'assets/LocaleStrings.dart';
+import 'package:frontend_v1/profileV2.dart';
 
 void main() {
   runApp(const MainLeaderboardView());
@@ -22,18 +22,15 @@ class MainLeaderboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-        translations: LocaleString(),
-        locale: Locale('de-DE'),
-        fallbackLocale: Locale('en-US'),
         home: const Scaffold(
             body: SingleChildScrollView(
-          child: Column(
-            children: [
-              MembersText(),
-              ChartLeaderboard(),
-            ],
-          ),
-        )));
+      child: Column(
+        children: [
+          MembersText(),
+          ChartLeaderboard(),
+        ],
+      ),
+    )));
   }
 }
 
@@ -57,6 +54,7 @@ class MembersText extends StatelessWidget {
 }
 
 class ChartLeaderboard extends StatelessWidget {
+  //müssen noch ab deb Farben von den themes angepasst werden
   const ChartLeaderboard({super.key});
 
   @override

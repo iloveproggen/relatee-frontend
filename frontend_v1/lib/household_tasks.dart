@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/leader_board_v2.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -35,8 +36,21 @@ class HouseholdOverview extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: Text('${'Household_txt'.tr}Tasks',
-              style: Theme.of(context).textTheme.bodyLarge),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('${'Household_txt'.tr}Tasks',
+                  style: Theme.of(context).textTheme.bodyLarge),
+              IconButton(
+                  onPressed: () {
+                    Get.to(() =>
+                        const MainLeaderboardView()); //triggert einen error (navigated nicht zum screen)
+                  },
+                  icon: const Icon(CupertinoIcons.chart_bar_square_fill,
+                      size: 40)),
+            ],
+          ),
         ),
         const ButtonCompleted(
             who: "Marvin", what: "do the dishes", time: "today"),

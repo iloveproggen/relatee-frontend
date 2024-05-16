@@ -1,8 +1,7 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/LocaleStrings.dart';
+import 'package:frontend_v1/assets/locale_strings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
@@ -34,12 +33,10 @@ Future<bool> authUser(String username, String password) async {
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
-  
 
   @override
   State<LoginApp> createState() => _LoginAppState();
 }
-
 
 class _LoginAppState extends State<LoginApp> {
   @override
@@ -47,7 +44,7 @@ class _LoginAppState extends State<LoginApp> {
     final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
         darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme : darktheme,
         translations: LocaleString(),
         locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
@@ -93,9 +90,8 @@ class LoginWidgetState extends State<LoginWidget> {
 
   bool requiredFields = false;
 
-    void _login() async {
-    setState(() {
-    });
+  void _login() async {
+    setState(() {});
     final connection = PostgreSQLConnection(
       'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
       5432,
@@ -114,16 +110,13 @@ class LoginWidgetState extends State<LoginWidget> {
     await connection.close();
     if (results.isNotEmpty) {
       Get.to(() => MainWidget(user: _usernameController.text));
+    } else {
+      setState(() {
+        wrongPassword = true;
+        timeOut = true;
+      });
     }
-    else
-      {
-        setState(() {
-          wrongPassword = true;
-          timeOut = true; 
-        });
-      }
-    setState(() {
-    });
+    setState(() {});
   }
 
   void _updateRequired() {
@@ -150,7 +143,6 @@ class LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
@@ -257,7 +249,8 @@ class LoginWidgetState extends State<LoginWidget> {
               child: Container(
                 decoration: requiredFields
                     ? BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
                         color: const Color.fromARGB(255, 74, 70, 70),
                         boxShadow: [
                             BoxShadow(
@@ -278,24 +271,24 @@ class LoginWidgetState extends State<LoginWidget> {
                       ),
                 child: TextButton(
                   onPressed: requiredFields
-                  ? () async {
-                    String username = _usernameController.text;
-                    String password = _passwordController.text;
-                    _login();
-                    print("Username: $username, Password: $password");
+                      ? () async {
+                          String username = _usernameController.text;
+                          String password = _passwordController.text;
+                          _login();
+                          print("Username: $username, Password: $password");
 
-                    // if (await authUser(username, password)) {
-                    //   Navigator.of(context).push(ProfileView.route());
-                    //   print("User authenticated");
-                    // } else {
-                    //   //Navigator.of(context).push(ProfileView.route());
-                    //   print("User not authenticated");
-                    //   setState(() {
-                    //     wrongPassword = true;
-                    //   });
-                    // }
-                  }
-                  : null,
+                          // if (await authUser(username, password)) {
+                          //   Navigator.of(context).push(ProfileView.route());
+                          //   print("User authenticated");
+                          // } else {
+                          //   //Navigator.of(context).push(ProfileView.route());
+                          //   print("User not authenticated");
+                          //   setState(() {
+                          //     wrongPassword = true;
+                          //   });
+                          // }
+                        }
+                      : null,
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -333,7 +326,7 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
               ),
-              if (timeOut) // change this to show error on timeout
+            if (timeOut) // change this to show error on timeout
               const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
