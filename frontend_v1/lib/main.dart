@@ -292,12 +292,12 @@ class ButtonCompleted extends StatelessWidget {
         Container(
           height: height,
           width: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
+              color: Theme.of(context).colorScheme.primary,
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
+                  color: Theme.of(context).colorScheme.secondary,
                   offset: Offset(5.0, 5.0),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,

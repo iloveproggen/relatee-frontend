@@ -20,6 +20,7 @@ class MainLeaderboardView extends StatelessWidget {
           children: [
             MembersText(),
             ChartLeaderboard(),
+            WeeklyInfo(),
           ],
         ),
       ),
@@ -55,7 +56,7 @@ class MembersText extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20, bottom: 60),
               child: Text(
                 'Members_txt'.tr,
-                style: TextStyle(fontSize: 20),
+                style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.left,
               ),
             ),
@@ -107,13 +108,11 @@ class ChartLeaderboard extends StatelessWidget {
                     decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.secondary,
                         borderRadius: BorderRadius.all(Radius.circular(25))),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(15.0),
                       child: Text(
                         'rd',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
                     )),
@@ -146,13 +145,11 @@ class ChartLeaderboard extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: Text(
                       'st',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -186,13 +183,11 @@ class ChartLeaderboard extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: Text(
                       'nd',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -201,6 +196,65 @@ class ChartLeaderboard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class WeeklyInfo extends StatelessWidget {
+  WeeklyInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+    return Container(
+      width: width,
+      height: height,
+      child: ListView.builder(
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          IconData iconData;
+          if (index == 0) {
+            iconData = Icons.looks_one;
+          } else if (index == 1) {
+            iconData = Icons.looks_two;
+          } else {
+            iconData = Icons.looks_3;
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(iconData),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      'Name ${index + 1}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                Text(
+                  '${index * 10 + 86} pts',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.checkmark_circle_fill),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      '${index * 4 + 3} tasks',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
