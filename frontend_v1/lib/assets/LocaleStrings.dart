@@ -1,5 +1,9 @@
 import 'package:get/get.dart';
 
+//purpose: Define the translations for different languages
+//author: Maurice Halilovic
+//Date: 02.05.2024
+
 class LocaleString extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {

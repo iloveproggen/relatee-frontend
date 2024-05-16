@@ -14,6 +14,10 @@ class NewShopItem extends StatefulWidget {
   State<NewShopItem> createState() => _NewShopItemState();
 }
 
+//purpose: Create a new shop item
+//author: Rene, Michelle, Maurice
+//Date: 11.04.2024
+
 class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
@@ -146,12 +150,12 @@ class _NewShopItemState extends State<NewShopItem> {
                         } else {
                           //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
                           Get.to(() => ShopView(
-                            userData: userData,
-                            itemToAdd: ItemCard(
-                              taskName: taskName.text,
-                              taskPrice: taskPrice.text,
-                            ),
-                          ));
+                                userData: userData,
+                                itemToAdd: ItemCard(
+                                  taskName: taskName.text,
+                                  taskPrice: taskPrice.text,
+                                ),
+                              ));
                         }
                       },
                       child: Padding(
@@ -188,6 +192,10 @@ class SliderWidget extends StatefulWidget {
   @override
   _SliderWidgetState createState() => _SliderWidgetState();
 }
+
+//purpose: Create a slider widget
+//author: Rene, Michelle, Maurice
+//Date: 11.04.2024
 
 class _SliderWidgetState extends State<SliderWidget> {
   bool _isPermanent = true;
@@ -270,6 +278,10 @@ class _SliderWidgetState extends State<SliderWidget> {
     );
   }
 }
+
+//purpose: Create a back icon row
+//author: Rene, Michelle, Maurice
+//Date: 11.04.2024
 
 class AddDescription extends StatelessWidget {
   const AddDescription({super.key});

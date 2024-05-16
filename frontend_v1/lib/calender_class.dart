@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 //purpose: Class to get the current date, month, year and time
 //author: Maurice Halilovic
 //Date: 16.05.2024
+
 class Calendar {
   int getCurrentDay() {
     DateTime now = DateTime.now();
