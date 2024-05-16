@@ -44,6 +44,12 @@ class LocaleString extends Translations {
           'Username_or_Email_txt': 'Username or Email',
           'Password_txt': 'Password',
           'Log_In_txt': 'Log in',
+          'new_item_txt': 'new item...',
+          'price_txt': 'Price:',
+          'add_price_txt': 'add price',
+          'Cancel_txt': 'Cancel',
+          'Confirm_txt': 'Confirm',
+          'description_txt': 'Description',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -82,6 +88,12 @@ class LocaleString extends Translations {
           'Username_or_Email_txt': 'Benutzername oder Email',
           'Password_txt': 'Passwort',
           'Log_In_txt': 'Log in',
+          'new_item_txt': 'neuer Gegenstand...',
+          'price_txt': 'Preis:',
+          'add_price_txt': 'Preis hinzufügen',
+          'Cancel_txt': 'Abbrechen',
+          'Confirm_txt': 'Bestätigen',
+          'description_txt': 'Beschreibung',
         }
       };
 }

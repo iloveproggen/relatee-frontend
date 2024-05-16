@@ -46,7 +46,7 @@ class _NewShopItemState extends State<NewShopItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -60,15 +60,9 @@ class _NewShopItemState extends State<NewShopItem> {
                     children: [
                       TextField(
                         controller: taskName,
-                        decoration: const InputDecoration.collapsed(
-                          hintText: 'new item...',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Sedan",
-                            fontSize: 40,
-                            color: Color.fromARGB(255, 204, 198, 196),
-                          ),
-                        ),
+                        decoration: InputDecoration.collapsed(
+                            hintText: 'new_item_txt'.tr,
+                            hintStyle: Theme.of(context).textTheme.bodySmall),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: "Sedan",
@@ -91,9 +85,9 @@ class _NewShopItemState extends State<NewShopItem> {
                       color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
-                    const Text(
-                      'price:',
-                      style: TextStyle(fontSize: 25, fontFamily: "Karla"),
+                    Text(
+                      'price_txt'.tr,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Expanded(
                       child: TextField(
@@ -102,11 +96,9 @@ class _NewShopItemState extends State<NewShopItem> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly
                         ],
-                        decoration: const InputDecoration(
-                            hintText: "add price",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20),
+                        decoration: InputDecoration(
+                            hintText: "add_price_txt".tr,
+                            hintStyle: Theme.of(context).textTheme.bodySmall,
                             border: InputBorder.none),
                         style: const TextStyle(
                             color: Color.fromARGB(255, 74, 70, 70),
@@ -162,18 +154,10 @@ class _NewShopItemState extends State<NewShopItem> {
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required ? "Confirm" : "Cancel",
+                          required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
                           style: required
-                              ? const TextStyle(
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                )
-                              : const TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                ),
+                              ? Theme.of(context).textTheme.bodyMedium
+                              : Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     )),
@@ -288,7 +272,7 @@ class AddDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(top: 20),
@@ -302,7 +286,7 @@ class AddDescription extends StatelessWidget {
               ),
               SizedBox(width: 20),
               Text(
-                'description',
+                'description_txt'.tr,
                 textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 25, fontFamily: "Karla"),
               ),

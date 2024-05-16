@@ -15,9 +15,6 @@ import 'package:postgres/postgres.dart';
 void main() {
   runApp(const LoginApp());
 }
-//hi Michelle bug fising
-//hi maurice
-// MainWidget
 
 bool auth = false;
 
