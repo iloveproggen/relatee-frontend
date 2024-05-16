@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_task.dart';
+import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
