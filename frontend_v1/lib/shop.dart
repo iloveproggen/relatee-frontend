@@ -219,12 +219,7 @@ class ItemCard extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 150),
                   child: Text(
                     taskName,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 20,
-                      fontFamily: 'Karla',
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
                   ),
                 ),
                 Text(
@@ -245,7 +240,7 @@ class ItemCard extends StatelessWidget {
                   borderRadius: const BorderRadius.all(Radius.circular(15)),
                   color: colMid,
                 ),
-                child: const Padding(
+                child: Padding(
                   padding:
                       EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                   child: Align(
@@ -256,7 +251,7 @@ class ItemCard extends StatelessWidget {
                           fontFamily: "Karla",
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 243, 243, 243)),
+                          color: Theme.of(context).colorScheme.background),
                     ),
                   ),
                 )),

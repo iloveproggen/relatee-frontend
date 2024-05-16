@@ -28,8 +28,8 @@ class Settings extends StatelessWidget {
                       border: Border.all(
                           strokeAlign: BorderSide.strokeAlignInside,
                           width: 5,
-                          color: const Color.fromARGB(255, 204, 198, 196)),
-                      color: const Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary),
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
               child: TextButton(
                 onPressed: () {
@@ -39,10 +39,9 @@ class Settings extends StatelessWidget {
                     padding: const EdgeInsets.only(
                           top: 10, bottom: 10, left: 15, right: 15),
                     child: Text('Change_Language_txt'.tr, style: const TextStyle(
-                                color:  Color.fromARGB(255, 243, 243, 243),
+                                color: Color.fromARGB(255, 74, 70, 70),
                                 fontFamily: "Karla",
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900)),
+                                fontSize: 20,)),
                   ),
               ),
             ),
