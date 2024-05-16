@@ -6,8 +6,10 @@ import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
-import 'package:get/get.dart';
-import 'package:postgres/postgres.dart';
+import 'package:get/get.dart';  
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /*
 Future<bool> authUser(String username, String password) async {
@@ -93,38 +95,35 @@ class LoginWidgetState extends State<LoginWidget> {
 
   bool requiredFields = false;
 
-    void _login() async {
-    setState(() {
-    });
-    final connection = PostgreSQLConnection(
-      'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-      5432,
-      'relateeDB',
-      username: 'relateeDB_owner',
-      password: 'bCTNHdw8mJL3',
-      useSSL: true,
-    );
-    await connection.open();
-    List<List<dynamic>> results = await connection.query(
-        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username AND users.password = @password;',
-        substitutionValues: {
-          'username': _usernameController.text,
-          'password': _passwordController.text
-        });
-    await connection.close();
-    if (results.isNotEmpty) {
-      Get.to(() => MainWidget(user: _usernameController.text));
-    }
-    else
-      {
-        setState(() {
-          wrongPassword = true;
-          timeOut = true; 
-        });
-      }
-    setState(() {
-    });
+  void _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
   }
+
+void _login() async {
+  final response = await http.post(
+    Uri.parse('http://localhost:3000/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'username': _usernameController.text,
+      'password': _passwordController.text,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    // If the server returns a 200 OK response, parse the JSON.
+    String token = jsonDecode(response.body)['token'];
+    _saveToken(token);
+    print('Received token: $token');
+    Get.to(()=> MainWidget(user: _usernameController.text));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to login');
+  }
+}
 
   void _updateRequired() {
     setState(() {

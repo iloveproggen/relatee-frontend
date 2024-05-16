@@ -11,6 +11,8 @@ import 'package:frontend_v1/shop.dart';
 import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -19,7 +21,72 @@ void main() {
 //hi maurice
 // MainWidget
 
+
+
 bool auth = false;
+
+Future<GraphQLClient> getGraphQLClient() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+
+  final HttpLink httpLink = HttpLink(
+    'http://localhost:3000/graphql',
+  );
+
+  final AuthLink authLink = AuthLink(
+    getToken: () async => 'Bearer $token',
+  );
+
+  final Link link = authLink.concat(httpLink);
+
+  return GraphQLClient(
+    cache: GraphQLCache(),
+    link: link,
+  );
+}
+
+// user id fetchen und mit static user id ersetzten, user id beim login fetchen und vllt speichern, lokale variable und settings.json wie locale und farben
+void getUserData(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+      query GetUser(\$id: ID!) {
+        user(id: \$id) {
+          id
+          householdId
+          forename
+          surname
+          username
+          password
+          email
+          balance
+          household {
+            name
+            ownerId
+          }
+          tasks {
+            id
+            title
+            description
+          }
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+
+  final result = await client.query(options);
+
+  if (result.hasException) {
+    print(result.exception.toString());
+  } else if (result.isLoading) {
+    print('Loading');
+  } else {
+    print('User data: ${result.data}');
+  }
+}
 
 Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
   final connection = PostgreSQLConnection(
@@ -62,6 +129,7 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    getUserData(1);
   final Future<List<Map<String, dynamic>>> userData = fetchUser(username: user);
     return Scaffold(
       body: SingleChildScrollView(
