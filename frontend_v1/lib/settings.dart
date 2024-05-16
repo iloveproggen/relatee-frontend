@@ -95,8 +95,7 @@ class SettingsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(('settings_txt'.tr),
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
+                      style: Theme.of(context).textTheme.bodyLarge),
                 ],
               )),
         ),
