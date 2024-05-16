@@ -120,11 +120,7 @@ class ShopViewState extends State<ShopView> {
               children: [
                 Text(
                   'Shop_title'.tr,
-                  style: const TextStyle(
-                    color: Color(0xFF4A4646),
-                    fontSize: 40,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge
                 ),
                 TextButton(
                     onPressed: () {
@@ -137,11 +133,7 @@ class ShopViewState extends State<ShopView> {
             ),
             Text(
               ('Shop_info'.tr),
-              style: const TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 74, 70, 70),
-                  fontFamily: "Karla",
-                  letterSpacing: 0),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -173,17 +165,12 @@ class ShopViewState extends State<ShopView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFEDECEC),
+        color: Color.fromARGB(106, 205, 205, 205),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Color(0xFFB4B4B4),
-          fontSize: 24,
-          fontFamily: 'Karla',
-          fontWeight: FontWeight.w700,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 25),
       ),
     );
   }
@@ -208,11 +195,11 @@ class ItemCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 243, 243, 243),
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color.fromARGB(61, 109, 103, 103),
+            color: Theme.of(context).colorScheme.secondary,
             offset: Offset(5.0, 5.0),
             blurRadius: 10.0,
             spreadRadius: 2.0,
@@ -232,8 +219,8 @@ class ItemCard extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 150),
                   child: Text(
                     taskName,
-                    style: const TextStyle(
-                      color: Color(0xFF4A4646),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 20,
                       fontFamily: 'Karla',
                       fontWeight: FontWeight.bold,
