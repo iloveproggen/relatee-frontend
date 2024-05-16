@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_Task.dart';
+import 'package:frontend_v1/create_new_task.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -39,7 +39,7 @@ Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
 
   List<Map<String, dynamic>> mappedResults = results
       .map((row) => {
-            'id':row[0],
+            'id': row[0],
             'forename': row[1],
             'surname': row[2],
             'username': row[3],
@@ -53,7 +53,6 @@ Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
   return mappedResults;
 }
 
-
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.user});
 
@@ -62,7 +61,8 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final Future<List<Map<String, dynamic>>> userData = fetchUser(username: user);
+    final Future<List<Map<String, dynamic>>> userData =
+        fetchUser(username: user);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -86,7 +86,6 @@ class IconRow extends StatelessWidget {
   const IconRow({super.key, required this.userData});
 
   final Future<List<Map<String, dynamic>>> userData;
-  
 
   final double padding = 20;
   final double size = 40;
@@ -108,7 +107,7 @@ class IconRow extends StatelessWidget {
                   iconSize: size,
                   onPressed: () async {
                     Get.to(() => ProfileView(userData: userData));
-                    List<Map<String, dynamic>> userDataList = await userData; 
+                    List<Map<String, dynamic>> userDataList = await userData;
                     print(userDataList[0]['username']);
                   },
                   icon: Icon(
@@ -154,7 +153,7 @@ class IconRow extends StatelessWidget {
 class WelcomeText extends StatelessWidget {
   const WelcomeText({super.key, required this.userData});
 
-  final  Future<List<Map<String, dynamic>>> userData;
+  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +260,10 @@ class ButtonRecommended extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(task,
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 30)),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontSize: 30)),
                           ),
                         ],
                       )),
@@ -320,12 +322,15 @@ class ButtonCompleted extends StatelessWidget {
                                   children: <TextSpan>[
                                     TextSpan(
                                         text: " \"$what\" ",
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.bold)),
                                     TextSpan(
                                       text: "$time.",
                                     )
-                                  ]
-                                  )),
+                                  ])),
                         ),
                       ],
                     )),
@@ -371,12 +376,15 @@ class ButtonShort extends StatelessWidget {
                 children: [
                   Text(
                     number,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 60),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 60),
                     maxLines: 2,
-                    
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                    padding:
+                        const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                     child: Text(textBelow,
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
@@ -424,7 +432,6 @@ class ButtonRow extends StatelessWidget {
 class TaskOverview extends StatefulWidget {
   const TaskOverview({super.key, required this.userData});
 
-  
   final Future<List<Map<String, dynamic>>> userData;
 
   @override
@@ -435,7 +442,6 @@ class _TaskState extends State<TaskOverview> {
   _TaskState({required this.userData});
   final double size = 15;
   final Future<List<Map<String, dynamic>>> userData;
-
 
   @override
   Widget build(BuildContext context) {
@@ -453,9 +459,10 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                   onPressed: () {
-                    Get.to(()=> NewTask(userData: userData));
+                    Get.to(() => NewTask(userData: userData));
                   },
-                  child: Icon(CupertinoIcons.add, color: Theme.of(context).colorScheme.tertiary, size: 30))
+                  child: Icon(CupertinoIcons.add,
+                      color: Theme.of(context).colorScheme.tertiary, size: 30))
             ],
           ),
         ),
@@ -470,12 +477,15 @@ class _TaskState extends State<TaskOverview> {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(()=> const SeeAllTasks());
+                  Get.to(() => const SeeAllTasks());
                 },
                 child: Row(
                   children: [
                     Text('SeeAllTasks_txt'.tr,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 15)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(fontSize: 15)),
                     Container(width: 5),
                     Icon(
                       CupertinoIcons.arrow_right,

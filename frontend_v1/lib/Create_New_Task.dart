@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
-
+//purpose: Create a new task
+//author: Maurice, Michelle, Rene
+//Date: 08.05.2024s
 
 class NewTask extends StatelessWidget {
   const NewTask({super.key, required this.userData});
-
 
   final Future<List<Map<String, dynamic>>> userData;
 
@@ -33,6 +34,10 @@ class NewTask extends StatelessWidget {
     );
   }
 }
+
+//purpose: Create a back icon row
+//author: Maurice, Michelle, Rene
+//Date: 08.05.2024
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({super.key});
@@ -60,12 +65,20 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
+//purpose: Create a back icon row
+//author: Maurice, Michelle, Rene
+//Date: 08.05.2024
+
 class SliderWidgetRepeat extends StatefulWidget {
   const SliderWidgetRepeat({super.key});
 
   @override
   State<SliderWidgetRepeat> createState() => _SliderWidgetState();
 }
+
+//purpose:
+//author: Maurice, Michelle, Rene
+//Date: 08.05.2024
 
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
   bool _isPermanent = true;
