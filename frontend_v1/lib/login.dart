@@ -94,6 +94,8 @@ class LoginWidgetState extends State<LoginWidget> {
   bool _isPasswordVisible = false;
 
   bool requiredFields = false;
+  
+  bool isLoading = false;
 
   void _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -101,6 +103,9 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
 void _login() async {
+  wrongPassword = false;
+  timeOut = false;
+  isLoading = true;
   final response = await http.post(
     Uri.parse('http://localhost:3000/login'),
     headers: <String, String>{
@@ -113,15 +118,29 @@ void _login() async {
   );
 
   if (response.statusCode == 200) {
+
     // If the server returns a 200 OK response, parse the JSON.
     String token = jsonDecode(response.body)['token'];
     _saveToken(token);
     print('Received token: $token');
     Get.to(()=> MainWidget(user: _usernameController.text));
+    setState() {
+      isLoading = false;
+    };
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to login');
+    // If the server returns an error response, throw an exception.
+    print('Failed to load album');
+    if (response.statusCode == 401) {
+      setState(() {
+        wrongPassword = true;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        timeOut = true;
+        isLoading = false;
+      });
+    }
   }
 }
 
@@ -282,17 +301,6 @@ void _login() async {
                     String password = _passwordController.text;
                     _login();
                     print("Username: $username, Password: $password");
-
-                    // if (await authUser(username, password)) {
-                    //   Navigator.of(context).push(ProfileView.route());
-                    //   print("User authenticated");
-                    // } else {
-                    //   //Navigator.of(context).push(ProfileView.route());
-                    //   print("User not authenticated");
-                    //   setState(() {
-                    //     wrongPassword = true;
-                    //   });
-                    // }
                   }
                   : null,
                   child: Center(
@@ -318,6 +326,13 @@ void _login() async {
                 ),
               ),
             ),
+            if (isLoading)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ),
             if (wrongPassword)
               const Center(
                 child: Padding(
