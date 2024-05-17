@@ -16,6 +16,12 @@ class ShopIcon extends StatefulWidget {
   State<ShopIcon> createState() => _ShopIconState();
 }
 
+/*
+purpose: This widget holds the shop icon and the color animation for the icon.
+author: Michelle
+date: 10.04.2024
+*/
+
 class _ShopIconState extends State<ShopIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -81,6 +87,12 @@ class ShopView extends StatefulWidget {
   @override
   State<ShopView> createState() => ShopViewState();
 }
+
+/*
+purpose: This widget holds the shop view and the list of items.
+author: Michelle, Maurice
+date: 10.04.2024
+*/
 
 class ShopViewState extends State<ShopView> {
   final List<Widget> itemCards = [
@@ -175,6 +187,12 @@ class ShopViewState extends State<ShopView> {
     );
   }
 }
+
+/*
+purpose: button buy with all required data.
+author: Michelle
+date: 10.04.2024
+*/
 
 class ItemCard extends StatelessWidget {
   const ItemCard({

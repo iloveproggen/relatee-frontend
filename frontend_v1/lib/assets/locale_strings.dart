@@ -55,6 +55,8 @@ class LocaleString extends Translations {
           'routine_view_txt': 'Routine View',
           'Tasks_txt': 'Tasks',
           'Routines_txt': 'Routines',
+          'permanent_txt': 'permanent',
+          'None_Yet_txt': 'None Yet',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -104,6 +106,8 @@ class LocaleString extends Translations {
           'routine_view_txt': 'Routineansicht',
           'Tasks_txt': 'Aufgaben',
           'Routines_txt': 'Routinen',
+          'permanent_txt': 'permanent',
+          'None_Yet_txt': 'Noch keine',
         }
       };
 }

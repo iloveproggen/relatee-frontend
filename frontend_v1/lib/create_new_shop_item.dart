@@ -222,7 +222,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'permanent',
+                        'permanent_txt'.tr,
                         style: TextStyle(
                           color: _isPermanent
                               ? Colors.black
@@ -239,7 +239,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'only once',
+                        'only_once_txt'.tr,
                         style: TextStyle(
                           color: !_isPermanent
                               ? Colors.black
@@ -299,7 +299,7 @@ class AddDescription extends StatelessWidget {
             maxLines: 3,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
-                hintText: 'None Yet',
+                hintText: 'None_Yet_txt'.tr,
                 hintStyle: TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
                 border: InputBorder.none),
