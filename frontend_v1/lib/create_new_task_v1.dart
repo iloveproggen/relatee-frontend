@@ -35,7 +35,7 @@ class NewTask extends StatelessWidget {
   }
 }
 
-//purpose: Create a back icon row
+//purpose: Create text field for new task
 //author: Maurice, Michelle, Rene
 //Date: 08.05.2024
 
@@ -65,10 +65,6 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-//purpose: Create a back icon row
-//author: Maurice, Michelle, Rene
-//Date: 08.05.2024
-
 class SliderWidgetRepeat extends StatefulWidget {
   const SliderWidgetRepeat({super.key});
 
@@ -76,8 +72,8 @@ class SliderWidgetRepeat extends StatefulWidget {
   State<SliderWidgetRepeat> createState() => _SliderWidgetState();
 }
 
-//purpose:
-//author: Maurice, Michelle, Rene
+//purpose: Create a slider widget for tasks with color chnage
+//author:  Michelle
 //Date: 08.05.2024
 
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
@@ -170,6 +166,12 @@ class SliderWidgetWho extends StatefulWidget {
   @override
   State<SliderWidgetWho> createState() => _SliderWidgetStateWho();
 }
+
+/*
+purpose: select task assignee using a slider widget
+author:  Michelle
+Date: 08.05.2024
+*/
 
 class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   int _selectedOption = 0;
@@ -274,6 +276,12 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   }
 }
 
+/*
+purpose: assign task to a user
+author:  Michelle
+Date: 08.05.2024
+*/
+
 class AssignTo extends StatelessWidget {
   const AssignTo({super.key});
 
@@ -312,6 +320,12 @@ class AssignTo extends StatelessWidget {
     );
   }
 }
+
+/*
+purpose: Specify how often the tasks repeat
+author:  Michelle
+Date: 08.05.2024
+*/
 
 class Repeats extends StatelessWidget {
   const Repeats({super.key});

@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 //purpose: Class to get the current date, month, year and time
-//author: Maurice Halilovic
+//author: Maurice
 //Date: 16.05.2024
 
 class Calendar {

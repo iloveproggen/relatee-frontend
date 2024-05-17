@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //purpose: Define the light theme for the app
-//author: Maurice Halilovic, Michelle Gerwald
+//author: Maurice, Michelle
 //Date: 11.05.2024
 
 ThemeData lighttheme = ThemeData(
