@@ -4,6 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/profileV2.dart';
 
+/*
+purpose: This file contains the leaderboard view of the app.
+author: Maurice
+date: 17.05.2024
+*/
+
 void main() {
   runApp(const MainLeaderboardView());
 }
@@ -18,8 +24,8 @@ class MainLeaderboardView extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            MembersText(),
-            ChartLeaderboard(),
+            const MembersText(),
+            const ChartLeaderboard(),
             WeeklyInfo(),
           ],
         ),
@@ -30,7 +36,7 @@ class MainLeaderboardView extends StatelessWidget {
 
 @override
 Widget build(BuildContext context) {
-  return SingleChildScrollView(
+  return const SingleChildScrollView(
     child: Column(
       children: [
         MembersText(),
@@ -39,6 +45,12 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
+/*
+purpose: This widget holdas the back method and header.
+author: Maurice
+date: 17.05.2024
+*/
 
 class MembersText extends StatelessWidget {
   const MembersText({super.key});
@@ -66,6 +78,12 @@ class MembersText extends StatelessWidget {
     );
   }
 }
+
+/*
+purpose: This widget creates the leaderboard chart.
+author: Maurice
+date: 17.05.2024
+*/
 
 class ChartLeaderboard extends StatelessWidget {
   //müssen noch ab deb Farben von den themes angepasst werden
@@ -201,6 +219,12 @@ class ChartLeaderboard extends StatelessWidget {
   }
 }
 
+/*
+purpose: This widget creates the weekly info.
+author: Maurice
+date: 17.05.2024
+*/
+
 class WeeklyInfo extends StatelessWidget {
   WeeklyInfo({super.key});
 
@@ -212,6 +236,7 @@ class WeeklyInfo extends StatelessWidget {
       width: width,
       height: height,
       child: ListView.builder(
+        //dynamisch machen
         itemCount: 3,
         itemBuilder: (context, index) {
           IconData iconData;
@@ -222,10 +247,12 @@ class WeeklyInfo extends StatelessWidget {
           } else {
             iconData = Icons.looks_3;
           }
+          int pts = 86 - (index * 10);
+          int tasks = 3 + (index * 4);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Row(
                   children: [
@@ -238,7 +265,7 @@ class WeeklyInfo extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  '${index * 10 + 86} pts',
+                  '$pts pts',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Row(
@@ -246,7 +273,7 @@ class WeeklyInfo extends StatelessWidget {
                     Icon(CupertinoIcons.checkmark_circle_fill),
                     const SizedBox(width: 8.0),
                     Text(
-                      '${index * 4 + 3} tasks',
+                      '$tasks tasks',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
