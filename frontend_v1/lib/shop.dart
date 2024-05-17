@@ -7,7 +7,6 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/routine.dart';
 import 'package:get/get.dart';
 
-// ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
   const ShopIcon({
     super.key,
@@ -122,17 +121,6 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  iconSize: 40,
-                  onPressed: () {
-                    Get.to(() => routine(userData: userData));
-                  },
-                  icon: Icon(
-                    CupertinoIcons.arrow_up_circle_fill,
-                    color: Colors.blue,
-                  ),
-                ),
                 Text('Shop_title'.tr,
                     style: Theme.of(context).textTheme.bodyLarge),
                 TextButton(

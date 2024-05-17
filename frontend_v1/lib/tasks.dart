@@ -27,6 +27,12 @@ class SliderWidgetRepeat extends StatefulWidget {
   State<SliderWidgetRepeat> createState() => _SliderWidgetState();
 }
 
+/*
+purpose: This widget holds the slider for switching between task and routine view.
+author: Rene
+date: 17.05.2024
+*/
+
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
   bool _isPermanent = true;
 
@@ -122,6 +128,12 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
     );
   }
 }
+
+/*
+purpose: Should hold the views + info needed.
+author: Rene
+date: 17.05.2024
+*/
 
 class TaskWidget extends StatelessWidget {
   const TaskWidget({super.key});
