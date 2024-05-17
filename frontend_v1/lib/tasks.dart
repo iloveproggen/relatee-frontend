@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get.dart';
 
 class SeeAllTasks extends StatelessWidget {
   const SeeAllTasks({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Padding(
+    return const Scaffold(
+        body: Padding(
       padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
         children: [
@@ -39,7 +41,8 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("All Tasks", style: Theme.of(context).textTheme.bodyLarge),
+          Text('All_Tasks_txt'.tr,
+              style: Theme.of(context).textTheme.bodyLarge),
           Container(height: 20),
           Container(
             height: 50,
@@ -50,12 +53,13 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
             child: Stack(
               children: [
                 AnimatedAlign(
-                  alignment:
-                      _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
+                  alignment: _isPermanent
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child: Container(
-                    width: MediaQuery.of(context).size.width / 2 -40,
+                    width: MediaQuery.of(context).size.width / 2 - 40,
                     height: 50,
                     decoration: BoxDecoration(
                       color: const Color(0xFFD9D9D9),
@@ -68,15 +72,16 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          'task view',
+                          'task_view_txt'.tr,
                           style: TextStyle(
                             color: _isPermanent
                                 ? Colors.black
                                 : const Color(0xFF4A4646),
                             fontSize: 20,
                             fontFamily: 'Karla',
-                            fontWeight:
-                                _isPermanent ? FontWeight.w700 : FontWeight.w300,
+                            fontWeight: _isPermanent
+                                ? FontWeight.w700
+                                : FontWeight.w300,
                             height: 0,
                           ),
                         ),
@@ -85,15 +90,16 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          'routine view',
+                          'routine_view_txt'.tr,
                           style: TextStyle(
                             color: !_isPermanent
                                 ? Colors.black
                                 : const Color(0xFF4A4646),
                             fontSize: 20,
                             fontFamily: 'Karla',
-                            fontWeight:
-                                !_isPermanent ? FontWeight.w700 : FontWeight.w300,
+                            fontWeight: !_isPermanent
+                                ? FontWeight.w700
+                                : FontWeight.w300,
                             height: 0,
                           ),
                         ),
@@ -107,9 +113,8 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: Column(
-              children: _isPermanent
-                  ? [const TaskWidget()]
-                  : [const RoutineWidget()],
+              children:
+                  _isPermanent ? [const TaskWidget()] : [const RoutineWidget()],
             ),
           )
         ],
@@ -123,7 +128,7 @@ class TaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Tasks");
+    return Text('Tasks_txt'.tr);
   }
 }
 
@@ -132,6 +137,6 @@ class RoutineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Routines");
+    return Text('Routines_txt'.tr);
   }
 }

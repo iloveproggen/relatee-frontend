@@ -50,6 +50,11 @@ class LocaleString extends Translations {
           'Cancel_txt': 'Cancel',
           'Confirm_txt': 'Confirm',
           'description_txt': 'Description',
+          'All_Tasks_txt': 'All Tasks',
+          'task_view_txt': 'Task View',
+          'routine_view_txt': 'Routine View',
+          'Tasks_txt': 'Tasks',
+          'Routines_txt': 'Routines',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -94,6 +99,11 @@ class LocaleString extends Translations {
           'Cancel_txt': 'Abbrechen',
           'Confirm_txt': 'Bestätigen',
           'description_txt': 'Beschreibung',
+          'All_Tasks_txt': 'Alle Aufgaben',
+          'task_view_txt': 'Aufgabenansicht',
+          'routine_view_txt': 'Routineansicht',
+          'Tasks_txt': 'Aufgaben',
+          'Routines_txt': 'Routinen',
         }
       };
 }

@@ -5,6 +5,12 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
+/*
+purpose: This widget holds the back icon.
+author: Michelle
+date: 17.05.2024
+*/
+
 class MainHouseholdOverview extends StatelessWidget {
   const MainHouseholdOverview({super.key, required this.userData});
 
@@ -22,6 +28,12 @@ class MainHouseholdOverview extends StatelessWidget {
     )));
   }
 }
+
+/*
+purpose: icon for leaderboard + header + "msg of toay".
+author: Maurice, Michelle
+date: 17.05.2024
+*/
 
 class HouseholdOverview extends StatelessWidget {
   const HouseholdOverview({super.key, required this.userData});
@@ -44,8 +56,7 @@ class HouseholdOverview extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge),
               IconButton(
                   onPressed: () {
-                    Get.to(() =>
-                        const MainLeaderboardView()); //triggert einen error (navigated nicht zum screen)
+                    Get.to(() => const MainLeaderboardView());
                   },
                   icon: const Icon(CupertinoIcons.chart_bar_square_fill,
                       size: 40)),
@@ -63,6 +74,12 @@ class HouseholdOverview extends StatelessWidget {
     );
   }
 }
+
+/*
+purpose: Displays all users with a button to their profiles -> linked with profileV2.
+author: Michelle
+date: 17.05.2024
+*/
 
 class HouseholdMembers extends StatelessWidget {
   const HouseholdMembers({
@@ -97,6 +114,12 @@ class HouseholdMembers extends StatelessWidget {
     );
   }
 }
+
+/*
+purpose: Displays a button with the name of the person who completed the task, the task and the time.
+author: Michelle
+date: 17.05.2024
+*/
 
 class Member extends StatelessWidget {
   const Member(
