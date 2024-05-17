@@ -124,7 +124,7 @@ class ShopViewState extends State<ShopView> {
                 ),
                 TextButton(
                     onPressed: () {
-                    Get.to(() => NewShopItem(userData: userData));
+                    Get.to(() => NewShopItem());
                       
                     },
                     child: const Icon(CupertinoIcons.add,

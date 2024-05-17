@@ -10,7 +10,6 @@ import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
-import 'package:postgres/postgres.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +21,7 @@ void main() {
 // MainWidget
 
 
+Map<String, dynamic> userData = {};
 
 bool auth = false;
 
@@ -46,7 +46,8 @@ Future<GraphQLClient> getGraphQLClient() async {
 }
 
 // user id fetchen und mit static user id ersetzten, user id beim login fetchen und vllt speichern, lokale variable und settings.json wie locale und farben
-void getUserData(int id) async {
+Future<Map<String, dynamic>> getUserData(int id) async {
+  // Your code here
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
@@ -64,11 +65,6 @@ void getUserData(int id) async {
             name
             ownerId
           }
-          tasks {
-            id
-            title
-            description
-          }
         }
       }
     '''),
@@ -84,62 +80,42 @@ void getUserData(int id) async {
   } else if (result.isLoading) {
     print('Loading');
   } else {
-    print('User data: ${result.data}');
+    final user = result.data!['user'];
+    final mappedResult = {
+      'id': user['id'],
+      'forename': user['forename'],
+      'surname': user['surname'],
+      'username': user['username'],
+      'email': user['email'],
+      'balance': user['balance'],
+      'householdName': user['household']['name'],
+    };
+    print('Mapped user data: $mappedResult');
+    return mappedResult;
   }
+  return {};
 }
 
-Future<List<Map<String, dynamic>>> fetchUser({required String username}) async {
-  final connection = PostgreSQLConnection(
-    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-    5432,
-    'relateeDB',
-    username: 'relateeDB_owner',
-    password: 'bCTNHdw8mJL3',
-    useSSL: true,
-  );
-  await connection.open();
-  print('fetching $username\'s data');
-  List<List<dynamic>> results = await connection.query(
-      'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username;',
-      substitutionValues: {'username': username});
-  await connection.close();
-
-  List<Map<String, dynamic>> mappedResults = results
-      .map((row) => {
-            'id':row[0],
-            'forename': row[1],
-            'surname': row[2],
-            'username': row[3],
-            'email': row[4],
-            'balance': row[5],
-            'householdName': row[6],
-          })
-      .toList();
-
-  print(mappedResults);
-  return mappedResults;
+Future<void> loadUserData(int id) async {
+  userData = await getUserData(id);
 }
-
 
 class MainWidget extends StatelessWidget {
-  const MainWidget({super.key, required this.user});
+  const MainWidget({super.key, required this.userId});
 
-  final String user;
+  final int userId;
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
   @override
   Widget build(BuildContext context) {
-    getUserData(1);
-  final Future<List<Map<String, dynamic>>> userData = fetchUser(username: user);
+  loadUserData(userId);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            IconRow(
-              userData: userData,
-            ),
+            const IconRow(),
             WelcomeText(userData: userData),
             const ButtonRecommended(task: "do the dishes"),
             TaskOverview(userData: userData),
@@ -151,10 +127,8 @@ class MainWidget extends StatelessWidget {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.userData});
+  const IconRow({super.key});
 
-  final Future<List<Map<String, dynamic>>> userData;
-  
 
   final double padding = 20;
   final double size = 40;
@@ -174,10 +148,8 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                  onPressed: () async {
+                  onPressed: () {
                     Get.to(() => ProfileView(userData: userData));
-                    List<Map<String, dynamic>> userDataList = await userData; 
-                    print(userDataList[0]['username']);
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -222,7 +194,7 @@ class IconRow extends StatelessWidget {
 class WelcomeText extends StatelessWidget {
   const WelcomeText({super.key, required this.userData});
 
-  final  Future<List<Map<String, dynamic>>> userData;
+  final  Map<String, dynamic>? userData;
 
   @override
   Widget build(BuildContext context) {
@@ -231,40 +203,16 @@ class WelcomeText extends StatelessWidget {
         Padding(
             padding: const EdgeInsets.only(bottom: 50, top: 10),
             child: SizedBox(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: userData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(
-                    color: Color.fromARGB(255, 204, 198, 196),
-                    strokeWidth: 5,
-                    strokeCap: StrokeCap.round,
-                  );
-                } else if (snapshot.hasError) {
-                  print('Error: ${snapshot.error}');
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${'welcome_title'.tr}, hackerman!!!!',
-                          style: const TextStyle(
-                              fontSize: 40, fontWeight: FontWeight.bold)),
-                      Text('welcome_message'.tr,
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ],
-                  );
-                } else {
-                  return ListView.builder(
+                child: ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: snapshot.data?.length,
                     itemBuilder: (context, index) {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              '${'welcome_title'.tr}, ${snapshot.data?[index]['forename']}!',
+                              '${'welcome_title'.tr}, ${userData?['forename']}!',
                               maxLines: 2,
                               style: Theme.of(context).textTheme.bodyLarge),
                           Text('welcome_message'.tr,
@@ -272,10 +220,7 @@ class WelcomeText extends StatelessWidget {
                         ],
                       );
                     },
-                  );
-                }
-              },
-            ))),
+                  ),)),
         Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -493,7 +438,7 @@ class TaskOverview extends StatefulWidget {
   const TaskOverview({super.key, required this.userData});
 
   
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   State<TaskOverview> createState() => _TaskState(userData: userData);
@@ -502,7 +447,7 @@ class TaskOverview extends StatefulWidget {
 class _TaskState extends State<TaskOverview> {
   _TaskState({required this.userData});
   final double size = 15;
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
 
   @override

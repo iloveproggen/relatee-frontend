@@ -8,6 +8,7 @@ import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';  
 import 'package:http/http.dart' as http;
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +35,8 @@ Future<bool> authUser(String username, String password) async {
   return results.isNotEmpty;
 }*/
 
+int userId = -1;
+
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
   
@@ -55,27 +58,6 @@ class _LoginAppState extends State<LoginApp> {
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        // theme: ThemeData(
-        //     fontFamily: 'Karla',
-        //     textTheme: const TextTheme(
-        //       bodyLarge: TextStyle(
-        //           letterSpacing: -1,
-        //           fontSize: 35,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontWeight: FontWeight.w800,
-        //           fontFamily: "Karla"),
-        //       bodySmall: TextStyle(
-        //           fontSize: 20,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontFamily: "Karla",
-        //           letterSpacing: 0),
-        //       bodyMedium: TextStyle(
-        //           fontSize: 20,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontFamily: "Sedan",
-        //           letterSpacing: 0),
-        //     ),
-        //     scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
         home: const LoginWidget());
   }
 }
@@ -102,6 +84,40 @@ class LoginWidgetState extends State<LoginWidget> {
     await prefs.setString('token', token);
   }
 
+Future<int> getUserId(String username) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+      query GetUserId(\$username: String!) {
+        user(username: \$username) {
+          id
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'username': username,
+    },
+  );
+
+  final result = await client.query(options);
+
+  if (result.hasException) {
+    print(result.exception.toString());
+    return -1;
+  //} else if (result.isLoading) {
+  //  print('Loading');
+  //  return -1;
+  } else {
+    final userId = result.data!['user']['id'];
+    print('User ID: $userId');
+    return userId;
+  }
+}
+
+Future<void> loadUserId() async {
+  userId = await getUserId(_usernameController.text);
+}
+
 void _login() async {
   wrongPassword = false;
   timeOut = false;
@@ -118,12 +134,12 @@ void _login() async {
   );
 
   if (response.statusCode == 200) {
-
+    loadUserId();
     // If the server returns a 200 OK response, parse the JSON.
     String token = jsonDecode(response.body)['token'];
     _saveToken(token);
     print('Received token: $token');
-    Get.to(()=> MainWidget(user: _usernameController.text));
+    Get.to(()=> MainWidget(userId: userId));
     setState() {
       isLoading = false;
     };

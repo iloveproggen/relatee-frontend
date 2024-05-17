@@ -9,7 +9,7 @@ class NewTask extends StatelessWidget {
   const NewTask({super.key, required this.userData});
 
 
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {

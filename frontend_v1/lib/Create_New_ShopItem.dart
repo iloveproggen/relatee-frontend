@@ -2,13 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key, required this.userData});
+  const NewShopItem({super.key});
 
-  final Future<List<Map<String, dynamic>>> userData;
 
   @override
   State<NewShopItem> createState() => _NewShopItemState();
@@ -18,7 +16,6 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
 
-  Future<List<Map<String, dynamic>>> get userData => widget.userData;
   bool required = false;
 
   void _updateRequired() {
@@ -145,13 +142,7 @@ class _NewShopItemState extends State<NewShopItem> {
                           Get.back();
                         } else {
                           //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
-                          Get.to(() => ShopView(
-                            userData: userData,
-                            itemToAdd: ItemCard(
-                              taskName: taskName.text,
-                              taskPrice: taskPrice.text,
-                            ),
-                          ));
+                          Get.back();
                         }
                       },
                       child: Padding(
