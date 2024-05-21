@@ -17,7 +17,7 @@ String getDueDaysInText(int days) {
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key, required this.userData});
 
-  final Map<String, dynamic> userData;
+  final Map<String, dynamic>? userData;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class ProfileView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('${userData['forename']} ${userData['surname']}',
+                    Text('${userData?['forename']} ${userData?['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 10),
                     RichText(
@@ -132,7 +132,7 @@ class ProfileView extends StatelessWidget {
                               text: ('part_household'.tr),
                               style: Theme.of(context).textTheme.bodySmall),
                           TextSpan(
-                              text: '"${userData['householdName']}"',
+                              text: '"${userData?['householdName']}"',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -143,7 +143,7 @@ class ProfileView extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '@${userData['username']}',
+                      '@${userData?['username']}',
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -241,7 +241,7 @@ class BackIconRow extends StatelessWidget {
 class TaskOverview extends StatelessWidget {
   const TaskOverview({super.key, required this.userData});
 
-  final Map<String, dynamic> userData;
+  final Map<String, dynamic>? userData;
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);

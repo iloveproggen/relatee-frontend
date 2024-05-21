@@ -133,7 +133,7 @@ class LoginWidgetState extends State<LoginWidget> {
         String token = jsonDecode(response.body)['token'];
         _saveToken(token);
         print('Received token: $token');
-        Get.to(() => MainWidget(userId: 1));
+        Get.to(() => const MainWidget(userId: 2));
         print("Opened MainWidget");
         setState() {
           isLoading = false;
