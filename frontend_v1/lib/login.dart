@@ -1,28 +1,26 @@
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
-import 'package:get/get.dart';  
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 //change later
-int userId = 1;
+int userId = -1;
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
-  
 
   @override
   State<LoginApp> createState() => _LoginAppState();
 }
-
 
 class _LoginAppState extends State<LoginApp> {
   @override
@@ -30,7 +28,7 @@ class _LoginAppState extends State<LoginApp> {
     final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
         darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme: darktheme,
+        theme: brightness == Brightness.light ? lighttheme : darktheme,
         translations: LocaleString(),
         locale: const Locale('en-Us'),
         fallbackLocale: const Locale('en-US'),
@@ -54,7 +52,7 @@ class LoginWidgetState extends State<LoginWidget> {
   bool _isPasswordVisible = false;
 
   bool requiredFields = false;
-  
+
   bool isLoading = false;
 
   void _saveToken(String token) async {
@@ -62,81 +60,100 @@ class LoginWidgetState extends State<LoginWidget> {
     await prefs.setString('token', token);
   }
 
-Future<int> getUserId(String username) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
+  Future<int> getUserId(String username) async {
+    final client = await getGraphQLClient();
+
+    print("printing username: $username");
+
+    final QueryOptions options = QueryOptions(
+      document: gql('''
       query GetUser(\$username: String!) {
-        user(username: \$username) {
+        userByUsername(username: \$username) {
           id
           }
       }
     '''),
-    variables: <String, dynamic>{
-      'username': username,
-    },
-  );
+      variables: <String, dynamic>{
+        'username': username,
+      },
+    );
 
-  final result = await client.query(options);
+    print('Trying to get user ID');
+    final result = await client.query(options);
 
-  if (result.hasException) {
-    print(result.exception.toString());
-    return -1;
-  } 
-  else {
-    final userId = result.data!['user']['id'];
-    print('User ID: $userId');
-    return userId;
-  }
-}
-
-Future<void> loadUserId() async {
-  userId = await getUserId(_usernameController.text);
-}
-
-void _login() async {
-  wrongPassword = false;
-  timeOut = false;
-  isLoading = true;
-  final response = await http.post(
-    Uri.parse('http://localhost:3000/login'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'username': _usernameController.text,
-      'password': _passwordController.text,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    print("fetching user id from user ${_usernameController.text}");
-    print(userId);
-    // If the server returns a 200 OK response, parse the JSON.
-    String token = jsonDecode(response.body)['token'];
-    _saveToken(token);
-    print('Received token: $token');
-    Get.to(()=> MainWidget(userId: userId));
-    print("Opened MainWidget");
-    setState() {
-      isLoading = false;
-    };
-  } else {
-    // If the server returns an error response, throw an exception.
-    print('Failed to load album');
-    if (response.statusCode == 401) {
-      setState(() {
-        wrongPassword = true;
-        isLoading = false;
-      });
+    if (result.hasException) {
+      print(result.exception.toString());
+      return -1;
     } else {
-      setState(() {
-        timeOut = true;
-        isLoading = false;
-      });
+      print(result);
+      final userId = result.data!['userByUsername']['id'];
+      print('Got User ID! User ID: $userId');
+      return userId;
     }
   }
-}
+
+  Future<void> loadUserId() async {
+    userId = await getUserId(_usernameController.text);
+  }
+
+  void _login() async {
+    setState(() {
+      wrongPassword = false;
+      timeOut = false;
+      otherError = false;
+      isLoading = false;
+    });
+    http.Response response = http.Response('Error', 500);
+    try {
+      response = await http.post(
+        Uri.parse('http://85.215.50.29:3000/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'username': _usernameController.text,
+          'password': _passwordController.text,
+        }),
+      ).timeout(const Duration(seconds: 10));
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        isLoading = false;
+        timeOut = true;
+      });
+    }
+    setState(() {
+      isLoading = true;
+    });
+    print("Loading...");
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      print("User id: $userId");
+        // If the server returns a 200 OK response, parse the JSON.
+        String token = jsonDecode(response.body)['token'];
+        _saveToken(token);
+        print('Received token: $token');
+        Get.to(() => MainWidget(userId: 1));
+        print("Opened MainWidget");
+        setState() {
+          isLoading = false;
+        }
+    } else {
+      // If the server returns an error response, throw an exception.
+      print('Failed to load');
+      if (response.statusCode == 401) {
+        setState(() {
+          wrongPassword = true;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          timeOut = true;
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   void _updateRequired() {
     setState(() {
@@ -159,10 +176,10 @@ void _login() async {
 
   bool wrongPassword = false;
   bool timeOut = false;
+  bool otherError = false;
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
@@ -269,7 +286,8 @@ void _login() async {
               child: Container(
                 decoration: requiredFields
                     ? BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
                         color: const Color.fromARGB(255, 74, 70, 70),
                         boxShadow: [
                             BoxShadow(
@@ -290,16 +308,13 @@ void _login() async {
                       ),
                 child: TextButton(
                   onPressed: requiredFields
-                  ? () async {
-                    String username = _usernameController.text;
-                    String password = _passwordController.text;
-                    print("Button Pressed");
-                    //loadUserId();
-                    //_login();
-                    Get.to(()=> const MainWidget(userId: 1));
-                    print("Username: $username, Password: $password");
-                  }
-                  : null,
+                      ? () async {
+                          String username = _usernameController.text;
+                          String password = _passwordController.text;
+                          _login();
+                          print("Username: $username, Password: $password");
+                        }
+                      : null,
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -327,7 +342,9 @@ void _login() async {
               Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-                  child: CircularProgressIndicator(color: Theme.of(context).colorScheme.tertiary),
+                  child: CupertinoActivityIndicator(
+                      radius: 20,
+                      color: Theme.of(context).colorScheme.tertiary),
                 ),
               ),
             if (wrongPassword)
@@ -339,12 +356,13 @@ void _login() async {
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",
+                      fontSize: 23,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
-              if (timeOut) // change this to show error on timeout
+            if (timeOut) // change this to show error on timeout
               const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 40, left: 20, right: 20),
@@ -353,6 +371,22 @@ void _login() async {
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",
+                      fontSize: 23,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            if (otherError) // change this to show error on timeout
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "code kaputt, bitte fixen :( \n user id = -1",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                      fontSize: 23,
                     ),
                     textAlign: TextAlign.center,
                   ),

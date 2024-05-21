@@ -10,6 +10,7 @@ import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,12 +22,17 @@ Map<String, dynamic> userData = {};
 
 bool auth = false;
 
+http.Client httpClient = http.Client();
+Duration connectionTimeout = const Duration(seconds: 3);
+
+
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
 
-  final HttpLink httpLink = HttpLink(
-    'http://localhost:3000/graphql',
+  final httpLink = HttpLink(
+    'http://85.215.50.90:3000/graphql',
+    httpClient: httpClient,
   );
 
   final AuthLink authLink = AuthLink(
@@ -45,7 +51,7 @@ Future<Map<String, dynamic>> getUserData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-      query GetUser(\$id: ID!) {
+      query GetUser(\$id: Int!) {
         user(id: \$id) {
           id
           householdId
@@ -67,7 +73,8 @@ Future<Map<String, dynamic>> getUserData(int id) async {
     },
   );
 
-  final result = await client.query(options);
+  final result = await client.query(options); 
+  print('Result: ${result.data}');
 
   if (result.hasException) {
     print(result.exception.toString());
@@ -102,20 +109,32 @@ class MainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  loadUserData(userId);
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const IconRow(),
-            WelcomeText(userData: userData),
-            const ButtonRecommended(task: "do the dishes"),
-            TaskOverview(userData: userData),
-          ]),
-        ),
-      ),
+    return FutureBuilder<void>(
+      future: loadUserData(userId),
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CupertinoActivityIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const IconRow(),
+                    WelcomeText(userData: userData),
+                    const ButtonRecommended(task: "do the dishes"),
+                    TaskOverview(userData: userData),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -130,6 +149,7 @@ class IconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  print("userData: $userData");
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
