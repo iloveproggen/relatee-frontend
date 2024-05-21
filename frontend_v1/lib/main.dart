@@ -16,10 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   runApp(const LoginApp());
 }
-//hi Michelle bug fising
-//hi maurice
-// MainWidget
-
 
 Map<String, dynamic> userData = {};
 
@@ -45,9 +41,7 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
-// user id fetchen und mit static user id ersetzten, user id beim login fetchen und vllt speichern, lokale variable und settings.json wie locale und farben
 Future<Map<String, dynamic>> getUserData(int id) async {
-  // Your code here
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''

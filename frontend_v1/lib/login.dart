@@ -12,30 +12,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/*
-Future<bool> authUser(String username, String password) async {
-  final connection = PostgreSQLConnection(
-    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-    5432,
-    'relateeDB',
-    username: 'relateeDB_owner',
-    password: 'bCTNHdw8mJL3',
-    useSSL: true,
-  );
-  await connection.open();
-  List<List<dynamic>> results = await connection.query(
-      'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
-      substitutionValues: {'username': username, 'password': password});
-  await connection.close();
-
-  print(results);
-  print(results.isNotEmpty);
-  print('SELECT id, username, password, email FROM users WHERE username = $username AND password = $password;',);
-
-  return results.isNotEmpty;
-}*/
-
-int userId = -1;
+//change later
+int userId = 1;
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
@@ -88,10 +66,10 @@ Future<int> getUserId(String username) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-      query GetUserId(\$username: String!) {
+      query GetUser(\$username: String!) {
         user(username: \$username) {
           id
-        }
+          }
       }
     '''),
     variables: <String, dynamic>{
@@ -104,10 +82,8 @@ Future<int> getUserId(String username) async {
   if (result.hasException) {
     print(result.exception.toString());
     return -1;
-  //} else if (result.isLoading) {
-  //  print('Loading');
-  //  return -1;
-  } else {
+  } 
+  else {
     final userId = result.data!['user']['id'];
     print('User ID: $userId');
     return userId;
@@ -134,12 +110,14 @@ void _login() async {
   );
 
   if (response.statusCode == 200) {
-    loadUserId();
+    print("fetching user id from user ${_usernameController.text}");
+    print(userId);
     // If the server returns a 200 OK response, parse the JSON.
     String token = jsonDecode(response.body)['token'];
     _saveToken(token);
     print('Received token: $token');
     Get.to(()=> MainWidget(userId: userId));
+    print("Opened MainWidget");
     setState() {
       isLoading = false;
     };
@@ -315,7 +293,10 @@ void _login() async {
                   ? () async {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
-                    _login();
+                    print("Button Pressed");
+                    //loadUserId();
+                    //_login();
+                    Get.to(()=> const MainWidget(userId: 1));
                     print("Username: $username, Password: $password");
                   }
                   : null,
