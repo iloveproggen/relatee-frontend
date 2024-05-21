@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
@@ -8,7 +6,6 @@ import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,42 +57,6 @@ class LoginWidgetState extends State<LoginWidget> {
     await prefs.setString('token', token);
   }
 
-  Future<int> getUserId(String username) async {
-    final client = await getGraphQLClient();
-
-    print("printing username: $username");
-
-    final QueryOptions options = QueryOptions(
-      document: gql('''
-      query GetUser(\$username: String!) {
-        userByUsername(username: \$username) {
-          id
-          }
-      }
-    '''),
-      variables: <String, dynamic>{
-        'username': username,
-      },
-    );
-
-    print('Trying to get user ID');
-    final result = await client.query(options);
-
-    if (result.hasException) {
-      print(result.exception.toString());
-      return -1;
-    } else {
-      print(result);
-      final userId = result.data!['userByUsername']['id'];
-      print('Got User ID! User ID: $userId');
-      return userId;
-    }
-  }
-
-  Future<void> loadUserId() async {
-    userId = await getUserId(_usernameController.text);
-  }
-
   void _login() async {
     setState(() {
       wrongPassword = false;
@@ -128,12 +89,11 @@ class LoginWidgetState extends State<LoginWidget> {
     print("Loading...");
     print(response.statusCode);
     if (response.statusCode == 200) {
-      print("User id: $userId");
         // If the server returns a 200 OK response, parse the JSON.
         String token = jsonDecode(response.body)['token'];
         _saveToken(token);
-        print('Received token: $token');
-        Get.to(() => const MainWidget(userId: 2));
+        int userId = jsonDecode(response.body)['userId'];
+        Get.to(() => MainWidget(userId: userId));
         print("Opened MainWidget");
         setState() {
           isLoading = false;

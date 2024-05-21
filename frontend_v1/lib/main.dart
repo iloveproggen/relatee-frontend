@@ -16,17 +16,11 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-//ahamdullilah funktioniere
 void main() {
   runApp(const LoginApp());
 }
 
-Future<Map<String, dynamic>> userData = Future.value({});
-Map<String, dynamic> userDataMap = {};
-bool auth = false;
-
 http.Client httpClient = http.Client();
-//Duration connectionTimeout = const Duration(seconds: 20);
 
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
@@ -111,11 +105,6 @@ Future<Map<String, dynamic>> getUserData(int id) async {
   return {};
 }
 
-Future<Map<String, dynamic>> loadUserData(int id) async {
-  userDataMap = await getUserData(id);
-  return userDataMap;
-}
-
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.userId});
 
@@ -125,53 +114,57 @@ class MainWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: loadUserData(userId),
+      future: getUserData(userId),
       builder:
           (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-        print('Snapshot: $snapshot');
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          print("snapshot data? -> ${snapshot.hasData}");
-          return mainShit();
+          return MainView(userData: snapshot.data ?? {});
         }
       },
     );
   }
 }
 
-Widget mainShit() {
-  return const Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IconRow(),
-                    WelcomeText(),
-                    ButtonRecommended(task: "do the dishes"),
-                    TaskOverview(),
-                  ],
-                ),
-              ),
-            ),
-          );
+class MainView extends StatelessWidget {
+  const MainView({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconRow(userData: userData),
+              WelcomeText(userData: userData),
+              const ButtonRecommended(task: "do the dishes"),
+              const TaskOverview(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key});
+  const IconRow({super.key, required this.userData});
 
+  final Map<String, dynamic> userData;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
-    print("userData!!!!!!!!!!!!!!! $userDataMap");
-    print("IconRow is being built");
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -185,7 +178,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Get.to(() => ProfileView(userData: userDataMap));
+                    Get.to(() => ProfileView(userData: userData));
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -199,7 +192,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Get.to(() => Settings(userData: userDataMap));
+                    Get.to(() => Settings(userData: userData));
                   },
                   icon: Icon(
                     CupertinoIcons.gear_solid,
@@ -213,7 +206,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Get.to(() => ShopView(userData: userDataMap));
+              Get.to(() => ShopView(userData: userData));
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
@@ -226,49 +219,42 @@ class IconRow extends StatelessWidget {
   }
 }
 
-// TextWidget
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key});
+  const WelcomeText({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
-    print("WelcomeText is being built");
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-            padding: const EdgeInsets.only(bottom: 50, top: 10),
-            child: SizedBox(
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${'welcome_title'.tr}, ${userDataMap['forename']}!',
-                          maxLines: 2,
-                          style: Theme.of(context).textTheme.bodyLarge),
-                      Text('welcome_message'.tr,
-                          style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  );
-                },
-              ),
-            )),
+          padding: const EdgeInsets.only(bottom: 50, top: 10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${'welcome_title'.tr}, ${userData['forename']??''}!',
+                  maxLines: 2, style: Theme.of(context).textTheme.bodyLarge),
+              Text('welcome_message'.tr,
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+        ),
         Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text('Recommended_txt'.tr,
-                  style: Theme.of(context).textTheme.labelSmall),
-            )),
+          alignment: Alignment.topLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text('Recommended_txt'.tr,
+                style: Theme.of(context).textTheme.labelSmall),
+          ),
+        ),
       ],
     );
   }
 }
 
-// ButtonWidget
 class ButtonRecommended extends StatelessWidget {
   const ButtonRecommended({super.key, required this.task});
 
@@ -277,16 +263,15 @@ class ButtonRecommended extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("ButtonRecommended is being built");
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
-          child: Column(
-        children: [
-          Container(
-            height: height,
-            width: double.infinity,
-            decoration: BoxDecoration(
+        child: Column(
+          children: [
+            Container(
+              height: height,
+              width: double.infinity,
+              decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(25)),
                 color: Theme.of(context).colorScheme.primary,
                 boxShadow: [
@@ -296,31 +281,25 @@ class ButtonRecommended extends StatelessWidget {
                     blurRadius: 10.0,
                     spreadRadius: 2.0,
                   )
-                ]),
-            child: Column(
-                //color: Colors.amber,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: Text(task,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(fontSize: 30)),
-                          ),
-                        ],
-                      )),
-                ]),
-          ),
-        ],
-      )),
+                ],
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    task,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontSize: 30),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -337,12 +316,12 @@ class ButtonCompleted extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        child: Column(
-      children: [
-        Container(
-          height: height,
-          width: double.infinity,
-          decoration: const BoxDecoration(
+      child: Column(
+        children: [
+          Container(
+            height: height,
+            width: double.infinity,
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
               color: Color.fromARGB(255, 243, 243, 243),
               boxShadow: [
@@ -352,43 +331,35 @@ class ButtonCompleted extends StatelessWidget {
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
                 )
-              ]),
-          child: Column(
-              //color: Colors.amber,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Align(
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 35, right: 35),
-                          child: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                  text: "$who completed",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                        text: " \"$what\" ",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.bold)),
-                                    TextSpan(
-                                      text: "$time.",
-                                    )
-                                  ])),
-                        ),
-                      ],
-                    )),
-              ]),
-        ),
-        const SizedBox(height: 30)
-      ],
-    ));
+              ],
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 35),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    text: "$who completed",
+                    style: Theme.of(context).textTheme.bodySmall,
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: " \"$what\" ",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: "$time."),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+        ],
+      ),
+    );
   }
 }
 
@@ -402,12 +373,12 @@ class ButtonShort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        child: Column(
-      children: [
-        Container(
-          height: height,
-          width: double.infinity,
-          decoration: BoxDecoration(
+      child: Column(
+        children: [
+          Container(
+            height: height,
+            width: double.infinity,
+            decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(25)),
               color: Theme.of(context).colorScheme.primary,
               boxShadow: [
@@ -417,9 +388,9 @@ class ButtonShort extends StatelessWidget {
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
                 )
-              ]),
-          child: Align(
-              alignment: Alignment.center,
+              ],
+            ),
+            child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -435,47 +406,51 @@ class ButtonShort extends StatelessWidget {
                   Padding(
                     padding:
                         const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-                    child: Text(textBelow,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                        maxLines: 2),
-                  )
+                    child: Text(
+                      textBelow,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                    ),
+                  ),
                 ],
-              )),
-        ),
-        const SizedBox(height: 30)
-      ],
-    ));
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+        ],
+      ),
+    );
   }
 }
 
-//ButtonRow containing Button Widgets
 class ButtonRow extends StatelessWidget {
   const ButtonRow({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        child: Row(
+    return Row(
       children: <Widget>[
         Expanded(
-            child: Padding(
-          padding: const EdgeInsets.only(right: 15),
-          child: ButtonShort(
-            number: "10",
-            textBelow: 'leftThisWeek_txt'.tr,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: ButtonShort(
+              number: "10",
+              textBelow: 'leftThisWeek_txt'.tr,
+            ),
           ),
-        )),
+        ),
         Expanded(
-            child: Padding(
-          padding: const EdgeInsets.only(left: 15),
-          child: ButtonShort(
-            number: "2",
-            textBelow: ('doneThisWeek_txt'.tr),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15),
+            child: ButtonShort(
+              number: "2",
+              textBelow: 'doneThisWeek_txt'.tr,
+            ),
           ),
-        )),
+        ),
       ],
-    ));
+    );
   }
 }
 
@@ -487,12 +462,10 @@ class TaskOverview extends StatefulWidget {
 }
 
 class _TaskState extends State<TaskOverview> {
-  _TaskState();
   final double size = 15;
 
   @override
   Widget build(BuildContext context) {
-    print("TaskOverview is being built");
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -506,15 +479,16 @@ class _TaskState extends State<TaskOverview> {
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
-                  onPressed: () {
-                    Get.to(() => NewTask(userData: userDataMap));
-                  },
-                  child: Icon(CupertinoIcons.add,
-                      color: Theme.of(context).colorScheme.tertiary, size: 30))
+                onPressed: () {
+                  Get.to(() => NewTask(userData: {}));
+                },
+                child: Icon(CupertinoIcons.add,
+                    color: Theme.of(context).colorScheme.tertiary, size: 30),
+              ),
             ],
           ),
         ),
-        Container(height: 10),
+        const SizedBox(height: 10),
         const ButtonRow(),
         const Task(taskName: "do the dishes", taskStatus: 2),
         const Task(taskName: "mop the floor", taskStatus: 1),
@@ -534,18 +508,18 @@ class _TaskState extends State<TaskOverview> {
                             .textTheme
                             .labelSmall
                             ?.copyWith(fontSize: 15)),
-                    Container(width: 5),
+                    const SizedBox(width: 5),
                     Icon(
                       CupertinoIcons.arrow_right,
                       color: Theme.of(context).colorScheme.tertiary,
                       size: size,
-                    )
+                    ),
                   ],
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: userDataMap));
+                  Get.to(() => MainHouseholdOverview(userData: {}));
                 },
                 child: Row(
                   children: [
@@ -578,16 +552,17 @@ class Task extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(25)),
-            color: Theme.of(context).colorScheme.primary,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.secondary,
-                offset: const Offset(5.0, 5.0),
-                blurRadius: 10.0,
-                spreadRadius: 2.0,
-              )
-            ]),
+          borderRadius: const BorderRadius.all(Radius.circular(25)),
+          color: Theme.of(context).colorScheme.primary,
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.secondary,
+              offset: const Offset(5.0, 5.0),
+              blurRadius: 10.0,
+              spreadRadius: 2.0,
+            ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.only(top: 30, bottom: 30, left: 30),
           child: Row(
@@ -596,18 +571,20 @@ class Task extends StatelessWidget {
               Text(taskName, style: Theme.of(context).textTheme.bodySmall),
               Padding(
                 padding: const EdgeInsets.only(right: 30),
-                child: Builder(builder: (context) {
-                  switch (taskStatus) {
-                    case 0:
-                      return SvgPicture.asset("assets/images/green.svg");
-                    case 1:
-                      return SvgPicture.asset("assets/images/yellow.svg");
-                    case 2:
-                      return SvgPicture.asset("assets/images/red.svg");
-                    default:
-                      return SvgPicture.asset("assets/images/red.svg");
-                  }
-                }),
+                child: Builder(
+                  builder: (context) {
+                    switch (taskStatus) {
+                      case 0:
+                        return SvgPicture.asset("assets/images/green.svg");
+                      case 1:
+                        return SvgPicture.asset("assets/images/yellow.svg");
+                      case 2:
+                        return SvgPicture.asset("assets/images/red.svg");
+                      default:
+                        return SvgPicture.asset("assets/images/red.svg");
+                    }
+                  },
+                ),
               ),
             ],
           ),
