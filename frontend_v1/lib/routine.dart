@@ -2,15 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_shopItem.dart';
+import 'package:frontend_v1/Create_New_ShopItem.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
 // ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
-  const ShopIcon({
-    super.key,
-  });
+  const ShopIcon({super.key,});
 
   @override
   State<ShopIcon> createState() => _ShopIconState();
@@ -76,21 +74,15 @@ class ShopView extends StatefulWidget {
   const ShopView({super.key, this.itemToAdd, required this.userData});
 
   final ItemCard? itemToAdd; 
-  final Map<String, dynamic> userData;
+  final Future<List<Map<String, dynamic>>> userData;
   
   @override
-  State<ShopView> createState() => ShopViewState(userData: userData);
+  State<ShopView> createState() => ShopViewState();
 }
-
 class ShopViewState extends State<ShopView> {
-  ShopViewState({required this.userData});
   final List<Widget> itemCards = [
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
   ];
-
-  final Map<String, dynamic> userData;
-
-
 
   @override
   void initState() {
@@ -102,11 +94,12 @@ class ShopViewState extends State<ShopView> {
   }
 
   void addItem(ItemCard item) {
-    itemCards.add(item);
+      itemCards.add(item);
   }
 
   // Getter for the itemCards list
   List<Widget> get getItemCards => itemCards;
+  Future<List<Map<String, dynamic>>> get userData => widget.userData;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
@@ -125,8 +118,10 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Shop_title'.tr,
-                    style: Theme.of(context).textTheme.bodyLarge),
+                Text(
+                  'Shop_title'.tr,
+                  style: Theme.of(context).textTheme.bodyLarge
+                ),
                 TextButton(
                     onPressed: () {
                     Get.to(() => NewShopItem());
@@ -148,13 +143,13 @@ class ShopViewState extends State<ShopView> {
                 itemBuilder: (context, index) {
                   return itemCards[index];
                 },
+                ),
               ),
-            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge('${userData['points']} pts'),
+                buildBadge('1150 pts'),
                 const SizedBox(width: 20),
                 buildBadge('lvl 25'),
               ],
@@ -183,9 +178,7 @@ class ShopViewState extends State<ShopView> {
 
 class ItemCard extends StatelessWidget {
   const ItemCard({
-    super.key,
-    required this.taskName,
-    required this.taskPrice,
+    super.key, required this.taskName, required this.taskPrice,
   });
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
@@ -224,11 +217,10 @@ class ItemCard extends StatelessWidget {
               children: [
                 Container(
                   constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(taskName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    taskName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
+                  ),
                 ),
                 Text(
                   "$taskPrice pts",

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 class MainHouseholdOverview extends StatelessWidget {
   const MainHouseholdOverview({super.key, required this.userData});
 
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class MainHouseholdOverview extends StatelessWidget {
 class HouseholdOverview extends StatelessWidget {
   const HouseholdOverview({super.key, required this.userData});
 
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class HouseholdMembers extends StatelessWidget {
     required this.userData,
   });
 
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class Member extends StatelessWidget {
 
   final String name;
   final String username;
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
