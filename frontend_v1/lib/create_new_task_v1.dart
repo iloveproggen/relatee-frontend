@@ -49,12 +49,9 @@ class CustomTextField extends StatelessWidget {
           children: [
             TextFormField(
               decoration: InputDecoration.collapsed(
-                hintText: ('new_task_txt'.tr),
-              ),
-              style: const TextStyle(
-                fontSize: 30,
-                color: Color.fromARGB(255, 74, 70, 70),
-              ),
+                  hintText: ('new_task_txt'.tr),
+                  hintStyle: Theme.of(context).textTheme.bodyMedium),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
