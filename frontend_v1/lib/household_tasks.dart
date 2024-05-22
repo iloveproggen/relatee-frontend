@@ -23,7 +23,10 @@ class MainHouseholdOverview extends StatelessWidget {
             child: Padding(
       padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
-        children: [const BackIconRow(), HouseholdOverview(userData: userData)],
+        children: [
+          const BackIconRow(),
+          HouseholdOverview(userData: userData),
+        ],
       ),
     )));
   }
@@ -52,8 +55,11 @@ class HouseholdOverview extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('${'Household_txt'.tr}Tasks',
-                  style: Theme.of(context).textTheme.bodyLarge),
+              Expanded(
+                child: Text('${'Household_txt'.tr}Tasks',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    overflow: TextOverflow.ellipsis),
+              ),
               IconButton(
                   onPressed: () {
                     Get.to(() => const MainLeaderboardView());

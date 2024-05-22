@@ -73,7 +73,7 @@ class LoginWidgetState extends State<LoginWidget> {
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: jsonEncode(<String, String>{
-              'username': _usernameController.text,
+              'email': _usernameController.text,
               'password': _passwordController.text,
             }),
           )
