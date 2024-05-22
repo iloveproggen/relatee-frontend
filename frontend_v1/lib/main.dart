@@ -263,7 +263,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () {
-              Get.to(() => ShopView(userData: userData));
+              Get.to(() => ShopView());
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
@@ -378,7 +378,7 @@ class ButtonCompleted extends StatelessWidget {
           Container(
             height: height,
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(25)),
               color: Theme.of(context).colorScheme.primary,
               boxShadow: [
@@ -537,7 +537,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                 onPressed: () {
-                  Get.to(() => NewTask(userData: {}));
+                  Get.to(() => NewTask());
                 },
                 child: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),

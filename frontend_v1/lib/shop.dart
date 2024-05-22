@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/create_new_shop_item.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/routine.dart';
 import 'package:get/get.dart';
 
 class ShopIcon extends StatefulWidget {
@@ -79,13 +78,12 @@ class _ShopIconState extends State<ShopIcon>
 }
 
 class ShopView extends StatefulWidget {
-  const ShopView({super.key, this.itemToAdd, required this.userData});
+  const ShopView({super.key, this.itemToAdd});
 
   final ItemCard? itemToAdd;
-  final Map<String, dynamic> userData;
 
   @override
-  State<ShopView> createState() => ShopViewState(userData: userData);
+  State<ShopView> createState() => ShopViewState();
 }
 
 /*
@@ -95,12 +93,10 @@ date: 10.04.2024
 */
 
 class ShopViewState extends State<ShopView> {
-  ShopViewState({required this.userData});
+  ShopViewState();
   final List<Widget> itemCards = [
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
   ];
-
-  final Map<String, dynamic> userData;
 
   @override
   void initState() {
@@ -163,7 +159,7 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge('${userData['points']} pts'),
+                buildBadge(' pts'),
                 const SizedBox(width: 20),
                 buildBadge('lvl 25'),
               ],

@@ -8,9 +8,7 @@ import 'package:get/get.dart';
 //Date: 08.05.2024s
 
 class NewTask extends StatelessWidget {
-  const NewTask({super.key, required this.userData});
-
-  final Future<List<Map<String, dynamic>>> userData;
+  const NewTask({super.key});
 
   @override
   Widget build(BuildContext context) {

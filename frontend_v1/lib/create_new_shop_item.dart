@@ -6,9 +6,7 @@ import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key, required this.userData});
-
-  final Future<List<Map<String, dynamic>>> userData;
+  const NewShopItem({super.key});
 
   @override
   State<NewShopItem> createState() => _NewShopItemState();
@@ -22,7 +20,6 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
 
-  Future<List<Map<String, dynamic>>> get userData => widget.userData;
   bool required = false;
 
   void _updateRequired() {
@@ -142,7 +139,6 @@ class _NewShopItemState extends State<NewShopItem> {
                         } else {
                           //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
                           Get.to(() => ShopView(
-                                userData: userData,
                                 itemToAdd: ItemCard(
                                   taskName: taskName.text,
                                   taskPrice: taskPrice.text,
