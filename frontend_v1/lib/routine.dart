@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_ShopItem.dart';
+import 'package:frontend_v1/create_new_shop_item.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
