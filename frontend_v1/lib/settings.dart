@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class Settings extends StatelessWidget {
   const Settings({super.key, required this.userData});
 
-  final Future<List<Map<String, dynamic>>> userData;
+  final Map<String, dynamic> userData;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
@@ -96,8 +96,7 @@ class SettingsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(('settings_txt'.tr),
-                      style: const TextStyle(
-                          fontSize: 40, fontWeight: FontWeight.bold)),
+                      style: Theme.of(context).textTheme.bodyLarge),
                 ],
               )),
         ),
