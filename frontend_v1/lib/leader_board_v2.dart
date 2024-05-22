@@ -10,10 +10,6 @@ author: Maurice
 date: 17.05.2024
 */
 
-void main() {
-  runApp(const MainLeaderboardView());
-}
-
 class MainLeaderboardView extends StatelessWidget {
   const MainLeaderboardView({super.key});
 
@@ -32,18 +28,6 @@ class MainLeaderboardView extends StatelessWidget {
       ),
     );
   }
-}
-
-@override
-Widget build(BuildContext context) {
-  return const SingleChildScrollView(
-    child: Column(
-      children: [
-        MembersText(),
-        ChartLeaderboard(),
-      ],
-    ),
-  );
 }
 
 /*
@@ -232,9 +216,9 @@ class WeeklyInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
-    return Container(
+    return SizedBox(
       width: width,
-      height: height,
+      height: height * 0.2,
       child: ListView.builder(
         //dynamisch machen
         itemCount: 3,
