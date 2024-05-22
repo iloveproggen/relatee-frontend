@@ -272,6 +272,9 @@ class LoginWidgetState extends State<LoginWidget> {
                           String username = _usernameController.text;
                           String password = _passwordController.text;
                           _login();
+                          setState(() {
+                            isLoading = true;
+                          });
                           print("Username: $username, Password: $password");
                         }
                       : null,

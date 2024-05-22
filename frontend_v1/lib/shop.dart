@@ -77,12 +77,18 @@ class ShopView extends StatefulWidget {
   final Map<String, dynamic> userData;
   
   @override
-  State<ShopView> createState() => ShopViewState();
+  State<ShopView> createState() => ShopViewState(userData: userData);
 }
+
 class ShopViewState extends State<ShopView> {
+  ShopViewState({required this.userData});
   final List<Widget> itemCards = [
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
   ];
+
+  final Map<String, dynamic> userData;
+
+
 
   @override
   void initState() {
@@ -148,7 +154,7 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge('1150 pts'),
+                buildBadge('${userData['points']} pts'),
                 const SizedBox(width: 20),
                 buildBadge('lvl 25'),
               ],

@@ -21,6 +21,7 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(userData);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -47,15 +48,18 @@ class ProfileView extends StatelessWidget {
                                 child: const Text(
                                   'Cancel',
                                   style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold),
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.normal),
                                 ),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: const Text('Continue'),
+                                child: const Text('Continue',
+                                     style: TextStyle(
+                                         color: Colors.blue,
+                                         fontWeight: FontWeight.bold),),
                                 onPressed: () {
                                   Get.to(() => const LoginWidget());
                                 },
@@ -88,43 +92,33 @@ class ProfileView extends StatelessWidget {
                   ),
                 ],
               ),
-              Column(
+              const Column(
                 children: [
-                  Container(
-                    height: 200,
-                    width: 200,
-                    decoration: ShapeDecoration(
-                      shape: CircleBorder(
-                        side: BorderSide(
-                          width: 6,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50, right: 10),
-                        child: _buildInfoContainer('1150 pts'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: _buildInfoContainer('lvl 25'),
-                      ),
-                    ],
-                  ),
+                  // Profile Picture
+                  // Container(
+                  //   height: 200,
+                  //   width: 200,
+                  //   decoration: ShapeDecoration(
+                  //     shape: CircleBorder(
+                  //       side: BorderSide(
+                  //         width: 6,
+                  //         color: Theme.of(context).colorScheme.tertiary,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  
                 ],
               ),
-              ListView(children: [
+              Column(children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 30),
                     Text('${userData['forename']} ${userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     RichText(
                       text: TextSpan(
                         children: [
@@ -150,13 +144,27 @@ class ProfileView extends StatelessWidget {
                           ?.copyWith(fontStyle: FontStyle.italic),
                       textAlign: TextAlign.center,
                     ),
+                    Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50, right: 10),
+                        child: _buildInfoContainer('${userData['points']} pts'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50),
+                        child: _buildInfoContainer('lvl ${userData['points']}'),
+                      ),
+                    ],
+                  ),
                   ],
                 )
               ]),
-              const Divider(
-                  color: Color.fromARGB(238, 126, 126, 126),
-                  height: 100,
-                  thickness: 2),
+              // const Divider(
+              //     color: Color.fromARGB(238, 126, 126, 126),
+              //     height: 100,
+              //     thickness: 2),
+              SizedBox(height: 80),
               TaskOverview(userData: userData),
             ],
           ),

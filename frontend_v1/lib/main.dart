@@ -45,6 +45,63 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
+// Future<List<Map<String, dynamic>>> getUserTasks() async {
+//   final client = await getGraphQLClient();
+//   final QueryOptions options = QueryOptions(
+//     document: gql('''
+//   query GetUserTasks() {
+//     tasks() {
+//       householdId
+//       forename
+//       surname
+//       username
+//       email
+//       points
+//       household {
+//         name
+//         ownerId
+//       }
+//     }
+//   }
+// '''),
+//   );
+
+//     try {
+//     final result =
+//         await client.query(options).timeout(const Duration(seconds: 10));
+
+//     if (result.hasException) {
+//       print(result.exception.toString());
+//     } else if (result.isLoading) {
+//       print('Loading');
+//     } else {
+//       final user = result.data!['user'];
+//       final mappedResult = {
+//         'forename': user['forename'],
+//         'surname': user['surname'],
+//         'username': user['username'],
+//         'email': user['email'],
+//         'points': user['balance'],
+//         'householdName': user['household']['name'],
+//       };
+//       if (user['points'] == null) {
+//         mappedResult['points'] = 0;
+//       }
+//       return mappedResult;
+//     }
+//   } on SocketException catch (e) {
+//     print('Network error: $e');
+//     // Handle network error
+//   } on TimeoutException catch (e) {
+//     print('Request timed out: $e');
+//     // Handle timeout
+//   } catch (e) {
+//     print('Unexpected error: $e');
+//     // Handle other errors
+//   }
+//   return {};
+// }
+
 Future<Map<String, dynamic>> getUserData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -166,7 +223,7 @@ class IconRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -235,7 +292,7 @@ class WelcomeText extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${'welcome_title'.tr}, ${userData['forename']??''}!',
+              Text('${'welcome_title'.tr}, ${userData['forename'] ?? ''}!',
                   maxLines: 2, style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
@@ -366,7 +423,7 @@ class ButtonCompleted extends StatelessWidget {
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
 
-  final double height = 150;
+  final double height = 160;
   final String number;
   final String textBelow;
 
