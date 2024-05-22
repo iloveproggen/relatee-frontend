@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/main.dart' as main;
 
 class SeeAllTasks extends StatelessWidget {
-  const SeeAllTasks({super.key});
+  const SeeAllTasks({super.key, required this.userData, required this.tasks});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Padding(
+    return Scaffold(body: Padding(
       padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
         children: [
           BackIconRow(),
-          SliderWidgetRepeat(),
+          SliderWidgetRepeat(userData: userData, tasks: tasks),
         ],
       ),
     ));
@@ -19,14 +23,24 @@ class SeeAllTasks extends StatelessWidget {
 }
 
 class SliderWidgetRepeat extends StatefulWidget {
-  const SliderWidgetRepeat({super.key});
+  const SliderWidgetRepeat({super.key, required this.userData, required this.tasks});
+
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
-  State<SliderWidgetRepeat> createState() => _SliderWidgetState();
+  State<SliderWidgetRepeat> createState() => _SliderWidgetState(userData: userData, tasks: tasks);
 }
 
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
+  _SliderWidgetState({required this.userData, required this.tasks});
   bool _isPermanent = true;
+
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
+
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +122,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
             padding: const EdgeInsets.only(top: 20),
             child: Column(
               children: _isPermanent
-                  ? [const TaskWidget()]
+                  ? [TaskWidget(userData: userData, tasks: tasks)]
                   : [const RoutineWidget()],
             ),
           )
@@ -119,11 +133,14 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
 }
 
 class TaskWidget extends StatelessWidget {
-  const TaskWidget({super.key});
+  const TaskWidget({super.key, required this.userData, required this.tasks});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Tasks");
+    return main.TaskOverview(userData: userData, tasks: tasks);
   }
 }
 

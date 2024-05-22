@@ -101,9 +101,7 @@ class Member extends StatelessWidget {
           padding: EdgeInsets.zero,
         ),
         onPressed: () {
-          Get.to(() => ProfileView(
-                userData: userData,
-              ));
+          Get.back();
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
