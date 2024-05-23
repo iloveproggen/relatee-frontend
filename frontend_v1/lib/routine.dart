@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+
+import 'task_item_view.dart';
 
 class Routine extends StatelessWidget {
   const Routine({super.key});
@@ -13,7 +16,7 @@ class Routine extends StatelessWidget {
       children: [
         Text(
           'Routines_txt'.tr,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.left,
         ),
         Routinenitems(
@@ -94,7 +97,9 @@ class Routinenitems extends StatelessWidget {
           Padding(
               padding: const EdgeInsets.all(5),
               child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(ItemView());
+                  },
                   icon: Icon(
                     CupertinoIcons.info,
                     size: 25,
