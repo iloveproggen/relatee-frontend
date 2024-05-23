@@ -56,10 +56,12 @@ class ProfileView extends StatelessWidget {
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: const Text('Continue',
-                                     style: TextStyle(
-                                         color: Colors.blue,
-                                         fontWeight: FontWeight.bold),),
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold),
+                                ),
                                 onPressed: () {
                                   Get.to(() => const LoginWidget());
                                 },
@@ -107,7 +109,6 @@ class ProfileView extends StatelessWidget {
                   //     ),
                   //   ),
                   // ),
-                  
                 ],
               ),
               Column(children: [
@@ -145,18 +146,20 @@ class ProfileView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50, right: 10),
-                        child: _buildInfoContainer('${userData['points']} pts'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: _buildInfoContainer('lvl ${userData['points']}'),
-                      ),
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50, right: 10),
+                          child:
+                              _buildInfoContainer('${userData['points']} pts'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50),
+                          child:
+                              _buildInfoContainer('lvl ${userData['points']}'),
+                        ),
+                      ],
+                    ),
                   ],
                 )
               ]),
@@ -274,7 +277,9 @@ class TaskOverview extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(
+                        userData: userData,
+                      ));
                 },
                 child: Row(
                   children: [

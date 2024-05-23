@@ -8,14 +8,10 @@ class ItemView extends StatelessWidget {
     super.key,
     required this.routineName,
     required this.routineDescription,
-    required this.routineIntervall,
-    required this.routineTasks,
   });
 
   final String routineName;
   final String routineDescription;
-  final int routineIntervall;
-  final List<String> routineTasks;
 
   @override
   Widget build(BuildContext context) {

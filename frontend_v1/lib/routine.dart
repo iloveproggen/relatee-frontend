@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -81,7 +82,12 @@ Future<Map<String, dynamic>> getRoutineData(int id) async {
 }
 
 class Routine extends StatelessWidget {
-  const Routine({super.key});
+  const Routine({
+    super.key,
+    required this.userData,
+  });
+
+  final Map<String, dynamic> userData;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -93,13 +99,27 @@ class Routine extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.left,
         ),
-        Routinenitems(
-          routineName: 'SuperTest idk',
-          routineDescription: 'ist toll weiol darum bitte nicht sclagen',
-        ),
-        Routinenitems(
-            routineName: 'Das ist ein toller Titel',
-            routineDescription: 'routineDescription')
+        FutureBuilder(
+            future: getRoutineData(userData['id']),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  return Column(
+                    children: snapshot.data!['householdRoutine']
+                        .map<Widget>((routine) {
+                      return Routinenitems(
+                        routineName: routine['name'],
+                        routineDescription: routine['description'],
+                      );
+                    }).toList(),
+                  );
+                  //Routinenitems(routines: snapshot.data['householdRoutine']);
+                }
+              }
+              return const CircularProgressIndicator();
+            }),
       ],
     );
   }

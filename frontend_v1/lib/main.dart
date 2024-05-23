@@ -203,7 +203,9 @@ class MainView extends StatelessWidget {
               IconRow(userData: userData),
               WelcomeText(userData: userData),
               const ButtonRecommended(task: "do the dishes"),
-              const TaskOverview(),
+              TaskOverview(
+                userData: userData,
+              ),
             ],
           ),
         ),
@@ -512,14 +514,22 @@ class ButtonRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({
+    super.key,
+    required this.userData,
+  });
 
+  final Map<String, dynamic> userData;
   @override
-  State<TaskOverview> createState() => _TaskState();
+  State<TaskOverview> createState() => _TaskState(userData: userData);
 }
 
 class _TaskState extends State<TaskOverview> {
   final double size = 15;
+
+  final Map<String, dynamic> userData;
+
+  _TaskState({required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -556,7 +566,9 @@ class _TaskState extends State<TaskOverview> {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(
+                        userData: userData,
+                      ));
                 },
                 child: Row(
                   children: [

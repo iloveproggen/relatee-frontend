@@ -1,80 +1,26 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/routine.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-
-//fetched alle Daten aus der Datenbank -> tasks + Routinen
-Future<Map<String, dynamic>> getUserData(int id) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUser(\$id: Int!) {
-    user(id: \$id) {
-      householdId
-      household {
-        routine
-        tasks
-      }
-    }
-  }
-'''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
-  );
-
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      final user = result.data!['user'];
-      final mappedResult = {
-        'forename': user['forename'],
-        'surname': user['surname'],
-        'username': user['username'],
-        'email': user['email'],
-        'points': user['balance'],
-        'householdName': user['household']['name'],
-      };
-      if (user['points'] == null) {
-        mappedResult['points'] = 0;
-      }
-      return mappedResult;
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return {};
-}
 
 class SeeAllTasks extends StatelessWidget {
-  const SeeAllTasks({super.key});
+  const SeeAllTasks({
+    super.key,
+    required this.userData,
+  });
 
+  final Map<String, dynamic> userData;
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
         body: Padding(
       padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
         children: [
           BackIconRow(),
-          SliderWidgetRepeat(),
+          SliderWidgetRepeat(
+            userData: userData,
+          ),
         ],
       ),
     ));
@@ -82,10 +28,16 @@ class SeeAllTasks extends StatelessWidget {
 }
 
 class SliderWidgetRepeat extends StatefulWidget {
-  const SliderWidgetRepeat({super.key});
+  const SliderWidgetRepeat({
+    super.key,
+    required this.userData,
+  });
+
+  final Map<String, dynamic> userData;
 
   @override
-  State<SliderWidgetRepeat> createState() => _SliderWidgetState();
+  State<SliderWidgetRepeat> createState() =>
+      _SliderWidgetState(userData: userData);
 }
 
 /*
@@ -96,6 +48,9 @@ date: 17.05.2024
 
 class _SliderWidgetState extends State<SliderWidgetRepeat> {
   bool _isPermanent = true;
+  final Map<String, dynamic> userData;
+
+  _SliderWidgetState({required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -180,8 +135,13 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: Column(
-              children:
-                  _isPermanent ? [const TaskWidget()] : [const RoutineWidget()],
+              children: _isPermanent
+                  ? [const TaskWidget()]
+                  : [
+                      RoutineWidget(
+                        userData: userData,
+                      )
+                    ],
             ),
           )
         ],
@@ -206,10 +166,13 @@ class TaskWidget extends StatelessWidget {
 }
 
 class RoutineWidget extends StatelessWidget {
-  const RoutineWidget({super.key});
+  const RoutineWidget({super.key, required this.userData});
 
+  final Map<String, dynamic> userData;
   @override
   Widget build(BuildContext context) {
-    return Routine();
+    return Routine(
+      userData: userData,
+    );
   }
 }
