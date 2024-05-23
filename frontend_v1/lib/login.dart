@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//change later
 int userId = -1;
 
 class LoginApp extends StatefulWidget {
@@ -72,7 +71,7 @@ class LoginWidgetState extends State<LoginWidget> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'username': _usernameController.text,
+          'email': _usernameController.text,
           'password': _passwordController.text,
         }),
       ).timeout(const Duration(seconds: 10));
@@ -80,7 +79,7 @@ class LoginWidgetState extends State<LoginWidget> {
       print('Error: $e');
       setState(() {
         isLoading = false;
-        timeOut = true;
+        timeOut = true; 
       });
     }
     setState(() {

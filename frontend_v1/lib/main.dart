@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_task_v1.dart';
+import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -45,62 +45,62 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
-// Future<List<Map<String, dynamic>>> getUserTasks() async {
-//   final client = await getGraphQLClient();
-//   final QueryOptions options = QueryOptions(
-//     document: gql('''
-//   query GetUserTasks() {
-//     tasks() {
-//       householdId
-//       forename
-//       surname
-//       username
-//       email
-//       points
-//       household {
-//         name
-//         ownerId
-//       }
-//     }
-//   }
-// '''),
-//   );
+Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUserTasks(\$id: Int!) {
+    user(id: \$id) {
+        tasks {
+            id,
+            userId,
+            name,
+            deadline,
+            points,
+            status
+        }
+    }
+}
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
 
-//     try {
-//     final result =
-//         await client.query(options).timeout(const Duration(seconds: 10));
-
-//     if (result.hasException) {
-//       print(result.exception.toString());
-//     } else if (result.isLoading) {
-//       print('Loading');
-//     } else {
-//       final user = result.data!['user'];
-//       final mappedResult = {
-//         'forename': user['forename'],
-//         'surname': user['surname'],
-//         'username': user['username'],
-//         'email': user['email'],
-//         'points': user['balance'],
-//         'householdName': user['household']['name'],
-//       };
-//       if (user['points'] == null) {
-//         mappedResult['points'] = 0;
-//       }
-//       return mappedResult;
-//     }
-//   } on SocketException catch (e) {
-//     print('Network error: $e');
-//     // Handle network error
-//   } on TimeoutException catch (e) {
-//     print('Request timed out: $e');
-//     // Handle timeout
-//   } catch (e) {
-//     print('Unexpected error: $e');
-//     // Handle other errors
-//   }
-//   return {};
-// }
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final tasks = result.data!['user']['tasks'];
+      final List<Map<String, dynamic>> mappedTasks = tasks.map<Map<String, dynamic>>((task) {
+        return {
+          'id': task['id'],
+          'userId': task['userId'],
+          'name': task['name'],
+          'deadline': task['deadline'],
+          'points': task['points'],
+          'status': task['status'],
+        };
+      }).toList();
+      print(mappedTasks);
+      return mappedTasks;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return [];
+}
 
 Future<Map<String, dynamic>> getUserData(int id) async {
   final client = await getGraphQLClient();
@@ -137,6 +137,7 @@ Future<Map<String, dynamic>> getUserData(int id) async {
     } else {
       final user = result.data!['user'];
       final mappedResult = {
+        'id': id,
         'forename': user['forename'],
         'surname': user['surname'],
         'username': user['username'],
@@ -179,6 +180,7 @@ class MainWidget extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
+            print('here is the userdata: ${snapshot.data}');
           return MainView(userData: snapshot.data ?? {});
         }
       },
@@ -197,25 +199,40 @@ class MainView extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconRow(userData: userData),
-              WelcomeText(userData: userData),
-              const ButtonRecommended(task: "do the dishes"),
-              const TaskOverview(),
-            ],
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: getUserTasks(userData['id']),
+              builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                print(snapshot);
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  final tasks = snapshot.data ?? [];
+                  print(tasks);
+                  return Column(
+                    children: [
+                      IconRow(userData: userData, tasks: tasks),
+                      WelcomeText(userData: userData, tasks: tasks),
+                      ButtonRecommended(tasks: tasks),
+                      TaskOverview(userData: userData, tasks: tasks),
+                      // Add your code here to display the tasks
+                    ],
+                  );
+                }
+              },
+            )
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.userData});
+  const IconRow({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -235,7 +252,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Get.to(() => ProfileView(userData: userData));
+                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -277,10 +294,11 @@ class IconRow extends StatelessWidget {
 }
 
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key, required this.userData});
+  const WelcomeText({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
-
+  final List<Map<String, dynamic>> tasks;
+  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -313,13 +331,14 @@ class WelcomeText extends StatelessWidget {
 }
 
 class ButtonRecommended extends StatelessWidget {
-  const ButtonRecommended({super.key, required this.task});
+  const ButtonRecommended({super.key, required this.tasks});
 
-  final String task;
+  final List<Map<String, dynamic>> tasks;
   final double height = 150;
 
   @override
   Widget build(BuildContext context) {
+  print(tasks);
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -344,7 +363,7 @@ class ButtonRecommended extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Text(
-                    task,
+                    tasks[0]['name'],
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -455,11 +474,8 @@ class ButtonShort extends StatelessWidget {
                   Text(
                     number,
                     style: Theme.of(context)
-                        
                         .textTheme
-                        
                         .bodyMedium
-                        
                         ?.copyWith(fontSize: 60),
                     maxLines: 2,
                   ),
@@ -485,7 +501,9 @@ class ButtonShort extends StatelessWidget {
 }
 
 class ButtonRow extends StatelessWidget {
-  const ButtonRow({super.key});
+  const ButtonRow({super.key, required this.tasks});
+
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -495,7 +513,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
-              number: "10",
+              number: tasks.length.toString(),
               textBelow: 'leftThisWeek_txt'.tr,
             ),
           ),
@@ -504,7 +522,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
             child: ButtonShort(
-              number: "2",
+              number: tasks.length.toString(),
               textBelow: 'doneThisWeek_txt'.tr,
             ),
           ),
@@ -514,15 +532,23 @@ class ButtonRow extends StatelessWidget {
   }
 }
 
+
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData, required this.tasks});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
-  State<TaskOverview> createState() => _TaskState();
+  State<TaskOverview> createState() => _TaskState(userData: userData, tasks: tasks);
 }
 
 class _TaskState extends State<TaskOverview> {
+  _TaskState({required this.userData, required this.tasks});
   final double size = 15;
+
+  final List<Map<String, dynamic>> tasks;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -540,19 +566,22 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                 onPressed: () {
-                  Get.to(()  => NewTask(userData: {}));
+                  Get.to(() => NewTask(userData: userData));
                 },
                 child: Icon(CupertinoIcons.add,
-                     
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
               ),
             ],
           ),
         ),
         const SizedBox(height: 10),
-        const ButtonRow(),
-        const Task(taskName: "do the dishes", taskStatus: 2),
-        const Task(taskName: "mop the floor", taskStatus: 1),
+        ButtonRow(tasks: tasks),
+        tasks.isNotEmpty ? Column(
+          children: tasks.map((task) {
+            return Task(taskName: task['name'], taskStatus: 2);
+          }).toList(),
+        )
+        : Text("No Tasks found."),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -560,8 +589,7 @@ class _TaskState extends State<TaskOverview> {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
                 },
                 child: Row(
                   children: [

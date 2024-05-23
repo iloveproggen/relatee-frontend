@@ -15,9 +15,10 @@ String getDueDaysInText(int days) {
 }
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.userData});
+  const ProfileView({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +166,7 @@ class ProfileView extends StatelessWidget {
               //     height: 100,
               //     thickness: 2),
               SizedBox(height: 80),
-              TaskOverview(userData: userData),
+              TaskOverview(userData: userData, tasks: tasks),
             ],
           ),
         ),
@@ -247,9 +248,10 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key, required this.userData});
+  const TaskOverview({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -274,7 +276,7 @@ class TaskOverview extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
                 },
                 child: Row(
                   children: [
