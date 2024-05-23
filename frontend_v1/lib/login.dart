@@ -1,35 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/locale_strings.dart';
+import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
-import 'package:postgres/postgres.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/*
-Future<bool> authUser(String username, String password) async {
-  final connection = PostgreSQLConnection(
-    'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-    5432,
-    'relateeDB',
-    username: 'relateeDB_owner',
-    password: 'bCTNHdw8mJL3',
-    useSSL: true,
-  );
-  await connection.open();
-  List<List<dynamic>> results = await connection.query(
-      'SELECT id, username, password, email FROM users WHERE username = @username AND password = @password;',
-      substitutionValues: {'username': username, 'password': password});
-  await connection.close();
-
-  print(results);
-  print(results.isNotEmpty);
-  print('SELECT id, username, password, email FROM users WHERE username = $username AND password = $password;',);
-
-  return results.isNotEmpty;
-}*/
+//change later
+int userId = -1;
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
@@ -50,27 +31,6 @@ class _LoginAppState extends State<LoginApp> {
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        // theme: ThemeData(
-        //     fontFamily: 'Karla',
-        //     textTheme: const TextTheme(
-        //       bodyLarge: TextStyle(
-        //           letterSpacing: -1,
-        //           fontSize: 35,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontWeight: FontWeight.w800,
-        //           fontFamily: "Karla"),
-        //       bodySmall: TextStyle(
-        //           fontSize: 20,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontFamily: "Karla",
-        //           letterSpacing: 0),
-        //       bodyMedium: TextStyle(
-        //           fontSize: 20,
-        //           color: Color.fromARGB(255, 74, 70, 70),
-        //           fontFamily: "Sedan",
-        //           letterSpacing: 0),
-        //     ),
-        //     scaffoldBackgroundColor: const Color.fromARGB(255, 243, 243, 243)),
         home: const LoginWidget());
   }
 }
@@ -90,33 +50,69 @@ class LoginWidgetState extends State<LoginWidget> {
 
   bool requiredFields = false;
 
+  bool isLoading = false;
+
+  void _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
   void _login() async {
-    setState(() {});
-    final connection = PostgreSQLConnection(
-      'ep-bold-snow-a2unxsbb.eu-central-1.aws.neon.tech',
-      5432,
-      'relateeDB',
-      username: 'relateeDB_owner',
-      password: 'bCTNHdw8mJL3',
-      useSSL: true,
-    );
-    await connection.open();
-    List<List<dynamic>> results = await connection.query(
-        'SELECT users.id, users.forename, users.surname, users.username, users.email, users.balance, households.name FROM users JOIN households ON users."householdId" = households.id WHERE users.username = @username AND users.password = @password;',
-        substitutionValues: {
+    setState(() {
+      wrongPassword = false;
+      timeOut = false;
+      otherError = false;
+      isLoading = false;
+    });
+    http.Response response = http.Response('Error', 500);
+    try {
+      response = await http.post(
+        Uri.parse('http://85.215.50.29:3000/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
           'username': _usernameController.text,
-          'password': _passwordController.text
-        });
-    await connection.close();
-    if (results.isNotEmpty) {
-      Get.to(() => MainWidget(user: _usernameController.text));
-    } else {
+          'password': _passwordController.text,
+        }),
+      ).timeout(const Duration(seconds: 10));
+    } catch (e) {
+      print('Error: $e');
       setState(() {
-        wrongPassword = true;
+        isLoading = false;
         timeOut = true;
       });
     }
-    setState(() {});
+    setState(() {
+      isLoading = true;
+    });
+    print("Loading...");
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON.
+        String token = jsonDecode(response.body)['token'];
+        _saveToken(token);
+        int userId = jsonDecode(response.body)['userId'];
+        Get.to(() => MainWidget(userId: userId));
+        print("Opened MainWidget");
+        setState() {
+          isLoading = false;
+        }
+    } else {
+      // If the server returns an error response, throw an exception.
+      print('Failed to load');
+      if (response.statusCode == 401) {
+        setState(() {
+          wrongPassword = true;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          timeOut = true;
+          isLoading = false;
+        });
+      }
+    }
   }
 
   void _updateRequired() {
@@ -140,6 +136,7 @@ class LoginWidgetState extends State<LoginWidget> {
 
   bool wrongPassword = false;
   bool timeOut = false;
+  bool otherError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -275,18 +272,10 @@ class LoginWidgetState extends State<LoginWidget> {
                           String username = _usernameController.text;
                           String password = _passwordController.text;
                           _login();
+                          setState(() {
+                            isLoading = true;
+                          });
                           print("Username: $username, Password: $password");
-
-                          // if (await authUser(username, password)) {
-                          //   Navigator.of(context).push(ProfileView.route());
-                          //   print("User authenticated");
-                          // } else {
-                          //   //Navigator.of(context).push(ProfileView.route());
-                          //   print("User not authenticated");
-                          //   setState(() {
-                          //     wrongPassword = true;
-                          //   });
-                          // }
                         }
                       : null,
                   child: Center(
@@ -312,6 +301,15 @@ class LoginWidgetState extends State<LoginWidget> {
                 ),
               ),
             ),
+            if (isLoading)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: CupertinoActivityIndicator(
+                      radius: 20,
+                      color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ),
             if (wrongPassword)
               const Center(
                 child: Padding(
@@ -321,6 +319,7 @@ class LoginWidgetState extends State<LoginWidget> {
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",
+                      fontSize: 23,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -335,6 +334,22 @@ class LoginWidgetState extends State<LoginWidget> {
                     style: TextStyle(
                       color: Colors.red,
                       fontFamily: "Karla",
+                      fontSize: 23,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            if (otherError) // change this to show error on timeout
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    "code kaputt, bitte fixen :( \n user id = -1",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontFamily: "Karla",
+                      fontSize: 23,
                     ),
                     textAlign: TextAlign.center,
                   ),

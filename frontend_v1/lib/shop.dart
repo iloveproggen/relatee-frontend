@@ -76,17 +76,22 @@ class _ShopIconState extends State<ShopIcon>
 class ShopView extends StatefulWidget {
   const ShopView({super.key, this.itemToAdd, required this.userData});
 
-  final ItemCard? itemToAdd;
-  final Future<List<Map<String, dynamic>>> userData;
-
+  final ItemCard? itemToAdd; 
+  final Map<String, dynamic> userData;
+  
   @override
-  State<ShopView> createState() => ShopViewState();
+  State<ShopView> createState() => ShopViewState(userData: userData);
 }
 
 class ShopViewState extends State<ShopView> {
+  ShopViewState({required this.userData});
   final List<Widget> itemCards = [
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
   ];
+
+  final Map<String, dynamic> userData;
+
+
 
   @override
   void initState() {
@@ -103,7 +108,6 @@ class ShopViewState extends State<ShopView> {
 
   // Getter for the itemCards list
   List<Widget> get getItemCards => itemCards;
-  Future<List<Map<String, dynamic>>> get userData => widget.userData;
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
@@ -137,7 +141,8 @@ class ShopViewState extends State<ShopView> {
                     style: Theme.of(context).textTheme.bodyLarge),
                 TextButton(
                     onPressed: () {
-                      Get.to(() => NewShopItem(userData: userData));
+                    Get.to(() => NewShopItem());
+                      
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -161,7 +166,7 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge('1150 pts'),
+                buildBadge('${userData['points']} pts'),
                 const SizedBox(width: 20),
                 buildBadge('lvl 25'),
               ],

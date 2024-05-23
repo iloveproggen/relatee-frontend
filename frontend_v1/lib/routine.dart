@@ -2,22 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_shop_item.dart';
+import 'package:frontend_v1/Create_New_ShopItem.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
 // ignore: must_be_immutable
-class routine extends StatefulWidget {
-  const routine({
-    super.key,
-    required Future<List<Map<String, dynamic>>> userData,
-  });
+class ShopIcon extends StatefulWidget {
+  const ShopIcon({super.key,});
 
   @override
-  State<routine> createState() => _routineState();
+  State<ShopIcon> createState() => _ShopIconState();
 }
 
-class _routineState extends State<routine> with SingleTickerProviderStateMixin {
+class _ShopIconState extends State<ShopIcon>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
 
@@ -73,16 +71,14 @@ class _routineState extends State<routine> with SingleTickerProviderStateMixin {
 }
 
 class ShopView extends StatefulWidget {
-  //muss so geändert werden dass die Routine implemntiert werden
   const ShopView({super.key, this.itemToAdd, required this.userData});
 
-  final ItemCard? itemToAdd; //die methode ist wivhtig (routine erstellen)
+  final ItemCard? itemToAdd; 
   final Future<List<Map<String, dynamic>>> userData;
-
+  
   @override
   State<ShopView> createState() => ShopViewState();
 }
-
 class ShopViewState extends State<ShopView> {
   final List<Widget> itemCards = [
     const ItemCard(taskName: "Task 1", taskPrice: "9999")
@@ -98,7 +94,7 @@ class ShopViewState extends State<ShopView> {
   }
 
   void addItem(ItemCard item) {
-    itemCards.add(item);
+      itemCards.add(item);
   }
 
   // Getter for the itemCards list
@@ -108,8 +104,6 @@ class ShopViewState extends State<ShopView> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
   final Color colText = const Color(0xFF4A4646);
-
-//sind die Sachen noch nötig? -> new function for themes
 
   @override
   Widget build(BuildContext context) {
@@ -124,11 +118,14 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Shop_title'.tr, //translations file anpassen
-                    style: Theme.of(context).textTheme.bodyLarge),
+                Text(
+                  'Shop_title'.tr,
+                  style: Theme.of(context).textTheme.bodyLarge
+                ),
                 TextButton(
                     onPressed: () {
-                      Get.to(() => NewShopItem(userData: userData));
+                    Get.to(() => NewShopItem());
+                      
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -146,9 +143,18 @@ class ShopViewState extends State<ShopView> {
                 itemBuilder: (context, index) {
                   return itemCards[index];
                 },
+                ),
               ),
-            ),
             const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildBadge('1150 pts'),
+                const SizedBox(width: 20),
+                buildBadge('lvl 25'),
+              ],
+            ),
+            const SizedBox(height: 50)
           ],
         ),
       ),
@@ -156,7 +162,6 @@ class ShopViewState extends State<ShopView> {
   }
 
   Widget buildBadge(String text) {
-    //was macht das?/ nötig?
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
       decoration: BoxDecoration(
@@ -172,11 +177,8 @@ class ShopViewState extends State<ShopView> {
 }
 
 class ItemCard extends StatelessWidget {
-  //muss angepasst werdeb -> Routine
   const ItemCard({
-    super.key,
-    required this.taskName,
-    required this.taskPrice,
+    super.key, required this.taskName, required this.taskPrice,
   });
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
@@ -215,11 +217,10 @@ class ItemCard extends StatelessWidget {
               children: [
                 Container(
                   constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(taskName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    taskName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
+                  ),
                 ),
                 Text(
                   "$taskPrice pts",
@@ -243,7 +244,6 @@ class ItemCard extends StatelessWidget {
                   padding:
                       EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                   child: Align(
-                    //das kann eigebtlich weg, etws kaufen tut man hier ja nicht
                     alignment: Alignment.center,
                     child: Text(
                       "BUY",
