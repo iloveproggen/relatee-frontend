@@ -161,48 +161,42 @@ class _NewShopItemState extends State<NewShopItem> {
               ),
               Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 25,
                           color: Color.fromARGB(255, 204, 198, 196),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: 20),
                         Expanded(
-                          child: TextField(
-                              controller: description,
+                          child: Text(
+                            'Description',
                               textAlign: TextAlign.left,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 25, fontFamily: "Karla"),
-                              decoration: const InputDecoration(
-                                hintText: 'add description...',
-                                hintStyle: TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontSize: 20,
-                                ),
-                                border: InputBorder.none,
                               )
                               ),
-                        ),
+                      
                       ],
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
                     child: TextField(
                       maxLines: 3,
+                      controller: description,
                       textAlign: TextAlign.center,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           hintText: 'None Yet',
                           hintStyle: TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20),
                           border: InputBorder.none),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color.fromARGB(255, 74, 70, 70),
                         fontWeight: FontWeight.bold,
                         fontSize: 25,
@@ -242,8 +236,8 @@ class _NewShopItemState extends State<NewShopItem> {
                           print(taskName.text);
                           print(taskPrice.text);
                           print(description.text);
-
                           createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
+                          Get.back();
                           Get.back();
                         
                       },

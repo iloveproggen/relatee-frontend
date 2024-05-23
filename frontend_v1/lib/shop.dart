@@ -64,6 +64,34 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
   return [];
 }
 
+Future<void> deleteReward(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation DeleteReward(\$id: Int!) {
+        deleteReward(id: \$id) {
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    await client.mutate(options).timeout(const Duration(seconds: 10));
+
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+}
+
 bool isBuyable(int price, int points) {
   return points >= price;
 }
@@ -122,7 +150,7 @@ class _ShopIconState extends State<ShopIcon>
       },
       child: SvgPicture.asset(
         "assets/images/relatee.svg",
-        height: 40,
+        height: 35,
         colorFilter: ColorFilter.mode(
           _colorAnimation.value ??
               Colors
@@ -167,12 +195,10 @@ class ShopViewState extends State<ShopView> {
               children: [
                 Row(
                   children: [
-                    ShopIcon(),
-                    SizedBox(width: 10),
-                    Text('Shop_title'.tr, style: Theme.of(context).textTheme.bodyLarge),
+                    Text('Shop_title'.tr,
+                        style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
-                
                 TextButton(
                     onPressed: () {
                       Get.to(() => NewShopItem(userData: userData));
@@ -198,7 +224,7 @@ class ShopViewState extends State<ShopView> {
                       if (rewards.isEmpty) {
                         return Column(
                           children: [
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Text('No rewards available. Create new ones!',
                                 style: Theme.of(context).textTheme.bodySmall),
                           ],
@@ -212,10 +238,50 @@ class ShopViewState extends State<ShopView> {
                             return Dismissible(
                               key: Key(reward.toString()),
                               onDismissed: (direction) {
-
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CupertinoAlertDialog(
+                                      title: const Text('Confirm Delete'),
+                                      content: Text(
+                                          'Are you sure you want to delete the reward \"${reward['name']}\"?'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Get.back();
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            setState(() {});
+                                          },
+                                          child: const Text('No',
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                        ),
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            deleteReward(reward['id']);
+                                            setState(() {});
+                                          },
+                                          child: const Text('Yes',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                               },
-                                background: Container(color: Colors.red),
+                              background: Container(
+                                margin: const EdgeInsets.only(
+                                    right: 50, bottom: 22),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(CupertinoIcons.delete,
+                                    color: Colors.red, size: 30),
+                              ),
                               child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                 title: ItemCard(
                                   taskName: reward['name'],
                                   taskPrice: reward['price'].toString(),
@@ -263,6 +329,29 @@ class ShopViewState extends State<ShopView> {
   }
 }
 
+void showNotEnoughPointsDialog(
+    BuildContext context, int taskPrice, Map<String, dynamic> userData) {
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // Automatically dismiss the dialog after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.of(context).pop(true); // Dismiss the dialog
+      });
+
+      return CupertinoAlertDialog(
+        title: const Text(
+          'Not enough Points to buy!',
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          "You need ${taskPrice - userData['points']} more points to buy this item.",
+        ),
+      );
+    },
+  );
+}
+
 // ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
   ItemCard({
@@ -299,7 +388,6 @@ class ItemCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.secondary,
                 offset: const Offset(5.0, 5.0),
                 blurRadius: 10.0,
-                spreadRadius: 2.0,
               ),
             ],
           ),
@@ -307,96 +395,91 @@ class ItemCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 20),
+                padding: const EdgeInsets.only(left: 10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      constraints: const BoxConstraints(maxWidth: 130),
+                      constraints: const BoxConstraints(maxWidth: 140),
                       child: Text(taskName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
                               ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
+                    description == "" || description == null
+                        ? Container()
+                        : Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          child: Text(
+                            "\'$description\'",
+                            maxLines: 5,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 204, 198, 196),
+                              fontSize: 20,
+                              fontFamily: "Karla",
+                              fontStyle: FontStyle.italic,
+                              height: 1),
+                            textAlign: TextAlign.start,
+                          ),
+                          ),
                     Text(
                       "$taskPrice pts",
-                      maxLines: 1,
+                      
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                       style: const TextStyle(
                           color: Color.fromARGB(255, 204, 198, 196),
                           fontSize: 20,
                           fontFamily: "Karla"),
                       textAlign: TextAlign.center,
                     ),
-                    description == "" || description == null
-                        ? Container()
-                        : Container(
-                            constraints: const BoxConstraints(maxWidth: 130),
-                            child: Text(
-                              description!,
-                              maxLines: 5,
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20,
-                                fontFamily: "Karla",
-                                fontStyle: FontStyle.italic,
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
                   ],
                 ),
               ),
-              Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: TextButton(
-                    onPressed: () {
-                      showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                        title: Text('Not enough Points to buy!', style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center,),
-                        );
-                      },
-                      );
-                    },
-                    child: Container(
-                        constraints: const BoxConstraints(minWidth: 0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 5,
-                            strokeAlign: BorderSide.strokeAlignInside,
-                            color: buyable
-                                ? colMid
-                                : colMid.withOpacity(0.5),
-                          ),
-                            borderRadius: const BorderRadius.all(Radius.circular(15)),
-                            color: buyable
-                                ? colMid
-                                : colLight),
-                        child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, bottom: 10, left: 15, right: 15),
-                            child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "BUY",
-                                  style: TextStyle(
-                                    fontFamily: "Karla",
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
-                                    color: buyable
-                                        ? Theme.of(context).colorScheme.background
-                                        : Theme.of(context).colorScheme.secondary,
-                                  ),
-                                )))),
-                  ))
+              TextButton(
+                onPressed: () {
+                    buyable
+                      ? null
+                      : showNotEnoughPointsDialog(context, int.parse(taskPrice), userData['points']);
+                },
+                child: Container(
+                    constraints: const BoxConstraints(minWidth: 0),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 5,
+                          strokeAlign: BorderSide.strokeAlignInside,
+                          color: buyable ? colMid : colMid.withOpacity(0.5),
+                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15)),
+                        color: buyable ? colMid : colLight),
+                    child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 15, right: 15),
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "BUY",
+                              style: TextStyle(
+                                fontFamily: "Karla",
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: buyable
+                                    ? Theme.of(context).colorScheme.background
+                                    : Theme.of(context).colorScheme.secondary,
+                              ),
+                            )))),
+              )
             ],
           ),
         ),
-        SizedBox(height: 30,),
+        const SizedBox(height: 30),
       ],
     );
   }

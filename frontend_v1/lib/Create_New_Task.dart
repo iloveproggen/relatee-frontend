@@ -1,10 +1,55 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-void createTask(params) {
-  
+void createNewTask(int routineId, String name, String deadline, String description, int points,
+    Map<String, dynamic> userData) async {
+final Map<String, dynamic> variables = {
+    'userId': userData['userId'],
+    'householdId': userData['householdId'],
+    'routineId': routineId,
+    'name': name,
+    'deadline': deadline,
+    'description': description,
+    'points': points,
+    'status': 0
+};
+
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $points: Int!, $status: Int!) {
+  createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, points: $points, status: $status) {
+    userId
+    householdId
+    routineId
+    name
+    deadline
+    description
+    points
+    status
+  }
+}
+'''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+      print("pushed the new item to the db: $variables");
+    }
+  } catch (e) {
+    print(e);
+  }
 }
 
 class NewTask extends StatelessWidget {

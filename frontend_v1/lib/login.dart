@@ -31,7 +31,8 @@ class _LoginAppState extends State<LoginApp> {
         fallbackLocale: const Locale('en-US'),
         debugShowCheckedModeBanner: false,
         title: 'Relatee',
-        home: const LoginWidget());
+        home: const LoginWidget(),
+        );
   }
 }
 

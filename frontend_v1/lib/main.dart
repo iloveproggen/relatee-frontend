@@ -88,7 +88,7 @@ Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
           'deadline': task['deadline'],
           'points': task['points'],
           'status': task['status'],
-          'householdId': task['household']['id'], 
+          'householdId': task['household']['id'],
         };
       }).toList();
       print(mappedTasks);
@@ -191,6 +191,34 @@ class MainWidget extends StatelessWidget {
         }
       },
     );
+  }
+}
+
+Future<void> deleteTask(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation DeleteTask(\$id: Int!) {
+        deleteTask(id: \$id) {
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    await client.mutate(options).timeout(const Duration(seconds: 10));
+
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
   }
 }
 
@@ -443,8 +471,7 @@ class ButtonCompleted extends StatelessWidget {
   }
 }
 
-int countToDo(List<Map<String, dynamic>> tasks)
-{
+int countToDo(List<Map<String, dynamic>> tasks) {
   int count = 0;
   for (var task in tasks) {
     if (task['status'] == 0) {
@@ -591,13 +618,49 @@ class _TaskState extends State<TaskOverview> {
         ),
         const SizedBox(height: 10),
         ButtonRow(tasks: tasks),
-        tasks.isNotEmpty
-            ? Column(
+        tasks.isEmpty
+            ? const Text("No Tasks found.")
+            : Column(
                 children: tasks.take(2).map((task) {
-                  return Task(task: task);
+                  return Dismissible(
+                    key: ValueKey(task['id']),
+                    child: Task(task: task),
+                    onDismissed: (direction) {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) => CupertinoAlertDialog(
+                          title: const Text('Delete Task'),
+                          content: const Text('Are you sure you want to delete this task?'),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                deleteTask(task['id']);
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                              isDestructiveAction: true,
+                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    background: Container(
+                      margin: const EdgeInsets.only(right: 30, bottom: 22),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(CupertinoIcons.delete,
+                          color: Colors.red, size: 30),
+                    ),
+                  );
                 }).toList(),
-              )
-            : Text("No Tasks found."),
+              ),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -625,7 +688,7 @@ class _TaskState extends State<TaskOverview> {
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: {}));
+                  Get.to(() => const MainHouseholdOverview(userData: {}));
                 },
                 child: Row(
                   children: [
