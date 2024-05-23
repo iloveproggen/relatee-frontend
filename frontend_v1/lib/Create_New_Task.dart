@@ -358,10 +358,11 @@ class _NewTaskState extends State<NewTask> {
                         //createTask(taskName.text, description.text, int.parse(taskPrice.text), userData);
                         //Get.back();
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MainWidget(userId: widget.userData['id'])),
-                        ).then((value) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainWidget(userId: widget.userData['id'])),
+                            (route) => false,
+                          ).then((value) {
                           setState(() {
                             // Perform any state updates here
                           });
