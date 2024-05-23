@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'package:frontend_v1/routine.dart';
 
 class SeeAllTasks extends StatelessWidget {
   const SeeAllTasks({super.key});
@@ -149,6 +150,6 @@ class RoutineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Routines_txt'.tr);
+    return Routine();
   }
 }

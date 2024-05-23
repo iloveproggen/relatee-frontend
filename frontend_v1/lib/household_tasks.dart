@@ -56,7 +56,7 @@ class HouseholdOverview extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Text('${'Household_txt'.tr}Tasks',
+                child: Text('${'Household_txt'.tr}',
                     style: Theme.of(context).textTheme.bodyLarge,
                     overflow: TextOverflow.ellipsis),
               ),

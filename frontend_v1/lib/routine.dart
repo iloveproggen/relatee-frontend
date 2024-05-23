@@ -1,199 +1,47 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_shop_item.dart';
-import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
-// ignore: must_be_immutable
-class ShopIcon extends StatefulWidget {
-  const ShopIcon({
-    super.key,
-  });
-
-  @override
-  State<ShopIcon> createState() => _ShopIconState();
-}
-
-class _ShopIconState extends State<ShopIcon>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration:
-          const Duration(milliseconds: 300), // Adjust the duration as needed
-    );
-    _colorAnimation = ColorTween(
-      begin: const Color.fromARGB(255, 204, 198, 196), // Initial color
-      end: const Color.fromARGB(255, 112, 80, 228), // Target color
-    ).animate(_controller);
-    _controller.addListener(() {
-      setState(() {}); // Trigger rebuild when animation value changes
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggleColor() {
-    if (_controller.status == AnimationStatus.completed) {
-      _controller.reverse(); // If animation is completed, reverse it
-    } else {
-      _controller.forward(); // Otherwise, start the animation
-    }
-  }
+class Routine extends StatelessWidget {
+  const Routine({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _toggleColor(); // Toggle the color animation
-      },
-      child: SvgPicture.asset(
-        "assets/images/relatee.svg",
-        height: 40,
-        colorFilter: ColorFilter.mode(
-          _colorAnimation.value ??
-              Colors
-                  .transparent, // Provide a default color if _colorAnimation.value is null
-          BlendMode.srcIn,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Routines_txt'.tr,
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.left,
         ),
-      ),
-    );
-  }
-}
-
-class ShopView extends StatefulWidget {
-  const ShopView({super.key, this.itemToAdd, required this.userData});
-
-  final ItemCard? itemToAdd;
-  final Future<List<Map<String, dynamic>>> userData;
-
-  @override
-  State<ShopView> createState() => ShopViewState();
-}
-
-class ShopViewState extends State<ShopView> {
-  final List<Widget> itemCards = [
-    const ItemCard(taskName: "Task 1", taskPrice: "9999")
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // Add item if passed through route arguments
-    if (widget.itemToAdd != null) {
-      addItem(widget.itemToAdd!);
-    }
-  }
-
-  void addItem(ItemCard item) {
-    itemCards.add(item);
-  }
-
-  // Getter for the itemCards list
-  List<Widget> get getItemCards => itemCards;
-  Future<List<Map<String, dynamic>>> get userData => widget.userData;
-
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color colText = const Color(0xFF4A4646);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const BackIconRow(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Shop_title'.tr,
-                    style: Theme.of(context).textTheme.bodyLarge),
-                TextButton(
-                    onPressed: () {
-                      Get.to(() => NewShopItem());
-                    },
-                    child: const Icon(CupertinoIcons.add,
-                        color: Color.fromARGB(255, 204, 198, 196), size: 35))
-              ],
-            ),
-            Text(
-              ('Shop_info'.tr),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: itemCards.length,
-                itemBuilder: (context, index) {
-                  return itemCards[index];
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildBadge('1150 pts'),
-                const SizedBox(width: 20),
-                buildBadge('lvl 25'),
-              ],
-            ),
-            const SizedBox(height: 50)
-          ],
+        Routinenitems(
+          routineName: 'SuperTest idk',
+          routineDescription: 'ist toll weiol darum bitte nicht sclagen',
         ),
-      ),
-    );
-  }
-
-  Widget buildBadge(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(106, 205, 205, 205),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 25),
-      ),
+      ],
     );
   }
 }
 
-class ItemCard extends StatelessWidget {
-  const ItemCard({
+class Routinenitems extends StatelessWidget {
+  const Routinenitems({
     super.key,
-    required this.taskName,
-    required this.taskPrice,
+    required this.routineName,
+    required this.routineDescription,
   });
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
   final Color colText = const Color(0xFF4A4646);
 
-  final String taskName;
-  final String taskPrice;
+  final String routineName;
+  final String routineDescription;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -219,19 +67,22 @@ class ItemCard extends StatelessWidget {
               children: [
                 Container(
                   constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(taskName,
+                  child: Text(routineName,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold)),
                 ),
-                Text(
-                  "$taskPrice pts",
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196),
-                      fontSize: 20,
-                      fontFamily: "Karla"),
-                  textAlign: TextAlign.center,
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 150),
+                  child: Text(
+                    routineDescription,
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 204, 198, 196),
+                        fontSize: 20,
+                        fontFamily: "Karla"),
+                    textAlign: TextAlign.left,
+                  ),
                 ),
               ],
             ),
@@ -249,7 +100,7 @@ class ItemCard extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.center,
                     child: Text(
-                      "BUY",
+                      "Info",
                       style: TextStyle(
                           fontFamily: "Karla",
                           fontSize: 30,
