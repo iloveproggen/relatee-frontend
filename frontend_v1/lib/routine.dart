@@ -1,11 +1,87 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'task_item_view.dart';
+
+//fetched alle Daten aus der Datenbank -> tasks + Routinen
+Future<Map<String, dynamic>> getRoutineData(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUser(\$id: Int!) {
+    user(id: \$id) {
+      household {
+        routine {
+          id
+          name
+          description
+          interval
+          tasks {
+            id
+            name
+            description
+            points
+          }
+        }
+      }
+    }
+  }
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final user = result.data!['user'];
+      final mappedResult = {
+        'householdRoutine': user['household']['routine'].map((routine) {
+          return {
+            'id': routine['id'],
+            'name': routine['name'],
+            'description': routine['description'],
+            'interval': routine['interval'],
+            'tasks': routine['tasks'].map((task) {
+              return {
+                'id': task['id'],
+                'name': task['name'],
+                'description': task['description'],
+                'points': task['points'],
+              };
+            }).toList(),
+          };
+        }).toList(),
+      };
+      return mappedResult;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return {};
+}
 
 class Routine extends StatelessWidget {
   const Routine({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
