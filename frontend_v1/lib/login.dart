@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
@@ -179,7 +180,7 @@ class LoginWidgetState extends State<LoginWidget> {
                       width: 5,
                     ),
                   ),
-                  hintText: 'Username_or_Email_txt'.tr,
+                  hintText: 'Email_txt'.tr,
                   contentPadding: const EdgeInsets.all(20),
                   hintStyle: const TextStyle(
                     color: Color.fromARGB(255, 204, 198, 196),
@@ -240,6 +241,7 @@ class LoginWidgetState extends State<LoginWidget> {
                 fontSize: 20,
               ),
             ),
+            SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Container(
@@ -257,12 +259,6 @@ class LoginWidgetState extends State<LoginWidget> {
                             )
                           ])
                     : BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                            strokeAlign: BorderSide.strokeAlignInside,
-                            width: 5,
-                            color: Theme.of(context).colorScheme.tertiary),
                         color: Theme.of(context).colorScheme.primary,
                       ),
                 child: TextButton(
@@ -294,6 +290,43 @@ class LoginWidgetState extends State<LoginWidget> {
                                 fontFamily: "Karla",
                                 fontSize: 20,
                               ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
+                        color: const Color.fromARGB(255, 243, 243, 243),
+                        boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.secondary,
+                              offset: const Offset(5.0, 5.0),
+                              blurRadius: 10.0,
+                              spreadRadius: 2.0,
+                            )
+                          ]),
+                child: TextButton(
+                  onPressed: () {
+                    Get.to(() => const SignUp());
+                  },
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: 10, bottom: 10, left: 15, right: 15),
+                      child: Text(
+                        'Sign Up!',
+                        style: TextStyle(
+                                color: Color.fromARGB(255, 74, 70, 70),
+                                fontFamily: "Karla",
+                                fontSize: 20,
+                              )
                       ),
                     ),
                   ),

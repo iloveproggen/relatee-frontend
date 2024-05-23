@@ -1,20 +1,68 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+
+void createShopItem(String name, String description, int price,
+    Map<String, dynamic> userData) async {
+  final Map<String, dynamic> variables = {
+    'householdId': userData['householdId'],
+    'name': name,
+    'description': description,
+    'price': price
+  };
+
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''
+  mutation CreateReward($householdId: Int!, $name: String!, $description: String, $price: Int!) {
+    createReward(householdId: $householdId, name: $name, description: $description, price: $price) {
+      id
+      name
+      description
+      price
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+      print("pushed the new item to the db: $variables");
+    }
+  } catch (e) {
+    print(e);
+  }
+}
 
 class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key});
+  const NewShopItem({super.key, required this.userData});
 
+  final Map<String, dynamic> userData;
 
   @override
-  State<NewShopItem> createState() => _NewShopItemState();
+  State<NewShopItem> createState() => _NewShopItemState(userData: userData);
 }
 
 class _NewShopItemState extends State<NewShopItem> {
+  _NewShopItemState({required this.userData});
+
+  final Map<String, dynamic> userData;
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
+  TextEditingController description = TextEditingController();
 
   bool required = false;
 
@@ -34,6 +82,7 @@ class _NewShopItemState extends State<NewShopItem> {
     // Add listener to text controllers to update required variable
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
+    description.addListener(_updateRequired);
   }
 
   @override
@@ -110,7 +159,59 @@ class _NewShopItemState extends State<NewShopItem> {
                   ],
                 ),
               ),
-              const AddDescription(),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.text_aligncenter,
+                          size: 25,
+                          color: Color.fromARGB(255, 204, 198, 196),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: TextField(
+                              controller: description,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                  fontSize: 25, fontFamily: "Karla"),
+                              decoration: const InputDecoration(
+                                hintText: 'add description...',
+                                hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontSize: 20,
+                                ),
+                                border: InputBorder.none,
+                              )
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: TextField(
+                      maxLines: 3,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                          hintText: 'None Yet',
+                          hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 204, 198, 196),
+                              fontSize: 20),
+                          border: InputBorder.none),
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 74, 70, 70),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  )
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 80),
                 child: Container(
@@ -138,12 +239,13 @@ class _NewShopItemState extends State<NewShopItem> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                        if (required == false) {
+                          print(taskName.text);
+                          print(taskPrice.text);
+                          print(description.text);
+
+                          createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
                           Get.back();
-                        } else {
-                          //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
-                          Get.back();
-                        }
+                        
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -195,7 +297,7 @@ class _SliderWidgetState extends State<SliderWidget> {
         padding: const EdgeInsets.only(top: 40),
         child: Container(
           width: 386,
-          height: 46,
+          height: 50,
           decoration: BoxDecoration(
             color: const Color(0x7FD9D9D9),
             borderRadius: BorderRadius.circular(7),
@@ -208,7 +310,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child: Container(
-                  width: 193,
+                  width: 386/2,
                   height: 46,
                   decoration: BoxDecoration(
                     color: const Color(0xFFD9D9D9),
@@ -258,55 +360,6 @@ class _SliderWidgetState extends State<SliderWidget> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class AddDescription extends StatelessWidget {
-  const AddDescription({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(
-                CupertinoIcons.text_aligncenter,
-                size: 25,
-                color: Color.fromARGB(255, 204, 198, 196),
-              ),
-              SizedBox(width: 20),
-              Text(
-                'description',
-                textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 25, fontFamily: "Karla"),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: TextField(
-            maxLines: 3,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-                hintText: 'None Yet',
-                hintStyle: TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
-                border: InputBorder.none),
-            style: TextStyle(
-              color: Color.fromARGB(255, 74, 70, 70),
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              letterSpacing: 0,
-            ),
-          ),
-        )
-      ],
     );
   }
 }

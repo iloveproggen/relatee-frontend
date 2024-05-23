@@ -58,6 +58,9 @@ Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
             deadline,
             points,
             status
+            household {
+                id
+            }
         }
     }
 }
@@ -85,6 +88,7 @@ Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
           'deadline': task['deadline'],
           'points': task['points'],
           'status': task['status'],
+          'householdId': task['household']['id'], 
         };
       }).toList();
       print(mappedTasks);
@@ -145,8 +149,9 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'email': user['email'],
         'points': user['balance'],
         'householdName': user['household']['name'],
+        'householdId': user['householdId'],
       };
-      if (user['points'] == null) {
+      if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
       return mappedResult;
@@ -204,14 +209,12 @@ class MainView extends StatelessWidget {
               future: getUserTasks(userData['id']),
               builder: (BuildContext context,
                   AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                print(snapshot);
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else {
                   final tasks = snapshot.data ?? [];
-                  print(tasks);
                   return Column(
                     children: [
                       IconRow(userData: userData, tasks: tasks),
@@ -440,6 +443,17 @@ class ButtonCompleted extends StatelessWidget {
   }
 }
 
+int countToDo(List<Map<String, dynamic>> tasks)
+{
+  int count = 0;
+  for (var task in tasks) {
+    if (task['status'] == 0) {
+      count++;
+    }
+  }
+  return count;
+}
+
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
 
@@ -514,7 +528,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
-              number: tasks.length.toString(),
+              number: countToDo(tasks).toString(),
               textBelow: 'leftThisWeek_txt'.tr,
             ),
           ),
@@ -523,7 +537,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
             child: ButtonShort(
-              number: tasks.length.toString(),
+              number: (tasks.length - countToDo(tasks)).toString(),
               textBelow: 'doneThisWeek_txt'.tr,
             ),
           ),
