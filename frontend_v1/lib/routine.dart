@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
-
 import 'task_item_view.dart';
 
 class Routine extends StatelessWidget {
@@ -23,6 +21,9 @@ class Routine extends StatelessWidget {
           routineName: 'SuperTest idk',
           routineDescription: 'ist toll weiol darum bitte nicht sclagen',
         ),
+        Routinenitems(
+            routineName: 'Das ist ein toller Titel',
+            routineDescription: 'routineDescription')
       ],
     );
   }
@@ -54,7 +55,7 @@ class Routinenitems extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.secondary,
-            offset: Offset(5.0, 5.0),
+            offset: const Offset(5.0, 5.0),
             blurRadius: 10.0,
             spreadRadius: 2.0,
           ),
@@ -70,7 +71,7 @@ class Routinenitems extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 150),
+                  constraints: const BoxConstraints(maxWidth: 200),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Text(routineName,
@@ -98,11 +99,14 @@ class Routinenitems extends StatelessWidget {
               padding: const EdgeInsets.all(5),
               child: IconButton(
                   onPressed: () {
-                    Get.to(ItemView());
+                    Get.to(ItemView(
+                        routineName: this.routineName,
+                        routineDescription: this.routineDescription));
                   },
                   icon: Icon(
                     CupertinoIcons.info,
                     size: 25,
+                    color: Theme.of(context).colorScheme.tertiary,
                   )))
         ],
       ),

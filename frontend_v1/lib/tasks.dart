@@ -1,7 +1,67 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/routine.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+//fetched alle Daten aus der Datenbank -> tasks + Routinen
+Future<Map<String, dynamic>> getUserData(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUser(\$id: Int!) {
+    user(id: \$id) {
+      householdId
+      household {
+        routine
+        tasks
+      }
+    }
+  }
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final user = result.data!['user'];
+      final mappedResult = {
+        'forename': user['forename'],
+        'surname': user['surname'],
+        'username': user['username'],
+        'email': user['email'],
+        'points': user['balance'],
+        'householdName': user['household']['name'],
+      };
+      if (user['points'] == null) {
+        mappedResult['points'] = 0;
+      }
+      return mappedResult;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return {};
+}
 
 class SeeAllTasks extends StatelessWidget {
   const SeeAllTasks({super.key});
