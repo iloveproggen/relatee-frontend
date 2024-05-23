@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'assets/LocaleStrings.dart';
+import 'assets/locale_strings.dart';
 
 void main() {
   runApp(const MainLeaderboardView());
