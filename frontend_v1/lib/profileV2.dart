@@ -62,7 +62,7 @@ class ProfileView extends StatelessWidget {
                                          color: Colors.blue,
                                          fontWeight: FontWeight.bold),),
                                 onPressed: () {
-                                  Get.to(() => const LoginWidget());
+                                  Get.offAll(() => const LoginWidget());
                                 },
                               ),
                             ],
@@ -267,8 +267,12 @@ class TaskOverview extends StatelessWidget {
           child: Text('Their Tasks',
               style: Theme.of(context).textTheme.bodyMedium),
         ),
-        const Task(taskName: "do the dishes", taskStatus: 2),
-        const Task(taskName: "mop the floor", taskStatus: 1),
+        tasks.isNotEmpty ? Column(
+          children: tasks.take(2).map((task) {
+            return Task(task: task);
+          }).toList(),
+        )
+        : Text("No Tasks found."),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -280,7 +284,7 @@ class TaskOverview extends StatelessWidget {
                 },
                 child: Row(
                   children: [
-                    Text('SeeAllTasks_txt'.tr,
+                    Text('See your tasks'.tr,
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall

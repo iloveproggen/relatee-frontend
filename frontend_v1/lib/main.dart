@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
@@ -76,7 +76,8 @@ Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
       print('Loading');
     } else {
       final tasks = result.data!['user']['tasks'];
-      final List<Map<String, dynamic>> mappedTasks = tasks.map<Map<String, dynamic>>((task) {
+      final List<Map<String, dynamic>> mappedTasks =
+          tasks.map<Map<String, dynamic>>((task) {
         return {
           'id': task['id'],
           'userId': task['userId'],
@@ -180,7 +181,7 @@ class MainWidget extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-            print('here is the userdata: ${snapshot.data}');
+          print('here is the userdata: ${snapshot.data}');
           return MainView(userData: snapshot.data ?? {});
         }
       },
@@ -198,10 +199,11 @@ class MainView extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-          child: FutureBuilder<List<Map<String, dynamic>>>(
+            padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
               future: getUserTasks(userData['id']),
-              builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
                 print(snapshot);
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -221,10 +223,9 @@ class MainView extends StatelessWidget {
                   );
                 }
               },
-            )
-          ),
-        ),
-      );
+            )),
+      ),
+    );
   }
 }
 
@@ -298,7 +299,7 @@ class WelcomeText extends StatelessWidget {
 
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> tasks;
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -338,7 +339,7 @@ class ButtonRecommended extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  print(tasks);
+    print(tasks);
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -532,7 +533,6 @@ class ButtonRow extends StatelessWidget {
   }
 }
 
-
 class TaskOverview extends StatefulWidget {
   const TaskOverview({super.key, required this.userData, required this.tasks});
 
@@ -540,7 +540,8 @@ class TaskOverview extends StatefulWidget {
   final List<Map<String, dynamic>> tasks;
 
   @override
-  State<TaskOverview> createState() => _TaskState(userData: userData, tasks: tasks);
+  State<TaskOverview> createState() =>
+      _TaskState(userData: userData, tasks: tasks);
 }
 
 class _TaskState extends State<TaskOverview> {
@@ -576,12 +577,13 @@ class _TaskState extends State<TaskOverview> {
         ),
         const SizedBox(height: 10),
         ButtonRow(tasks: tasks),
-        tasks.isNotEmpty ? Column(
-          children: tasks.map((task) {
-            return Task(taskName: task['name'], taskStatus: 2);
-          }).toList(),
-        )
-        : Text("No Tasks found."),
+        tasks.isNotEmpty
+            ? Column(
+                children: tasks.take(2).map((task) {
+                  return Task(task: task);
+                }).toList(),
+              )
+            : Text("No Tasks found."),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -630,10 +632,9 @@ class _TaskState extends State<TaskOverview> {
 }
 
 class Task extends StatelessWidget {
-  const Task({super.key, required this.taskName, required this.taskStatus});
+  const Task({super.key, required this.task});
 
-  final String taskName;
-  final int taskStatus;
+  final Map<String, dynamic> task;
 
   @override
   Widget build(BuildContext context) {
@@ -658,23 +659,23 @@ class Task extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(taskName, style: Theme.of(context).textTheme.bodySmall),
-              Padding(
+              Text(task['name'], style: Theme.of(context).textTheme.bodySmall),
+              const Padding(
                 padding: const EdgeInsets.only(right: 30),
-                child: Builder(
-                  builder: (context) {
-                    switch (taskStatus) {
-                      case 0:
-                        return SvgPicture.asset("assets/images/green.svg");
-                      case 1:
-                        return SvgPicture.asset("assets/images/yellow.svg");
-                      case 2:
-                        return SvgPicture.asset("assets/images/red.svg");
-                      default:
-                        return SvgPicture.asset("assets/images/red.svg");
-                    }
-                  },
-                ),
+                child: SizedBox(height: 10),
+                // child: Builder(
+                //   builder: (context) {
+                //     switch (taskStatus) {
+                //       case 0:
+                //         return SvgPicture.asset("assets/images/green.svg");
+                //       case 1:
+                //         return SvgPicture.asset("assets/images/yellow.svg");
+                //       case 2:
+                //         return SvgPicture.asset("assets/images/red.svg");
+                //       default:
+                //         return SvgPicture.asset("assets/images/red.svg");
+                //     }
+                //   },
               ),
             ],
           ),

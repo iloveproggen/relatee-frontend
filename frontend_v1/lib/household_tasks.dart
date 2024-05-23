@@ -54,7 +54,7 @@ class HouseholdOverview extends StatelessWidget {
         ),
         const ButtonCompleted(
             who: "Marvin", what: "do the dishes", time: "today"),
-        const Task(taskName: "pick up couch", taskStatus: 0),
+        const Task(task: {}),
         HouseholdMembers(userData: userData)
       ],
     );
