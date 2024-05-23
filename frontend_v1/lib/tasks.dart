@@ -14,7 +14,7 @@ class SeeAllTasks extends StatelessWidget {
       padding: EdgeInsets.only(top: 80, left: 40, right: 40),
       child: Column(
         children: [
-          BackIconRow(),
+          const BackIconRow(),
           SliderWidgetRepeat(userData: userData, tasks: tasks),
         ],
       ),
@@ -83,16 +83,10 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                       child: Center(
                         child: Text(
                           'task view',
-                          style: TextStyle(
-                            color: _isPermanent
-                                ? Colors.black
-                                : const Color(0xFF4A4646),
-                            fontSize: 20,
-                            fontFamily: 'Karla',
-                            fontWeight:
-                                _isPermanent ? FontWeight.w700 : FontWeight.w300,
-                            height: 0,
-                          ),
+                          style: _isPermanent
+                              ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,)
+                              : Theme.of(context).textTheme.bodySmall
                         ),
                       ),
                     ),
@@ -100,16 +94,10 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
                       child: Center(
                         child: Text(
                           'routine view',
-                          style: TextStyle(
-                            color: !_isPermanent
-                                ? Colors.black
-                                : const Color(0xFF4A4646),
-                            fontSize: 20,
-                            fontFamily: 'Karla',
-                            fontWeight:
-                                !_isPermanent ? FontWeight.w700 : FontWeight.w300,
-                            height: 0,
-                          ),
+                          style: _isPermanent
+                              ? Theme.of(context).textTheme.bodySmall
+                              : Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,)
                         ),
                       ),
                     ),
@@ -119,7 +107,7 @@ class _SliderWidgetState extends State<SliderWidgetRepeat> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 40),
             child: Column(
               children: _isPermanent
                   ? [TaskWidget(userData: userData, tasks: tasks)]
@@ -140,7 +128,12 @@ class TaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return main.TaskOverview(userData: userData, tasks: tasks);
+    return Column(children: [main.ButtonRow(tasks: tasks),
+        tasks.isNotEmpty ? Column(
+          children: tasks.map((task) {
+            return main.Task(task: task);
+          }).toList())
+        : Text("No Tasks found.")]);
   }
 }
 
