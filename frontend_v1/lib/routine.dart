@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
@@ -67,14 +68,17 @@ class Routinenitems extends StatelessWidget {
               children: [
                 Container(
                   constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(routineName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Text(routineName,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
                 ),
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 150),
+                  constraints: const BoxConstraints(maxWidth: 200),
                   child: Text(
                     routineDescription,
                     style: const TextStyle(
@@ -88,28 +92,13 @@ class Routinenitems extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  color: colMid,
-                ),
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Info",
-                      style: TextStyle(
-                          fontFamily: "Karla",
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.background),
-                    ),
-                  ),
-                )),
-          )
+              padding: const EdgeInsets.all(5),
+              child: IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    CupertinoIcons.info,
+                    size: 25,
+                  )))
         ],
       ),
     );
