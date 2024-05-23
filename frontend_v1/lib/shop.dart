@@ -1,10 +1,100 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_shopItem.dart';
-import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/Create_New_ShopItem.dart';
+import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/profileV2.dart' as profile;
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+Future<List<Map<String, dynamic>>> getRewards(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUserRewards(\$id: Int!) {
+    household(id: \$id) {
+        rewards {
+            id,
+            name,
+            price,
+            description
+        }
+    }
+}
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final rewards = result.data!['household']['rewards'];
+      final List<Map<String, dynamic>> mappedRewards =
+          rewards.map<Map<String, dynamic>>((reward) {
+        return {
+          'id': reward['id'],
+          'name': reward['name'],
+          'price': reward['price'],
+          'description': reward['description'],
+        };
+      }).toList();
+      print(mappedRewards);
+      return mappedRewards;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return [];
+}
+
+Future<void> deleteReward(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation DeleteReward(\$id: Int!) {
+        deleteReward(id: \$id) {
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    await client.mutate(options).timeout(const Duration(seconds: 10));
+
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+}
+
+bool isBuyable(int price, int points) {
+  return points >= price;
+}
 
 // ignore: must_be_immutable
 class ShopIcon extends StatefulWidget {
@@ -60,7 +150,7 @@ class _ShopIconState extends State<ShopIcon>
       },
       child: SvgPicture.asset(
         "assets/images/relatee.svg",
-        height: 40,
+        height: 35,
         colorFilter: ColorFilter.mode(
           _colorAnimation.value ??
               Colors
@@ -73,44 +163,22 @@ class _ShopIconState extends State<ShopIcon>
 }
 
 class ShopView extends StatefulWidget {
-  const ShopView({super.key, this.itemToAdd, required this.userData});
+  const ShopView({super.key, required this.userData});
 
-  final ItemCard? itemToAdd; 
   final Map<String, dynamic> userData;
-  
+
   @override
   State<ShopView> createState() => ShopViewState(userData: userData);
 }
 
 class ShopViewState extends State<ShopView> {
   ShopViewState({required this.userData});
-  final List<Widget> itemCards = [
-    const ItemCard(taskName: "Task 1", taskPrice: "9999")
-  ];
 
   final Map<String, dynamic> userData;
 
-
-
   @override
-  void initState() {
-    super.initState();
-    // Add item if passed through route arguments
-    if (widget.itemToAdd != null) {
-      addItem(widget.itemToAdd!);
-    }
-  }
-
-  void addItem(ItemCard item) {
-    itemCards.add(item);
-  }
 
   // Getter for the itemCards list
-  List<Widget> get getItemCards => itemCards;
-
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color colText = const Color(0xFF4A4646);
 
   @override
   Widget build(BuildContext context) {
@@ -121,16 +189,19 @@ class ShopViewState extends State<ShopView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const BackIconRow(),
+            const profile.BackIconRow(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Shop_title'.tr,
-                    style: Theme.of(context).textTheme.bodyLarge),
+                Row(
+                  children: [
+                    Text('Shop_title'.tr,
+                        style: Theme.of(context).textTheme.bodyLarge),
+                  ],
+                ),
                 TextButton(
                     onPressed: () {
-                    Get.to(() => NewShopItem());
-                      
+                      Get.to(() => NewShopItem(userData: userData));
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -140,21 +211,98 @@ class ShopViewState extends State<ShopView> {
               ('Shop_info'.tr),
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: itemCards.length,
-                itemBuilder: (context, index) {
-                  return itemCards[index];
-                },
-              ),
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: getRewards(userData['householdId']),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      final rewards = snapshot.data!;
+                      if (rewards.isEmpty) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            Text('No rewards available. Create new ones!',
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        );
+                      } else {
+                        return ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: rewards.length,
+                          itemBuilder: (context, index) {
+                            final reward = rewards[index];
+                            return Dismissible(
+                              key: Key(reward.toString()),
+                              onDismissed: (direction) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CupertinoAlertDialog(
+                                      title: const Text('Confirm Delete'),
+                                      content: Text(
+                                          'Are you sure you want to delete the reward \"${reward['name']}\"?'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Get.back();
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            setState(() {});
+                                          },
+                                          child: const Text('No',
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                        ),
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            deleteReward(reward['id']);
+                                            setState(() {});
+                                          },
+                                          child: const Text('Yes',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              background: Container(
+                                margin: const EdgeInsets.only(
+                                    right: 50, bottom: 22),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(CupertinoIcons.delete,
+                                    color: Colors.red, size: 30),
+                              ),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                title: ItemCard(
+                                  taskName: reward['name'],
+                                  taskPrice: reward['price'].toString(),
+                                  description: reward['description'],
+                                  userData: userData,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    }
+                  }),
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge('${userData['points']} pts'),
+                buildBadge(userData['points'] == null
+                    ? '0 pts'
+                    : '${userData['points']} pts'),
                 const SizedBox(width: 20),
                 buildBadge('lvl 25'),
               ],
@@ -170,7 +318,7 @@ class ShopViewState extends State<ShopView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
       decoration: BoxDecoration(
-        color: Color.fromARGB(106, 205, 205, 205),
+        color: const Color.fromARGB(106, 205, 205, 205),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
@@ -181,11 +329,37 @@ class ShopViewState extends State<ShopView> {
   }
 }
 
+void showNotEnoughPointsDialog(
+    BuildContext context, int taskPrice, Map<String, dynamic> userData) {
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // Automatically dismiss the dialog after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.of(context).pop(true); // Dismiss the dialog
+      });
+
+      return CupertinoAlertDialog(
+        title: const Text(
+          'Not enough Points to buy!',
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          "You need ${taskPrice - userData['points']} more points to buy this item.",
+        ),
+      );
+    },
+  );
+}
+
+// ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
-  const ItemCard({
+  ItemCard({
     super.key,
     required this.taskName,
     required this.taskPrice,
+    required this.description,
+    required this.userData,
   });
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
@@ -194,78 +368,118 @@ class ItemCard extends StatelessWidget {
 
   final String taskName;
   final String taskPrice;
+  final String? description;
+  final Map<String, dynamic> userData;
+
+  late bool buyable = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.secondary,
-            offset: Offset(5.0, 5.0),
-            blurRadius: 10.0,
-            spreadRadius: 2.0,
+    buyable = isBuyable(int.parse(taskPrice), userData['points']);
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.secondary,
+                offset: const Offset(5.0, 5.0),
+                blurRadius: 10.0,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 150),
-                  child: Text(taskName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                ),
-                Text(
-                  "$taskPrice pts",
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 204, 198, 196),
-                      fontSize: 20,
-                      fontFamily: "Karla"),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  color: colMid,
-                ),
-                child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "BUY",
-                      style: TextStyle(
-                          fontFamily: "Karla",
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.background),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Text(taskName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
-                  ),
-                )),
-          )
-        ],
-      ),
+                    description == "" || description == null
+                        ? Container()
+                        : Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          child: Text(
+                            "\'$description\'",
+                            maxLines: 5,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 204, 198, 196),
+                              fontSize: 20,
+                              fontFamily: "Karla",
+                              height: 1),
+                            textAlign: TextAlign.start,
+                          ),
+                          ),
+                    Text(
+                      "$taskPrice pts",
+                      
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 204, 198, 196),
+                          fontSize: 20,
+                          fontFamily: "Karla"),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                    buyable
+                      ? null
+                      : showNotEnoughPointsDialog(context, int.parse(taskPrice), userData['points']);
+                },
+                child: Container(
+                    constraints: const BoxConstraints(minWidth: 0),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 5,
+                          strokeAlign: BorderSide.strokeAlignInside,
+                          color: buyable ? colMid : colMid.withOpacity(0.5),
+                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15)),
+                        color: buyable ? colMid : colLight),
+                    child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 15, right: 15),
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "BUY",
+                              style: TextStyle(
+                                fontFamily: "Karla",
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: buyable
+                                    ? Theme.of(context).colorScheme.background
+                                    : Theme.of(context).colorScheme.secondary,
+                              ),
+                            )))),
+              )
+            ],
+          ),
+        ),
+        const SizedBox(height: 30),
+      ],
     );
   }
 }

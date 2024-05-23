@@ -40,7 +40,7 @@ class HouseholdOverview extends StatelessWidget {
         ),
         const ButtonCompleted(
             who: "Marvin", what: "do the dishes", time: "today"),
-        const Task(taskName: "pick up couch", taskStatus: 0),
+        const Task(task: {}),
         HouseholdMembers(userData: userData)
       ],
     );
@@ -101,9 +101,7 @@ class Member extends StatelessWidget {
           padding: EdgeInsets.zero,
         ),
         onPressed: () {
-          Get.to(() => ProfileView(
-                userData: userData,
-              ));
+          Get.back();
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

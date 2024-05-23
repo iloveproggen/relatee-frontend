@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_task.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -44,63 +45,129 @@ Future<GraphQLClient> getGraphQLClient() async {
     link: link,
   );
 }
+final random = Random();
 
-// Future<List<Map<String, dynamic>>> getUserTasks() async {
-//   final client = await getGraphQLClient();
-//   final QueryOptions options = QueryOptions(
-//     document: gql('''
-//   query GetUserTasks() {
-//     tasks() {
-//       householdId
-//       forename
-//       surname
-//       username
-//       email
-//       points
-//       household {
-//         name
-//         ownerId
-//       }
-//     }
-//   }
-// '''),
-//   );
+Future<List<Map<String, dynamic>>> getHouseholdUsers(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUser(\$id: Int!) {
+    user(id: \$id) {
+      household {
+        user {
+          id
+          forename
+          surname
+          username
+          email
+          points
+        }
+      }
+    }
+  }
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
 
-//     try {
-//     final result =
-//         await client.query(options).timeout(const Duration(seconds: 10));
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final users = result.data!['user']['household']['user'];
+      final List<Map<String, dynamic>> mappedUsers =
+          users.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'],
+          'forename': user['forename'],
+          'surname': user['surname'],
+          'username': user['username'],
+          'email': user['email'],
+          'points': user['points'],
+        };
+      }).toList();
+      print(mappedUsers);
+      return mappedUsers;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return [];
+}
 
-//     if (result.hasException) {
-//       print(result.exception.toString());
-//     } else if (result.isLoading) {
-//       print('Loading');
-//     } else {
-//       final user = result.data!['user'];
-//       final mappedResult = {
-//         'forename': user['forename'],
-//         'surname': user['surname'],
-//         'username': user['username'],
-//         'email': user['email'],
-//         'points': user['balance'],
-//         'householdName': user['household']['name'],
-//       };
-//       if (user['points'] == null) {
-//         mappedResult['points'] = 0;
-//       }
-//       return mappedResult;
-//     }
-//   } on SocketException catch (e) {
-//     print('Network error: $e');
-//     // Handle network error
-//   } on TimeoutException catch (e) {
-//     print('Request timed out: $e');
-//     // Handle timeout
-//   } catch (e) {
-//     print('Unexpected error: $e');
-//     // Handle other errors
-//   }
-//   return {};
-// }
+Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUserTasks(\$id: Int!) {
+    user(id: \$id) {
+        tasks {
+            id,
+            userId,
+            name,
+            deadline,
+            points,
+            status
+            household {
+                id
+            }
+        }
+    }
+}
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final tasks = result.data!['user']['tasks'];
+      final List<Map<String, dynamic>> mappedTasks =
+          tasks.map<Map<String, dynamic>>((task) {
+        return {
+          'id': task['id'],
+          'userId': task['userId'],
+          'name': task['name'],
+          'deadline': task['deadline'],
+          'points': task['points'],
+          'status': task['status'],
+          'householdId': task['household']['id'],
+        };
+      }).toList();
+      print(mappedTasks);
+      return mappedTasks;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return [];
+}
 
 Future<Map<String, dynamic>> getUserData(int id) async {
   final client = await getGraphQLClient();
@@ -137,14 +204,16 @@ Future<Map<String, dynamic>> getUserData(int id) async {
     } else {
       final user = result.data!['user'];
       final mappedResult = {
+        'id': id,
         'forename': user['forename'],
         'surname': user['surname'],
         'username': user['username'],
         'email': user['email'],
         'points': user['balance'],
         'householdName': user['household']['name'],
+        'householdId': user['householdId'],
       };
-      if (user['points'] == null) {
+      if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
       return mappedResult;
@@ -179,10 +248,39 @@ class MainWidget extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
+          print('here is the userdata: ${snapshot.data}');
           return MainView(userData: snapshot.data ?? {});
         }
       },
     );
+  }
+}
+
+Future<void> deleteTask(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation DeleteTask(\$id: Int!) {
+        deleteTask(id: \$id) {
+        }
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    await client.mutate(options).timeout(const Duration(seconds: 10));
+
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
   }
 }
 
@@ -196,26 +294,39 @@ class MainView extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconRow(userData: userData),
-              WelcomeText(userData: userData),
-              const ButtonRecommended(task: "do the dishes"),
-              const TaskOverview(),
-            ],
-          ),
-        ),
+            padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: getUserTasks(userData['id']),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  final tasks = snapshot.data ?? [];
+                  return Column(
+                    children: [
+                      IconRow(userData: userData, tasks: tasks),
+                      WelcomeText(userData: userData, tasks: tasks),
+                      ButtonRecommended(tasks: tasks),
+                      TaskOverview(userData: userData, tasks: tasks),
+                      // Add your code here to display the tasks
+                    ],
+                  );
+                }
+              },
+            )),
       ),
     );
   }
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.userData});
+  const IconRow({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -235,7 +346,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () {
-                    Get.to(() => ProfileView(userData: userData));
+                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -277,9 +388,10 @@ class IconRow extends StatelessWidget {
 }
 
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key, required this.userData});
+  const WelcomeText({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -313,13 +425,14 @@ class WelcomeText extends StatelessWidget {
 }
 
 class ButtonRecommended extends StatelessWidget {
-  const ButtonRecommended({super.key, required this.task});
+  const ButtonRecommended({super.key, required this.tasks});
 
-  final String task;
+  final List<Map<String, dynamic>> tasks;
   final double height = 150;
 
   @override
   Widget build(BuildContext context) {
+    print(tasks);
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -342,9 +455,9 @@ class ButtonRecommended extends StatelessWidget {
               ),
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    task,
+                    tasks[random.nextInt(tasks.length)]['name'],
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -420,6 +533,16 @@ class ButtonCompleted extends StatelessWidget {
   }
 }
 
+int countToDo(List<Map<String, dynamic>> tasks) {
+  int count = 0;
+  for (var task in tasks) {
+    if (task['status'] == 0) {
+      count++;
+    }
+  }
+  return count;
+}
+
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
 
@@ -485,7 +608,9 @@ class ButtonShort extends StatelessWidget {
 }
 
 class ButtonRow extends StatelessWidget {
-  const ButtonRow({super.key});
+  const ButtonRow({super.key, required this.tasks});
+
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -495,7 +620,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
-              number: "10",
+              number: countToDo(tasks).toString(),
               textBelow: 'leftThisWeek_txt'.tr,
             ),
           ),
@@ -504,7 +629,7 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
             child: ButtonShort(
-              number: "2",
+              number: (tasks.length - countToDo(tasks)).toString(),
               textBelow: 'doneThisWeek_txt'.tr,
             ),
           ),
@@ -515,14 +640,22 @@ class ButtonRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key});
+  const TaskOverview({super.key, required this.userData, required this.tasks});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
-  State<TaskOverview> createState() => _TaskState();
+  State<TaskOverview> createState() =>
+      _TaskState(userData: userData, tasks: tasks);
 }
 
 class _TaskState extends State<TaskOverview> {
+  _TaskState({required this.userData, required this.tasks});
   final double size = 15;
+
+  final List<Map<String, dynamic>> tasks;
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -540,7 +673,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               TextButton(
                 onPressed: () {
-                  Get.to(()  => NewTask(userData: {}));
+                  Get.to(() => NewTask(userData: userData));
                 },
                 child: Icon(CupertinoIcons.add,
                      
@@ -550,9 +683,51 @@ class _TaskState extends State<TaskOverview> {
           ),
         ),
         const SizedBox(height: 10),
-        const ButtonRow(),
-        const Task(taskName: "do the dishes", taskStatus: 2),
-        const Task(taskName: "mop the floor", taskStatus: 1),
+        ButtonRow(tasks: tasks),
+        tasks.isEmpty
+            ? const Text("No Tasks found.")
+            : Column(
+                children: tasks.take(2).map((task) {
+                  return Dismissible(
+                    key: ValueKey(task['id']),
+                    child: Task(task: task),
+                    onDismissed: (direction) {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) => CupertinoAlertDialog(
+                          title: const Text('Delete Task'),
+                          content: const Text('Are you sure you want to delete this task?'),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                deleteTask(task['id']);
+                                tasks.removeWhere((t) => t['id'] == task['id']);
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                              isDestructiveAction: true,
+                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    background: Container(
+                      margin: const EdgeInsets.only(right: 30, bottom: 22),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(CupertinoIcons.delete,
+                          color: Colors.red, size: 30),
+                    ),
+                  );
+                }).toList(),
+              ),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -560,8 +735,7 @@ class _TaskState extends State<TaskOverview> {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
                 },
                 child: Row(
                   children: [
@@ -581,7 +755,7 @@ class _TaskState extends State<TaskOverview> {
               ),
               TextButton(
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: {}));
+                  Get.to(() => const MainHouseholdOverview(userData: {}));
                 },
                 child: Row(
                   children: [
@@ -602,10 +776,9 @@ class _TaskState extends State<TaskOverview> {
 }
 
 class Task extends StatelessWidget {
-  const Task({super.key, required this.taskName, required this.taskStatus});
+  const Task({super.key, required this.task});
 
-  final String taskName;
-  final int taskStatus;
+  final Map<String, dynamic> task;
 
   @override
   Widget build(BuildContext context) {
@@ -630,23 +803,23 @@ class Task extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(taskName, style: Theme.of(context).textTheme.bodySmall),
-              Padding(
+              Text(task['name'], style: Theme.of(context).textTheme.bodySmall),
+              const Padding(
                 padding: const EdgeInsets.only(right: 30),
-                child: Builder(
-                  builder: (context) {
-                    switch (taskStatus) {
-                      case 0:
-                        return SvgPicture.asset("assets/images/green.svg");
-                      case 1:
-                        return SvgPicture.asset("assets/images/yellow.svg");
-                      case 2:
-                        return SvgPicture.asset("assets/images/red.svg");
-                      default:
-                        return SvgPicture.asset("assets/images/red.svg");
-                    }
-                  },
-                ),
+                child: SizedBox(height: 10),
+                // child: Builder(
+                //   builder: (context) {
+                //     switch (taskStatus) {
+                //       case 0:
+                //         return SvgPicture.asset("assets/images/green.svg");
+                //       case 1:
+                //         return SvgPicture.asset("assets/images/yellow.svg");
+                //       case 2:
+                //         return SvgPicture.asset("assets/images/red.svg");
+                //       default:
+                //         return SvgPicture.asset("assets/images/red.svg");
+                //     }
+                //   },
               ),
             ],
           ),

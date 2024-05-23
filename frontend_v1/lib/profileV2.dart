@@ -15,9 +15,10 @@ String getDueDaysInText(int days) {
 }
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.userData});
+  const ProfileView({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,7 @@ class ProfileView extends StatelessWidget {
                                          color: Colors.blue,
                                          fontWeight: FontWeight.bold),),
                                 onPressed: () {
-                                  Get.to(() => const LoginWidget());
+                                  Get.offAll(() => const LoginWidget());
                                 },
                               ),
                             ],
@@ -165,7 +166,7 @@ class ProfileView extends StatelessWidget {
               //     height: 100,
               //     thickness: 2),
               SizedBox(height: 80),
-              TaskOverview(userData: userData),
+              TaskOverview(userData: userData, tasks: tasks),
             ],
           ),
         ),
@@ -247,9 +248,10 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key, required this.userData});
+  const TaskOverview({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -265,8 +267,12 @@ class TaskOverview extends StatelessWidget {
           child: Text('Their Tasks',
               style: Theme.of(context).textTheme.bodyMedium),
         ),
-        const Task(taskName: "do the dishes", taskStatus: 2),
-        const Task(taskName: "mop the floor", taskStatus: 1),
+        tasks.isNotEmpty ? Column(
+          children: tasks.take(2).map((task) {
+            return Task(task: task);
+          }).toList(),
+        )
+        : Text("No Tasks found."),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
@@ -274,11 +280,11 @@ class TaskOverview extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.to(() => const SeeAllTasks());
+                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
                 },
                 child: Row(
                   children: [
-                    Text('SeeAllTasks_txt'.tr,
+                    Text('See your tasks'.tr,
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
