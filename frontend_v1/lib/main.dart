@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,67 @@ Future<GraphQLClient> getGraphQLClient() async {
     cache: GraphQLCache(),
     link: link,
   );
+}
+final random = Random();
+
+Future<List<Map<String, dynamic>>> getHouseholdUsers(int id) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUser(\$id: Int!) {
+    user(id: \$id) {
+      household {
+        user {
+          id
+          forename
+          surname
+          username
+          email
+          points
+        }
+      }
+    }
+  }
+'''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      final users = result.data!['user']['household']['user'];
+      final List<Map<String, dynamic>> mappedUsers =
+          users.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'],
+          'forename': user['forename'],
+          'surname': user['surname'],
+          'username': user['username'],
+          'email': user['email'],
+          'points': user['points'],
+        };
+      }).toList();
+      print(mappedUsers);
+      return mappedUsers;
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return [];
 }
 
 Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
@@ -393,9 +455,9 @@ class ButtonRecommended extends StatelessWidget {
               ),
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    tasks[0]['name'],
+                    tasks[random.nextInt(tasks.length)]['name'],
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
@@ -642,6 +704,7 @@ class _TaskState extends State<TaskOverview> {
                             CupertinoDialogAction(
                               onPressed: () {
                                 deleteTask(task['id']);
+                                tasks.removeWhere((t) => t['id'] == task['id']);
                                 Navigator.pop(context);
                                 setState(() {});
                               },

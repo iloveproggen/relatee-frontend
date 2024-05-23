@@ -1,26 +1,40 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-void createNewTask(int routineId, String name, String deadline, String description, int points,
+Map<String, dynamic> assignedToUser = {};
+List<Map<String, dynamic>> householdUsers = [
+  {
+    'forename': '...',
+    'surname': '...',
+    'id': null,
+    'username': '...',
+  }
+];
+bool isPermanent = false;
+
+void createNewTask(int? userId, String name, String description, int points,
     Map<String, dynamic> userData) async {
-final Map<String, dynamic> variables = {
-    'userId': userData['userId'],
+  final Map<String, dynamic> variables = {
+    'userId': userId,
     'householdId': userData['householdId'],
-    'routineId': routineId,
+    'routineId': null,
     'name': name,
-    'deadline': deadline,
+    'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
     'description': description,
     'points': points,
     'status': 0
-};
+  };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-    document: gql(r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $points: Int!, $status: Int!) {
+    document: gql(
+        r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $points: Int!, $status: Int!) {
   createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, points: $points, status: $status) {
     userId
     householdId
@@ -52,143 +66,326 @@ final Map<String, dynamic> variables = {
   }
 }
 
-class NewTask extends StatelessWidget {
+class NewTask extends StatefulWidget {
   const NewTask({super.key, required this.userData});
-
 
   final Map<String, dynamic> userData;
 
   @override
+  State<NewTask> createState() => _NewTaskState();
+}
+
+class _NewTaskState extends State<NewTask> {
+  bool required = false;
+
+  TextEditingController taskName = TextEditingController();
+  TextEditingController taskPrice = TextEditingController();
+  TextEditingController description = TextEditingController();
+
+  void _updateRequired() {
+    setState(() {
+      required = _checkInputs(); // Update required based on inputs
+    });
+  }
+
+  bool _checkInputs() {
+    return taskName.text.isNotEmpty &&
+        taskPrice.text.isNotEmpty &&
+        assignedToUser.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listener to text controllers to update required variable
+    taskName.addListener(_updateRequired);
+    taskPrice.addListener(_updateRequired);
+    description.addListener(_updateRequired);
+  }
+
+  void changePermanent() {
+    setState(() {});
+    isPermanent = !isPermanent;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              BackIconRow(),
-              CustomTextField(),
-              SliderWidgetRepeat(),
-              SliderWidgetWho(),
-              SizedBox(height: 40),
-              AssignTo(),
-              Repeats()
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Form(
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration.collapsed(
-                hintText: ('new_task_txt'.tr),
-              ),
-              style: const TextStyle(
-                fontSize: 30,
-                color: Color.fromARGB(255, 74, 70, 70),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SliderWidgetRepeat extends StatefulWidget {
-  const SliderWidgetRepeat({super.key});
-
-  @override
-  State<SliderWidgetRepeat> createState() => _SliderWidgetState();
-}
-
-class _SliderWidgetState extends State<SliderWidgetRepeat> {
-  bool _isPermanent = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isPermanent = !_isPermanent;
-        });
-      },
-      child: Padding(
-        // Hinzufügen von Padding um den Container
-        padding: const EdgeInsets.only(
-            top: 60.0), // Verschieben Sie den Slider nach unten
-        child: Container(
-          width: 386,
-          height: 46,
-          decoration: BoxDecoration(
-            color: const Color(0x7FD9D9D9),
-            borderRadius: BorderRadius.circular(7),
-          ),
-          child: Stack(
-            children: [
-              AnimatedAlign(
-                alignment:
-                    _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                child: Container(
-                  width: 193,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(7),
+              const BackIconRow(),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Form(
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: taskName,
+                        decoration: InputDecoration.collapsed(
+                          hintText: ('new_task_txt'.tr),
+                          hintStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Sedan",
+                            fontSize: 40,
+                            color: Color.fromARGB(255, 204, 198, 196),
+                          ),
+                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'repeat_txt'.tr,
-                        style: TextStyle(
-                          color: _isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    changePermanent();
+                  });
+                },
+                child: Padding(
+                  // Hinzufügen von Padding um den Container
+                  padding: const EdgeInsets.only(
+                      top: 40), // Verschieben Sie den Slider nach unten
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0x7FD9D9D9),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedAlign(
+                          alignment: isPermanent
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: FractionallySizedBox(
+                            widthFactor: 0.5,
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD9D9D9),
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  'repeat_txt'.tr,
+                                  style: TextStyle(
+                                    color: isPermanent
+                                        ? Colors.black
+                                        : const Color(0xFF4A4646),
+                                    fontSize: 20,
+                                    fontFamily: 'Karla',
+                                    fontWeight: isPermanent
+                                        ? FontWeight.w700
+                                        : FontWeight.w300,
+                                    height: 0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  'only_once_txt'.tr,
+                                  style: TextStyle(
+                                    color: !isPermanent
+                                        ? Colors.black
+                                        : const Color(0xFF4A4646),
+                                    fontSize: 20,
+                                    fontFamily: 'Karla',
+                                    fontWeight: !isPermanent
+                                        ? FontWeight.w700
+                                        : FontWeight.w300,
+                                    height: 0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'only_once_txt'.tr,
-                        style: TextStyle(
-                          color: !_isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
+                ),
+              ),
+              //const SliderWidgetWho(),
+              const SizedBox(height: 40),
+              AssignTo(userData: widget.userData),
+              isPermanent
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, right: 20, bottom: 10),
+                          child: Icon(
+                            CupertinoIcons.clock_fill,
+                            size: 40,
+                            color: Color.fromARGB(255, 204, 198, 196),
+                          ),
                         ),
-                      ),
+                        Text(
+                          ('repeats_txt'.tr),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    )
+                  : Container(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.add_circled,
+                      size: 40,
+                      color: Color.fromARGB(255, 204, 198, 196),
                     ),
+                  ),
+                  Text(
+                    'price:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Expanded(
+                    child: TextField(
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: const InputDecoration(
+                            hintText: "add price",
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                 ],
+              ),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        child: Icon(
+                          CupertinoIcons.text_aligncenter,
+                          size: 40,
+                          color: Color.fromARGB(255, 204, 198, 196),
+                        ),
+                      ),
+                      Expanded(
+                          child: Text(
+                        'description',
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextField(
+                        maxLines: 3,
+                        controller: description,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                            hintText: 'None Yet',
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  )
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 50),
+                child: Container(
+                    decoration: required
+                        ? const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(61, 109, 103, 103),
+                                  offset: Offset(5.0, 5.0),
+                                  blurRadius: 10.0,
+                                  spreadRadius: 2.0,
+                                )
+                              ])
+                        : BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            border: Border.all(
+                                strokeAlign: BorderSide.strokeAlignOutside,
+                                width: 5,
+                                color:
+                                    const Color.fromARGB(255, 204, 198, 196)),
+                            color: const Color.fromARGB(255, 243, 243, 243),
+                          ),
+                    child: TextButton(
+                      onPressed: () {
+                        print(taskName.text);
+                        print(taskPrice.text);
+                        print(assignedToUser);
+                        print(description.text);
+                        createNewTask(
+                            assignedToUser['id'],
+                            taskName.text,
+                            description.text,
+                            int.parse(taskPrice.text),
+                            widget.userData);
+                        //createTask(taskName.text, description.text, int.parse(taskPrice.text), userData);
+                        //Get.back();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MainWidget(userId: widget.userData['id'])),
+                        ).then((value) {
+                          setState(() {
+                            // Perform any state updates here
+                          });
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 15, right: 15),
+                        child: Text(
+                          required ? "Confirm" : "Cancel",
+                          style: required
+                              ? const TextStyle(
+                                  color: Color.fromARGB(255, 243, 243, 243),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                )
+                              : const TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                ),
+                        ),
+                      ),
+                    )),
               ),
             ],
           ),
@@ -236,7 +433,6 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
       child: Padding(
         padding: const EdgeInsets.only(top: 60.0),
         child: Container(
-          width: 386,
           height: 100,
           decoration: BoxDecoration(
             color: const Color(0x7FD9D9D9),
@@ -258,7 +454,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
                       });
                     },
                     child: Container(
-                      width: 193,
+                      width: 176,
                       height: 50,
                       decoration: BoxDecoration(
                         color: _selectedOption == i
@@ -308,14 +504,22 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   }
 }
 
-class AssignTo extends StatelessWidget {
-  const AssignTo({super.key});
+class AssignTo extends StatefulWidget {
+  const AssignTo({super.key, required this.userData});
 
+  final Map<String, dynamic> userData;
+
+  @override
+  State<AssignTo> createState() => _AssignToState();
+}
+
+class _AssignToState extends State<AssignTo> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
+      children: [
         Row(
           children: [
             const Padding(
@@ -327,55 +531,71 @@ class AssignTo extends StatelessWidget {
               ),
             ),
             Text(('assign_to_txt'.tr),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Karla",
-                  color: Color.fromARGB(255, 74, 70, 70),
-                )),
+                style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
-        const Text(
-          "Name",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: "Karla",
-            color: Color.fromARGB(255, 74, 70, 70),
+        TextButton(
+          style: ButtonStyle(
+            padding: MaterialStateProperty.all(EdgeInsets.zero),
           ),
-        ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return FutureBuilder(
+                    future: getHouseholdUsers(widget.userData['id']),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                            child: CupertinoActivityIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        List<Map<String, dynamic>> all =
+                            householdUsers + snapshot.data!;
+                        print(all);
+                        return Container(
+                          color: Theme.of(context).colorScheme.background,
+                          height: 300,
+                          child: CupertinoPicker(
+                            itemExtent:
+                                50, // Increase the item extent to make the items bigger
+                            onSelectedItemChanged: (int index) {
+                              print(
+                                  'Selected member: ${all[index]['forename'] ?? ''}');
+                              setState(() {
+                                assignedToUser = all[index];
+                              });
+                            },
+                            children: all.map((member) {
+                              return Center(
+                                child: Text(
+                                  member['forename'],
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              );
+            },
+            child: Text(
+                assignedToUser['id'] == null
+                    ? "anyone"
+                    : "${assignedToUser['forename']}",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold))),
       ],
     );
   }
 }
-
-class Repeats extends StatelessWidget {
-  const Repeats({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        const Padding(
-          padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
-          child: Icon(
-            CupertinoIcons.clock,
-            size: 40,
-            color: Color.fromARGB(255, 204, 198, 196),
-          ),
-        ),
-        Text(
-          ('repeats_txt'.tr),
-          style: const TextStyle(
-            fontSize: 20,
-            fontFamily: "Karla",
-            color: Color.fromARGB(255, 74, 70, 70),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /*
 
 class WeekdaySelector extends StatefulWidget {

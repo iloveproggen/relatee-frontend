@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
+import 'package:frontend_v1/shop.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 
@@ -133,9 +134,9 @@ class _NewShopItemState extends State<NewShopItem> {
                       color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
-                    const Text(
+                    Text(
                       'price:',
-                      style: TextStyle(fontSize: 25, fontFamily: "Karla"),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Expanded(
                       child: TextField(
@@ -150,10 +151,7 @@ class _NewShopItemState extends State<NewShopItem> {
                                 color: Color.fromARGB(255, 204, 198, 196),
                                 fontSize: 20),
                             border: InputBorder.none),
-                        style: const TextStyle(
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
                       ),
                     ),
                   ],
@@ -161,23 +159,22 @@ class _NewShopItemState extends State<NewShopItem> {
               ),
               Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 25,
                           color: Color.fromARGB(255, 204, 198, 196),
                         ),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Expanded(
                           child: Text(
-                            'Description',
+                            'description',
                               textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 25, fontFamily: "Karla"),
+                              style: Theme.of(context).textTheme.bodySmall,
                               )
                               ),
                       
@@ -196,12 +193,7 @@ class _NewShopItemState extends State<NewShopItem> {
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20),
                           border: InputBorder.none),
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 74, 70, 70),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        letterSpacing: 0,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
                     ),
                   )
                 ],
@@ -233,12 +225,15 @@ class _NewShopItemState extends State<NewShopItem> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                          print(taskName.text);
-                          print(taskPrice.text);
-                          print(description.text);
                           createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                          Get.back();
-                          Get.back();
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ShopView(userData: userData)),
+                        ).then((value) {
+                          setState(() {
+                            // Perform any state updates here
+                          });
+                        });
                         
                       },
                       child: Padding(
@@ -290,62 +285,57 @@ class _SliderWidgetState extends State<SliderWidget> {
       child: Padding(
         padding: const EdgeInsets.only(top: 40),
         child: Container(
-          width: 386,
-          height: 50,
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             color: const Color(0x7FD9D9D9),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Stack(
+            alignment: Alignment.center,
             children: [
               AnimatedAlign(
                 alignment:
                     _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
-                child: Container(
-                  width: 386/2,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(7),
+                child: FractionallySizedBox(
+                  widthFactor: 0.5,
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD9D9D9),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
                   ),
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'permanent',
-                        style: TextStyle(
-                          color: _isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
+                  Text(
+                    'permanent',
+                    style: TextStyle(
+                      color: _isPermanent
+                          ? Colors.black
+                          : const Color(0xFF4A4646),
+                      fontSize: 20,
+                      fontFamily: 'Karla',
+                      fontWeight:
+                          _isPermanent ? FontWeight.w700 : FontWeight.w300,
+                      height: 0,
                     ),
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'only once',
-                        style: TextStyle(
-                          color: !_isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
+                  Text(
+                    'only once',
+                    style: TextStyle(
+                      color: !_isPermanent
+                          ? Colors.black
+                          : const Color(0xFF4A4646),
+                      fontSize: 20,
+                      fontFamily: 'Karla',
+                      fontWeight:
+                          !_isPermanent ? FontWeight.w700 : FontWeight.w300,
+                      height: 0,
                     ),
                   ),
                 ],

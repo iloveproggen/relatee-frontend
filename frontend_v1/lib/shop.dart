@@ -423,7 +423,6 @@ class ItemCard extends StatelessWidget {
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                               fontFamily: "Karla",
-                              fontStyle: FontStyle.italic,
                               height: 1),
                             textAlign: TextAlign.start,
                           ),
