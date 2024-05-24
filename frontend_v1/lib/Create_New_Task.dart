@@ -553,6 +553,7 @@ class _AssignToState extends State<AssignTo> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else {
+                        print("household data: ${snapshot.data}");
                         List<Map<String, dynamic>> all =
                             householdUsers + snapshot.data!;
                         print(all);
