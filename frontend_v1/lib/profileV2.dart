@@ -269,7 +269,7 @@ class TaskOverview extends StatelessWidget {
         ),
         tasks.isNotEmpty ? Column(
           children: tasks.take(2).map((task) {
-            return Task(task: task);
+            return Task(task: task, userData: userData);
           }).toList(),
         )
         : Text("No Tasks found."),
