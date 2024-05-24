@@ -22,7 +22,7 @@ void main() {
 }
 
 http.Client httpClient = http.Client();
-bool _isPermanent = false;
+bool _taskView = true;
 
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
@@ -285,10 +285,21 @@ Future<void> deleteTask(int id) async {
   }
 }
 
-class MainView extends StatelessWidget {
+class MainView extends StatefulWidget {
   const MainView({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
+
+  @override
+  State<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
+  void _updateTasks() {
+    setState(() {
+      // Add your code here to update the tasks
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -297,7 +308,7 @@ class MainView extends StatelessWidget {
         child: Padding(
             padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: getUserTasks(userData['id']),
+              future: getUserTasks(widget.userData['id']),
               builder: (BuildContext context,
                   AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -308,10 +319,10 @@ class MainView extends StatelessWidget {
                   final tasks = snapshot.data ?? [];
                   return Column(
                     children: [
-                      IconRow(userData: userData, tasks: tasks),
-                      WelcomeText(userData: userData, tasks: tasks),
+                      IconRow(userData: widget.userData, tasks: tasks),
+                      WelcomeText(userData: widget.userData, tasks: tasks),
                       ButtonRecommended(tasks: tasks),
-                      TaskOverview(userData: userData, tasks: tasks),
+                      TaskOverview(userData: widget.userData, tasks: tasks),
                       // Add your code here to display the tasks
                     ],
                   );
@@ -693,7 +704,7 @@ class _TaskState extends State<TaskOverview> {
               child: Stack(
                 children: [
                   AnimatedAlign(
-                    alignment: _isPermanent
+                    alignment: _taskView
                         ? Alignment.centerLeft
                         : Alignment.centerRight,
                     duration: const Duration(milliseconds: 200),
@@ -714,11 +725,11 @@ class _TaskState extends State<TaskOverview> {
                           child: TextButton(
                             onPressed: () {
                               setState(() {
-                                _isPermanent = true;
+                                _taskView = true;
                               });
                             },
                             child: Text('task view',
-                                style: _isPermanent
+                                style: _taskView
                                     ? Theme.of(context)
                                         .textTheme
                                         .bodySmall
@@ -734,11 +745,11 @@ class _TaskState extends State<TaskOverview> {
                           child: TextButton(
                             onPressed: () {
                               setState(() {
-                                _isPermanent = false;
+                                _taskView = false;
                               });
                             },
                             child: Text('routine view',
-                                style: _isPermanent
+                                style: _taskView
                                     ? Theme.of(context).textTheme.bodySmall
                                     : Theme.of(context)
                                         .textTheme
@@ -757,7 +768,7 @@ class _TaskState extends State<TaskOverview> {
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Column(
-                children: _isPermanent
+                children: _taskView
                     ? [
                         tasks.isEmpty
                             ? const Text("No Tasks found.")
@@ -779,14 +790,39 @@ class _TaskState extends State<TaskOverview> {
                                                   'Are you sure you want to delete this task?'),
                                               actions: [
                                                 CupertinoDialogAction(
-                                                  child: const Text('Cancel',
-                                                      style: TextStyle(
-                                                          color: Colors.blue)),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    setState(() {});
-                                                  },
-                                                ),
+                                                    child: const Text('Cancel',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.blue)),
+                                                    onPressed: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                                context) =>
+                                                            Container(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .background,
+                                                          child: const Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          ),
+                                                        ),
+                                                      );
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              MainWidget(
+                                                                  userId:
+                                                                      userData[
+                                                                          'id']),
+                                                        ),
+                                                      );
+                                                    }),
                                                 CupertinoDialogAction(
                                                   onPressed: () {
                                                     deleteTask(task['id']);
