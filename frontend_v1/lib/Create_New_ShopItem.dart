@@ -230,10 +230,13 @@ class _NewShopItemState extends State<NewShopItem> {
                     child: TextButton(
                       onPressed: () {
                           createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                          Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ShopView(userData: userData)),
-                        ).then((value) {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainWidget(userId: userData['id'])),
+                            (route) => false,
+                          );
+                          Navigator.push(context, MaterialPageRoute(builder: ((context) => ShopView(userData: userData)))
+                          ).then((value) {
                           setState(() {
                             // Perform any state updates here
                           });
