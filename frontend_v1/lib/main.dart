@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
@@ -22,6 +22,7 @@ void main() {
 }
 
 http.Client httpClient = http.Client();
+bool _isPermanent = false;
 
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
@@ -45,6 +46,7 @@ Future<GraphQLClient> getGraphQLClient() async {
     link: link,
   );
 }
+
 final random = Random();
 
 Future<List<Map<String, dynamic>>> getHouseholdUsers(int id) async {
@@ -271,7 +273,6 @@ Future<void> deleteTask(int id) async {
   );
   try {
     await client.mutate(options).timeout(const Duration(seconds: 10));
-
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -679,92 +680,203 @@ class _TaskState extends State<TaskOverview> {
           ),
         ),
         const SizedBox(height: 10),
-        ButtonRow(tasks: tasks),
-        tasks.isEmpty
-            ? const Text("No Tasks found.")
-            : Column(
-                children: tasks.take(2).map((task) {
-                  return Dismissible(
-                    key: ValueKey(task['id']),
-                    child: Task(task: task),
-                    onDismissed: (direction) {
-                      showCupertinoDialog(
-                        context: context,
-                        builder: (BuildContext context) => CupertinoAlertDialog(
-                          title: const Text('Delete Task'),
-                          content: const Text('Are you sure you want to delete this task?'),
-                          actions: [
-                            CupertinoDialogAction(
-                              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                                Navigator.pop(context);
-                                setState(() {});
-                              },
-                            ),
-                            CupertinoDialogAction(
-                              onPressed: () {
-                                deleteTask(task['id']);
-                                tasks.removeWhere((t) => t['id'] == task['id']);
-                                Navigator.pop(context);
-                                setState(() {});
-                              },
-                              isDestructiveAction: true,
-                              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 20),
+            Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: const Color(0x7FD9D9D9),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Stack(
+                children: [
+                  AnimatedAlign(
+                    alignment: _isPermanent
+                        ? Alignment.centerLeft
+                        : Alignment.centerRight,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 2 - 40,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD9D9D9),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isPermanent = true;
+                              });
+                            },
+                            child: Text('task view',
+                                style: _isPermanent
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                    : Theme.of(context).textTheme.bodySmall),
+                          ),
                         ),
-                      );
-                    },
-                    background: Container(
-                      margin: const EdgeInsets.only(right: 30, bottom: 22),
-                      alignment: Alignment.centerRight,
-                      child: const Icon(CupertinoIcons.delete,
-                          color: Colors.red, size: 30),
-                    ),
-                  );
-                }).toList(),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isPermanent = false;
+                              });
+                            },
+                            child: Text('routine view',
+                                style: _isPermanent
+                                    ? Theme.of(context).textTheme.bodySmall
+                                    : Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 40),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
-                },
-                child: Row(
-                  children: [
-                    Text('SeeAllTasks_txt'.tr,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(fontSize: 15)),
-                    const SizedBox(width: 5),
-                    Icon(
-                      CupertinoIcons.arrow_right,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: size,
-                    ),
-                  ],
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Column(
+                children: _isPermanent
+                    ? [
+                        tasks.isEmpty
+                            ? const Text("No Tasks found.")
+                            : Column(
+                                children: [
+                                  ButtonRow(tasks: tasks),
+                                  Column(
+                                    children: tasks.map((task) {
+                                      return Dismissible(
+                                        key: ValueKey(task['id']),
+                                        child: Task(task: task),
+                                        onDismissed: (direction) {
+                                          showCupertinoDialog(
+                                            context: context,
+                                            builder: (BuildContext context) =>
+                                                CupertinoAlertDialog(
+                                              title: const Text('Delete Task'),
+                                              content: const Text(
+                                                  'Are you sure you want to delete this task?'),
+                                              actions: [
+                                                CupertinoDialogAction(
+                                                  child: const Text('Cancel',
+                                                      style: TextStyle(
+                                                          color: Colors.blue)),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                                CupertinoDialogAction(
+                                                  onPressed: () {
+                                                    deleteTask(task['id']);
+                                                    tasks.removeWhere((t) =>
+                                                        t['id'] == task['id']);
+                                                    Navigator.pop(context);
+                                                    setState(() {});
+                                                  },
+                                                  isDestructiveAction: true,
+                                                  child: const Text('Delete',
+                                                      style: TextStyle(
+                                                          color: Colors.red)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        background: Container(
+                                          margin: const EdgeInsets.only(
+                                              right: 30, bottom: 22),
+                                          alignment: Alignment.centerRight,
+                                          child: const Icon(
+                                              CupertinoIcons.delete,
+                                              color: Colors.red,
+                                              size: 30),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 40),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // TextButton(
+                              //   onPressed: () {
+                              //     Get.to(() => SeeAllTasks(
+                              //         userData: userData, tasks: tasks));
+                              //   },
+                              //   child: Row(
+                              //     children: [
+                              //       Text('SeeAllTasks_txt'.tr,
+                              //           style: Theme.of(context)
+                              //               .textTheme
+                              //               .labelSmall
+                              //               ?.copyWith(fontSize: 15)),
+                              //       const SizedBox(width: 5),
+                              //       Icon(
+                              //         CupertinoIcons.arrow_right,
+                              //         color: Theme.of(context)
+                              //             .colorScheme
+                              //             .tertiary,
+                              //         size: size,
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+                              TextButton(
+                                onPressed: () {
+                                  Get.to(() => const MainHouseholdOverview(
+                                      userData: {}));
+                                },
+                                child: Row(
+                                  children: [
+                                    Text("See Household Overview",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(fontSize: 18)),
+                                    const SizedBox(width: 10),
+                                    Icon(
+                                      CupertinoIcons.house,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                      size: size,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]
+                    : [const RoutineWidget()],
               ),
-              TextButton(
-                onPressed: () {
-                  Get.to(() => const MainHouseholdOverview(userData: {}));
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.house,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: size,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            )
+          ],
         ),
       ],
     );
@@ -800,23 +912,22 @@ class Task extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(task['name'], style: Theme.of(context).textTheme.bodySmall),
-              const Padding(
-                padding: const EdgeInsets.only(right: 30),
-                child: SizedBox(height: 10),
-                // child: Builder(
-                //   builder: (context) {
-                //     switch (taskStatus) {
-                //       case 0:
-                //         return SvgPicture.asset("assets/images/green.svg");
-                //       case 1:
-                //         return SvgPicture.asset("assets/images/yellow.svg");
-                //       case 2:
-                //         return SvgPicture.asset("assets/images/red.svg");
-                //       default:
-                //         return SvgPicture.asset("assets/images/red.svg");
-                //     }
-                //   },
-              ),
+              Padding(
+                  padding: const EdgeInsets.only(right: 30),
+                  child: Builder(
+                    builder: (context) {
+                      switch (task['status']) {
+                        case 1:
+                          return SvgPicture.asset("assets/images/green.svg");
+                        case 2:
+                          return SvgPicture.asset("assets/images/yellow.svg");
+                        case 0:
+                          return SvgPicture.asset("assets/images/red.svg");
+                        default:
+                          return SvgPicture.asset("assets/images/red.svg");
+                      }
+                    },
+                  )),
             ],
           ),
         ),
