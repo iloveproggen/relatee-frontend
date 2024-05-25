@@ -18,6 +18,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+late Map<String, dynamic> userData;
 void main() {
   runApp(const LoginApp());
 }
@@ -56,6 +57,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   query GetUser(\$id: Int!) {
     user(id: \$id) {
       household {
+        name
         user {
           id
           forename
@@ -102,6 +104,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'username': user['username'],
           'email': user['email'],
           'points': user['points'],
+          'householdName': result.data!['user']['household']['name'],
         };
       }).toList();
 
@@ -118,8 +121,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
         };
       }).toList();
 
-      print(mappedUsers);
-      print(mappedTasks);
+      print(mappedUsers[1]['householdName']);
 
       return {
         'users': mappedUsers,
@@ -281,7 +283,6 @@ Future<Map<String, dynamic>> getUserData(int id) async {
       points
       household {
         name
-        ownerId
       }
     }
   }
@@ -307,14 +308,14 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'surname': user['surname'],
         'username': user['username'],
         'email': user['email'],
-        'points': user['balance'],
+        'points': user['po'],
         'householdName': user['household']['name'],
         'householdId': user['householdId'],
       };
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-      print(mappedResult);
+      userData = mappedResult;
       return mappedResult;
     }
   } on SocketException catch (e) {
@@ -348,7 +349,7 @@ class MainWidget extends StatelessWidget {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
           print('here is the userdata: ${snapshot.data}');
-          return MainView(userData: snapshot.data ?? {});
+          return const MainView();
         }
       },
     );
@@ -382,10 +383,52 @@ Future<void> deleteTask(int id) async {
   }
 }
 
-class MainView extends StatefulWidget {
-  const MainView({super.key, required this.userData});
+Future<void> addPoints(String pointsToAdd) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+    mutation updateUser(\$id: Int!, \$points: Int, \$email: String) {
+      updateUser(
+        id: \$id
+        points: \$points
+        email: \$email
+      ) {
+        id
+        points
+        email
+      }
+    }
+  '''),
+    variables: <String, dynamic>{
+      'id': userData['id'],
+      'points': userData['points'] + int.parse(pointsToAdd),
+      'email': userData['email'],
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      print('Points added successfully');
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+}
 
-  final Map<String, dynamic> userData;
+class MainView extends StatefulWidget {
+  const MainView({super.key});
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -405,7 +448,7 @@ class _MainViewState extends State<MainView> {
         child: Padding(
             padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: getUserTasks(widget.userData['id']),
+              future: getUserTasks(userData['id']),
               builder: (BuildContext context,
                   AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -416,10 +459,10 @@ class _MainViewState extends State<MainView> {
                   final tasks = snapshot.data ?? [];
                   return Column(
                     children: [
-                      IconRow(userData: widget.userData, tasks: tasks),
-                      WelcomeText(userData: widget.userData, tasks: tasks),
+                      IconRow(userData: userData, tasks: tasks),
+                      WelcomeText(userData: userData, tasks: tasks),
                       ButtonRecommended(tasks: tasks),
-                      TaskOverview(userData: widget.userData, tasks: tasks),
+                      TaskOverview(userData: userData, tasks: tasks),
                       // Add your code here to display the tasks
                     ],
                   );
@@ -885,48 +928,72 @@ class _TaskState extends State<TaskOverview> {
                                   Column(
                                     children: tasks.map((task) {
                                       return Dismissible(
+                                        direction: DismissDirection.horizontal,
                                         key: ValueKey(task['id']),
                                         onDismissed: (direction) {
-                                          showCupertinoDialog(
-                                            context: context,
-                                            builder: (BuildContext context) =>
-                                                CupertinoAlertDialog(
-                                              title: const Text('Delete Task'),
-                                              content: const Text(
-                                                  'Are you sure you want to delete this task?'),
-                                              actions: [
-                                                CupertinoDialogAction(
-                                                    child: const Text('Cancel',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.blue)),
+                                          if (direction ==
+                                              DismissDirection.endToStart) {
+                                            showCupertinoDialog(
+                                              context: context,
+                                              builder: (BuildContext context) =>
+                                                  CupertinoAlertDialog(
+                                                title:
+                                                    const Text('Delete Task'),
+                                                content: const Text(
+                                                    'Are you sure you want to delete this task?'),
+                                                actions: [
+                                                  CupertinoDialogAction(
+                                                      child: const Text(
+                                                          'Cancel',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.blue)),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                        Get.forceAppUpdate();
+                                                      }),
+                                                  CupertinoDialogAction(
                                                     onPressed: () {
+                                                      deleteTask(task['id']);
+                                                      tasks.removeWhere((t) =>
+                                                          t['id'] ==
+                                                          task['id']);
+                                                      Navigator.pop(context);
                                                       Get.forceAppUpdate();
-                                                    }),
-                                                CupertinoDialogAction(
-                                                  onPressed: () {
-                                                    deleteTask(task['id']);
-                                                    tasks.removeWhere((t) =>
-                                                        t['id'] == task['id']);
-                                                    Navigator.pop(context);
-                                                    Get.forceAppUpdate();
-                                                  },
-                                                  isDestructiveAction: true,
-                                                  child: const Text('Delete',
-                                                      style: TextStyle(
-                                                          color: Colors.red)),
-                                                ),
-                                              ],
-                                            ),
-                                          );
+                                                    },
+                                                    isDestructiveAction: true,
+                                                    child: const Text('Delete',
+                                                        style: TextStyle(
+                                                            color: Colors.red)),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            print("Task completed! ${task['points']}");
+                                            deleteTask(task['id']);
+                                            tasks.removeWhere(
+                                                (t) => t['id'] == task['id']);
+                                            addPoints(task['points'].toString());
+                                            Get.forceAppUpdate();
+                                          }
                                         },
-                                        background: Container(
+                                        secondaryBackground: Container(
                                           margin: const EdgeInsets.only(
                                               right: 30, bottom: 22),
                                           alignment: Alignment.centerRight,
                                           child: const Icon(
                                               CupertinoIcons.delete,
                                               color: Colors.red,
+                                              size: 30),
+                                        ),
+                                        background: Container(
+                                          margin: const EdgeInsets.only(
+                                              left: 30, bottom: 22),
+                                          alignment: Alignment.centerLeft,
+                                          child: const Icon(
+                                              CupertinoIcons.check_mark,
+                                              color: Colors.green,
                                               size: 30),
                                         ),
                                         child: Task(

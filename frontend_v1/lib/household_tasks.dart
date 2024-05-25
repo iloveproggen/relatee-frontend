@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
 
 late List<Map<String, dynamic>> tasks;
@@ -34,7 +35,6 @@ class HouseholdOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('\n\n\ntest: ${userData['id']}');
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,9 +51,9 @@ class HouseholdOverview extends StatelessWidget {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
+                  print(userData['householdName']);
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
-                  print(users);
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -71,6 +71,7 @@ class HouseholdOverview extends StatelessWidget {
                               task: task, userData: userData);
                         }).toList(),
                       ),
+                      const SizedBox(height: 50)
                     ],
                   );
                 }
@@ -99,6 +100,7 @@ class HouseholdMembers extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(users.length, (index) {
+            print(users[index]['householdName']);
             return Member(userData: users[index]);
           }),
         ),
@@ -119,18 +121,30 @@ class Member extends StatelessWidget {
       children: [
         // Icon(CupertinoIcons.person_fill, size: 50, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),),
         // const SizedBox(width: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(userData['forename'] + " " + userData['surname'],
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      )),
-              Text("@${userData['username']}",
-                  style: Theme.of(context).textTheme.bodySmall),
-            ],
+        TextButton(
+          style: ButtonStyle(
+              animationDuration: Duration.zero,
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.all(0),
+              )),
+          onPressed: () {
+            Get.to(() => PublicProfile(userData: userData, tasks: tasks
+                .where((task) => task['userId'] == userData['id'])
+                .toList()));
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(userData['forename'] + " " + userData['surname'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        )),
+                Text("@${userData['username']}",
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
         ),
         const Spacer(),
@@ -230,14 +244,34 @@ class MoreDetailsTask extends StatelessWidget {
                 task['description'] == ""
                     ? Container()
                     : Text('"${task['description']}"',
-                        style: Theme.of(context).textTheme.bodySmall),
-                Text(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.tertiary,
+                            )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     (users.firstWhere((user) => user['id'] == task['userId'])[
                                 'forename']) ==
                             null
-                        ? 'anyone'
-                        : "assigned to ${users.firstWhere((user) => user['id'] == task['userId'])['forename']}",
-                    style: Theme.of(context).textTheme.bodySmall),
+                        ? Text('anyone',
+                            style: Theme.of(context).textTheme.bodySmall)
+                        : Text(
+                            "assigned to ${users.firstWhere((user) => user['id'] == task['userId'])['forename']}",
+                            style: Theme.of(context).textTheme.bodySmall),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
+                          border: Border.all(
+                              color: Theme.of(context).colorScheme.tertiary),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(task['points'].toString() + " pts",
+                              style: Theme.of(context).textTheme.bodySmall),
+                        )),
+                  ],
+                )
               ],
             ),
           ),

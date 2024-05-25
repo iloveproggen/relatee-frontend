@@ -410,6 +410,16 @@ class ItemCard extends StatelessWidget {
                               .bodySmall
                               ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
+                    Text(
+                      "$taskPrice pts",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
                     description == "" || description == null
                         ? Container()
                         : Container(
@@ -419,25 +429,13 @@ class ItemCard extends StatelessWidget {
                             "\'$description\'",
                             maxLines: 5,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 204, 198, 196),
-                              fontSize: 20,
-                              fontFamily: "Karla",
-                              height: 1),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
                             textAlign: TextAlign.start,
                           ),
                           ),
-                    Text(
-                      "$taskPrice pts",
-                      
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
-                          fontSize: 20,
-                          fontFamily: "Karla"),
-                      textAlign: TextAlign.center,
-                    ),
+                    
                   ],
                 ),
               ),
