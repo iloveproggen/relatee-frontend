@@ -10,7 +10,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 Map<String, dynamic> assignedToUser = {};
 bool isPermanent = false;
 
-void updateTask(String name, String description, int points,
+void updateTask(String name, String description, int reward,
     Map<String, dynamic> userData, Map<String, dynamic> task) async {
   // Update task
   final Map<String, dynamic> variables = {
@@ -20,23 +20,23 @@ void updateTask(String name, String description, int points,
     'name': name,
     'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
     'description': description,
-    'points': points,
+    'reward': reward,
     'status': 0
   };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
 document: gql(
-  r'''mutation UpdateTask($id: Int!, $userId: Int, $householdId: Int, $routineId: Int, $name: String, $deadline: String, $description: String, $points: Int, $status: Int) {
-    updateTask(id: $id, userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, points: $points, status: $status) {
+  r'''mutation UpdateTask($id: Int!, $userId: Int, $householdId: Int, $routineId: Int, $name: String, $deadline: String, $description: String, $reward: Int, $completed: Boolean) {
+    updateTask(id: $id, userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed) {
       id
       householdId
       routineId
       name
       deadline
       description
-      points
-      status
+      reward
+      completed
     }
   }
   '''
@@ -257,7 +257,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                           FilteringTextInputFormatter.digitsOnly
                         ],
                         decoration: InputDecoration(
-                            hintText: task['points'].toString(),
+                            hintText: task['reward'].toString(),
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -349,7 +349,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                               taskName.text = task['name'];
                             }
                             if(taskPrice.text.isEmpty) {
-                              taskPrice.text = task['points'].toString();
+                              taskPrice.text = task['reward'].toString();
                             }
                             if(description.text.isEmpty) {
                               description.text = task['description'];
@@ -363,13 +363,10 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainWidget(
-                                      userId: widget.userData['id'])),
+                                  builder: (context) => MainWidget(userId: widget.userData['id'])),
                               (route) => false,
                             ).then((value) {
-                              setState(() {
-                                // Perform any state updates here
-                              });
+                              Get.forceAppUpdate();
                             });
                           },
                           child: const Padding(

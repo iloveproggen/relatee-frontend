@@ -18,13 +18,16 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-late Map<String, dynamic> userData;
 void main() {
   runApp(const LoginApp());
 }
 
+late Map<String, dynamic> userData;
+late List<Map<String, dynamic>> tasks;
+
 http.Client httpClient = http.Client();
 bool _taskView = true;
+final random = Random();
 
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
@@ -49,22 +52,21 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
-final random = Random();
 Future<Map<String, dynamic>> getHouseholdData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUser(\$id: Int!) {
+  query user(\$id: Int!) {
     user(id: \$id) {
       household {
         name
-        user {
+        users {
           id
           forename
           surname
           username
           email
-          points
+          coins
         }
         tasks {
           id
@@ -72,8 +74,8 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           name
           description
           deadline
-          points
-          status    
+          reward
+          completed    
         }
       }
     }
@@ -92,7 +94,9 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      final users = result.data!['user']['household']['user'];
+      print("getting results...");
+      print(result.data!['user']);
+      final users = result.data!['user']['household']['users'];
       final tasks = result.data!['user']['household']['tasks'];
 
       final List<Map<String, dynamic>> mappedUsers =
@@ -103,7 +107,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'surname': user['surname'],
           'username': user['username'],
           'email': user['email'],
-          'points': user['points'],
+          'coins': user['coins'],
           'householdName': result.data!['user']['household']['name'],
         };
       }).toList();
@@ -116,12 +120,13 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'name': task['name'],
           'description': task['description'],
           'deadline': task['deadline'],
-          'points': task['points'],
-          'status': task['status'],
+          'reward': task['reward'],
+          'completed': task['completed'],
         };
       }).toList();
 
-      print(mappedUsers[1]['householdName']);
+      print(mappedUsers);
+      print(mappedTasks);
 
       return {
         'users': mappedUsers,
@@ -144,130 +149,6 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   };
 }
 
-Future<List<Map<String, dynamic>>> getHouseholdUsers(int id) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUser(\$id: Int!) {
-    user(id: \$id) {
-      household {
-        users {
-          id
-          forename
-          surname
-          username
-          email
-          coins
-        }
-      }
-    }
-  }
-'''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      final users = result.data!['user']['household']['user'];
-      final List<Map<String, dynamic>> mappedUsers =
-          users.map<Map<String, dynamic>>((user) {
-        return {
-          'id': user['id'],
-          'forename': user['forename'],
-          'surname': user['surname'],
-          'username': user['username'],
-          'email': user['email'],
-          'points': user['points'],
-        };
-      }).toList();
-      print(mappedUsers);
-      return mappedUsers;
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return [];
-}
-
-Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUserTasks(\$id: Int!) {
-    user(id: \$id) {
-        tasks {
-            id,
-            userId,
-            name,
-            description,
-            deadline,
-            reward,
-            completed,
-            household {
-                id
-            }
-        }
-    }
-}
-'''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      final tasks = result.data!['user']['tasks'];
-      final List<Map<String, dynamic>> mappedTasks =
-          tasks.map<Map<String, dynamic>>((task) {
-        return {
-          'id': task['id'],
-          'userId': task['userId'],
-          'name': task['name'],
-          'description': task['description'],
-          'deadline': task['deadline'],
-          'points': task['points'],
-          'status': task['status'],
-          'householdId': task['household']['id'],
-        };
-      }).toList();
-      print(mappedTasks);
-      return mappedTasks;
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return [];
-}
-
 Future<Map<String, dynamic>> getUserData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -285,6 +166,16 @@ Future<Map<String, dynamic>> getUserData(int id) async {
       coins
       household {
         name
+      }
+      tasks {
+        id
+        name
+        deadline
+        description
+        reward
+        completed
+        completed_at
+        private
       }
     }
   }
@@ -310,16 +201,28 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'surname': user['surname'],
         'username': user['username'],
         'email': user['email'],
-        'coints': user['coins'],
+        'coins': user['coins'],
         'experience': user['experience'],
         'level': user['level'],
         'householdName': user['household']['name'],
         'householdId': user['householdId'],
+        'tasks': user['tasks']
+            .map((task) => {
+                  'id': task['id'],
+                  'name': task['name'],
+                  'deadline': task['deadline'],
+                  'description': task['description'],
+                  'reward': task['reward'],
+                  'completed': task['completed'],
+                  'completed_at': task['completed_at'],
+                  'private': task['private'],
+                })
+            .toList(),
       };
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-      userData = mappedResult;
+
       return mappedResult;
     }
   } on SocketException catch (e) {
@@ -335,29 +238,14 @@ Future<Map<String, dynamic>> getUserData(int id) async {
   return {};
 }
 
-class MainWidget extends StatelessWidget {
-  const MainWidget({super.key, required this.userId});
-
-  final int userId;
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: getUserData(userId),
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          print('here is the userdata: ${snapshot.data}');
-          return const MainView();
-        }
-      },
-    );
+int countToDo(List<Map<String, dynamic>> tasks) {
+  int count = 0;
+  for (var task in tasks) {
+    if (task['completed'] == false) {
+      count++;
+    }
   }
+  return count;
 }
 
 Future<void> deleteTask(int id) async {
@@ -387,25 +275,25 @@ Future<void> deleteTask(int id) async {
   }
 }
 
-Future<void> addPoints(String pointsToAdd) async {
+Future<void> addPoints(String coinsToAdd) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-    mutation updateUser(\$id: Int!, \$points: Int, \$email: String) {
+    mutation updateUser(\$id: Int!, \$coins: Int, \$email: String) {
       updateUser(
         id: \$id
-        points: \$points
+        coins: \$coins
         email: \$email
       ) {
         id
-        points
+        coins
         email
       }
     }
   '''),
     variables: <String, dynamic>{
       'id': userData['id'],
-      'points': userData['points'] + int.parse(pointsToAdd),
+      'coins': userData['coins'] + int.parse(coinsToAdd),
       'email': userData['email'],
     },
   );
@@ -431,6 +319,36 @@ Future<void> addPoints(String pointsToAdd) async {
   }
 }
 
+class MainWidget extends StatelessWidget {
+  const MainWidget({super.key, required this.userId});
+
+  final int userId;
+  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: getUserData(userId),
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
+          userData = snapshot.data!;
+          print('\nhere is all the data: ${snapshot.data}');
+          print('\nhere is the userdata: $userData');
+          print('\nhere are the tasks: $tasks');
+
+          return const MainView();
+        }
+      },
+    );
+  }
+}
+
 class MainView extends StatefulWidget {
   const MainView({super.key});
 
@@ -447,30 +365,17 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SingleChildScrollView(
         child: Padding(
             padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: getUserTasks(userData['id']),
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else {
-                  final tasks = snapshot.data ?? [];
-                  return Column(
-                    children: [
-                      IconRow(userData: userData, tasks: tasks),
-                      WelcomeText(userData: userData, tasks: tasks),
-                      ButtonRecommended(tasks: tasks),
-                      TaskOverview(userData: userData, tasks: tasks),
-                    ],
-                  );
-                }
-              },
+            child: Column(
+              children: [
+                IconRow(),
+                WelcomeText(),
+                ButtonRecommended(),
+                TaskOverview(),
+              ],
             )),
       ),
     );
@@ -478,10 +383,8 @@ class _MainViewState extends State<MainView> {
 }
 
 class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.userData, required this.tasks});
+  const IconRow({super.key});
 
-  final Map<String, dynamic> userData;
-  final List<Map<String, dynamic>> tasks;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -543,10 +446,7 @@ class IconRow extends StatelessWidget {
 }
 
 class WelcomeText extends StatelessWidget {
-  const WelcomeText({super.key, required this.userData, required this.tasks});
-
-  final Map<String, dynamic> userData;
-  final List<Map<String, dynamic>> tasks;
+  const WelcomeText({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -580,14 +480,12 @@ class WelcomeText extends StatelessWidget {
 }
 
 class ButtonRecommended extends StatelessWidget {
-  const ButtonRecommended({super.key, required this.tasks});
+  const ButtonRecommended({super.key});
 
-  final List<Map<String, dynamic>> tasks;
   final double height = 150;
 
   @override
   Widget build(BuildContext context) {
-    print(tasks);
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -690,16 +588,6 @@ class ButtonCompleted extends StatelessWidget {
   }
 }
 
-int countToDo(List<Map<String, dynamic>> tasks) {
-  int count = 0;
-  for (var task in tasks) {
-    if (task['status'] == 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
 
@@ -794,22 +682,15 @@ class ButtonRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatefulWidget {
-  const TaskOverview({super.key, required this.userData, required this.tasks});
-
-  final Map<String, dynamic> userData;
-  final List<Map<String, dynamic>> tasks;
+  const TaskOverview({super.key});
 
   @override
-  State<TaskOverview> createState() =>
-      _TaskState(userData: userData, tasks: tasks);
+  State<TaskOverview> createState() => _TaskState();
 }
 
 class _TaskState extends State<TaskOverview> {
-  _TaskState({required this.userData, required this.tasks});
+  _TaskState();
   final double size = 15;
-
-  final List<Map<String, dynamic>> tasks;
-  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -973,11 +854,13 @@ class _TaskState extends State<TaskOverview> {
                                               ),
                                             );
                                           } else {
-                                            print("Task completed! ${task['points']}");
+                                            print(
+                                                "Task completed! ${task['points']}");
                                             deleteTask(task['id']);
                                             tasks.removeWhere(
                                                 (t) => t['id'] == task['id']);
-                                            addPoints(task['points'].toString());
+                                            addPoints(
+                                                task['points'].toString());
                                             Get.forceAppUpdate();
                                           }
                                         },

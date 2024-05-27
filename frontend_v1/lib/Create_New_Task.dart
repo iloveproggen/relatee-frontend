@@ -8,17 +8,17 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 Map<String, dynamic> assignedToUser = {};
-List<Map<String, dynamic>> householdUsers = [
+Map<String, dynamic> householdUsers = 
   {
     'forename': '...',
     'surname': '...',
     'id': null,
     'username': '...',
-  }
-];
+  };
+
 bool isPermanent = false;
 
-void createNewTask(int? userId, String name, String description, int points,
+void createNewTask(int? userId, String name, String description, int reward,
     Map<String, dynamic> userData) async {
   final Map<String, dynamic> variables = {
     'userId': userId,
@@ -27,25 +27,27 @@ void createNewTask(int? userId, String name, String description, int points,
     'name': name,
     'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
     'description': description,
-    'points': points,
-    'status': 0
+    'reward': reward,
+    'completed': false,
+    'ownerId': userData['id']
   };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-    document: gql(
-        r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $points: Int!, $status: Int!) {
-  createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, points: $points, status: $status) {
-    userId
-    householdId
-    routineId
-    name
-    deadline
-    description
-    points
-    status
+document: gql(
+  r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
+    createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed, ownerId: $ownerId) {
+      userId
+      householdId
+      routineId
+      name
+      deadline
+      description
+      reward
+      completed
+      ownerId
+    }
   }
-}
 '''),
     variables: variables,
   );
@@ -345,7 +347,8 @@ class _NewTaskState extends State<NewTask> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                        print(taskName.text);
+                        if (required)
+                        {print(taskName.text);
                         print(taskPrice.text);
                         print(assignedToUser);
                         print(description.text);
@@ -355,18 +358,16 @@ class _NewTaskState extends State<NewTask> {
                             description.text,
                             int.parse(taskPrice.text),
                             widget.userData);
-                        //createTask(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                        //Get.back();
-
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => MainWidget(userId: widget.userData['id'])),
                             (route) => false,
-                          ).then((value) {
-                          setState(() {
-                            // Perform any state updates here
-                          });
-                        });
+                          )..then((value) {
+                              Get.forceAppUpdate();
+                            });}
+                          else {
+                            Get.back();
+                          }
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -544,9 +545,9 @@ class _AssignToState extends State<AssignTo> {
                 context: context,
                 builder: (BuildContext context) {
                   return FutureBuilder(
-                    future: getHouseholdUsers(widget.userData['id']),
+                    future: getHouseholdData(widget.userData['id']),
                     builder: (BuildContext context,
-                        AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                        AsyncSnapshot<Map<String, dynamic>> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                             child: CupertinoActivityIndicator());
@@ -554,8 +555,9 @@ class _AssignToState extends State<AssignTo> {
                         return Text('Error: ${snapshot.error}');
                       } else {
                         print("household data: ${snapshot.data}");
-                        List<Map<String, dynamic>> all =
-                            householdUsers + snapshot.data!;
+                        List<Map<String, dynamic>> all = [];
+                        all.add(householdUsers);
+                        all.addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
                         print(all);
                         return Container(
                           color: Theme.of(context).colorScheme.background,
