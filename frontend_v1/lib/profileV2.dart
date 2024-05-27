@@ -152,12 +152,12 @@ class ProfileView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 50, right: 10),
                           child:
-                              _buildInfoContainer('${userData['points']} pts'),
+                              _buildInfoContainer('${userData['coins']} pts'),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 50),
                           child:
-                              _buildInfoContainer('lvl ${userData['points']}'),
+                              _buildInfoContainer('lvl ${userData['level']}'),
                         ),
                       ],
                     ),
@@ -296,7 +296,7 @@ class TaskOverview extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: userData));
+                  Get.to(() => MainHouseholdOverview(pUserData: userData));
                 },
                 child: Row(
                   children: [

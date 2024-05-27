@@ -66,6 +66,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           surname
           username
           email
+          level
           coins
         }
         tasks {
@@ -107,6 +108,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'surname': user['surname'],
           'username': user['username'],
           'email': user['email'],
+          'level': user['level'],
           'coins': user['coins'],
           'householdName': result.data!['user']['household']['name'],
         };
@@ -318,6 +320,8 @@ Future<void> addPoints(String coinsToAdd) async {
     // Handle other errors
   }
 }
+
+void gotCoinsPopup(int coins, BuildContext context) {}
 
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.userId});
@@ -855,13 +859,31 @@ class _TaskState extends State<TaskOverview> {
                                             );
                                           } else {
                                             print(
-                                                "Task completed! ${task['points']}");
+                                                "Task completed! ${task['reward']}");
                                             deleteTask(task['id']);
                                             tasks.removeWhere(
                                                 (t) => t['id'] == task['id']);
-                                            addPoints(
-                                                task['points'].toString());
-                                            Get.forceAppUpdate();
+                                            addPoints(task['reward'].toString());
+                                            showCupertinoDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CupertinoAlertDialog(
+                                                  title:
+                                                      Text('Congratulations!'),
+                                                  content: Text(
+                                                      'You gained ${task['reward']} coins.'),
+                                                  actions: [
+                                                    CupertinoDialogAction(
+                                                      child: Text('OK'),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                        Get.forceAppUpdate();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
                                           }
                                         },
                                         secondaryBackground: Container(
@@ -920,7 +942,7 @@ class _TaskState extends State<TaskOverview> {
                               TextButton(
                                 onPressed: () {
                                   Get.to(() => MainHouseholdOverview(
-                                      userData: userData));
+                                      pUserData: userData));
                                 },
                                 child: Row(
                                   children: [
@@ -993,8 +1015,11 @@ class Task extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(task['name'],
-                    style: Theme.of(context).textTheme.bodySmall),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 200),
+                  child: Text(task['name'],
+                      style: Theme.of(context).textTheme.bodySmall),
+                ),
                 Padding(
                     padding: const EdgeInsets.only(right: 30),
                     child: Builder(

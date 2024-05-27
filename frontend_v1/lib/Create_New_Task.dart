@@ -7,14 +7,30 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+class MaxLengthNumberInputFormatter extends TextInputFormatter {
+  final int maxDigits;
+
+  MaxLengthNumberInputFormatter(this.maxDigits);
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.length > maxDigits) {
+      return oldValue;
+    }
+    return newValue;
+  }
+}
+
 Map<String, dynamic> assignedToUser = {};
-Map<String, dynamic> householdUsers = 
-  {
-    'forename': '...',
-    'surname': '...',
-    'id': null,
-    'username': '...',
-  };
+Map<String, dynamic> householdUsers = {
+  'forename': '...',
+  'surname': '...',
+  'id': null,
+  'username': '...',
+};
 
 bool isPermanent = false;
 
@@ -34,8 +50,8 @@ void createNewTask(int? userId, String name, String description, int reward,
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-document: gql(
-  r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
+    document: gql(
+        r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
     createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed, ownerId: $ownerId) {
       userId
       householdId
@@ -256,27 +272,31 @@ class _NewTaskState extends State<NewTask> {
                     ),
                   ),
                   Text(
-                    'price:',
+                    'reward:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Expanded(
-                    child: TextField(
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: const InputDecoration(
-                            hintText: "add price",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
+                      child: TextField(
+                    textAlign: TextAlign.end,
+                    controller: taskPrice,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      MaxLengthNumberInputFormatter(
+                          10), // replace 9 with the maximum number of digits you want to allow
+                    ],
+                    decoration: const InputDecoration(
+                      hintText: "add reward",
+                      hintStyle: TextStyle(
+                        color: Color.fromARGB(255, 204, 198, 196),
+                        fontSize: 20,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  )),
                 ],
               ),
               Column(
@@ -347,27 +367,29 @@ class _NewTaskState extends State<NewTask> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                        if (required)
-                        {print(taskName.text);
-                        print(taskPrice.text);
-                        print(assignedToUser);
-                        print(description.text);
-                        createNewTask(
-                            assignedToUser['id'],
-                            taskName.text,
-                            description.text,
-                            int.parse(taskPrice.text),
-                            widget.userData);
-                        Navigator.pushAndRemoveUntil(
+                        if (required) {
+                          print(taskName.text);
+                          print(taskPrice.text);
+                          print(assignedToUser);
+                          print(description.text);
+                          createNewTask(
+                              assignedToUser['id'],
+                              taskName.text,
+                              description.text,
+                              int.parse(taskPrice.text),
+                              widget.userData);
+                          Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => MainWidget(userId: widget.userData['id'])),
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MainWidget(userId: widget.userData['id'])),
                             (route) => false,
-                          )..then((value) {
-                              Get.forceAppUpdate();
-                            });}
-                          else {
-                            Get.back();
-                          }
+                          ).then((value) {
+                            Get.forceAppUpdate();
+                          });
+                        } else {
+                          Get.back();
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -527,7 +549,7 @@ class _AssignToState extends State<AssignTo> {
             const Padding(
               padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
-                CupertinoIcons.person_fill,
+                CupertinoIcons.person,
                 size: 40,
                 color: Color.fromARGB(255, 204, 198, 196),
               ),
@@ -537,9 +559,9 @@ class _AssignToState extends State<AssignTo> {
           ],
         ),
         TextButton(
-          style: ButtonStyle(
-            padding: MaterialStateProperty.all(EdgeInsets.zero),
-          ),
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
             onPressed: () {
               showCupertinoModalPopup(
                 context: context,
@@ -557,7 +579,8 @@ class _AssignToState extends State<AssignTo> {
                         print("household data: ${snapshot.data}");
                         List<Map<String, dynamic>> all = [];
                         all.add(householdUsers);
-                        all.addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
+                        all.addAll(List<Map<String, dynamic>>.from(
+                            snapshot.data!['users']));
                         print(all);
                         return Container(
                           color: Theme.of(context).colorScheme.background,

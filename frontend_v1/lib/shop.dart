@@ -79,7 +79,6 @@ Future<void> deleteReward(int id) async {
   );
   try {
     await client.mutate(options).timeout(const Duration(seconds: 10));
-
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -237,6 +236,7 @@ class ShopViewState extends State<ShopView> {
                             final reward = rewards[index];
                             return Dismissible(
                               key: Key(reward.toString()),
+                              direction: DismissDirection.endToStart,
                               onDismissed: (direction) {
                                 showDialog(
                                   context: context,
@@ -281,7 +281,8 @@ class ShopViewState extends State<ShopView> {
                                     color: Colors.red, size: 30),
                               ),
                               child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
                                 title: ItemCard(
                                   taskName: reward['name'],
                                   taskPrice: reward['price'].toString(),
@@ -300,11 +301,11 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge(userData['points'] == null
+                buildBadge(userData['coins'] == null
                     ? '0 pts'
-                    : '${userData['points']} pts'),
+                    : '${userData['coins']} pts'),
                 const SizedBox(width: 20),
-                buildBadge('lvl 25'),
+                buildBadge("lvl ${userData['level'].toString()}"),
               ],
             ),
             const SizedBox(height: 50)
@@ -412,8 +413,8 @@ class ItemCard extends StatelessWidget {
                     ),
                     Text(
                       "$taskPrice pts",
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -423,27 +424,31 @@ class ItemCard extends StatelessWidget {
                     description == "" || description == null
                         ? Container()
                         : Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          constraints: const BoxConstraints(maxWidth: 140),
-                          child: Text(
-                            "\'$description\'",
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.tertiary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            constraints: const BoxConstraints(maxWidth: 140),
+                            child: Text(
+                              "\'$description\'",
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                              textAlign: TextAlign.start,
                             ),
-                            textAlign: TextAlign.start,
                           ),
-                          ),
-                    
                   ],
                 ),
               ),
               TextButton(
                 onPressed: () {
-                    buyable
+                  buyable
                       ? null
-                      : showNotEnoughPointsDialog(context, int.parse(taskPrice), userData['points']);
+                      : showNotEnoughPointsDialog(
+                          context, int.parse(taskPrice), userData['points']);
                 },
                 child: Container(
                     constraints: const BoxConstraints(minWidth: 0),
