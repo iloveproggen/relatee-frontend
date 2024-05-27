@@ -151,13 +151,13 @@ Future<List<Map<String, dynamic>>> getHouseholdUsers(int id) async {
   query GetUser(\$id: Int!) {
     user(id: \$id) {
       household {
-        user {
+        users {
           id
           forename
           surname
           username
           email
-          points
+          coins
         }
       }
     }
@@ -216,8 +216,8 @@ Future<List<Map<String, dynamic>>> getUserTasks(int id) async {
             name,
             description,
             deadline,
-            points,
-            status
+            reward,
+            completed,
             household {
                 id
             }
@@ -280,7 +280,9 @@ Future<Map<String, dynamic>> getUserData(int id) async {
       surname
       username
       email
-      points
+      experience
+      level
+      coins
       household {
         name
       }
@@ -308,7 +310,9 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'surname': user['surname'],
         'username': user['username'],
         'email': user['email'],
-        'points': user['po'],
+        'coints': user['coins'],
+        'experience': user['experience'],
+        'level': user['level'],
         'householdName': user['household']['name'],
         'householdId': user['householdId'],
       };
@@ -463,7 +467,6 @@ class _MainViewState extends State<MainView> {
                       WelcomeText(userData: userData, tasks: tasks),
                       ButtonRecommended(tasks: tasks),
                       TaskOverview(userData: userData, tasks: tasks),
-                      // Add your code here to display the tasks
                     ],
                   );
                 }
