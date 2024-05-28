@@ -710,11 +710,11 @@ class _TaskState extends State<TaskOverview> {
             children: [
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyMedium),
-              TextButton(
+              IconButton(
                 onPressed: () {
                   Get.to(() => NewTask(userData: userData));
                 },
-                child: Icon(CupertinoIcons.add,
+                icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
               ),
             ],
@@ -800,19 +800,18 @@ class _TaskState extends State<TaskOverview> {
               child: Column(
                 children: _taskView
                     ? [
-                        ButtonRow(tasks: tasks),
                         tasks.isEmpty
                             ? Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 20),
                                 child: Text(
-                                    "Hooray, no tasks! \nCreate a new one or enjoy the day!",
-                                    textAlign: TextAlign.center,
+                                    "No tasks yet.",
                                     style:
                                         Theme.of(context).textTheme.bodySmall),
                               )
                             : Column(
                                 children: [
+                                  ButtonRow(tasks: tasks),
                                   Column(
                                     children: tasks.map((task) {
                                       return Dismissible(
@@ -821,7 +820,7 @@ class _TaskState extends State<TaskOverview> {
                                         onDismissed: (direction) {
                                           if (direction ==
                                               DismissDirection.endToStart) {
-                                            showCupertinoDialog(
+                                              showCupertinoDialog(
                                               context: context,
                                               builder: (BuildContext context) =>
                                                   CupertinoAlertDialog(
@@ -869,12 +868,12 @@ class _TaskState extends State<TaskOverview> {
                                               builder: (BuildContext context) {
                                                 return CupertinoAlertDialog(
                                                   title:
-                                                      Text('Congratulations!'),
+                                                      const Text('Congratulations!'),
                                                   content: Text(
                                                       'You gained ${task['reward']} coins.'),
                                                   actions: [
                                                     CupertinoDialogAction(
-                                                      child: Text('OK'),
+                                                      child: const Text('OK'),
                                                       onPressed: () {
                                                         Navigator.pop(context);
                                                         Get.forceAppUpdate();
@@ -916,30 +915,10 @@ class _TaskState extends State<TaskOverview> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // TextButton(
-                              //   onPressed: () {
-                              //     Get.to(() => SeeAllTasks(
-                              //         userData: userData, tasks: tasks));
-                              //   },
-                              //   child: Row(
-                              //     children: [
-                              //       Text('SeeAllTasks_txt'.tr,
-                              //           style: Theme.of(context)
-                              //               .textTheme
-                              //               .labelSmall
-                              //               ?.copyWith(fontSize: 15)),
-                              //       const SizedBox(width: 5),
-                              //       Icon(
-                              //         CupertinoIcons.arrow_right,
-                              //         color: Theme.of(context)
-                              //             .colorScheme
-                              //             .tertiary,
-                              //         size: size,
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
                               TextButton(
+                                style: ButtonStyle(
+                                    padding: MaterialStateProperty.all<EdgeInsets>(
+                                        const EdgeInsets.all(0))),
                                 onPressed: () {
                                   Get.to(() => MainHouseholdOverview(
                                       pUserData: userData));

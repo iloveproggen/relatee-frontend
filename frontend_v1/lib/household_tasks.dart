@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/Create_New_Task.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -63,9 +64,23 @@ class HouseholdOverview extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyLarge),
                       const SizedBox(height: 20),
                       const HouseholdMembers(),
-                      const SizedBox(height: 20),
-                      Text("Tasks",
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      const InviteButton(),
+                      const SizedBox(height: 40),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Tasks",
+                              style: Theme.of(context).textTheme.bodyMedium),
+                          IconButton(
+                            onPressed: () {
+                              Get.to(() => NewTask(userData: userData));
+                            },
+                            icon: Icon(CupertinoIcons.add,
+                                color: Theme.of(context).colorScheme.tertiary,
+                                size: 30),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 10),
                       Column(
                         children: tasks.isEmpty
@@ -153,7 +168,6 @@ class HouseholdMembers extends StatelessWidget {
             return Member(userData: users[index]);
           }),
         ),
-        const SizedBox(height: 20)
       ],
     );
   }
@@ -337,6 +351,30 @@ class MoreDetailsTask extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class InviteButton extends StatelessWidget {
+  const InviteButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        // TODO: Implement invite functionality
+      },
+      style: ButtonStyle(
+        padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(0)),
+      ),
+      child: Row(
+        children: [
+          Text('Invite Members', style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(width: 10),
+          Icon(CupertinoIcons.arrow_right,
+              color: Theme.of(context).colorScheme.tertiary, size: 20)
+        ],
       ),
     );
   }

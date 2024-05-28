@@ -136,7 +136,7 @@ class _NewTaskState extends State<NewTask> {
             children: [
               const BackIconRow(),
               Align(
-                alignment: Alignment.topLeft,
+                alignment: Alignment.centerRight,
                 child: Form(
                   child: Column(
                     children: [
@@ -144,12 +144,7 @@ class _NewTaskState extends State<NewTask> {
                         controller: taskName,
                         decoration: InputDecoration.collapsed(
                           hintText: ('new_task_txt'.tr),
-                          hintStyle: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Sedan",
-                            fontSize: 40,
-                            color: Color.fromARGB(255, 204, 198, 196),
-                          ),
+                          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
@@ -277,6 +272,7 @@ class _NewTaskState extends State<NewTask> {
                   ),
                   Expanded(
                       child: TextField(
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
                     textAlign: TextAlign.end,
                     controller: taskPrice,
                     inputFormatters: [
@@ -284,12 +280,9 @@ class _NewTaskState extends State<NewTask> {
                       MaxLengthNumberInputFormatter(
                           10), // replace 9 with the maximum number of digits you want to allow
                     ],
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: "add reward",
-                      hintStyle: TextStyle(
-                        color: Color.fromARGB(255, 204, 198, 196),
-                        fontSize: 20,
-                      ),
+                      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary, fontWeight: FontWeight.bold),
                       border: InputBorder.none,
                     ),
                     style: Theme.of(context)
@@ -324,14 +317,13 @@ class _NewTaskState extends State<NewTask> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                         maxLines: 3,
                         controller: description,
                         textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                             hintText: 'None Yet',
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20),
+                            hintStyle: Theme.of(context).textTheme.bodySmall,
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -378,15 +370,9 @@ class _NewTaskState extends State<NewTask> {
                               description.text,
                               int.parse(taskPrice.text),
                               widget.userData);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    MainWidget(userId: widget.userData['id'])),
-                            (route) => false,
-                          ).then((value) {
-                            Get.forceAppUpdate();
-                          });
+                          Get.offAll(() => MainWidget(
+                                userId: userData['id'],
+                              ));
                         } else {
                           Get.back();
                         }
@@ -560,6 +546,7 @@ class _AssignToState extends State<AssignTo> {
         ),
         TextButton(
             style: ButtonStyle(
+              alignment: Alignment.centerRight,
               padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
             onPressed: () {
@@ -615,6 +602,7 @@ class _AssignToState extends State<AssignTo> {
                 assignedToUser['id'] == null
                     ? "anyone"
                     : "${assignedToUser['forename']}",
+                    textAlign: TextAlign.end,
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall

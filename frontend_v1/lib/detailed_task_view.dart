@@ -251,6 +251,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   ),
                   Expanded(
                     child: TextField(
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
                         textAlign: TextAlign.end,
                         controller: taskPrice,
                         inputFormatters: [
@@ -295,6 +296,9 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: TextField(
+                        textInputAction: TextInputAction.done, // Add this line
+                          onEditingComplete: () => FocusScope.of(context).unfocus(), // Add this line
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                           maxLines: 3,
                           controller: description,
                           textAlign: TextAlign.center,

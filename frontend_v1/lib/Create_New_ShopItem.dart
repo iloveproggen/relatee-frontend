@@ -4,9 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/shop.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-
 
 void createShopItem(String name, String description, int price,
     Map<String, dynamic> userData) async {
@@ -102,6 +101,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   child: Column(
                     children: [
                       TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                         controller: taskName,
                         decoration: const InputDecoration.collapsed(
                           hintText: 'new item...',
@@ -140,19 +140,23 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                     Expanded(
                       child: TextField(
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: const InputDecoration(
-                            hintText: "add price",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20),
-                            border: InputBorder.none),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
-                      ),
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          textAlign: TextAlign.end,
+                          controller: taskPrice,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: const InputDecoration(
+                              hintText: "add price",
+                              hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontSize: 20),
+                              border: InputBorder.none),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -171,30 +175,31 @@ class _NewShopItemState extends State<NewShopItem> {
                         ),
                         const SizedBox(width: 20),
                         Expanded(
-                          child: Text(
-                            'description',
-                              textAlign: TextAlign.left,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              )
-                              ),
-                      
+                            child: Text(
+                          'description',
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )),
                       ],
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
-                      maxLines: 3,
-                      controller: description,
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                          hintText: 'None Yet',
-                          hintStyle: TextStyle(
-                              color: Color.fromARGB(255, 204, 198, 196),
-                              fontSize: 20),
-                          border: InputBorder.none),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
-                    ),
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        maxLines: 3,
+                        controller: description,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                            hintText: 'None Yet',
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                   )
                 ],
               ),
@@ -225,19 +230,10 @@ class _NewShopItemState extends State<NewShopItem> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                          createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => MainWidget(userId: userData['id'])),
-                            (route) => false,
-                          );
-                          Navigator.push(context, MaterialPageRoute(builder: ((context) => ShopView(userData: userData)))
-                          ).then((value) {
-                          setState(() {
-                            // Perform any state updates here
-                          });
-                        });
-                        
+                        createShopItem(taskName.text, description.text,
+                            int.parse(taskPrice.text), userData);
+                        Get.forceAppUpdate();
+                        Get.back();
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -318,9 +314,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Text(
                     'permanent',
                     style: TextStyle(
-                      color: _isPermanent
-                          ? Colors.black
-                          : const Color(0xFF4A4646),
+                      color:
+                          _isPermanent ? Colors.black : const Color(0xFF4A4646),
                       fontSize: 20,
                       fontFamily: 'Karla',
                       fontWeight:

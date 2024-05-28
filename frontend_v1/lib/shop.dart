@@ -229,6 +229,7 @@ class ShopViewState extends State<ShopView> {
                           ],
                         );
                       } else {
+                        rewards.sort((a, b) => a['price'].compareTo(b['price']));
                         return ListView.builder(
                           scrollDirection: Axis.vertical,
                           itemCount: rewards.length,
@@ -244,25 +245,24 @@ class ShopViewState extends State<ShopView> {
                                     return CupertinoAlertDialog(
                                       title: const Text('Confirm Delete'),
                                       content: Text(
-                                          'Are you sure you want to delete the reward \"${reward['name']}\"?'),
+                                          'Are you sure you want to delete the reward "${reward['name']}"?'),
                                       actions: [
                                         CupertinoDialogAction(
                                           onPressed: () {
-                                            Get.back();
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            setState(() {});
+                                            Get.forceAppUpdate();
+                                            Navigator.of(context).pop();
                                           },
-                                          child: const Text('No',
+                                          child: const Text('Back',
                                               style: TextStyle(
                                                   color: Colors.blue)),
                                         ),
                                         CupertinoDialogAction(
+                                          isDestructiveAction: true,
                                           onPressed: () {
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                             deleteReward(reward['id']);
-                                            setState(() {});
+                                            Get.forceAppUpdate();
                                           },
                                           child: const Text('Yes',
                                               style:
@@ -282,7 +282,7 @@ class ShopViewState extends State<ShopView> {
                               ),
                               child: ListTile(
                                 contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10),
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 title: ItemCard(
                                   taskName: reward['name'],
                                   taskPrice: reward['price'].toString(),
@@ -331,27 +331,7 @@ class ShopViewState extends State<ShopView> {
 }
 
 void showNotEnoughPointsDialog(
-    BuildContext context, int taskPrice, Map<String, dynamic> userData) {
-  showCupertinoDialog(
-    context: context,
-    builder: (BuildContext context) {
-      // Automatically dismiss the dialog after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-        Navigator.of(context).pop(true); // Dismiss the dialog
-      });
-
-      return CupertinoAlertDialog(
-        title: const Text(
-          'Not enough Points to buy!',
-          textAlign: TextAlign.center,
-        ),
-        content: Text(
-          "You need ${taskPrice - userData['points']} more points to buy this item.",
-        ),
-      );
-    },
-  );
-}
+    BuildContext context, int taskPrice, Map<String, dynamic> userData) {}
 
 // ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
@@ -376,7 +356,7 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    buyable = isBuyable(int.parse(taskPrice), userData['points']);
+    buyable = isBuyable(int.parse(taskPrice), userData['coins']);
     return Column(
       children: [
         Container(
@@ -425,7 +405,7 @@ class ItemCard extends StatelessWidget {
                         ? Container()
                         : Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            constraints: const BoxConstraints(maxWidth: 140),
+                            constraints: const BoxConstraints(maxWidth: 130),
                             child: Text(
                               "\'$description\'",
                               maxLines: 5,
@@ -446,9 +426,63 @@ class ItemCard extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   buyable
-                      ? null
-                      : showNotEnoughPointsDialog(
-                          context, int.parse(taskPrice), userData['points']);
+                      ? showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoAlertDialog(
+                            title: const Text(
+                              'Confirm Purchase',
+                              textAlign: TextAlign.center,
+                            ),
+                            content: Text(
+                              "Are you sure you want to buy this item for $taskPrice pts?"
+                            ),
+                            actions: [
+                              CupertinoDialogAction(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              CupertinoDialogAction(
+                                onPressed: () {
+                                  // Perform the purchase logic here
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: const Text('Buy'),
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                      : showCupertinoDialog(
+                          context: context,
+                            builder: (BuildContext context) {
+                            //String difference = (int.parse(taskPrice) - int.parse(userData['coins'])).toString();
+                            // Automatically dismiss the dialog after 3 seconds
+                            Future.delayed(const Duration(seconds: 2), () {
+                              Navigator.of(context)
+                                .pop(true); // Dismiss the dialog
+                            });
+
+                            return AlertDialog(
+                              title: Text(
+                              'Not enough Points to buy!',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                              ),
+                              actions: [
+                              TextButton(
+                                onPressed: () {
+                                Navigator.of(context).pop(); 
+                                },
+                                child: const Text('OK'),
+                              ),
+                              ],
+                            );
+                            
+                          },
+                        );
                 },
                 child: Container(
                     constraints: const BoxConstraints(minWidth: 0),
