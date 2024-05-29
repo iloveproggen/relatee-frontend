@@ -71,6 +71,7 @@ class ListBuilderCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Column(
       children: completedTasks.map((task) {
         print(task);
@@ -78,8 +79,20 @@ class ListBuilderCompleted extends StatelessWidget {
             task: task,
             userData: user.firstWhere((user) => user['id'] == task['userId'],
                 orElse: () => {}));
-      }).toList(),
-    );
+      }).toList()..sort((a, b) {
+            final completedAtA = a.task['completed_at'];
+            final completedAtB = b.task['completed_at'];
+            if (completedAtA == null && completedAtB == null) {
+              return 0;
+            } else if (completedAtA == null) {
+              return 1;
+            } else if (completedAtB == null) {
+              return -1;
+            } else {
+              return completedAtB.compareTo(completedAtA);
+            }
+          },
+    ));
   }
 }
 
