@@ -442,14 +442,14 @@ class ItemCard extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.of(context).pop(); // Close the dialog
                                 },
-                                child: const Text('Cancel'),
+                                child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
                               ),
                               CupertinoDialogAction(
                                 onPressed: () {
                                   // Perform the purchase logic here
                                   Navigator.of(context).pop(); // Close the dialog
                                 },
-                                child: const Text('Buy'),
+                                child: const Text('Buy', style: TextStyle(color: Colors.blue)),
                               ),
                             ],
                           );

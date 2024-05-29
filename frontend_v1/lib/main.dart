@@ -77,6 +77,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           deadline
           reward
           completed    
+          completed_at
         }
       }
     }
@@ -124,6 +125,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'deadline': task['deadline'],
           'reward': task['reward'],
           'completed': task['completed'],
+          'completed_at': task['completed_at'],
         };
       }).toList();
 
@@ -274,6 +276,44 @@ Future<void> deleteTask(int id) async {
   } catch (e) {
     print('Unexpected error: $e');
     // Handle other errors
+  }
+}
+
+void updateTask(int taskId, bool status) async {
+  final Map<String, dynamic> variables = {
+    'id': taskId,
+    'completed': status,
+    'completed_at': DateTime.now().toIso8601String().split('.')[0] + 'Z',
+  };
+  print(DateTime.now().toIso8601String().split('.')[0] + 'Z',);
+
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(
+        r'''mutation UpdateTask($id: Int!, $completed: Boolean!, $completed_at: String) {
+  updateTask(id: $id, completed: $completed, completed_at: $completed_at) {
+    id
+    completed
+    completed_at
+  }
+}
+'''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+      print("Updated the task in the db: $variables");
+    }
+  } catch (e) {
+    print(e);
   }
 }
 
@@ -601,54 +641,49 @@ class ButtonShort extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        children: [
-          Container(
-            height: height,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(25)),
-              color: Theme.of(context).colorScheme.primary,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary,
-                  offset: const Offset(5.0, 5.0),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                )
-              ],
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    number,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 60),
-                    maxLines: 2,
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-                    child: Text(
-                      textBelow,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Column(
+      children: [
+        Container(
+          height: height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(25)),
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.secondary,
+                offset: const Offset(5.0, 5.0),
+                blurRadius: 10.0,
+                spreadRadius: 2.0,
+              )
+            ],
           ),
-          const SizedBox(height: 30),
-        ],
-      ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                number,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 60),
+                maxLines: 1,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                child: Text(
+                  textBelow,
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 30),
+      ],
     );
   }
 }
@@ -661,12 +696,13 @@ class ButtonRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: <Widget>[
+      mainAxisSize: MainAxisSize.min,
+      children: [
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
-              number: countToDo(tasks).toString(),
+              number: tasks == [] ? '0' : countToDo(tasks).toString(),
               textBelow: 'leftThisWeek_txt'.tr,
             ),
           ),
@@ -675,7 +711,9 @@ class ButtonRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
             child: ButtonShort(
-              number: (tasks.length - countToDo(tasks)).toString(),
+              number: tasks == []
+                  ? '0'
+                  : (tasks.length - countToDo(tasks)).toString(),
               textBelow: 'doneThisWeek_txt'.tr,
             ),
           ),
@@ -712,7 +750,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               IconButton(
                 onPressed: () {
-                  Get.to(() => NewTask(userData: userData));
+                  Get.to(() => NewTask(userData: userData, returnTo: MainWidget(userId: userData['id'])));
                 },
                 icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
@@ -800,27 +838,37 @@ class _TaskState extends State<TaskOverview> {
               child: Column(
                 children: _taskView
                     ? [
+                        ButtonRow(tasks: tasks),
                         tasks.isEmpty
-                            ? Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20),
-                                child: Text(
-                                    "No tasks yet.",
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall),
+                            ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  //ButtonRow(tasks: []),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20),
+                                    child: Text("No tasks .",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                  ),
+                                ],
                               )
                             : Column(
                                 children: [
-                                  ButtonRow(tasks: tasks),
                                   Column(
-                                    children: tasks.map((task) {
-                                      return Dismissible(
+                                    children: tasks
+                                        .where((task) =>
+                                            task['completed'] == false)
+                                        .toList()
+                                        .map((task) {
+                                        return Dismissible(
                                         direction: DismissDirection.horizontal,
                                         key: ValueKey(task['id']),
                                         onDismissed: (direction) {
                                           if (direction ==
                                               DismissDirection.endToStart) {
-                                              showCupertinoDialog(
+                                            showCupertinoDialog(
                                               context: context,
                                               builder: (BuildContext context) =>
                                                   CupertinoAlertDialog(
@@ -859,16 +907,17 @@ class _TaskState extends State<TaskOverview> {
                                           } else {
                                             print(
                                                 "Task completed! ${task['reward']}");
-                                            deleteTask(task['id']);
+                                            updateTask(task['id'], true);
                                             tasks.removeWhere(
                                                 (t) => t['id'] == task['id']);
-                                            addPoints(task['reward'].toString());
+                                            addPoints(
+                                                task['reward'].toString());
                                             showCupertinoDialog(
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return CupertinoAlertDialog(
-                                                  title:
-                                                      const Text('Congratulations!'),
+                                                  title: const Text(
+                                                      'Congratulations!'),
                                                   content: Text(
                                                       'You gained ${task['reward']} coins.'),
                                                   actions: [
@@ -917,8 +966,9 @@ class _TaskState extends State<TaskOverview> {
                             children: [
                               TextButton(
                                 style: ButtonStyle(
-                                    padding: MaterialStateProperty.all<EdgeInsets>(
-                                        const EdgeInsets.all(0))),
+                                    padding:
+                                        MaterialStateProperty.all<EdgeInsets>(
+                                            const EdgeInsets.all(0))),
                                 onPressed: () {
                                   Get.to(() => MainHouseholdOverview(
                                       pUserData: userData));

@@ -7,6 +7,8 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+late Widget returnToWidget;
+
 class MaxLengthNumberInputFormatter extends TextInputFormatter {
   final int maxDigits;
 
@@ -24,13 +26,13 @@ class MaxLengthNumberInputFormatter extends TextInputFormatter {
   }
 }
 
-Map<String, dynamic> assignedToUser = {};
 Map<String, dynamic> householdUsers = {
-  'forename': '...',
+  'forename': 'anyone',
   'surname': '...',
   'id': null,
   'username': '...',
 };
+Map<String, dynamic> assignedToUser = householdUsers;
 
 bool isPermanent = false;
 
@@ -85,9 +87,10 @@ void createNewTask(int? userId, String name, String description, int reward,
 }
 
 class NewTask extends StatefulWidget {
-  const NewTask({super.key, required this.userData});
+  const NewTask({super.key, required this.userData, required this.returnTo});
 
   final Map<String, dynamic> userData;
+  final Widget returnTo;
 
   @override
   State<NewTask> createState() => _NewTaskState();
@@ -128,6 +131,7 @@ class _NewTaskState extends State<NewTask> {
 
   @override
   Widget build(BuildContext context) {
+    returnToWidget = widget.returnTo;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -144,7 +148,12 @@ class _NewTaskState extends State<NewTask> {
                         controller: taskName,
                         decoration: InputDecoration.collapsed(
                           hintText: ('new_task_txt'.tr),
-                          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
@@ -234,7 +243,7 @@ class _NewTaskState extends State<NewTask> {
               ),
               //const SliderWidgetWho(),
               const SizedBox(height: 40),
-              AssignTo(userData: widget.userData),
+              AssignTo(userData: widget.userData, callback: _updateRequired),
               isPermanent
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -282,7 +291,12 @@ class _NewTaskState extends State<NewTask> {
                     ],
                     decoration: InputDecoration(
                       hintText: "add reward",
-                      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary, fontWeight: FontWeight.bold),
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontWeight: FontWeight.bold),
                       border: InputBorder.none,
                     ),
                     style: Theme.of(context)
@@ -323,7 +337,13 @@ class _NewTaskState extends State<NewTask> {
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
                             hintText: 'None Yet',
-                            hintStyle: Theme.of(context).textTheme.bodySmall,
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -370,9 +390,11 @@ class _NewTaskState extends State<NewTask> {
                               description.text,
                               int.parse(taskPrice.text),
                               widget.userData);
-                          Get.offAll(() => MainWidget(
-                                userId: userData['id'],
-                              ));
+                          Get.offAll(() => returnToWidget)?.then(
+                            (value) {
+                              Get.forceAppUpdate();
+                            },
+                          );
                         } else {
                           Get.back();
                         }
@@ -515,9 +537,10 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
 }
 
 class AssignTo extends StatefulWidget {
-  const AssignTo({super.key, required this.userData});
+  const AssignTo({super.key, required this.userData, required this.callback});
 
   final Map<String, dynamic> userData;
+  final VoidCallback callback;
 
   @override
   State<AssignTo> createState() => _AssignToState();
@@ -573,6 +596,9 @@ class _AssignToState extends State<AssignTo> {
                           color: Theme.of(context).colorScheme.background,
                           height: 300,
                           child: CupertinoPicker(
+                            scrollController:
+                                FixedExtentScrollController(initialItem: 0),
+
                             itemExtent:
                                 50, // Increase the item extent to make the items bigger
                             onSelectedItemChanged: (int index) {
@@ -580,6 +606,7 @@ class _AssignToState extends State<AssignTo> {
                                   'Selected member: ${all[index]['forename'] ?? ''}');
                               setState(() {
                                 assignedToUser = all[index];
+                                widget.callback;
                               });
                             },
                             children: all.map((member) {
@@ -602,7 +629,7 @@ class _AssignToState extends State<AssignTo> {
                 assignedToUser['id'] == null
                     ? "anyone"
                     : "${assignedToUser['forename']}",
-                    textAlign: TextAlign.end,
+                textAlign: TextAlign.end,
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall

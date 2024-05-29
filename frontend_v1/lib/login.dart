@@ -163,10 +163,11 @@ class LoginWidgetState extends State<LoginWidget> {
             const SizedBox(
               height: 20,
             ),
-            TextField(
+            TextFormField(
                 autofillHints: [AutofillHints.username],
+                autocorrect: false,
                 focusNode: focusNode1,
-                onSubmitted: (_) {
+                onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(focusNode2);
                 },
                 controller: _usernameController,
@@ -200,10 +201,10 @@ class LoginWidgetState extends State<LoginWidget> {
                 ),
                 style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 10),
-            TextField(
+            TextFormField(
               autofillHints: [AutofillHints.password],
               focusNode: focusNode2,
-              onSubmitted: (_) {
+              onFieldSubmitted: (_) {
                 FocusScope.of(context).requestFocus(focusNodeButton);
               },
               controller: _passwordController,

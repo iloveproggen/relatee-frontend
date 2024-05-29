@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/Create_New_Task.dart';
+import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -73,7 +74,7 @@ class HouseholdOverview extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium),
                           IconButton(
                             onPressed: () {
-                              Get.to(() => NewTask(userData: userData));
+                              Get.to(() => NewTask(userData: userData, returnTo: MainHouseholdOverview(pUserData: userData,)));
                             },
                             icon: Icon(CupertinoIcons.add,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -89,7 +90,7 @@ class HouseholdOverview extends StatelessWidget {
                                     style:
                                         Theme.of(context).textTheme.bodySmall)
                               ]
-                            : tasks.map((task) {
+                            : tasks.where((task) => task['completed'] == false).toList().map((task) {
                                 return Dismissible(
                                   key: Key(task.toString()),
                                   direction: DismissDirection.endToStart,
@@ -138,7 +139,27 @@ class HouseholdOverview extends StatelessWidget {
                                 );
                               }).toList(),
                       ),
-                      const SizedBox(height: 50)
+                      const SizedBox(height: 10),
+                      TextButton(
+                        style: ButtonStyle(
+                            animationDuration: Duration.zero,
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(0),
+                            )),
+                          onPressed: () {
+                            Get.to(() => CompletedTaskList(tasks: tasks.where((task) => task['completed'] == true).toList(), userData: users));
+                          },
+                          child: Text(
+                            "See Completed Tasks",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold),
+                          )),
+                      SizedBox(height: 40)
                     ],
                   );
                 }
