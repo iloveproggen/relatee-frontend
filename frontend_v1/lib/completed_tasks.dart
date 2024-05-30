@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 
 late List<Map<String, dynamic>> completedTasks;
 late List<Map<String, dynamic>> user;
-final dateFormat = DateFormat("yyyy-MM-ddTHH:mm:ss"); // Adjust this to match your date format
+final dateFormat =
+    DateFormat("yyyy-MM-ddTHH:mm:ss"); // Adjust this to match your date format
 
 String ordinal(int value) {
   if (value < 0 || value > 31) {
@@ -71,28 +72,29 @@ class ListBuilderCompleted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return Column(
-      children: completedTasks.map((task) {
-        print(task);
-        return CompletedTaskDetailedView(
-            task: task,
-            userData: user.firstWhere((user) => user['id'] == task['userId'],
-                orElse: () => {}));
-      }).toList()..sort((a, b) {
-            final completedAtA = a.task['completed_at'];
-            final completedAtB = b.task['completed_at'];
-            if (completedAtA == null && completedAtB == null) {
-              return 0;
-            } else if (completedAtA == null) {
-              return 1;
-            } else if (completedAtB == null) {
-              return -1;
-            } else {
-              return completedAtB.compareTo(completedAtA);
-            }
-          },
-    ));
+        children: completedTasks.map((task) {
+      print(task);
+      return CompletedTaskDetailedView(
+          task: task,
+          userData: user.firstWhere((user) => user['id'] == task['userId'],
+              orElse: () => {}));
+    }).toList()
+          ..sort(
+            (a, b) {
+              final completedAtA = a.task['completed_at'];
+              final completedAtB = b.task['completed_at'];
+              if (completedAtA == null && completedAtB == null) {
+                return 0;
+              } else if (completedAtA == null) {
+                return 1;
+              } else if (completedAtB == null) {
+                return -1;
+              } else {
+                return completedAtB.compareTo(completedAtA);
+              }
+            },
+          ));
   }
 }
 
@@ -127,19 +129,30 @@ class CompletedTaskDetailedView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(task['name'],
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: userData['forename'] == null
+                          ? 'completed by someone'
+                          : '${userData['forename']}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: " gained ${task['reward']} ${task['reward'] == 1 ? 'point' : 'points'} for completing '${task['name']}'",
+                    style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10),
               Text(
-                  userData['forename'] == null
-                      ? 'completed by someone'
-                      : 'completed by ${userData['forename']}',
-                  style: Theme.of(context).textTheme.bodySmall),
-              Text(task['completed_at'] == null ? 'unknown' : formatDateWithOrdinal(DateTime.fromMillisecondsSinceEpoch(int.parse(task['completed_at']))), 
+                  task['completed_at'] == null
+                      ? 'unknown'
+                      : formatDateWithOrdinal(
+                          DateTime.fromMillisecondsSinceEpoch(
+                              int.parse(task['completed_at']))),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.tertiary, fontWeight: FontWeight.bold)),
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
         ),

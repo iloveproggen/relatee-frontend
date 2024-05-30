@@ -145,6 +145,7 @@ class PublicTaskOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> taskLeft = tasks.where((task) => task['completed'] == false).toList();
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,9 +155,9 @@ class PublicTaskOverview extends StatelessWidget {
           child: Text('Their Tasks',
               style: Theme.of(context).textTheme.bodyMedium),
         ),
-        tasks.isNotEmpty
+        taskLeft.isNotEmpty
             ? Column(
-                children: tasks.map((task) {
+                children: taskLeft.map((task) {
                   return main.Task(task: task, userData: userData);
                 }).toList(),
               )
@@ -164,7 +165,7 @@ class PublicTaskOverview extends StatelessWidget {
                 children: [
                   Text("This user currently has no tasks assigned to them.",
                       style: Theme.of(context).textTheme.bodySmall),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   )
                 ],

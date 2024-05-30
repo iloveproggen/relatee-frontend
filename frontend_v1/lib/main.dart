@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:frontend_v1/detailed_task_view.dart';
+import 'package:frontend_v1/routine.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
-import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,6 +78,11 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           reward
           completed    
           completed_at
+          routineId
+        }
+        routines {
+          id
+          name
         }
       }
     }
@@ -93,13 +98,11 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
 
     if (result.hasException) {
       print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
+      //} else if (result.isLoading) {
     } else {
-      print("getting results...");
-      print(result.data!['user']);
       final users = result.data!['user']['household']['users'];
       final tasks = result.data!['user']['household']['tasks'];
+      final routines = result.data!['user']['household']['routines'];
 
       final List<Map<String, dynamic>> mappedUsers =
           users.map<Map<String, dynamic>>((user) {
@@ -126,15 +129,22 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           'reward': task['reward'],
           'completed': task['completed'],
           'completed_at': task['completed_at'],
+          'routineId': task['routineId']
         };
       }).toList();
 
-      print(mappedUsers);
-      print(mappedTasks);
+      final List<Map<String, dynamic>> mappedRoutines =
+          routines.map<Map<String, dynamic>>((routine) {
+        return {
+          'id': routine['id'],
+          'name': routine['name'],
+        };
+      }).toList();
 
       return {
         'users': mappedUsers,
         'tasks': mappedTasks,
+        'routines': mappedRoutines,
       };
     }
   } on SocketException catch (e) {
@@ -150,6 +160,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   return {
     'users': [],
     'tasks': [],
+    'rewards': [],
   };
 }
 
@@ -285,7 +296,9 @@ void updateTask(int taskId, bool status) async {
     'completed': status,
     'completed_at': DateTime.now().toIso8601String().split('.')[0] + 'Z',
   };
-  print(DateTime.now().toIso8601String().split('.')[0] + 'Z',);
+  print(
+    DateTime.now().toIso8601String().split('.')[0] + 'Z',
+  );
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -365,19 +378,19 @@ void gotCoinsPopup(int coins, BuildContext context) {}
 
 Builder getIndicator(Map<String, dynamic> task) {
   return Builder(
-                      builder: (context) {
-                        switch (task['status']) {
-                          case 1:
-                            return SvgPicture.asset("assets/images/green.svg");
-                          case 2:
-                            return SvgPicture.asset("assets/images/yellow.svg");
-                          case 0:
-                            return SvgPicture.asset("assets/images/red.svg");
-                          default:
-                            return SvgPicture.asset("assets/images/red.svg");
-                        }
-                      },
-                    );
+    builder: (context) {
+      switch (task['status']) {
+        case 1:
+          return SvgPicture.asset("assets/images/green.svg");
+        case 2:
+          return SvgPicture.asset("assets/images/yellow.svg");
+        case 0:
+          return SvgPicture.asset("assets/images/red.svg");
+        default:
+          return SvgPicture.asset("assets/images/red.svg");
+      }
+    },
+  );
 }
 
 class MainWidget extends StatelessWidget {
@@ -590,64 +603,6 @@ class ButtonRecommended extends StatelessWidget {
   }
 }
 
-class ButtonCompleted extends StatelessWidget {
-  const ButtonCompleted(
-      {super.key, required this.who, required this.what, required this.time});
-
-  final String who;
-  final String what;
-  final String time;
-  final double height = 150;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        children: [
-          Container(
-            height: height,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              color: Color.fromARGB(255, 243, 243, 243),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromARGB(61, 109, 103, 103),
-                  offset: Offset(5.0, 5.0),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                )
-              ],
-            ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 35),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    text: "$who completed",
-                    style: Theme.of(context).textTheme.bodySmall,
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: " \"$what\" ",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: "$time."),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 30),
-        ],
-      ),
-    );
-  }
-}
 
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
@@ -767,7 +722,8 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               IconButton(
                 onPressed: () {
-                  Get.to(() => NewTask(userData: userData, returnTo: MainWidget(userId: userData['id'])));
+                  Get.to(() => NewTaskMain(
+                      userData: userData));
                 },
                 icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
@@ -853,166 +809,179 @@ class _TaskState extends State<TaskOverview> {
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Column(
-                children: _taskView
-                    ? [
-                        ButtonRow(tasks: tasks),
-                        tasks.isEmpty
-                            ? Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  //ButtonRow(tasks: []),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20),
-                                    child: Text("No tasks .",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall),
-                                  ),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  Column(
-                                    children: tasks
-                                        .where((task) =>
-                                            task['completed'] == false)
-                                        .toList()
-                                        .map((task) {
-                                        return Dismissible(
-                                        direction: DismissDirection.horizontal,
-                                        key: ValueKey(task['id']),
-                                        onDismissed: (direction) {
-                                          if (direction ==
-                                              DismissDirection.endToStart) {
-                                            showCupertinoDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  CupertinoAlertDialog(
-                                                title:
-                                                    const Text('Delete Task'),
-                                                content: const Text(
-                                                    'Are you sure you want to delete this task?'),
-                                                actions: [
-                                                  CupertinoDialogAction(
-                                                      child: const Text(
-                                                          'Cancel',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.blue)),
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        Get.forceAppUpdate();
-                                                      }),
-                                                  CupertinoDialogAction(
-                                                    onPressed: () {
-                                                      deleteTask(task['id']);
-                                                      tasks.removeWhere((t) =>
-                                                          t['id'] ==
-                                                          task['id']);
-                                                      Navigator.pop(context);
-                                                      Get.forceAppUpdate();
-                                                    },
-                                                    isDestructiveAction: true,
-                                                    child: const Text('Delete',
-                                                        style: TextStyle(
-                                                            color: Colors.red)),
+                children: [
+                  Column(
+                    children: _taskView
+                        ? [
+                            ButtonRow(tasks: tasks),
+                            tasks.isEmpty
+                                ? Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      //ButtonRow(tasks: []),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 20),
+                                        child: Text("No tasks .",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Column(
+                                        children: tasks
+                                            .where((task) =>
+                                                task['completed'] == false)
+                                            .toList()
+                                            .map((task) {
+                                          return Dismissible(
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            key: ValueKey(task['id']),
+                                            onDismissed: (direction) {
+                                              if (direction ==
+                                                  DismissDirection.endToStart) {
+                                                showCupertinoDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          CupertinoAlertDialog(
+                                                    title: const Text(
+                                                        'Delete Task'),
+                                                    content: const Text(
+                                                        'Are you sure you want to delete this task?'),
+                                                    actions: [
+                                                      CupertinoDialogAction(
+                                                          child: const Text(
+                                                              'Cancel',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .blue)),
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            Get.forceAppUpdate();
+                                                          }),
+                                                      CupertinoDialogAction(
+                                                        onPressed: () {
+                                                          deleteTask(
+                                                              task['id']);
+                                                          tasks.removeWhere(
+                                                              (t) =>
+                                                                  t['id'] ==
+                                                                  task['id']);
+                                                          Navigator.pop(
+                                                              context);
+                                                          Get.forceAppUpdate();
+                                                        },
+                                                        isDestructiveAction:
+                                                            true,
+                                                        child: const Text(
+                                                            'Delete',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .red)),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            );
-                                          } else {
-                                            print(
-                                                "Task completed! ${task['reward']}");
-                                            updateTask(task['id'], true);
-                                            tasks.removeWhere(
-                                                (t) => t['id'] == task['id']);
-                                            addPoints(
-                                                task['reward'].toString());
-                                            showCupertinoDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return CupertinoAlertDialog(
-                                                  title: const Text(
-                                                      'Congratulations!'),
-                                                  content: Text(
-                                                      'You gained ${task['reward']} coins.'),
-                                                  actions: [
-                                                    CupertinoDialogAction(
-                                                      child: const Text('OK'),
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        Get.forceAppUpdate();
-                                                      },
-                                                    ),
-                                                  ],
                                                 );
-                                              },
-                                            );
-                                          }
-                                        },
-                                        secondaryBackground: Container(
-                                          margin: const EdgeInsets.only(
-                                              right: 30, bottom: 22),
-                                          alignment: Alignment.centerRight,
-                                          child: const Icon(
-                                              CupertinoIcons.delete,
-                                              color: Colors.red,
-                                              size: 30),
-                                        ),
-                                        background: Container(
-                                          margin: const EdgeInsets.only(
-                                              left: 30, bottom: 22),
-                                          alignment: Alignment.centerLeft,
-                                          child: const Icon(
-                                              CupertinoIcons.check_mark,
-                                              color: Colors.green,
-                                              size: 30),
-                                        ),
-                                        child: Task(
-                                            task: task, userData: userData),
-                                      );
-                                    }).toList(),
+                                              } else {
+                                                print(
+                                                    "Task completed! ${task['reward']}");
+                                                updateTask(task['id'], true);
+                                                tasks.removeWhere((t) =>
+                                                    t['id'] == task['id']);
+                                                addPoints(
+                                                    task['reward'].toString());
+                                                showCupertinoDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return CupertinoAlertDialog(
+                                                      title: const Text(
+                                                          'Congratulations!'),
+                                                      content: Text(
+                                                          'You gained ${task['reward']} coins.'),
+                                                      actions: [
+                                                        CupertinoDialogAction(
+                                                          child:
+                                                              const Text('OK'),
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            Get.forceAppUpdate();
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            secondaryBackground: Container(
+                                              margin: const EdgeInsets.only(
+                                                  right: 30, bottom: 22),
+                                              alignment: Alignment.centerRight,
+                                              child: const Icon(
+                                                  CupertinoIcons.delete,
+                                                  color: Colors.red,
+                                                  size: 30),
+                                            ),
+                                            background: Container(
+                                              margin: const EdgeInsets.only(
+                                                  left: 30, bottom: 22),
+                                              alignment: Alignment.centerLeft,
+                                              child: const Icon(
+                                                  CupertinoIcons.check_mark,
+                                                  color: Colors.green,
+                                                  size: 30),
+                                            ),
+                                            child: Task(
+                                                task: task, userData: userData),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 40),
+                          ]
+                        : [Routine(userData: userData), SizedBox(height:10)],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0))),
+                          onPressed: () {
+                            Get.to(() =>
+                                MainHouseholdOverview(pUserData: userData));
+                          },
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextButton(
-                                style: ButtonStyle(
-                                    padding:
-                                        MaterialStateProperty.all<EdgeInsets>(
-                                            const EdgeInsets.all(0))),
-                                onPressed: () {
-                                  Get.to(() => MainHouseholdOverview(
-                                      pUserData: userData));
-                                },
-                                child: Row(
-                                  children: [
-                                    Text("See Household Overview",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
-                                            ?.copyWith(fontSize: 18)),
-                                    const SizedBox(width: 10),
-                                    Icon(
-                                      CupertinoIcons.house,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      size: size,
-                                    ),
-                                  ],
-                                ),
+                              Text("See Household Overview",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(fontSize: 18)),
+                              const SizedBox(width: 10),
+                              Icon(
+                                CupertinoIcons.house,
+                                color: Theme.of(context).colorScheme.tertiary,
+                                size: size,
                               ),
                             ],
                           ),
                         ),
-                      ]
-                    : [const RoutineWidget()],
+                      ],
+                    ),
+                  ),
+                ],
               ),
             )
           ],
@@ -1061,10 +1030,35 @@ class Task extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  constraints: BoxConstraints(maxWidth: 200),
-                  child: Text(task['name'],
-                      style: Theme.of(context).textTheme.bodySmall),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 200),
+                      child: Text(task['name'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
+                          border: Border.all(
+                            width: 1,
+                              color: Theme.of(context).colorScheme.tertiary),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                          child: Text("${task['reward']} pts",
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),)
+                        )),
+                  ],
                 ),
                 Padding(
                     padding: const EdgeInsets.only(right: 30),

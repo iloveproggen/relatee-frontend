@@ -43,8 +43,6 @@ class HouseholdOverview extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // const ButtonCompleted(
-        //     who: "Marvin", what: "do the dishes", time: "today"),
         Column(
           children: [
             FutureBuilder<Map<String, dynamic>>(
@@ -74,7 +72,7 @@ class HouseholdOverview extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium),
                           IconButton(
                             onPressed: () {
-                              Get.to(() => NewTask(userData: userData, returnTo: MainHouseholdOverview(pUserData: userData,)));
+                              Get.to(() => NewTaskMain(userData: userData));
                             },
                             icon: Icon(CupertinoIcons.add,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -84,13 +82,18 @@ class HouseholdOverview extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Column(
-                        children: tasks.isEmpty
+                        children: tasks
+                                .where((task) => task['completed'] == false)
+                                .isEmpty
                             ? [
-                                Text("No tasks yet",
+                                Text("No tasks left todo :)",
                                     style:
                                         Theme.of(context).textTheme.bodySmall)
                               ]
-                            : tasks.where((task) => task['completed'] == false).toList().map((task) {
+                            : tasks
+                                .where((task) => task['completed'] == false)
+                                .toList()
+                                .map((task) {
                                 return Dismissible(
                                   key: Key(task.toString()),
                                   direction: DismissDirection.endToStart,
@@ -141,24 +144,20 @@ class HouseholdOverview extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       TextButton(
-                        style: ButtonStyle(
-                            animationDuration: Duration.zero,
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              const EdgeInsets.all(0),
-                            )),
+                          style: ButtonStyle(
+                              animationDuration: Duration.zero,
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                const EdgeInsets.all(0),
+                              )),
                           onPressed: () {
-                            Get.to(() => CompletedTaskList(tasks: tasks.where((task) => task['completed'] == true).toList(), userData: users));
+                            Get.to(() => CompletedTaskList(
+                                tasks: tasks
+                                    .where((task) => task['completed'] == true)
+                                    .toList(),
+                                userData: users));
                           },
-                          child: Text(
-                            "See Completed Tasks",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontWeight: FontWeight.bold),
-                          )),
+                          child: Text("See completed Tasks", style: Theme.of(context).textTheme.labelSmall)),
+                      
                       SizedBox(height: 40)
                     ],
                   );
@@ -353,11 +352,12 @@ class MoreDetailsTask extends StatelessWidget {
                               })['forename']}",
                           style: Theme.of(context).textTheme.bodySmall),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 10),
                 Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
                       border: Border.all(
+                          width: 1,
                           color: Theme.of(context).colorScheme.tertiary),
                     ),
                     child: Padding(
@@ -365,7 +365,12 @@ class MoreDetailsTask extends StatelessWidget {
                           horizontal: 10, vertical: 5),
                       child: Container(
                         child: Text(task['reward'].toString() + " pts",
-                            style: Theme.of(context).textTheme.bodySmall),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                )),
                       ),
                     )),
               ],

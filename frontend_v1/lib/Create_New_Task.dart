@@ -7,8 +7,6 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-late Widget returnToWidget;
-
 class MaxLengthNumberInputFormatter extends TextInputFormatter {
   final int maxDigits;
 
@@ -26,23 +24,31 @@ class MaxLengthNumberInputFormatter extends TextInputFormatter {
   }
 }
 
-Map<String, dynamic> householdUsers = {
+Map<String, dynamic> nullUser = {
   'forename': 'anyone',
   'surname': '...',
   'id': null,
   'username': '...',
 };
-Map<String, dynamic> assignedToUser = householdUsers;
+
+Map<String, dynamic> nullRoutine = {
+  'name': 'none',
+  'id': null,
+};
+
+Map<String, dynamic> pickedRoutine = nullRoutine;
+
+Map<String, dynamic> assignedToUser = nullUser;
 
 bool isPermanent = false;
 
-void createNewTask(int? userId, String name, String description, int reward,
+void createNewTask(int? userId, String name, String description, int reward, int routineId,
     Map<String, dynamic> userData) async {
   final Map<String, dynamic> variables = {
     'userId': userId,
     'householdId': userData['householdId'],
-    'routineId': null,
-    'name': name,
+    'routineId': routineId,
+    'name': name.trim(),
     'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
     'description': description,
     'reward': reward,
@@ -86,11 +92,49 @@ void createNewTask(int? userId, String name, String description, int reward,
   }
 }
 
-class NewTask extends StatefulWidget {
-  const NewTask({super.key, required this.userData, required this.returnTo});
+class NewTaskMain extends StatelessWidget {
+  const NewTaskMain({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
-  final Widget returnTo;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: getHouseholdData(userData['id']),
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CupertinoActivityIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          List<Map<String, dynamic>> householdUsers = [];
+          householdUsers.add(nullUser);
+          householdUsers
+              .addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
+          List<Map<String, dynamic>> routines = [];
+          routines.add(nullRoutine);
+          routines.addAll(List<Map<String, dynamic>>.from(snapshot.data!['routines']));
+          return NewTask(
+              userData: userData,
+              householdUsers: householdUsers,
+              routines: routines);
+        }
+      },
+    );
+  }
+}
+
+class NewTask extends StatefulWidget {
+  const NewTask(
+      {super.key,
+      required this.userData,
+      required this.householdUsers,
+      required this.routines});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> householdUsers;
+  final List<Map<String, dynamic>> routines;
 
   @override
   State<NewTask> createState() => _NewTaskState();
@@ -131,7 +175,6 @@ class _NewTaskState extends State<NewTask> {
 
   @override
   Widget build(BuildContext context) {
-    returnToWidget = widget.returnTo;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -243,7 +286,14 @@ class _NewTaskState extends State<NewTask> {
               ),
               //const SliderWidgetWho(),
               const SizedBox(height: 40),
-              AssignTo(userData: widget.userData, callback: _updateRequired),
+              AssignTo(
+                userData: widget.userData,
+                callback: _updateRequired,
+                householdUsers: widget.householdUsers,
+              ),
+              RoutinePicker(
+                  callback: _updateRequired,
+                  routines: widget.routines),
               isPermanent
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -389,12 +439,11 @@ class _NewTaskState extends State<NewTask> {
                               taskName.text,
                               description.text,
                               int.parse(taskPrice.text),
+                              pickedRoutine['id'],
                               widget.userData);
-                          Get.offAll(() => returnToWidget)?.then(
-                            (value) {
-                              Get.forceAppUpdate();
-                            },
-                          );
+                          Get.to(() => MainWidget(userId: userData['id']))?.then((value) {
+                            Get.forceAppUpdate();
+                          });
                         } else {
                           Get.back();
                         }
@@ -536,11 +585,99 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   }
 }
 
+class RoutinePicker extends StatefulWidget {
+  const RoutinePicker(
+      {super.key, required this.callback, required this.routines});
+
+  final VoidCallback callback;
+  final List<Map<String, dynamic>> routines;
+
+  @override
+  State<RoutinePicker> createState() => _RoutinePickerState();
+}
+
+class _RoutinePickerState extends State<RoutinePicker> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              child: Icon(
+                CupertinoIcons.archivebox,
+                size: 40,
+                color: Color.fromARGB(255, 204, 198, 196),
+              ),
+            ),
+            Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+        TextButton(
+            style: ButtonStyle(
+              alignment: Alignment.centerRight,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    height: 300,
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: 0),
+
+                      itemExtent:
+                          50, // Increase the item extent to make the items bigger
+                      onSelectedItemChanged: (int index) {
+                        print(
+                            'Selected routine: ${widget.routines[index]['name'] ?? ''}');
+                        setState(() {
+                          pickedRoutine = widget.routines[index];
+                          widget.callback;
+                        });
+                      },
+                      children: widget.routines.map((routine) {
+                        return Center(
+                          child: Text(
+                            routine['name'],
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text(
+                pickedRoutine['name'] == null
+                    ? "none"
+                    : "${pickedRoutine['name']}",
+                textAlign: TextAlign.end,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold))),
+      ],
+    );
+  }
+}
+
 class AssignTo extends StatefulWidget {
-  const AssignTo({super.key, required this.userData, required this.callback});
+  const AssignTo(
+      {super.key,
+      required this.userData,
+      required this.callback,
+      required this.householdUsers});
 
   final Map<String, dynamic> userData;
   final VoidCallback callback;
+  final List<Map<String, dynamic>> householdUsers;
 
   @override
   State<AssignTo> createState() => _AssignToState();
@@ -576,51 +713,32 @@ class _AssignToState extends State<AssignTo> {
               showCupertinoModalPopup(
                 context: context,
                 builder: (BuildContext context) {
-                  return FutureBuilder(
-                    future: getHouseholdData(widget.userData['id']),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                            child: CupertinoActivityIndicator());
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        print("household data: ${snapshot.data}");
-                        List<Map<String, dynamic>> all = [];
-                        all.add(householdUsers);
-                        all.addAll(List<Map<String, dynamic>>.from(
-                            snapshot.data!['users']));
-                        print(all);
-                        return Container(
-                          color: Theme.of(context).colorScheme.background,
-                          height: 300,
-                          child: CupertinoPicker(
-                            scrollController:
-                                FixedExtentScrollController(initialItem: 0),
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    height: 300,
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: 0),
 
-                            itemExtent:
-                                50, // Increase the item extent to make the items bigger
-                            onSelectedItemChanged: (int index) {
-                              print(
-                                  'Selected member: ${all[index]['forename'] ?? ''}');
-                              setState(() {
-                                assignedToUser = all[index];
-                                widget.callback;
-                              });
-                            },
-                            children: all.map((member) {
-                              return Center(
-                                child: Text(
-                                  member['forename'],
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              );
-                            }).toList(),
+                      itemExtent:
+                          50, // Increase the item extent to make the items bigger
+                      onSelectedItemChanged: (int index) {
+                        print(
+                            'Selected member: ${widget.householdUsers[index]['forename'] ?? ''}');
+                        setState(() {
+                          assignedToUser = widget.householdUsers[index];
+                          widget.callback;
+                        });
+                      },
+                      children: widget.householdUsers.map((member) {
+                        return Center(
+                          child: Text(
+                            member['forename'],
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
-                      }
-                    },
+                      }).toList(),
+                    ),
                   );
                 },
               );
@@ -638,6 +756,8 @@ class _AssignToState extends State<AssignTo> {
     );
   }
 }
+
+
 /*
 
 class WeekdaySelector extends StatefulWidget {
