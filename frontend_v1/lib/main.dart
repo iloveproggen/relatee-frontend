@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_Task.dart';
+import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -603,7 +603,6 @@ class ButtonRecommended extends StatelessWidget {
   }
 }
 
-
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
 
@@ -722,8 +721,7 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               IconButton(
                 onPressed: () {
-                  Get.to(() => NewTaskMain(
-                      userData: userData));
+                  Get.to(() => NewTaskMain(userData: userData));
                 },
                 icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
@@ -947,7 +945,7 @@ class _TaskState extends State<TaskOverview> {
                                     ],
                                   ),
                           ]
-                        : [Routine(userData: userData), SizedBox(height:10)],
+                        : [Routine(userData: userData), SizedBox(height: 10)],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 40),
@@ -1047,17 +1045,22 @@ class Task extends StatelessWidget {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
                           border: Border.all(
-                            width: 1,
+                              width: 1,
                               color: Theme.of(context).colorScheme.tertiary),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                          child: Text("${task['reward']} pts",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),)
-                        )),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Text(
+                              "${task['reward']} pts",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ))),
                   ],
                 ),
                 Padding(

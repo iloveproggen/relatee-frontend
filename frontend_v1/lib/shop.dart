@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_ShopItem.dart';
+import 'package:frontend_v1/create_new_shop_item.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart' as profile;
 import 'package:get/get.dart';
@@ -229,7 +229,8 @@ class ShopViewState extends State<ShopView> {
                           ],
                         );
                       } else {
-                        rewards.sort((a, b) => a['price'].compareTo(b['price']));
+                        rewards
+                            .sort((a, b) => a['price'].compareTo(b['price']));
                         return ListView.builder(
                           scrollDirection: Axis.vertical,
                           itemCount: rewards.length,
@@ -427,60 +428,62 @@ class ItemCard extends StatelessWidget {
                 onPressed: () {
                   buyable
                       ? showCupertinoDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CupertinoAlertDialog(
-                            title: const Text(
-                              'Confirm Purchase',
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              "Are you sure you want to buy this item for $taskPrice pts?"
-                            ),
-                            actions: [
-                              CupertinoDialogAction(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
-                                },
-                                child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text(
+                                'Confirm Purchase',
+                                textAlign: TextAlign.center,
                               ),
-                              CupertinoDialogAction(
-                                onPressed: () {
-                                  // Perform the purchase logic here
-                                  Navigator.of(context).pop(); // Close the dialog
-                                },
-                                child: const Text('Buy', style: TextStyle(color: Colors.blue)),
-                              ),
-                            ],
-                          );
-                        },
-                      )
+                              content: Text(
+                                  "Are you sure you want to buy this item for $taskPrice pts?"),
+                              actions: [
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text('Cancel',
+                                      style: TextStyle(color: Colors.grey)),
+                                ),
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    // Perform the purchase logic here
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text('Buy',
+                                      style: TextStyle(color: Colors.blue)),
+                                ),
+                              ],
+                            );
+                          },
+                        )
                       : showCupertinoDialog(
                           context: context,
-                            builder: (BuildContext context) {
+                          builder: (BuildContext context) {
                             //String difference = (int.parse(taskPrice) - int.parse(userData['coins'])).toString();
                             // Automatically dismiss the dialog after 3 seconds
                             Future.delayed(const Duration(seconds: 2), () {
                               Navigator.of(context)
-                                .pop(true); // Dismiss the dialog
+                                  .pop(true); // Dismiss the dialog
                             });
 
                             return AlertDialog(
                               title: Text(
-                              'Not enough Points to buy!',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
+                                'Not enough Points to buy!',
+                                style: Theme.of(context).textTheme.bodySmall,
+                                textAlign: TextAlign.center,
                               ),
                               actions: [
-                              TextButton(
-                                onPressed: () {
-                                Navigator.of(context).pop(); 
-                                },
-                                child: const Text('OK'),
-                              ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
                               ],
                             );
-                            
                           },
                         );
                 },
