@@ -24,10 +24,7 @@ class LocaleString extends Translations {
           'leftThisWeek_txt': 'left this week',
           'doneThisWeek_txt': 'done this week',
           'SeeAllTasks_txt': 'See all Tasks',
-<<<<<<<< HEAD:frontend_v1/lib/assets/locale_strings.dart
           'Household_txt': 'Household ',
-========
->>>>>>>> michelle:frontend_v1/lib/assets/LocaleStrings.dart
           'HouseholdMembers_txt': "Members",
           'settings_txt': "Settings",
           'Members_txt': 'Members',
@@ -72,6 +69,10 @@ class LocaleString extends Translations {
           'October_txt': 'October',
           'November_txt': 'November',
           'December_txt': 'December',
+          'Routine_description_txt': 'Routine description.',
+          'No_tasks_found_txt': 'No tasks found.',
+          'No_routines_found_txt': 'No routines found.',
+          'routine_description_txt': 'Routine description.',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -90,10 +91,7 @@ class LocaleString extends Translations {
           'leftThisWeek_txt': 'diese Woche übrig',
           'doneThisWeek_txt': 'diese Woche erledigt',
           'SeeAllTasks_txt': 'Siehe alle Tasks',
-<<<<<<<< HEAD:frontend_v1/lib/assets/locale_strings.dart
           'Household_txt': 'Haushalt',
-========
->>>>>>>> michelle:frontend_v1/lib/assets/LocaleStrings.dart
           'HouseholdMembers_txt': 'Mitglieder',
           'settings_txt': 'Einstellung',
           'Members_txt': 'Mitglieder',
@@ -138,6 +136,10 @@ class LocaleString extends Translations {
           'October_txt': 'Oktober',
           'November_txt': 'November',
           'December_txt': 'Dezember',
+          'Routine_description_txt': 'Routine Beschreibung.',
+          'No_tasks_found_txt': 'Keine Aufgaben gefunden.',
+          'No_routines_found_txt': 'Keine Routinen gefunden.',
+          'routine_description_txt': 'Routine Beschreibung.',
         }
       };
 }

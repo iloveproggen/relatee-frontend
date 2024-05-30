@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_Task.dart';
+import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/main.dart';
@@ -156,8 +156,8 @@ class HouseholdOverview extends StatelessWidget {
                                     .toList(),
                                 userData: users));
                           },
-                          child: Text("See completed Tasks", style: Theme.of(context).textTheme.labelSmall)),
-                      
+                          child: Text("See completed Tasks",
+                              style: Theme.of(context).textTheme.labelSmall)),
                       SizedBox(height: 40)
                     ],
                   );
