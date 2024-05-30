@@ -155,7 +155,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 80, right: 20, left: 20), // Adjust padding for top, right, and left
+          padding: const EdgeInsets.only(top: 50, right: 40, left: 40), // Adjust padding for top, right, and left
           child: Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode.disabled,
