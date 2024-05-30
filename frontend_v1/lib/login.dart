@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 int userId = -1;
+final focusNode1 = FocusNode();
+final focusNode2 = FocusNode();
+final focusNodeButton = FocusNode();
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
@@ -23,14 +27,15 @@ class _LoginAppState extends State<LoginApp> {
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
-        darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme : darktheme,
-        translations: LocaleString(),
-        locale: const Locale('en-Us'),
-        fallbackLocale: const Locale('en-US'),
-        debugShowCheckedModeBanner: false,
-        title: 'Relatee',
-        home: const LoginWidget());
+      darkTheme: darktheme,
+      theme: brightness == Brightness.light ? lighttheme : darktheme,
+      translations: LocaleString(),
+      locale: const Locale('en-Us'),
+      fallbackLocale: const Locale('en-US'),
+      debugShowCheckedModeBanner: false,
+      title: 'Relatee',
+      home: const LoginWidget(),
+    );
   }
 }
 
@@ -65,21 +70,23 @@ class LoginWidgetState extends State<LoginWidget> {
     });
     http.Response response = http.Response('Error', 500);
     try {
-      response = await http.post(
-        Uri.parse('http://85.215.50.29:3000/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': _usernameController.text,
-          'password': _passwordController.text,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      response = await http
+          .post(
+            Uri.parse('http://85.215.50.29:3000/login'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'email': _usernameController.text,
+              'password': _passwordController.text,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
     } catch (e) {
       print('Error: $e');
       setState(() {
         isLoading = false;
-        timeOut = true; 
+        timeOut = true;
       });
     }
     setState(() {
@@ -88,15 +95,15 @@ class LoginWidgetState extends State<LoginWidget> {
     print("Loading...");
     print(response.statusCode);
     if (response.statusCode == 200) {
-        // If the server returns a 200 OK response, parse the JSON.
-        String token = jsonDecode(response.body)['token'];
-        _saveToken(token);
-        int userId = jsonDecode(response.body)['userId'];
-        Get.to(() => MainWidget(userId: userId));
-        print("Opened MainWidget");
-        setState() {
-          isLoading = false;
-        }
+      // If the server returns a 200 OK response, parse the JSON.
+      String token = jsonDecode(response.body)['token'];
+      _saveToken(token);
+      int userId = jsonDecode(response.body)['userId'];
+      Get.to(() => MainWidget(userId: userId));
+      print("Opened MainWidget");
+      setState() {
+        isLoading = false;
+      }
     } else {
       // If the server returns an error response, throw an exception.
       print('Failed to load');
@@ -156,7 +163,13 @@ class LoginWidgetState extends State<LoginWidget> {
             const SizedBox(
               height: 20,
             ),
-            TextField(
+            TextFormField(
+                autofillHints: [AutofillHints.username],
+                autocorrect: false,
+                focusNode: focusNode1,
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(focusNode2);
+                },
                 controller: _usernameController,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
@@ -179,19 +192,24 @@ class LoginWidgetState extends State<LoginWidget> {
                       width: 5,
                     ),
                   ),
-                  hintText: 'Username_or_Email_txt'.tr,
+                  hintText: 'Email_txt'.tr,
                   contentPadding: const EdgeInsets.all(20),
-                  hintStyle: const TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196),
-                  ),
+                  hintStyle: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                 ),
-                style: const TextStyle(
-                  fontSize: 20,
-                )),
+                style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 10),
-            TextField(
+            TextFormField(
+              autofillHints: [AutofillHints.password],
+              focusNode: focusNode2,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(focusNodeButton);
+              },
               controller: _passwordController,
               obscureText: !_isPasswordVisible,
+              cursorColor: Theme.of(context).colorScheme.onSecondary,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -215,9 +233,10 @@ class LoginWidgetState extends State<LoginWidget> {
                 ),
                 hintText: 'Password_txt'.tr,
                 contentPadding: const EdgeInsets.all(20),
-                hintStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
+                hintStyle: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: IconButton(
@@ -236,10 +255,9 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
               ),
-              style: const TextStyle(
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
+            SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Container(
@@ -257,12 +275,6 @@ class LoginWidgetState extends State<LoginWidget> {
                             )
                           ])
                     : BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                            strokeAlign: BorderSide.strokeAlignInside,
-                            width: 5,
-                            color: Theme.of(context).colorScheme.tertiary),
                         color: Theme.of(context).colorScheme.primary,
                       ),
                 child: TextButton(
@@ -295,6 +307,40 @@ class LoginWidgetState extends State<LoginWidget> {
                                 fontSize: 20,
                               ),
                       ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    color: const Color.fromARGB(255, 243, 243, 243),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.secondary,
+                        offset: const Offset(5.0, 5.0),
+                        blurRadius: 10.0,
+                        spreadRadius: 2.0,
+                      )
+                    ]),
+                child: TextButton(
+                  onPressed: () {
+                    Get.to(() => const SignUp());
+                  },
+                  child: const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: 10, bottom: 10, left: 15, right: 15),
+                      child: Text('Sign Up!',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            fontFamily: "Karla",
+                            fontSize: 20,
+                          )),
                     ),
                   ),
                 ),
