@@ -1,24 +1,68 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-class NewShopItem extends StatefulWidget {
-  const NewShopItem({super.key});
+void createShopItem(String name, String description, int price,
+    Map<String, dynamic> userData) async {
+  final Map<String, dynamic> variables = {
+    'householdId': userData['householdId'],
+    'name': name,
+    'description': description,
+    'price': price
+  };
 
-  @override
-  State<NewShopItem> createState() => _NewShopItemState();
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''
+  mutation CreateReward($householdId: Int!, $name: String!, $description: String, $price: Int!) {
+    createReward(householdId: $householdId, name: $name, description: $description, price: $price) {
+      id
+      name
+      description
+      price
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+      print("pushed the new item to the db: $variables");
+    }
+  } catch (e) {
+    print(e);
+  }
 }
 
-//purpose: Create a new shop item
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024
+class NewShopItem extends StatefulWidget {
+  const NewShopItem({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
+
+  @override
+  State<NewShopItem> createState() => _NewShopItemState(userData: userData);
+}
 
 class _NewShopItemState extends State<NewShopItem> {
+  _NewShopItemState({required this.userData});
+
+  final Map<String, dynamic> userData;
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
+  TextEditingController description = TextEditingController();
 
   bool required = false;
 
@@ -38,12 +82,13 @@ class _NewShopItemState extends State<NewShopItem> {
     // Add listener to text controllers to update required variable
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
+    description.addListener(_updateRequired);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -56,10 +101,17 @@ class _NewShopItemState extends State<NewShopItem> {
                   child: Column(
                     children: [
                       TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                         controller: taskName,
-                        decoration: InputDecoration.collapsed(
-                            hintText: 'new_item_txt'.tr,
-                            hintStyle: Theme.of(context).textTheme.bodySmall),
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'new item...',
+                          hintStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Sedan",
+                            fontSize: 40,
+                            color: Color.fromARGB(255, 204, 198, 196),
+                          ),
+                        ),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: "Sedan",
@@ -83,30 +135,74 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                     const SizedBox(width: 20),
                     Text(
-                      'price_txt'.tr,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      'price:',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Expanded(
                       child: TextField(
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                            hintText: "add_price_txt".tr,
-                            hintStyle: Theme.of(context).textTheme.bodySmall,
-                            border: InputBorder.none),
-                        style: const TextStyle(
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25),
-                      ),
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          textAlign: TextAlign.end,
+                          controller: taskPrice,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: const InputDecoration(
+                              hintText: "add price",
+                              hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontSize: 20),
+                              border: InputBorder.none),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
               ),
-              const AddDescription(),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.text_aligncenter,
+                          size: 25,
+                          color: Color.fromARGB(255, 204, 198, 196),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                            child: Text(
+                          'description',
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        maxLines: 3,
+                        controller: description,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                            hintText: 'None Yet',
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  )
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 80),
                 child: Container(
@@ -134,26 +230,27 @@ class _NewShopItemState extends State<NewShopItem> {
                           ),
                     child: TextButton(
                       onPressed: () {
-                        if (required == false) {
-                          Get.back();
-                        } else {
-                          //implement here: instead of using the newShopItem as parameter, add sql statement that adds it to the db
-                          Get.to(() => ShopView(
-                                itemToAdd: ItemCard(
-                                  taskName: taskName.text,
-                                  taskPrice: taskPrice.text,
-                                ),
-                              ));
-                        }
+                        createShopItem(taskName.text, description.text,
+                            int.parse(taskPrice.text), userData);
+                        Get.forceAppUpdate();
+                        Get.back();
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
                         child: Text(
-                          required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
+                          required ? "Confirm" : "Cancel",
                           style: required
-                              ? Theme.of(context).textTheme.bodyMedium
-                              : Theme.of(context).textTheme.bodyMedium,
+                              ? const TextStyle(
+                                  color: Color.fromARGB(255, 243, 243, 243),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                )
+                              : const TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                ),
                         ),
                       ),
                     )),
@@ -173,10 +270,6 @@ class SliderWidget extends StatefulWidget {
   _SliderWidgetState createState() => _SliderWidgetState();
 }
 
-//purpose: Create a slider widget
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024
-
 class _SliderWidgetState extends State<SliderWidget> {
   bool _isPermanent = true;
 
@@ -191,62 +284,56 @@ class _SliderWidgetState extends State<SliderWidget> {
       child: Padding(
         padding: const EdgeInsets.only(top: 40),
         child: Container(
-          width: 386,
-          height: 46,
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             color: const Color(0x7FD9D9D9),
             borderRadius: BorderRadius.circular(7),
           ),
           child: Stack(
+            alignment: Alignment.center,
             children: [
               AnimatedAlign(
                 alignment:
                     _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
-                child: Container(
-                  width: 193,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(7),
+                child: FractionallySizedBox(
+                  widthFactor: 0.5,
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD9D9D9),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
                   ),
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'permanent_txt'.tr,
-                        style: TextStyle(
-                          color: _isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
+                  Text(
+                    'permanent',
+                    style: TextStyle(
+                      color:
+                          _isPermanent ? Colors.black : const Color(0xFF4A4646),
+                      fontSize: 20,
+                      fontFamily: 'Karla',
+                      fontWeight:
+                          _isPermanent ? FontWeight.w700 : FontWeight.w300,
+                      height: 0,
                     ),
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'only_once_txt'.tr,
-                        style: TextStyle(
-                          color: !_isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
+                  Text(
+                    'only once',
+                    style: TextStyle(
+                      color: !_isPermanent
+                          ? Colors.black
+                          : const Color(0xFF4A4646),
+                      fontSize: 20,
+                      fontFamily: 'Karla',
+                      fontWeight:
+                          !_isPermanent ? FontWeight.w700 : FontWeight.w300,
+                      height: 0,
                     ),
                   ),
                 ],
@@ -255,59 +342,6 @@ class _SliderWidgetState extends State<SliderWidget> {
           ),
         ),
       ),
-    );
-  }
-}
-
-//purpose: Create a back icon row
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024
-
-class AddDescription extends StatelessWidget {
-  const AddDescription({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(
-                CupertinoIcons.text_aligncenter,
-                size: 25,
-                color: Color.fromARGB(255, 204, 198, 196),
-              ),
-              SizedBox(width: 20),
-              Text(
-                'description_txt'.tr,
-                textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 25, fontFamily: "Karla"),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: TextField(
-            maxLines: 3,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-                hintText: 'None_Yet_txt'.tr,
-                hintStyle: TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196), fontSize: 20),
-                border: InputBorder.none),
-            style: TextStyle(
-              color: Color.fromARGB(255, 74, 70, 70),
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              letterSpacing: 0,
-            ),
-          ),
-        )
-      ],
     );
   }
 }

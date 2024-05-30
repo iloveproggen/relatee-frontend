@@ -1,153 +1,81 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/routine_overview.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'task_item_view.dart';
-
-//fetched alle Daten aus der Datenbank -> tasks + Routinen
-Future<Map<String, dynamic>> getRoutineData(int id) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUser(\$id: Int!) {
-    user(id: \$id) {
-      household {
-        routine {
-          id
-          name
-          description
-          interval
-          tasks {
-            id
-            name
-            description
-            points
-          }
-        }
-      }
-    }
-  }
-'''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
-  );
-
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      final user = result.data!['user'];
-      final mappedResult = {
-        'householdRoutine': user['household']['routine'].map((routine) {
-          return {
-            'id': routine['id'],
-            'name': routine['name'],
-            'description': routine['description'],
-            'interval': routine['interval'],
-            'tasks': routine['tasks'].map((task) {
-              return {
-                'id': task['id'],
-                'name': task['name'],
-                'description': task['description'],
-                'points': task['points'],
-              };
-            }).toList(),
-          };
-        }).toList(),
-      };
-      return mappedResult;
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return {};
-}
 
 class Routine extends StatelessWidget {
-  const Routine({
-    super.key,
-    required this.userData,
-  });
+  const Routine({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Routines_txt'.tr,
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.left,
-        ),
-        FutureBuilder(
-            future: getRoutineData(userData['id']),
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder<Map<String, dynamic>>(
+            future: getHouseholdData(userData['id']),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (snapshot.hasData) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                print(snapshot.data!['routines']);
+                List<Map<String, dynamic>> users = snapshot.data!['users'];
+                List<Map<String, dynamic>> tasks = snapshot.data!['tasks'];
+                if (snapshot.data!['routines'] != null) {
+                  List<Map<String, dynamic>> routines = List<Map<String, dynamic>>.from(snapshot.data!['routines']);
+                  print(routines);
                   return Column(
-                    children: snapshot.data!['householdRoutine']
-                        .map<Widget>((routine) {
-                      return Routinenitems(
-                        routineName: routine['name'],
-                        routineDescription: routine['description'],
+                    children: routines.map((routine) {
+                      return RoutineItem(
+                        routine: routine,
+                        users: users,
+                        tasks: tasks,
+                        userData: userData,
                       );
                     }).toList(),
                   );
-                  //Routinenitems(routines: snapshot.data['householdRoutine']);
+                } else {
+                  return Text('No routines found.', style: Theme.of(context).textTheme.bodySmall);
                 }
               }
-              return const CircularProgressIndicator();
-            }),
-      ],
-    );
+            },
+          )
+        ]);
   }
 }
 
-class Routinenitems extends StatelessWidget {
-  const Routinenitems({
+class RoutineItem extends StatelessWidget {
+  const RoutineItem({
     super.key,
-    required this.routineName,
-    required this.routineDescription,
+    required this.routine,
+    required this.users,
+    required this.tasks,
+    required this.userData
   });
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
   final Color colText = const Color(0xFF4A4646);
 
-  final String routineName;
-  final String routineDescription;
+  final Map<String, dynamic> routine;
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> users;
+  final List<Map<String, dynamic>> tasks; 
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(15),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      margin: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.secondary,
@@ -167,10 +95,10 @@ class Routinenitems extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 200),
+                  constraints: const BoxConstraints(maxWidth: 180),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 5),
-                    child: Text(routineName,
+                    child: Text(routine['name'],
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
@@ -178,9 +106,9 @@ class Routinenitems extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 200),
-                  child: Text(
-                    routineDescription,
+                  constraints: const BoxConstraints(maxWidth: 180),
+                  child: const Text(
+                    "routine description",
                     style: const TextStyle(
                         color: Color.fromARGB(255, 204, 198, 196),
                         fontSize: 20,
@@ -194,10 +122,18 @@ class Routinenitems extends StatelessWidget {
           Padding(
               padding: const EdgeInsets.all(5),
               child: IconButton(
+                style: ButtonStyle(
+                  animationDuration: Duration.zero,
+                  padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+                ),
                   onPressed: () {
-                    Get.to(ItemView(
-                        routineName: this.routineName,
-                        routineDescription: this.routineDescription));
+                    print(tasks);
+                    Get.to(() => RoutineOverview(
+                      routine: routine,
+                      users: users,
+                      tasks: tasks.where((task) => task['routineId'] == routine['id']).toList(),
+                      userData: userData,
+                    ));
                   },
                   icon: Icon(
                     CupertinoIcons.info,

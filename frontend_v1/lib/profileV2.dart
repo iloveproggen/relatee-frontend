@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
-import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
 
 String getDueDaysInText(int days) {
@@ -15,9 +14,10 @@ String getDueDaysInText(int days) {
 }
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.userData});
+  const ProfileView({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class ProfileView extends StatelessWidget {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 onPressed: () {
-                                  Get.to(() => const LoginWidget());
+                                  Get.offAll(() => const LoginWidget());
                                 },
                               ),
                             ],
@@ -120,6 +120,14 @@ class ProfileView extends StatelessWidget {
                     Text('${userData['forename']} ${userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
+                    Text(
+                      '@${userData['username']}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontStyle: FontStyle.italic),
+                      textAlign: TextAlign.center,
+                    ),
                     RichText(
                       text: TextSpan(
                         children: [
@@ -137,26 +145,19 @@ class ProfileView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      '@${userData['username']}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center,
-                    ),
+                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 50, right: 10),
                           child:
-                              _buildInfoContainer('${userData['points']} pts'),
+                              _buildInfoContainer('${userData['coins']} pts'),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 50),
                           child:
-                              _buildInfoContainer('lvl ${userData['points']}'),
+                              _buildInfoContainer('lvl ${userData['level']}'),
                         ),
                       ],
                     ),
@@ -168,7 +169,7 @@ class ProfileView extends StatelessWidget {
               //     height: 100,
               //     thickness: 2),
               SizedBox(height: 80),
-              TaskOverview(userData: userData),
+              TaskOverview(userData: userData, tasks: tasks),
             ],
           ),
         ),
@@ -250,9 +251,10 @@ class BackIconRow extends StatelessWidget {
 }
 
 class TaskOverview extends StatelessWidget {
-  const TaskOverview({super.key, required this.userData});
+  const TaskOverview({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> tasks;
 
   final double size = 15;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -268,41 +270,42 @@ class TaskOverview extends StatelessWidget {
           child: Text('Their Tasks',
               style: Theme.of(context).textTheme.bodyMedium),
         ),
-        const Task(taskName: "do the dishes", taskStatus: 2),
-        const Task(taskName: "mop the floor", taskStatus: 1),
+        tasks.isNotEmpty
+            ? Column(
+                children: tasks.map((task) {
+                  return Task(task: task, userData: userData);
+                }).toList(),
+              )
+            : Column(
+                children: [
+                  Text("This user currently has no tasks assigned to them.",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  SizedBox(
+                    height: 10,
+                  )
+                ],
+              ),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
+                style: TextButton.styleFrom(
+                  animationDuration: Duration.zero,
+                  padding: EdgeInsets.zero,
+                ),
                 onPressed: () {
-                  Get.to(() => SeeAllTasks(
-                        userData: userData,
-                      ));
+                  Get.to(() => MainHouseholdOverview(pUserData: userData));
                 },
                 child: Row(
                   children: [
-                    Text('SeeAllTasks_txt'.tr,
+                    Text("See Household Overview",
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
-                            ?.copyWith(fontSize: 15)),
-                    Container(width: 5),
-                    Icon(
-                      CupertinoIcons.arrow_right,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: size,
-                    )
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: userData));
-                },
-                child: Row(
-                  children: [
+                            ?.copyWith(fontSize: 18)),
+                    const SizedBox(width: 10),
                     Icon(
                       CupertinoIcons.house,
                       color: Theme.of(context).colorScheme.tertiary,
@@ -314,6 +317,7 @@ class TaskOverview extends StatelessWidget {
             ],
           ),
         ),
+        
       ],
     );
   }

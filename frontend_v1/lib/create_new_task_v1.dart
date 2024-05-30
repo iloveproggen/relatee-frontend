@@ -1,151 +1,472 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-//purpose: Create a new task
-//author: Maurice, Michelle, Rene
-//Date: 08.05.2024s
+class MaxLengthNumberInputFormatter extends TextInputFormatter {
+  final int maxDigits;
 
-class NewTask extends StatelessWidget {
-  const NewTask({super.key});
+  MaxLengthNumberInputFormatter(this.maxDigits);
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.length > maxDigits) {
+      return oldValue;
+    }
+    return newValue;
+  }
+}
+
+Map<String, dynamic> nullUser = {
+  'forename': 'anyone',
+  'surname': '...',
+  'id': null,
+  'username': '...',
+};
+
+Map<String, dynamic> nullRoutine = {
+  'name': 'none',
+  'id': null,
+};
+
+Map<String, dynamic> pickedRoutine = nullRoutine;
+
+Map<String, dynamic> assignedToUser = nullUser;
+
+bool isPermanent = false;
+
+void createNewTask(int? userId, String name, String description, int reward, int routineId,
+    Map<String, dynamic> userData) async {
+  final Map<String, dynamic> variables = {
+    'userId': userId,
+    'householdId': userData['householdId'],
+    'routineId': routineId,
+    'name': name.trim(),
+    'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
+    'description': description,
+    'reward': reward,
+    'completed': false,
+    'ownerId': userData['id']
+  };
+
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(
+        r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
+    createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed, ownerId: $ownerId) {
+      userId
+      householdId
+      routineId
+      name
+      deadline
+      description
+      reward
+      completed
+      ownerId
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+      print("pushed the new item to the db: $variables");
+    }
+  } catch (e) {
+    print(e);
+  }
+}
+
+class NewTaskMain extends StatelessWidget {
+  const NewTaskMain({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+    return FutureBuilder(
+      future: getHouseholdData(userData['id']),
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CupertinoActivityIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          List<Map<String, dynamic>> householdUsers = [];
+          householdUsers.add(nullUser);
+          householdUsers
+              .addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
+          List<Map<String, dynamic>> routines = [];
+          routines.add(nullRoutine);
+          routines.addAll(List<Map<String, dynamic>>.from(snapshot.data!['routines']));
+          return NewTask(
+              userData: userData,
+              householdUsers: householdUsers,
+              routines: routines);
+        }
+      },
+    );
+  }
+}
+
+class NewTask extends StatefulWidget {
+  const NewTask(
+      {super.key,
+      required this.userData,
+      required this.householdUsers,
+      required this.routines});
+
+  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> householdUsers;
+  final List<Map<String, dynamic>> routines;
+
+  @override
+  State<NewTask> createState() => _NewTaskState();
+}
+
+class _NewTaskState extends State<NewTask> {
+  bool required = false;
+
+  TextEditingController taskName = TextEditingController();
+  TextEditingController taskPrice = TextEditingController();
+  TextEditingController description = TextEditingController();
+
+  void _updateRequired() {
+    setState(() {
+      required = _checkInputs(); // Update required based on inputs
+    });
+  }
+
+  bool _checkInputs() {
+    return taskName.text.isNotEmpty &&
+        taskPrice.text.isNotEmpty &&
+        assignedToUser.isNotEmpty;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listener to text controllers to update required variable
+    taskName.addListener(_updateRequired);
+    taskPrice.addListener(_updateRequired);
+    description.addListener(_updateRequired);
+  }
+
+  void changePermanent() {
+    setState(() {});
+    isPermanent = !isPermanent;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              BackIconRow(),
-              CustomTextField(),
-              SliderWidgetRepeat(),
-              SliderWidgetWho(),
-              SizedBox(height: 40),
-              AssignTo(),
-              Repeats()
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-//purpose: Create text field for new task
-//author: Maurice, Michelle, Rene
-//Date: 08.05.2024
-
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Form(
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration.collapsed(
-                  hintText: ('new_task_txt'.tr),
-                  hintStyle: Theme.of(context).textTheme.bodyMedium),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SliderWidgetRepeat extends StatefulWidget {
-  const SliderWidgetRepeat({super.key});
-
-  @override
-  State<SliderWidgetRepeat> createState() => _SliderWidgetState();
-}
-
-//purpose: Create a slider widget for tasks with color chnage
-//author:  Michelle
-//Date: 08.05.2024
-
-class _SliderWidgetState extends State<SliderWidgetRepeat> {
-  bool _isPermanent = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isPermanent = !_isPermanent;
-        });
-      },
-      child: Padding(
-        // Hinzufügen von Padding um den Container
-        padding: const EdgeInsets.only(
-            top: 60.0), // Verschieben Sie den Slider nach unten
-        child: Container(
-          width: 386,
-          height: 46,
-          decoration: BoxDecoration(
-            color: const Color(0x7FD9D9D9),
-            borderRadius: BorderRadius.circular(7),
-          ),
-          child: Stack(
-            children: [
-              AnimatedAlign(
-                alignment:
-                    _isPermanent ? Alignment.centerLeft : Alignment.centerRight,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                child: Container(
-                  width: 193,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(7),
+              const BackIconRow(),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Form(
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: taskName,
+                        decoration: InputDecoration.collapsed(
+                          hintText: ('new_task_txt'.tr),
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
+                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
                   ),
                 ),
               ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    changePermanent();
+                  });
+                },
+                child: Padding(
+                  // Hinzufügen von Padding um den Container
+                  padding: const EdgeInsets.only(
+                      top: 40), // Verschieben Sie den Slider nach unten
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0x7FD9D9D9),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedAlign(
+                          alignment: isPermanent
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: FractionallySizedBox(
+                            widthFactor: 0.5,
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD9D9D9),
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  'repeat_txt'.tr,
+                                  style: TextStyle(
+                                    color: isPermanent
+                                        ? Colors.black
+                                        : const Color(0xFF4A4646),
+                                    fontSize: 20,
+                                    fontFamily: 'Karla',
+                                    fontWeight: isPermanent
+                                        ? FontWeight.w700
+                                        : FontWeight.w300,
+                                    height: 0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  'only_once_txt'.tr,
+                                  style: TextStyle(
+                                    color: !isPermanent
+                                        ? Colors.black
+                                        : const Color(0xFF4A4646),
+                                    fontSize: 20,
+                                    fontFamily: 'Karla',
+                                    fontWeight: !isPermanent
+                                        ? FontWeight.w700
+                                        : FontWeight.w300,
+                                    height: 0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              //const SliderWidgetWho(),
+              const SizedBox(height: 40),
+              AssignTo(
+                userData: widget.userData,
+                callback: _updateRequired,
+                householdUsers: widget.householdUsers,
+              ),
+              RoutinePicker(
+                  callback: _updateRequired,
+                  routines: widget.routines),
+              isPermanent
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, right: 20, bottom: 10),
+                          child: Icon(
+                            CupertinoIcons.clock_fill,
+                            size: 40,
+                            color: Color.fromARGB(255, 204, 198, 196),
+                          ),
+                        ),
+                        Text(
+                          ('repeats_txt'.tr),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    )
+                  : Container(),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'repeat_txt'.tr,
-                        style: TextStyle(
-                          color: _isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              _isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.add_circled,
+                      size: 40,
+                      color: Color.fromARGB(255, 204, 198, 196),
                     ),
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'only_once_txt'.tr,
-                        style: TextStyle(
-                          color: !_isPermanent
-                              ? Colors.black
-                              : const Color(0xFF4A4646),
-                          fontSize: 20,
-                          fontFamily: 'Karla',
-                          fontWeight:
-                              !_isPermanent ? FontWeight.w700 : FontWeight.w300,
-                          height: 0,
-                        ),
-                      ),
-                    ),
+                  Text(
+                    'reward:',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
+                  Expanded(
+                      child: TextField(
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    textAlign: TextAlign.end,
+                    controller: taskPrice,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      MaxLengthNumberInputFormatter(
+                          10), // replace 9 with the maximum number of digits you want to allow
+                    ],
+                    decoration: InputDecoration(
+                      hintText: "add reward",
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontWeight: FontWeight.bold),
+                      border: InputBorder.none,
+                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  )),
                 ],
+              ),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        child: Icon(
+                          CupertinoIcons.text_aligncenter,
+                          size: 40,
+                          color: Color.fromARGB(255, 204, 198, 196),
+                        ),
+                      ),
+                      Expanded(
+                          child: Text(
+                        'description',
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        maxLines: 3,
+                        controller: description,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                            hintText: 'None Yet',
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  )
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 50),
+                child: Container(
+                    decoration: required
+                        ? const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(61, 109, 103, 103),
+                                  offset: Offset(5.0, 5.0),
+                                  blurRadius: 10.0,
+                                  spreadRadius: 2.0,
+                                )
+                              ])
+                        : BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            border: Border.all(
+                                strokeAlign: BorderSide.strokeAlignOutside,
+                                width: 5,
+                                color:
+                                    const Color.fromARGB(255, 204, 198, 196)),
+                            color: const Color.fromARGB(255, 243, 243, 243),
+                          ),
+                    child: TextButton(
+                      onPressed: () {
+                        if (required) {
+                          print(taskName.text);
+                          print(taskPrice.text);
+                          print(assignedToUser);
+                          print(description.text);
+                          createNewTask(
+                              assignedToUser['id'],
+                              taskName.text,
+                              description.text,
+                              int.parse(taskPrice.text),
+                              pickedRoutine['id'],
+                              widget.userData);
+                          Get.to(() => MainWidget(userId: userData['id']))?.then((value) {
+                            Get.forceAppUpdate();
+                          });
+                        } else {
+                          Get.back();
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 15, right: 15),
+                        child: Text(
+                          required ? "Confirm" : "Cancel",
+                          style: required
+                              ? const TextStyle(
+                                  color: Color.fromARGB(255, 243, 243, 243),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                )
+                              : const TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                ),
+                        ),
+                      ),
+                    )),
               ),
             ],
           ),
@@ -161,12 +482,6 @@ class SliderWidgetWho extends StatefulWidget {
   @override
   State<SliderWidgetWho> createState() => _SliderWidgetStateWho();
 }
-
-/*
-purpose: select task assignee using a slider widget
-author:  Michelle
-Date: 08.05.2024
-*/
 
 class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   int _selectedOption = 0;
@@ -199,7 +514,6 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
       child: Padding(
         padding: const EdgeInsets.only(top: 60.0),
         child: Container(
-          width: 386,
           height: 100,
           decoration: BoxDecoration(
             color: const Color(0x7FD9D9D9),
@@ -221,7 +535,7 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
                       });
                     },
                     child: Container(
-                      width: 193,
+                      width: 176,
                       height: 50,
                       decoration: BoxDecoration(
                         color: _selectedOption == i
@@ -271,85 +585,178 @@ class _SliderWidgetStateWho extends State<SliderWidgetWho> {
   }
 }
 
-/*
-purpose: assign task to a user
-author:  Michelle
-Date: 08.05.2024
-*/
+class RoutinePicker extends StatefulWidget {
+  const RoutinePicker(
+      {super.key, required this.callback, required this.routines});
 
-class AssignTo extends StatelessWidget {
-  const AssignTo({super.key});
+  final VoidCallback callback;
+  final List<Map<String, dynamic>> routines;
 
+  @override
+  State<RoutinePicker> createState() => _RoutinePickerState();
+}
+
+class _RoutinePickerState extends State<RoutinePicker> {
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
+      children: [
         Row(
           children: [
             const Padding(
               padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
-                CupertinoIcons.person_fill,
+                CupertinoIcons.archivebox,
+                size: 40,
+                color: Color.fromARGB(255, 204, 198, 196),
+              ),
+            ),
+            Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+        TextButton(
+            style: ButtonStyle(
+              alignment: Alignment.centerRight,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    height: 300,
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: 0),
+
+                      itemExtent:
+                          50, // Increase the item extent to make the items bigger
+                      onSelectedItemChanged: (int index) {
+                        print(
+                            'Selected routine: ${widget.routines[index]['name'] ?? ''}');
+                        setState(() {
+                          pickedRoutine = widget.routines[index];
+                          widget.callback;
+                        });
+                      },
+                      children: widget.routines.map((routine) {
+                        return Center(
+                          child: Text(
+                            routine['name'],
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text(
+                pickedRoutine['name'] == null
+                    ? "none"
+                    : "${pickedRoutine['name']}",
+                textAlign: TextAlign.end,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold))),
+      ],
+    );
+  }
+}
+
+class AssignTo extends StatefulWidget {
+  const AssignTo(
+      {super.key,
+      required this.userData,
+      required this.callback,
+      required this.householdUsers});
+
+  final Map<String, dynamic> userData;
+  final VoidCallback callback;
+  final List<Map<String, dynamic>> householdUsers;
+
+  @override
+  State<AssignTo> createState() => _AssignToState();
+}
+
+class _AssignToState extends State<AssignTo> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              child: Icon(
+                CupertinoIcons.person,
                 size: 40,
                 color: Color.fromARGB(255, 204, 198, 196),
               ),
             ),
             Text(('assign_to_txt'.tr),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontFamily: "Karla",
-                  color: Color.fromARGB(255, 74, 70, 70),
-                )),
+                style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
-        const Text(
-          "Name",
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: "Karla",
-            color: Color.fromARGB(255, 74, 70, 70),
-          ),
-        ),
+        TextButton(
+            style: ButtonStyle(
+              alignment: Alignment.centerRight,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    height: 300,
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: 0),
+
+                      itemExtent:
+                          50, // Increase the item extent to make the items bigger
+                      onSelectedItemChanged: (int index) {
+                        print(
+                            'Selected member: ${widget.householdUsers[index]['forename'] ?? ''}');
+                        setState(() {
+                          assignedToUser = widget.householdUsers[index];
+                          widget.callback;
+                        });
+                      },
+                      children: widget.householdUsers.map((member) {
+                        return Center(
+                          child: Text(
+                            member['forename'],
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text(
+                assignedToUser['id'] == null
+                    ? "anyone"
+                    : "${assignedToUser['forename']}",
+                textAlign: TextAlign.end,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold))),
       ],
     );
   }
 }
 
-/*
-purpose: Specify how often the tasks repeat
-author:  Michelle
-Date: 08.05.2024
-*/
-
-class Repeats extends StatelessWidget {
-  const Repeats({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        const Padding(
-          padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
-          child: Icon(
-            CupertinoIcons.clock,
-            size: 40,
-            color: Color.fromARGB(255, 204, 198, 196),
-          ),
-        ),
-        Text(
-          ('repeats_txt'.tr),
-          style: const TextStyle(
-            fontSize: 20,
-            fontFamily: "Karla",
-            color: Color.fromARGB(255, 74, 70, 70),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 /*
 

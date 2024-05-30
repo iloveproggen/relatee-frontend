@@ -24,7 +24,10 @@ class LocaleString extends Translations {
           'leftThisWeek_txt': 'left this week',
           'doneThisWeek_txt': 'done this week',
           'SeeAllTasks_txt': 'See all Tasks',
+<<<<<<<< HEAD:frontend_v1/lib/assets/locale_strings.dart
           'Household_txt': 'Household ',
+========
+>>>>>>>> michelle:frontend_v1/lib/assets/LocaleStrings.dart
           'HouseholdMembers_txt': "Members",
           'settings_txt': "Settings",
           'Members_txt': 'Members',
@@ -41,7 +44,7 @@ class LocaleString extends Translations {
           'Choose_your_language_txt': 'Choose your language:',
           'Change_Language_txt': 'Change Language',
           'Log_In_to_Relatee_txt': 'Log In to Relatee',
-          'Username_or_Email_txt': 'Username or Email',
+          'Email_txt': 'Email',
           'Password_txt': 'Password',
           'Log_In_txt': 'Log in',
           'new_item_txt': 'new item...',
@@ -87,7 +90,10 @@ class LocaleString extends Translations {
           'leftThisWeek_txt': 'diese Woche übrig',
           'doneThisWeek_txt': 'diese Woche erledigt',
           'SeeAllTasks_txt': 'Siehe alle Tasks',
+<<<<<<<< HEAD:frontend_v1/lib/assets/locale_strings.dart
           'Household_txt': 'Haushalt',
+========
+>>>>>>>> michelle:frontend_v1/lib/assets/LocaleStrings.dart
           'HouseholdMembers_txt': 'Mitglieder',
           'settings_txt': 'Einstellung',
           'Members_txt': 'Mitglieder',
@@ -104,7 +110,7 @@ class LocaleString extends Translations {
           'Choose_your_language_txt': 'Wähle deine Sprache:',
           'Change_Language_txt': 'Sprache ändern',
           'Log_In_to_Relatee_txt': 'Anmelden bei Relatee',
-          'Username_or_Email_txt': 'Benutzername oder Email',
+          'Email_txt': 'Email',
           'Password_txt': 'Passwort',
           'Log_In_txt': 'Log in',
           'new_item_txt': 'neuer Gegenstand...',

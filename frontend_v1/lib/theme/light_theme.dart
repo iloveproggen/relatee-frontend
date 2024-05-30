@@ -14,14 +14,14 @@ ThemeData lighttheme = ThemeData(
             TextStyle(color: Color.fromARGB(255, 74, 70, 70), fontSize: 20)),
     textTheme: const TextTheme(
         bodyLarge: TextStyle(
-            fontSize: 40,
+            fontSize: 35,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 74, 70, 70),
             fontFamily: "Sedan",
             letterSpacing: 0),
         bodyMedium: TextStyle(
             letterSpacing: -1,
-            fontSize: 30,
+            fontSize: 25,
             color: Color.fromARGB(255, 74, 70, 70),
             fontWeight: FontWeight.w800,
             fontFamily: "Karla"),
