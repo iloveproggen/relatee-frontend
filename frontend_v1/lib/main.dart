@@ -363,6 +363,23 @@ Future<void> addPoints(String coinsToAdd) async {
 
 void gotCoinsPopup(int coins, BuildContext context) {}
 
+Builder getIndicator(Map<String, dynamic> task) {
+  return Builder(
+                      builder: (context) {
+                        switch (task['status']) {
+                          case 1:
+                            return SvgPicture.asset("assets/images/green.svg");
+                          case 2:
+                            return SvgPicture.asset("assets/images/yellow.svg");
+                          case 0:
+                            return SvgPicture.asset("assets/images/red.svg");
+                          default:
+                            return SvgPicture.asset("assets/images/red.svg");
+                        }
+                      },
+                    );
+}
+
 class MainWidget extends StatelessWidget {
   const MainWidget({super.key, required this.userId});
 
@@ -1051,20 +1068,7 @@ class Task extends StatelessWidget {
                 ),
                 Padding(
                     padding: const EdgeInsets.only(right: 30),
-                    child: Builder(
-                      builder: (context) {
-                        switch (task['status']) {
-                          case 1:
-                            return SvgPicture.asset("assets/images/green.svg");
-                          case 2:
-                            return SvgPicture.asset("assets/images/yellow.svg");
-                          case 0:
-                            return SvgPicture.asset("assets/images/red.svg");
-                          default:
-                            return SvgPicture.asset("assets/images/red.svg");
-                        }
-                      },
-                    )),
+                    child: getIndicator(task)),
               ],
             ),
           ),
