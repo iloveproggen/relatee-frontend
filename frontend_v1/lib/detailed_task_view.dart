@@ -60,7 +60,10 @@ void updateTask(String name, String? description, int reward, int? routineId,
 
 class DetailedTaskView extends StatefulWidget {
   const DetailedTaskView(
-      {super.key, required this.task, required this.userData, required this.assigned});
+      {super.key,
+      required this.task,
+      required this.userData,
+      required this.assigned});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
@@ -171,12 +174,15 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                       TextFormField(
                         controller: taskName,
                         decoration: InputDecoration(
-                          counterText: '',
-                          border: InputBorder.none,
-                          hintText: "rename task...",
-                          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,)
-                        ),
+                            counterText: '',
+                            border: InputBorder.none,
+                            hintText: "rename task...",
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                )),
                         style: Theme.of(context).textTheme.bodyLarge,
                         maxLength: 30,
                       ),
@@ -268,7 +274,8 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                     child: Icon(CupertinoIcons.person,
                         size: 40,
                         color: Theme.of(context).colorScheme.tertiary),
@@ -276,9 +283,14 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   Text("assigned to:",
                       style: Theme.of(context).textTheme.bodySmall),
                   Spacer(),
-                  Text(task['userId'] == null
-                      ? 'anyone_txt'.tr
-                      : widget.assigned, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),    
+                  Text(
+                      task['userId'] == null
+                          ? 'anyone_txt'.tr
+                          : widget.assigned,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
               //Assign to...
@@ -330,7 +342,9 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -379,7 +393,10 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                               hintStyle: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary),
                               border: InputBorder.none),
                           maxLength: 100,
                           style:

@@ -191,39 +191,36 @@ class _NewTaskState extends State<NewTask> {
                   const BackIconRow(),
                   TextButton(
                     style: ButtonStyle(
-                      alignment: Alignment.centerRight,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      animationDuration: Duration.zero
-                    ),
-                      onPressed: () {
-                        if (required) {
-                          print(taskName.text);
-                          print(taskPrice.text);
-                          print(assignedToUser);
-                          print(description.text);
-                          createNewTask(
-                              assignedToUser['id'],
-                              taskName.text,
-                              description.text,
-                              int.parse(taskPrice.text),
-                              pickedRoutine['id'],
-                              widget.userData);
-                          Get.to(() => MainWidget(userId: userData['id']))
-                              ?.then((value) {
-                            Get.forceAppUpdate();
-                          });
-                        } else {
-                          Get.back();
-                        }
-                      },
-                      child: Text(
-                        required ? "Confirm" : "Cancel",
+                        alignment: Alignment.centerRight,
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        animationDuration: Duration.zero),
+                    onPressed: () {
+                      if (required) {
+                        print(taskName.text);
+                        print(taskPrice.text);
+                        print(assignedToUser);
+                        print(description.text);
+                        createNewTask(
+                            assignedToUser['id'],
+                            taskName.text,
+                            description.text,
+                            int.parse(taskPrice.text),
+                            pickedRoutine['id'],
+                            widget.userData);
+                        Get.to(() => MainWidget(userId: userData['id']))
+                            ?.then((value) {
+                          Get.forceAppUpdate();
+                        });
+                      } else {
+                        Get.back();
+                      }
+                    },
+                    child: Text(required ? "Confirm" : "Cancel",
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: required
+                            color: required
                                 ? Theme.of(context).colorScheme.onSecondary
-                                : const Color.fromARGB(255, 204, 198, 196))
-                      ),
-                    )
+                                : const Color.fromARGB(255, 204, 198, 196))),
+                  )
                 ],
               ),
               Align(
@@ -426,28 +423,29 @@ class _NewTaskState extends State<NewTask> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        maxLines: 4,
-                          keyboardType: TextInputType.visiblePassword, // Add this line
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      maxLines: 4,
+                      keyboardType:
+                          TextInputType.visiblePassword, // Add this line
 
-                        controller: description,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
+                      controller: description,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
                           counterText: "",
-                            hintText: 'add description...',
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                        maxLength: 100,
-                            ),
+                          hintText: 'add description...',
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
+                          border: InputBorder.none),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      maxLength: 100,
+                    ),
                   )
                 ],
               ),

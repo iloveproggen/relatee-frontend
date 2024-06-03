@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
+import 'package:frontend_v1/household_invitation.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
@@ -280,8 +281,7 @@ class MoreDetailsTask extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
-              assigned: users.firstWhere(
-                  (user) => user['id'] == task['userId'],
+              assigned: users.firstWhere((user) => user['id'] == task['userId'],
                   orElse: () => {'forename': null})['forename'],
             )),
         child: Container(
@@ -393,6 +393,7 @@ class InviteButton extends StatelessWidget {
     return TextButton(
       onPressed: () {
         // TODO: Implement invite functionality
+        Get.to(() => const HouseholdInvaitation());
       },
       style: ButtonStyle(
         padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(0)),
