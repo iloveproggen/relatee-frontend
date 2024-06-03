@@ -31,6 +31,11 @@ ThemeData lighttheme = ThemeData(
             color: Color.fromARGB(255, 204, 198, 196),
             fontSize: 20,
             fontFamily: "Karla",
+            fontWeight: FontWeight.bold),
+        labelLarge: TextStyle(
+            color: Color.fromARGB(255, 204, 198, 196),
+            fontSize: 15,
+            fontFamily: "Karla",
             fontWeight: FontWeight.bold)),
     colorScheme: const ColorScheme.light(
       background: Color.fromARGB(255, 243, 243, 243),

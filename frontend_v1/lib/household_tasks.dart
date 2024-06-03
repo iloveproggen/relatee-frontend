@@ -280,6 +280,9 @@ class MoreDetailsTask extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
+              assigned: users.firstWhere(
+                  (user) => user['id'] == task['userId'],
+                  orElse: () => {'forename': null})['forename'],
             )),
         child: Container(
           width: double.infinity,

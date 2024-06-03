@@ -18,7 +18,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const LoginApp());
 }
 
@@ -28,6 +29,12 @@ late List<Map<String, dynamic>> tasks;
 http.Client httpClient = http.Client();
 bool _taskView = true;
 final random = Random();
+
+_readData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int counter = prefs.getInt('counter') ?? 0;
+  print('Read counter: $counter');
+}
 
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
@@ -40,7 +47,6 @@ Future<GraphQLClient> getGraphQLClient() async {
   final AuthLink authLink = AuthLink(
     getToken: () async {
       final token = prefs.getString('token');
-      print('Token: $token');
       return 'Bearer $token';
     },
   );
@@ -224,6 +230,7 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'tasks': user['tasks']
             .map((task) => {
                   'id': task['id'],
+                  'userId': id,
                   'name': task['name'],
                   'deadline': task['deadline'],
                   'description': task['description'],
@@ -1011,6 +1018,7 @@ class Task extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
+              assigned: userData['forename'],
             )),
         child: Container(
           width: double.infinity,
