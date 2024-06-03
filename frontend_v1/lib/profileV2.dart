@@ -272,7 +272,9 @@ class TaskOverview extends StatelessWidget {
         ),
         tasks.isNotEmpty
             ? Column(
-                children: tasks.map((task) {
+                children: tasks
+                  .where((task) => task['completed'] == false)
+                  .map((task) {
                   return Task(task: task, userData: userData);
                 }).toList(),
               )

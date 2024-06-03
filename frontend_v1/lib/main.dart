@@ -557,9 +557,11 @@ class ButtonRecommended extends StatelessWidget {
   const ButtonRecommended({super.key});
 
   final double height = 150;
+  
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> completedTasks = tasks.where((task) => task['completed'] == false).toList();
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -584,14 +586,13 @@ class ButtonRecommended extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    tasks.isNotEmpty
-                        ? tasks[random.nextInt(tasks.length)]['name']
-                        : 'No tasks found, have a nice day!',
+                    completedTasks.isNotEmpty
+                        ? completedTasks[random.nextInt(completedTasks.length)]['name']
+                        : 'No tasks found,\n have a nice day!',
                     textAlign: TextAlign.center,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
-                        ?.copyWith(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

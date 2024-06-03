@@ -10,13 +10,13 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 Map<String, dynamic> assignedToUser = {};
 bool isPermanent = false;
 
-void updateTask(String name, String description, int reward,
+void updateTask(String name, String description, int reward, int routineId,
     Map<String, dynamic> userData, Map<String, dynamic> task) async {
   // Update task
   final Map<String, dynamic> variables = {
     'id': task['id'],
     'householdId': userData['householdId'],
-    'routineId': null,
+    'routineId': routineId,
     'name': name,
     'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
     'description': description,
@@ -362,8 +362,8 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                                 taskName.text,
                                 description.text,
                                 int.parse(taskPrice.text),
+                                task['routineId'],
                                 widget.userData, task);
-                            Get.back();
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(

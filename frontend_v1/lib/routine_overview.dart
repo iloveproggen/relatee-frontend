@@ -26,7 +26,7 @@ class RoutineOverview extends StatelessWidget {
                 Text("Routine description", style: Theme.of(context).textTheme.bodySmall),
                 SizedBox(height:30),
                 tasks.isEmpty ? Text("No tasks found.", style: Theme.of(context).textTheme.bodySmall) : Column(
-                  children: tasks.map((task) {
+                    children: tasks.where((task) => task['completed'] == false).map((task) {
                     return RoutineTask(task: task, users: users, userData: userData);
                   }).toList(),
                 ),
