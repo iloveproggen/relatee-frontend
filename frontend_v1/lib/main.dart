@@ -18,10 +18,11 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
   runApp(const LoginApp());
 }
+
+late VoidCallback update;
 
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
@@ -381,8 +382,6 @@ Future<void> addPoints(String coinsToAdd) async {
   }
 }
 
-void gotCoinsPopup(int coins, BuildContext context) {}
-
 Builder getIndicator(Map<String, dynamic> task) {
   return Builder(
     builder: (context) {
@@ -400,16 +399,37 @@ Builder getIndicator(Map<String, dynamic> task) {
   );
 }
 
-class MainWidget extends StatelessWidget {
+class MainWidget extends StatefulWidget {
   const MainWidget({super.key, required this.userId});
 
   final int userId;
+
+  @override
+  State<MainWidget> createState() => _MainWidgetState();
+}
+
+class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+
+  late Future<Map<String, dynamic>> _futureUserData;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureUserData = getUserData(widget.userId);
+  }
+
+  void _updateUserData() {
+    setState(() {
+      _futureUserData = getUserData(userData['id']);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    update = _updateUserData;
     return FutureBuilder<Map<String, dynamic>>(
-      future: getUserData(userId),
+      future: _futureUserData,
       builder:
           (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -417,48 +437,35 @@ class MainWidget extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
+          print(snapshot.data!);
           tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
           userData = snapshot.data!;
-          print('\nhere is all the data: ${snapshot.data}');
-          print('\nhere is the userdata: $userData');
-          print('\nhere are the tasks: $tasks');
-
-          return const MainView();
+          return const Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+                child: MainView(),
+              ),
+            ),
+          );
         }
       },
     );
   }
 }
 
-class MainView extends StatefulWidget {
+class MainView extends StatelessWidget {
   const MainView({super.key});
 
   @override
-  State<MainView> createState() => _MainViewState();
-}
-
-class _MainViewState extends State<MainView> {
-  void _updateTasks() {
-    setState(() {
-      // Add your code here to update the tasks
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-            child: Column(
-              children: [
-                IconRow(),
-                WelcomeText(),
-                ButtonRecommended(),
-                TaskOverview(),
-              ],
-            )),
-      ),
+    return const Column(
+      children: [
+        IconRow(),
+        WelcomeText(),
+        ButtonRecommended(),
+        TaskOverview(),
+      ],
     );
   }
 }
@@ -484,8 +491,10 @@ class IconRow extends StatelessWidget {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   iconSize: size,
-                  onPressed: () {
-                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
+                  onPressed: () async {
+                    await Get.to(
+                        () => ProfileView(userData: userData, tasks: tasks));
+                    update();
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -512,8 +521,9 @@ class IconRow extends StatelessWidget {
           IconButton(
             padding: EdgeInsets.zero,
             iconSize: size,
-            onPressed: () {
+            onPressed: () async {
               Get.to(() => ShopView(userData: userData));
+              update();
             },
             icon: Icon(
               CupertinoIcons.cart_fill,
@@ -564,11 +574,11 @@ class ButtonRecommended extends StatelessWidget {
   const ButtonRecommended({super.key});
 
   final double height = 150;
-  
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> completedTasks = tasks.where((task) => task['completed'] == false).toList();
+    List<Map<String, dynamic>> completedTasks =
+        tasks.where((task) => task['completed'] == false).toList();
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -593,14 +603,12 @@ class ButtonRecommended extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    completedTasks.isNotEmpty
-                        ? completedTasks[random.nextInt(completedTasks.length)]['name']
-                        : 'No tasks found,\n have a nice day!',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                  ),
+                      completedTasks.isNotEmpty
+                          ? completedTasks[
+                              random.nextInt(completedTasks.length)]['name']
+                          : 'No tasks found,\n have a nice day!',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall),
                 ),
               ),
             ),
@@ -610,7 +618,6 @@ class ButtonRecommended extends StatelessWidget {
     );
   }
 }
-
 
 class ButtonShort extends StatelessWidget {
   const ButtonShort({super.key, required this.number, required this.textBelow});
@@ -729,9 +736,9 @@ class _TaskState extends State<TaskOverview> {
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyMedium),
               IconButton(
-                onPressed: () {
-                  Get.to(() => NewTaskMain(
-                      userData: userData));
+                onPressed: () async {
+                  await Get.to(() => NewTaskMain(userData: userData));
+                  update();
                 },
                 icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
@@ -871,7 +878,7 @@ class _TaskState extends State<TaskOverview> {
                                                           onPressed: () {
                                                             Navigator.pop(
                                                                 context);
-                                                            Get.forceAppUpdate();
+                                                            update();
                                                           }),
                                                       CupertinoDialogAction(
                                                         onPressed: () {
@@ -883,7 +890,7 @@ class _TaskState extends State<TaskOverview> {
                                                                   task['id']);
                                                           Navigator.pop(
                                                               context);
-                                                          Get.forceAppUpdate();
+                                                          update();
                                                         },
                                                         isDestructiveAction:
                                                             true,
@@ -920,7 +927,7 @@ class _TaskState extends State<TaskOverview> {
                                                           onPressed: () {
                                                             Navigator.pop(
                                                                 context);
-                                                            Get.forceAppUpdate();
+                                                            update();
                                                           },
                                                         ),
                                                       ],
@@ -955,7 +962,7 @@ class _TaskState extends State<TaskOverview> {
                                     ],
                                   ),
                           ]
-                        : [Routine(userData: userData), SizedBox(height:10)],
+                        : [Routine(userData: userData), SizedBox(height: 10)],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 40),
@@ -966,9 +973,10 @@ class _TaskState extends State<TaskOverview> {
                           style: ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(
                                   const EdgeInsets.all(0))),
-                          onPressed: () {
-                            Get.to(() =>
+                          onPressed: () async {
+                            await Get.to(() =>
                                 MainHouseholdOverview(pUserData: userData));
+                            update();
                           },
                           child: Row(
                             children: [
@@ -1015,11 +1023,14 @@ class Task extends StatelessWidget {
             padding: MaterialStateProperty.all<EdgeInsets>(
               const EdgeInsets.all(0),
             )),
-        onPressed: () => Get.to(() => DetailedTaskView(
-              task: task,
-              userData: userData,
-              assigned: userData['forename'],
-            )),
+        onPressed: () async {
+          await Get.to(() => DetailedTaskView(
+                task: task,
+                userData: userData,
+                assigned: userData['forename'],
+              ));
+          update();
+        },
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -1056,17 +1067,22 @@ class Task extends StatelessWidget {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
                           border: Border.all(
-                            width: 1,
+                              width: 1,
                               color: Theme.of(context).colorScheme.tertiary),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                          child: Text("${task['reward']} pts",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),)
-                        )),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Text(
+                              "${task['reward']} pts",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ))),
                   ],
                 ),
                 Padding(

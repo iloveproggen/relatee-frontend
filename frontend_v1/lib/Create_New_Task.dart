@@ -59,7 +59,7 @@ void createNewTask(int? userId, String name, String description, int reward,
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql(
-        r'''mutation CreateTask($userId: Int!, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
+        r'''mutation CreateTask($userId: Int, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
     createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed, ownerId: $ownerId) {
       userId
       householdId
@@ -156,8 +156,7 @@ class _NewTaskState extends State<NewTask> {
 
   bool _checkInputs() {
     return taskName.text.isNotEmpty &&
-        taskPrice.text.isNotEmpty &&
-        assignedToUser.isNotEmpty;
+        taskPrice.text.isNotEmpty;
   }
 
   @override
@@ -167,6 +166,9 @@ class _NewTaskState extends State<NewTask> {
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
     description.addListener(_updateRequired);
+
+    assignedToUser = widget.householdUsers[0];
+    pickedRoutine = widget.routines[0];
   }
 
   void changePermanent() {
@@ -176,8 +178,6 @@ class _NewTaskState extends State<NewTask> {
 
   @override
   Widget build(BuildContext context) {
-    assignedToUser = widget.householdUsers[0];
-    pickedRoutine = widget.routines[0];
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -208,10 +208,7 @@ class _NewTaskState extends State<NewTask> {
                               int.parse(taskPrice.text),
                               pickedRoutine['id'],
                               widget.userData);
-                          Get.to(() => MainWidget(userId: userData['id']))
-                              ?.then((value) {
-                            Get.forceAppUpdate();
-                          });
+                          Get.back();
                         } else {
                           Get.back();
                         }
