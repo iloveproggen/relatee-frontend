@@ -6,36 +6,38 @@ class HouseholdInvaitation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Column(
-          children: [
-            const BackIconRow(),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 60),
-              child: Text(
-                'HouseholdInvitation',
-                style: Theme.of(context).textTheme.bodyLarge,
+    return Scaffold(
+      body: Container(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+            children: [
+              const BackIconRow(),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 60),
+                child: Text(
+                  'HouseholdInvitation',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
               ),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Who do you want to invite?',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter email address',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Who do you want to invite?',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter email address',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

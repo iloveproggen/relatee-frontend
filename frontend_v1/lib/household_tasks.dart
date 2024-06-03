@@ -391,9 +391,10 @@ class InviteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
         // TODO: Implement invite functionality
-        Get.to(() => const HouseholdInvaitation());
+        await Get.to(() => const HouseholdInvaitation());
+        
       },
       style: ButtonStyle(
         padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(0)),
