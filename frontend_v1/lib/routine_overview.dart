@@ -29,14 +29,16 @@ class RoutineOverview extends StatelessWidget {
               const BackIconRow(),
               Text(routine['name'],
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text('Routine_description'.tr,
+              Text("Routine description",
                   style: Theme.of(context).textTheme.bodySmall),
               SizedBox(height: 30),
               tasks.isEmpty
-                  ? Text('No tasks found.'.tr,
+                  ? Text("No tasks found.",
                       style: Theme.of(context).textTheme.bodySmall)
                   : Column(
-                      children: tasks.map((task) {
+                      children: tasks
+                          .where((task) => task['completed'] == false)
+                          .map((task) {
                         return RoutineTask(
                             task: task, users: users, userData: userData);
                       }).toList(),
@@ -72,6 +74,8 @@ class RoutineTask extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
+              assigned: users.firstWhere((user) => user['id'] == task['userId'],
+                  orElse: () => {'forename': null})['forename'],
             )),
         child: Container(
           width: double.infinity,

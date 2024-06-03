@@ -42,8 +42,8 @@ Map<String, dynamic> assignedToUser = nullUser;
 
 bool isPermanent = false;
 
-void createNewTask(int? userId, String name, String description, int reward, int routineId,
-    Map<String, dynamic> userData) async {
+void createNewTask(int? userId, String name, String description, int reward,
+    int? routineId, Map<String, dynamic> userData) async {
   final Map<String, dynamic> variables = {
     'userId': userId,
     'householdId': userData['householdId'],
@@ -114,7 +114,8 @@ class NewTaskMain extends StatelessWidget {
               .addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
           List<Map<String, dynamic>> routines = [];
           routines.add(nullRoutine);
-          routines.addAll(List<Map<String, dynamic>>.from(snapshot.data!['routines']));
+          routines.addAll(
+              List<Map<String, dynamic>>.from(snapshot.data!['routines']));
           return NewTask(
               userData: userData,
               householdUsers: householdUsers,
@@ -175,13 +176,56 @@ class _NewTaskState extends State<NewTask> {
 
   @override
   Widget build(BuildContext context) {
+    assignedToUser = widget.householdUsers[0];
+    pickedRoutine = widget.routines[0];
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const BackIconRow(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BackIconRow(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      animationDuration: Duration.zero
+                    ),
+                      onPressed: () {
+                        if (required) {
+                          print(taskName.text);
+                          print(taskPrice.text);
+                          print(assignedToUser);
+                          print(description.text);
+                          createNewTask(
+                              assignedToUser['id'],
+                              taskName.text,
+                              description.text,
+                              int.parse(taskPrice.text),
+                              pickedRoutine['id'],
+                              widget.userData);
+                          Get.to(() => MainWidget(userId: userData['id']))
+                              ?.then((value) {
+                            Get.forceAppUpdate();
+                          });
+                        } else {
+                          Get.back();
+                        }
+                      },
+                      child: Text(
+                        required ? "Confirm" : "Cancel",
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: required
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : const Color.fromARGB(255, 204, 198, 196))
+                      ),
+                    )
+                ],
+              ),
               Align(
                 alignment: Alignment.centerRight,
                 child: Form(
@@ -189,8 +233,10 @@ class _NewTaskState extends State<NewTask> {
                     children: [
                       TextFormField(
                         controller: taskName,
-                        decoration: InputDecoration.collapsed(
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
                           hintText: ('new_task_txt'.tr),
+                          counterText: "",
                           hintStyle: Theme.of(context)
                               .textTheme
                               .bodyLarge
@@ -199,6 +245,7 @@ class _NewTaskState extends State<NewTask> {
                                       Theme.of(context).colorScheme.tertiary),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge,
+                        maxLength: 30,
                       ),
                     ],
                   ),
@@ -292,8 +339,7 @@ class _NewTaskState extends State<NewTask> {
                 householdUsers: widget.householdUsers,
               ),
               RoutinePicker(
-                  callback: _updateRequired,
-                  routines: widget.routines),
+                  callback: _updateRequired, routines: widget.routines),
               isPermanent
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -302,7 +348,7 @@ class _NewTaskState extends State<NewTask> {
                           padding:
                               EdgeInsets.only(top: 10, right: 20, bottom: 10),
                           child: Icon(
-                            CupertinoIcons.clock_fill,
+                            CupertinoIcons.clock,
                             size: 40,
                             color: Color.fromARGB(255, 204, 198, 196),
                           ),
@@ -340,13 +386,12 @@ class _NewTaskState extends State<NewTask> {
                           10), // replace 9 with the maximum number of digits you want to allow
                     ],
                     decoration: InputDecoration(
-                      hintText: "add reward",
+                      hintText: "add reward...",
                       hintStyle: Theme.of(context)
                           .textTheme
                           .bodySmall
                           ?.copyWith(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontWeight: FontWeight.bold),
+                              color: Theme.of(context).colorScheme.tertiary),
                       border: InputBorder.none,
                     ),
                     style: Theme.of(context)
@@ -372,7 +417,7 @@ class _NewTaskState extends State<NewTask> {
                       ),
                       Expanded(
                           child: Text(
-                        'description',
+                        'description:',
                         textAlign: TextAlign.left,
                         style: Theme.of(context).textTheme.bodySmall,
                       )),
@@ -382,91 +427,29 @@ class _NewTaskState extends State<NewTask> {
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        maxLines: 3,
+                        maxLines: 4,
+                          keyboardType: TextInputType.visiblePassword, // Add this line
+
                         controller: description,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
-                            hintText: 'None Yet',
+                          counterText: "",
+                            hintText: 'add description...',
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(
                                     color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontWeight: FontWeight.bold),
+                                        Theme.of(context).colorScheme.tertiary),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                        maxLength: 100,
+                            ),
                   )
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 50),
-                child: Container(
-                    decoration: required
-                        ? const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromARGB(61, 109, 103, 103),
-                                  offset: Offset(5.0, 5.0),
-                                  blurRadius: 10.0,
-                                  spreadRadius: 2.0,
-                                )
-                              ])
-                        : BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(
-                                strokeAlign: BorderSide.strokeAlignOutside,
-                                width: 5,
-                                color:
-                                    const Color.fromARGB(255, 204, 198, 196)),
-                            color: const Color.fromARGB(255, 243, 243, 243),
-                          ),
-                    child: TextButton(
-                      onPressed: () {
-                        if (required) {
-                          print(taskName.text);
-                          print(taskPrice.text);
-                          print(assignedToUser);
-                          print(description.text);
-                          createNewTask(
-                              assignedToUser['id'],
-                              taskName.text,
-                              description.text,
-                              int.parse(taskPrice.text),
-                              pickedRoutine['id'],
-                              widget.userData);
-                          Get.to(() => MainWidget(userId: userData['id']))?.then((value) {
-                            Get.forceAppUpdate();
-                          });
-                        } else {
-                          Get.back();
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, left: 15, right: 15),
-                        child: Text(
-                          required ? "Confirm" : "Cancel",
-                          style: required
-                              ? const TextStyle(
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                )
-                              : const TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                ),
-                        ),
-                      ),
-                    )),
               ),
             ],
           ),

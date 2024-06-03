@@ -10,10 +10,42 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-int userId = -1;
+Future<String?> isTokenSaved() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.getString('token') != null) {
+    return prefs.getString('token')!;
+  } else {
+    return null;
+  }
+}
+
 final focusNode1 = FocusNode();
 final focusNode2 = FocusNode();
 final focusNodeButton = FocusNode();
+late int userId;
+
+// Future<int?> loggedIn() async {
+//   String? tokenSaved = await isTokenSaved();
+//   if (tokenSaved != null) {
+    
+//     var response = await http.get(
+//       Uri.parse('http://85.215.50.29:3000/login'),
+//       headers: {
+//         'Authorization': 'Bearer $tokenSaved',
+//       },
+//     );
+//     if (response.statusCode == 200) {
+//       print('Response data: ${response.body}');
+//       return jsonDecode(response.body)['userId'];
+//     } else {
+//       print(response.statusCode);
+//       return null;
+//     }
+//   } else {
+//     print('No token found. Opening LoginScreen...');
+//     return null;
+//   }
+// }
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
@@ -23,19 +55,26 @@ class LoginApp extends StatefulWidget {
 }
 
 class _LoginAppState extends State<LoginApp> {
+  late Future<void> loggedInFuture;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
-    return GetMaterialApp(
-      darkTheme: darktheme,
-      theme: brightness == Brightness.light ? lighttheme : darktheme,
-      translations: LocaleString(),
-      locale: const Locale('en-Us'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      title: 'Relatee',
-      home: const LoginWidget(),
-    );
+          return GetMaterialApp(
+            darkTheme: darktheme,
+            theme: brightness == Brightness.light ? lighttheme : darktheme,
+            translations: LocaleString(),
+            locale: const Locale('en-Us'),
+            fallbackLocale: const Locale('en-US'),
+            debugShowCheckedModeBanner: false,
+            title: 'Relatee',
+            home: const LoginWidget(),
+          );
   }
 }
 
@@ -146,6 +185,8 @@ class LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if there is a token saved in SharedPreferences
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -94,7 +93,38 @@ class _NewShopItemState extends State<NewShopItem> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              const BackIconRow(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BackIconRow(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      animationDuration: Duration.zero,
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0),
+                      ),
+                    ),
+                      onPressed: () {
+                        if (required) {
+                          createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
+                          Get.forceAppUpdate();
+                          Get.back();
+                        }
+                      else {
+                          Get.back();
+                      }},
+                      child: Text(
+                        required ? "Confirm" : "Cancel",
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: required
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : const Color.fromARGB(255, 204, 198, 196))
+                      ),
+                    )
+                ],
+              ),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -103,20 +133,16 @@ class _NewShopItemState extends State<NewShopItem> {
                       TextField(
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
                         controller: taskName,
-                        decoration: const InputDecoration.collapsed(
+                        maxLength: 30,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          counterText:"",
                           hintText: 'new item...',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Sedan",
-                            fontSize: 40,
+                          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Color.fromARGB(255, 204, 198, 196),
                           ),
                         ),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Sedan",
-                          fontSize: 40,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge
                       ),
                     ],
                   ),
@@ -124,13 +150,13 @@ class _NewShopItemState extends State<NewShopItem> {
               ),
               const SliderWidget(),
               Padding(
-                padding: const EdgeInsets.only(top: 60, bottom: 20),
+                padding: const EdgeInsets.only(top: 50, bottom: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(
                       CupertinoIcons.add_circled,
-                      size: 25,
+                      size: 40,
                       color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
@@ -164,19 +190,19 @@ class _NewShopItemState extends State<NewShopItem> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.only(top: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(
                           CupertinoIcons.text_aligncenter,
-                          size: 25,
+                          size: 40,
                           color: Color.fromARGB(255, 204, 198, 196),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
                             child: Text(
-                          'description',
+                          'description:',
                           textAlign: TextAlign.left,
                           style: Theme.of(context).textTheme.bodySmall,
                         )),
@@ -184,14 +210,16 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.only(top: 10),
                     child: TextField(
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        maxLines: 3,
+                        maxLines: 4,
+                        maxLength: 100,
                         controller: description,
                         textAlign: TextAlign.center,
                         decoration: const InputDecoration(
-                            hintText: 'None Yet',
+                            counterText: "",
+                            hintText: 'add description...',
                             hintStyle: TextStyle(
                                 color: Color.fromARGB(255, 204, 198, 196),
                                 fontSize: 20),
@@ -203,58 +231,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   )
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 80),
-                child: Container(
-                    decoration: required
-                        ? const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromARGB(61, 109, 103, 103),
-                                  offset: Offset(5.0, 5.0),
-                                  blurRadius: 10.0,
-                                  spreadRadius: 2.0,
-                                )
-                              ])
-                        : BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(
-                                strokeAlign: BorderSide.strokeAlignOutside,
-                                width: 5,
-                                color:
-                                    const Color.fromARGB(255, 204, 198, 196)),
-                            color: const Color.fromARGB(255, 243, 243, 243),
-                          ),
-                    child: TextButton(
-                      onPressed: () {
-                        createShopItem(taskName.text, description.text,
-                            int.parse(taskPrice.text), userData);
-                        Get.forceAppUpdate();
-                        Get.back();
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, left: 15, right: 15),
-                        child: Text(
-                          required ? "Confirm" : "Cancel",
-                          style: required
-                              ? const TextStyle(
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                )
-                              : const TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                ),
-                        ),
-                      ),
-                    )),
-              ),
+              
             ],
           ),
         ),

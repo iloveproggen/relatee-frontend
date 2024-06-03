@@ -4,6 +4,7 @@ import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -62,7 +63,9 @@ class ProfileView extends StatelessWidget {
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  await prefs.remove('token');
                                   Get.offAll(() => const LoginWidget());
                                 },
                               ),
@@ -145,7 +148,6 @@ class ProfileView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -235,11 +237,7 @@ class BackIconRow extends StatelessWidget {
                   //   size: 18,
                   // )
                   Text('back_button_text'.tr,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 15,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.bold)),
+                      style: Theme.of(context).textTheme.labelLarge),
                 ],
               ),
             ),
@@ -272,7 +270,9 @@ class TaskOverview extends StatelessWidget {
         ),
         tasks.isNotEmpty
             ? Column(
-                children: tasks.map((task) {
+                children: tasks
+                    .where((task) => task['completed'] == false)
+                    .map((task) {
                   return Task(task: task, userData: userData);
                 }).toList(),
               )
@@ -317,7 +317,6 @@ class TaskOverview extends StatelessWidget {
             ],
           ),
         ),
-        
       ],
     );
   }
