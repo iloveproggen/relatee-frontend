@@ -6,44 +6,47 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 
 Map<String, dynamic> assignedToUser = {};
+
+DateTime? deadline;
+
 bool isPermanent = false;
 
-void updateTask(String name, String description, int points,
+void updateTask(String name, String? description, int reward, int? routineId,
     Map<String, dynamic> userData, Map<String, dynamic> task) async {
   // Update task
   final Map<String, dynamic> variables = {
     'id': task['id'],
     'householdId': userData['householdId'],
-    'routineId': null,
+    'routineId': routineId,
     'name': name,
-    'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
+    'deadline': deadline != null ? '${deadline!.toIso8601String().split('.')[0]}Z' : null,
     'description': description,
-    'points': points,
+    'reward': reward,
     'status': 0
   };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-document: gql(
-  r'''mutation UpdateTask($id: Int!, $userId: Int, $householdId: Int, $routineId: Int, $name: String, $deadline: String, $description: String, $points: Int, $status: Int) {
-    updateTask(id: $id, userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, points: $points, status: $status) {
+    document: gql(
+        r'''mutation UpdateTask($id: Int!, $userId: Int, $householdId: Int, $routineId: Int, $name: String, $deadline: String, $description: String, $reward: Int, $completed: Boolean) {
+    updateTask(id: $id, userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed) {
       id
       householdId
       routineId
       name
       deadline
       description
-      points
-      status
+      reward
+      completed
     }
   }
-  '''
-),
+  '''),
     variables: variables,
   );
-    try {
+  try {
     final QueryResult result = await client.query(options);
     if (result.hasException) {
       print(result.exception.toString());
@@ -61,10 +64,14 @@ document: gql(
 
 class DetailedTaskView extends StatefulWidget {
   const DetailedTaskView(
-      {super.key, required this.task, required this.userData});
+      {super.key,
+      required this.task,
+      required this.userData,
+      required this.assigned});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
+  final String assigned;
 
   @override
   State<DetailedTaskView> createState() => _DetailedTaskViewState(task: task);
@@ -98,6 +105,10 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
     description.addListener(_updateRequired);
+
+    taskName.text = task['name'];
+    taskPrice.text = task['reward'].toString();
+    description.text = task['description'];
   }
 
   void changePermanent() {
@@ -114,7 +125,43 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const BackIconRow(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BackIconRow(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0),
+                      ),
+                      animationDuration: Duration.zero,
+                    ),
+                    onPressed: () {
+                      print(taskName.text);
+                      print(taskPrice.text);
+                      print(description.text);
+                      if (taskName.text.isEmpty) {
+                        taskName.text = task['name'];
+                      }
+                      if (taskPrice.text.isEmpty) {
+                        taskPrice.text = task['reward'].toString();
+                      }
+                      updateTask(
+                          taskName.text,
+                          description.text,
+                          int.parse(taskPrice.text),
+                          task['routineId'],
+                          widget.userData,
+                          task);
+                      Get.back(result: "Changed Task");
+                    },
+                    child: Text("Save",
+                        style: Theme.of(context).textTheme.labelLarge),
+                  )
+                ],
+              ),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
@@ -122,97 +169,126 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                     children: [
                       TextFormField(
                         controller: taskName,
-                        decoration: InputDecoration.collapsed(
-                          hintText: task['name'],
-                          hintStyle: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                        decoration: InputDecoration(
+                            counterText: '',
+                            border: InputBorder.none,
+                            hintText: "rename task...",
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                )),
                         style: Theme.of(context).textTheme.bodyLarge,
+                        maxLength: 30,
                       ),
                     ],
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    changePermanent();
-                  });
-                },
-                child: Padding(
-                  // Hinzufügen von Padding um den Container
-                  padding: const EdgeInsets.only(
-                      top: 40), // Verschieben Sie den Slider nach unten
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0x7FD9D9D9),
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AnimatedAlign(
-                          alignment: isPermanent
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          child: FractionallySizedBox(
-                            widthFactor: 0.5,
-                            child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD9D9D9),
-                                borderRadius: BorderRadius.circular(7),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'repeat_txt'.tr,
-                                  style: TextStyle(
-                                    color: isPermanent
-                                        ? Colors.black
-                                        : const Color(0xFF4A4646),
-                                    fontSize: 20,
-                                    fontFamily: 'Karla',
-                                    fontWeight: isPermanent
-                                        ? FontWeight.w700
-                                        : FontWeight.w300,
-                                    height: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'only_once_txt'.tr,
-                                  style: TextStyle(
-                                    color: !isPermanent
-                                        ? Colors.black
-                                        : const Color(0xFF4A4646),
-                                    fontSize: 20,
-                                    fontFamily: 'Karla',
-                                    fontWeight: !isPermanent
-                                        ? FontWeight.w700
-                                        : FontWeight.w300,
-                                    height: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+              // GestureDetector(
+              //   onTap: () {
+              //     setState(() {
+              //       changePermanent();
+              //     });
+              //   },
+              //   child: Padding(
+              //     // Hinzufügen von Padding um den Container
+              //     padding: const EdgeInsets.only(
+              //         top: 40), // Verschieben Sie den Slider nach unten
+              //     child: Container(
+              //       decoration: BoxDecoration(
+              //         color: const Color(0x7FD9D9D9),
+              //         borderRadius: BorderRadius.circular(7),
+              //       ),
+              //       child: Stack(
+              //         alignment: Alignment.center,
+              //         children: [
+              //           AnimatedAlign(
+              //             alignment: isPermanent
+              //                 ? Alignment.centerLeft
+              //                 : Alignment.centerRight,
+              //             duration: const Duration(milliseconds: 200),
+              //             curve: Curves.easeInOut,
+              //             child: FractionallySizedBox(
+              //               widthFactor: 0.5,
+              //               child: Container(
+              //                 height: 50,
+              //                 decoration: BoxDecoration(
+              //                   color: const Color(0xFFD9D9D9),
+              //                   borderRadius: BorderRadius.circular(7),
+              //                 ),
+              //               ),
+              //             ),
+              //           ),
+              //           Row(
+              //             children: [
+              //               Expanded(
+              //                 child: Center(
+              //                   child: Text(
+              //                     'repeat_txt'.tr,
+              //                     style: TextStyle(
+              //                       color: isPermanent
+              //                           ? Colors.black
+              //                           : const Color(0xFF4A4646),
+              //                       fontSize: 20,
+              //                       fontFamily: 'Karla',
+              //                       fontWeight: isPermanent
+              //                           ? FontWeight.w700
+              //                           : FontWeight.w300,
+              //                       height: 0,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ),
+              //               Expanded(
+              //                 child: Center(
+              //                   child: Text(
+              //                     'only_once_txt'.tr,
+              //                     style: TextStyle(
+              //                       color: !isPermanent
+              //                           ? Colors.black
+              //                           : const Color(0xFF4A4646),
+              //                       fontSize: 20,
+              //                       fontFamily: 'Karla',
+              //                       fontWeight: !isPermanent
+              //                           ? FontWeight.w700
+              //                           : FontWeight.w300,
+              //                       height: 0,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(CupertinoIcons.person,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.tertiary),
                   ),
-                ),
+                  Text("assigned to:",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  Spacer(),
+                  Text(
+                      task['userId'] == null
+                          ? 'anyone_txt'.tr
+                          : widget.assigned,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                ],
               ),
-              const SizedBox(height: 40),
               //Assign to...
               isPermanent
                   ? Row(
@@ -251,23 +327,88 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   ),
                   Expanded(
                     child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                         textAlign: TextAlign.end,
                         controller: taskPrice,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly
                         ],
                         decoration: InputDecoration(
-                            hintText: task['points'].toString(),
+                            hintText: "change reward...",
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
                             ?.copyWith(fontWeight: FontWeight.bold)),
                   ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.calendar,
+                      size: 40, color: Theme.of(context).colorScheme.tertiary),
+                  const SizedBox(width: 20, height: 60),
+                  Text("deadline:",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  const Spacer(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    ),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            color: Theme.of(context).colorScheme.background,
+                            height: 400,
+                            child: CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.date,
+                              initialDateTime: DateTime.now(),
+                              maximumYear: DateTime.now().year + 3,
+                              minimumYear: DateTime.now().year,
+                              onDateTimeChanged: (DateTime newDateTime) {
+                                print(newDateTime);
+                                setState(() {
+                                  deadline = newDateTime;
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      deadline != null
+                          ? DateFormat('dd-MM-yyyy').format(deadline!)
+                          : "none",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  deadline != null ? IconButton(
+                    style: ButtonStyle(alignment: Alignment.centerRight,
+                    animationDuration: Duration.zero, 
+                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    icon: Icon(CupertinoIcons.clear,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    onPressed: () {
+                      setState(() {
+                        deadline = null; 
+                      });
+                    },
+                  )
+                  : Container(),
                 ],
               ),
               Column(
@@ -286,7 +427,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                       ),
                       Expanded(
                           child: Text(
-                        'description',
+                        'description:',
                         textAlign: TextAlign.left,
                         style: Theme.of(context).textTheme.bodySmall,
                       )),
@@ -295,125 +436,35 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: TextField(
-                          maxLines: 3,
+                          textInputAction:
+                              TextInputAction.done, // Add this line
+                          onEditingComplete: () =>
+                              FocusScope.of(context).unfocus(), // Add this line
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          maxLines: 4,
                           controller: description,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
-                              hintText: task['description'].isEmpty
-                                  ? 'No description'
-                                  : task['description'],
-                              hintStyle: TextStyle(
-                                  color: task['description'].isEmpty
-                                      ? const Color.fromARGB(255, 204, 198, 196)
-                                      : const Color.fromARGB(255, 74, 70, 70),
-                                  fontSize: 20),
+                              counterText: '',
+                              hintText: "change description...",
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary),
                               border: InputBorder.none),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      const Color.fromARGB(255, 74, 70, 70))))
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 74, 70, 70),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(
-                                strokeAlign: BorderSide.strokeAlignOutside,
-                                width: 5,
-                                color: const Color.fromARGB(255, 74, 70, 70)),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color.fromARGB(61, 109, 103, 103),
-                                offset: Offset(5.0, 5.0),
-                                blurRadius: 10.0,
-                                spreadRadius: 2.0,
-                              )
-                            ]),
-                        child: TextButton(
-                          onPressed: () {
-                            print(taskName.text);
-                            print(taskPrice.text);
-                            print(assignedToUser);
-                            print(description.text);
-                            if (taskName.text.isEmpty) {
-                              taskName.text = task['name'];
-                            }
-                            if(taskPrice.text.isEmpty) {
-                              taskPrice.text = task['points'].toString();
-                            }
-                            if(description.text.isEmpty) {
-                              description.text = task['description'];
-                            }
-                            updateTask(
-                                taskName.text,
-                                description.text,
-                                int.parse(taskPrice.text),
-                                widget.userData, task);
-                            Get.back();
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MainWidget(
-                                      userId: widget.userData['id'])),
-                              (route) => false,
-                            ).then((value) {
-                              setState(() {
-                                // Perform any state updates here
-                              });
-                            });
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                top: 10, bottom: 10, left: 15, right: 15),
-                            child: Text("Save",
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                )),
-                          ),
-                        )),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          border: Border.all(
-                              strokeAlign: BorderSide.strokeAlignOutside,
-                              width: 5,
-                              color: const Color.fromARGB(255, 204, 198, 196)),
-                          color: const Color.fromARGB(255, 243, 243, 243),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                                top: 10, bottom: 10, left: 15, right: 15),
-                            child: Text(
-                              "Back",
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontFamily: "Karla",
-                                fontSize: 30,
-                              ),
-                            ),
-                          ),
-                        )),
-                  ),
+                          maxLength: 100,
+                          style:
+                              Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color.fromARGB(
+                                          255, 74, 70, 70))))
                 ],
               ),
             ],

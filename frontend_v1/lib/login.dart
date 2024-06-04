@@ -6,11 +6,36 @@ import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
+//import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-int userId = -1;
+final focusNode1 = FocusNode();
+final focusNode2 = FocusNode();
+final focusNodeSwitch = FocusNode();
+final focusNodeButton = FocusNode();
+late int userId;
+
+//checks if a user has saved their token in sharedpreferences, if yes, skip log in
+Future<int?> checkIfSignedIn() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('token');
+  print(token);
+  if (token != null) {
+    List<String> parts = token.split('.');
+    String payload = parts[1];
+    String normalized = base64Url.normalize(payload);
+    var decoded = utf8.decode(base64Url.decode(normalized));
+
+    var payloadJson = jsonDecode(decoded);
+    int userId = payloadJson['userId'];
+
+    print("\n\nlogged in as user with the user id $userId\n\n");
+    return userId;
+  }
+  return null;
+}
 
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
@@ -20,19 +45,37 @@ class LoginApp extends StatefulWidget {
 }
 
 class _LoginAppState extends State<LoginApp> {
+  late Future<void> loggedInFuture;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
     return GetMaterialApp(
-        darkTheme: darktheme,
-        theme: brightness == Brightness.light ? lighttheme : darktheme,
-        translations: LocaleString(),
-        locale: const Locale('en-Us'),
-        fallbackLocale: const Locale('en-US'),
-        debugShowCheckedModeBanner: false,
-        title: 'Relatee',
-        home: const LoginWidget(),
-        );
+      darkTheme: darktheme,
+      theme: brightness == Brightness.light ? lighttheme : darktheme,
+      translations: LocaleString(),
+      locale: const Locale('en-Us'),
+      fallbackLocale: const Locale('en-US'),
+      debugShowCheckedModeBanner: false,
+      title: 'Relatee',
+      home: FutureBuilder<int?>(
+        future: checkIfSignedIn(),
+        builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasData) {
+            return MainWidget(userId: snapshot.data!);
+          } else {
+            return LoginWidget();
+          }
+        },
+      ),
+    );
   }
 }
 
@@ -43,7 +86,7 @@ class LoginWidget extends StatefulWidget {
   LoginWidgetState createState() => LoginWidgetState();
 }
 
-class LoginWidgetState extends State<LoginWidget> {
+class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver{
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -53,10 +96,13 @@ class LoginWidgetState extends State<LoginWidget> {
 
   bool isLoading = false;
 
+  // bool _staySignedIn = false;
+
   void _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
+
 
   void _login() async {
     setState(() {
@@ -67,21 +113,23 @@ class LoginWidgetState extends State<LoginWidget> {
     });
     http.Response response = http.Response('Error', 500);
     try {
-      response = await http.post(
-        Uri.parse('http://85.215.50.29:3000/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': _usernameController.text,
-          'password': _passwordController.text,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      response = await http
+          .post(
+            Uri.parse('http://85.215.50.29:3000/login'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'email': _usernameController.text,
+              'password': _passwordController.text,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
     } catch (e) {
       print('Error: $e');
       setState(() {
         isLoading = false;
-        timeOut = true; 
+        timeOut = true;
       });
     }
     setState(() {
@@ -90,15 +138,15 @@ class LoginWidgetState extends State<LoginWidget> {
     print("Loading...");
     print(response.statusCode);
     if (response.statusCode == 200) {
-        // If the server returns a 200 OK response, parse the JSON.
-        String token = jsonDecode(response.body)['token'];
-        _saveToken(token);
-        int userId = jsonDecode(response.body)['userId'];
-        Get.to(() => MainWidget(userId: userId));
-        print("Opened MainWidget");
-        setState() {
-          isLoading = false;
-        }
+      // If the server returns a 200 OK response, parse the JSON.
+      String token = jsonDecode(response.body)['token'];
+      _saveToken(token);
+      int userId = jsonDecode(response.body)['userId'];
+      Get.off(() => MainWidget(userId: userId));
+      print("Opened MainWidget");
+      setState() {
+        isLoading = false;
+      }
     } else {
       // If the server returns an error response, throw an exception.
       print('Failed to load');
@@ -125,7 +173,6 @@ class LoginWidgetState extends State<LoginWidget> {
   @override
   void initState() {
     super.initState();
-    // Add listener to text controllers to update required variable
     _usernameController.addListener(_updateRequired);
     _passwordController.addListener(_updateRequired);
   }
@@ -141,6 +188,8 @@ class LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if there is a token saved in SharedPreferences
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
@@ -158,68 +207,80 @@ class LoginWidgetState extends State<LoginWidget> {
             const SizedBox(
               height: 20,
             ),
-            TextField(
+            TextFormField(
+                autofillHints: [AutofillHints.username],
+                autocorrect: false,
+                focusNode: focusNode1,
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(focusNode2);
+                },
                 controller: _usernameController,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
                       color: Theme.of(context).colorScheme.onPrimary,
-                      width: 5,
+                      width: 2,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      width: 5,
+                      width: 2,
                       color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(
-                      width: 5,
+                      width: 2,
                     ),
                   ),
                   hintText: 'Email_txt'.tr,
                   contentPadding: const EdgeInsets.all(20),
-                  hintStyle: const TextStyle(
-                    color: Color.fromARGB(255, 204, 198, 196),
-                  ),
+                  hintStyle: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                 ),
-                style: const TextStyle(
-                  fontSize: 20,
-                )),
+                style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 10),
-            TextField(
+            TextFormField(
+              autofillHints: [AutofillHints.password],
+              focusNode: focusNode2,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(focusNodeSwitch);
+              },
               controller: _passwordController,
               obscureText: !_isPasswordVisible,
+              cursorColor: Theme.of(context).colorScheme.onSecondary,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
                     color: Theme.of(context).colorScheme.onPrimary,
-                    width: 5,
+                    width: 2,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    width: 5,
+                    width: 2,
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide(
-                    width: 5,
+                    width: 2,
                   ),
                 ),
                 hintText: 'Password_txt'.tr,
                 contentPadding: const EdgeInsets.all(20),
-                hintStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
+                hintStyle: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: IconButton(
@@ -238,11 +299,24 @@ class LoginWidgetState extends State<LoginWidget> {
                   ),
                 ),
               ),
-              style: const TextStyle(
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            SizedBox(height: 50),
+            // ListTile(
+            //   contentPadding: const EdgeInsets.only(top: 20),
+            //   leading: CupertinoSwitch(
+            //       focusNode: focusNodeSwitch,
+            //       activeColor: Theme.of(context).colorScheme.tertiary, // Set the color to blue when the switch is on
+            //       value: _staySignedIn,
+            //       onChanged: (newValue) {
+            //         setState(() {
+            //           _staySignedIn = newValue;
+            //           print(_staySignedIn);
+            //         });
+            //       },
+            //     ),
+            //   title: Text('Stay Signed In?', style: Theme.of(context).textTheme.bodySmall),
+            // ),
+            SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: Container(
@@ -302,33 +376,30 @@ class LoginWidgetState extends State<LoginWidget> {
               padding: const EdgeInsets.only(top: 10),
               child: Container(
                 decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        color: const Color.fromARGB(255, 243, 243, 243),
-                        boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.secondary,
-                              offset: const Offset(5.0, 5.0),
-                              blurRadius: 10.0,
-                              spreadRadius: 2.0,
-                            )
-                          ]),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    color: const Color.fromARGB(255, 243, 243, 243),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.secondary,
+                        offset: const Offset(5.0, 5.0),
+                        blurRadius: 10.0,
+                        spreadRadius: 2.0,
+                      )
+                    ]),
                 child: TextButton(
                   onPressed: () {
-                    Get.to(() => const SignUp());
+                    Get.to(() => SignUpScreen());
                   },
                   child: const Center(
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: 10, bottom: 10, left: 15, right: 15),
-                      child: Text(
-                        'Sign Up!',
-                        style: TextStyle(
-                                color: Color.fromARGB(255, 74, 70, 70),
-                                fontFamily: "Karla",
-                                fontSize: 20,
-                              )
-                      ),
+                      child: Text('Sign Up!',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 74, 70, 70),
+                            fontFamily: "Karla",
+                            fontSize: 20,
+                          )),
                     ),
                   ),
                 ),

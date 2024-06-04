@@ -2,40 +2,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'assets/locale_strings.dart';
+import 'package:frontend_v1/profileV2.dart';
 
-void main() {
-  runApp(const MainLeaderboardView());
-}
+/*
+purpose: This file contains the leaderboard view of the app.
+author: Maurice
+date: 17.05.2024
+*/
 
 class MainLeaderboardView extends StatelessWidget {
   const MainLeaderboardView({super.key});
 
-  static Route<dynamic> route() {
-    return CupertinoPageRoute(
-      builder: (BuildContext context) {
-        return const MainLeaderboardView();
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-        translations: LocaleString(),
-        locale: Locale('de-DE'),
-        fallbackLocale: Locale('en-US'),
-        home: const Scaffold(
-            body: SingleChildScrollView(
-          child: Column(
-            children: [
-              MembersText(),
-              ChartLeaderboard(),
-            ],
-          ),
-        )));
+    return Container(
+      color: Theme.of(context).colorScheme.primary,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const MembersText(),
+            const ChartLeaderboard(),
+            WeeklyInfo(),
+          ],
+        ),
+      ),
+    );
   }
 }
+
+/*
+purpose: This widget holdas the back method and header.
+author: Maurice
+date: 17.05.2024
+*/
 
 class MembersText extends StatelessWidget {
   const MembersText({super.key});
@@ -45,18 +44,33 @@ class MembersText extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Text(
-          'Members_txt'.tr,
-          style: TextStyle(fontSize: 20),
-          textAlign: TextAlign.left,
+        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+        child: Column(
+          children: [
+            const BackIconRow(),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 60),
+              child: Text(
+                'Members_txt'.tr,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+/*
+purpose: This widget creates the leaderboard chart.
+author: Maurice
+date: 17.05.2024
+*/
+
 class ChartLeaderboard extends StatelessWidget {
+  //müssen noch ab deb Farben von den themes angepasst werden
   const ChartLeaderboard({super.key});
 
   @override
@@ -80,8 +94,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -93,16 +107,14 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: height * 0.1,
-                    decoration: const BoxDecoration(
-                        color: Colors.red,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
                         borderRadius: BorderRadius.all(Radius.circular(25))),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(15.0),
                       child: Text(
                         'rd',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
                     )),
@@ -119,8 +131,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -132,16 +144,14 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                   width: width * 0.2,
                   height: height * 0.3,
-                  decoration: const BoxDecoration(
-                      color: Colors.red,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: Text(
                       'st',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -159,8 +169,8 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                     width: width * 0.2,
                     height: width * 0.2,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.tertiary,
                       shape: BoxShape.circle,
                     )),
               ),
@@ -172,16 +182,14 @@ class ChartLeaderboard extends StatelessWidget {
                 child: Container(
                   width: width * 0.2,
                   height: height * 0.2,
-                  decoration: const BoxDecoration(
-                      color: Colors.red,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: Text(
                       'nd',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -190,6 +198,74 @@ class ChartLeaderboard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/*
+purpose: This widget creates the weekly info.
+author: Maurice
+date: 17.05.2024
+*/
+
+class WeeklyInfo extends StatelessWidget {
+  WeeklyInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
+    return SizedBox(
+      width: width,
+      height: height * 0.2,
+      child: ListView.builder(
+        //dynamisch machen
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          IconData iconData;
+          if (index == 0) {
+            iconData = Icons.looks_one;
+          } else if (index == 1) {
+            iconData = Icons.looks_two;
+          } else {
+            iconData = Icons.looks_3;
+          }
+          int pts = 86 - (index * 10);
+          int tasks = 3 + (index * 4);
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  children: [
+                    Icon(iconData),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      'Name ${index + 1}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                Text(
+                  '$pts pts',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.checkmark_circle_fill),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      '$tasks tasks',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

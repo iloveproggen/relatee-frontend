@@ -1,21 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:frontend_v1/create_new_task_v1.dart';
+import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
+import 'package:frontend_v1/household_invitation.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
 
 late List<Map<String, dynamic>> tasks;
 late List<Map<String, dynamic>> users;
+late Map<String, dynamic> userData;
 
 class MainHouseholdOverview extends StatelessWidget {
-  const MainHouseholdOverview({super.key, required this.userData});
+  const MainHouseholdOverview({super.key, required this.pUserData});
 
-  final Map<String, dynamic> userData;
+  final Map<String, dynamic> pUserData;
 
   @override
   Widget build(BuildContext context) {
+    userData = pUserData;
     return Scaffold(
         body: SingleChildScrollView(
             child: Padding(
@@ -34,13 +40,10 @@ class HouseholdOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('\n\n\ntest: ${userData['id']}');
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // const ButtonCompleted(
-        //     who: "Marvin", what: "do the dishes", time: "today"),
         Column(
           children: [
             FutureBuilder<Map<String, dynamic>>(
@@ -53,24 +56,110 @@ class HouseholdOverview extends StatelessWidget {
                 } else {
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
-                  print(users);
+                  print(tasks);
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Your Household",
                           style: Theme.of(context).textTheme.bodyLarge),
                       const SizedBox(height: 20),
-                      HouseholdMembers(userData: userData),
-                      const SizedBox(height: 20),
-                      Text("Tasks",
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      const HouseholdMembers(),
+                      const InviteButton(),
+                      const SizedBox(height: 40),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Tasks",
+                              style: Theme.of(context).textTheme.bodyMedium),
+                          IconButton(
+                            onPressed: () {
+                              Get.to(() => NewTaskMain(userData: userData));
+                            },
+                            icon: Icon(CupertinoIcons.add,
+                                color: Theme.of(context).colorScheme.tertiary,
+                                size: 30),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 10),
                       Column(
-                        children: tasks.map((task) {
-                          return MoreDetailsTask(
-                              task: task, userData: userData);
-                        }).toList(),
+                        children: tasks
+                                .where((task) => task['completed'] == false)
+                                .isEmpty
+                            ? [
+                                Text("No tasks left todo :)",
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall)
+                              ]
+                            : tasks
+                                .where((task) => task['completed'] == false)
+                                .toList()
+                                .map((task) {
+                                return Dismissible(
+                                  key: Key(task.toString()),
+                                  direction: DismissDirection.endToStart,
+                                  onDismissed: (direction) {
+                                    showCupertinoDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          CupertinoAlertDialog(
+                                        title: const Text('Delete Task'),
+                                        content: Text(
+                                            'Are you sure you want to delete "${task['name']}"?'),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                              child: const Text('Cancel',
+                                                  style: TextStyle(
+                                                      color: Colors.blue)),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                Get.forceAppUpdate();
+                                              }),
+                                          CupertinoDialogAction(
+                                            onPressed: () {
+                                              deleteTask(task['id']);
+                                              tasks.removeWhere(
+                                                  (t) => t['id'] == task['id']);
+                                              Navigator.pop(context);
+                                              Get.forceAppUpdate();
+                                            },
+                                            isDestructiveAction: true,
+                                            child: const Text('Delete',
+                                                style: TextStyle(
+                                                    color: Colors.red)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  background: Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 30, bottom: 22),
+                                    alignment: Alignment.centerRight,
+                                    child: const Icon(CupertinoIcons.delete,
+                                        color: Colors.red, size: 30),
+                                  ),
+                                  child: MoreDetailsTask(task: task),
+                                );
+                              }).toList(),
                       ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                          style: ButtonStyle(
+                              animationDuration: Duration.zero,
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                const EdgeInsets.all(0),
+                              )),
+                          onPressed: () {
+                            Get.to(() => CompletedTaskList(
+                                tasks: tasks
+                                    .where((task) => task['completed'] == true)
+                                    .toList(),
+                                userData: users));
+                          },
+                          child: Text("See completed Tasks",
+                              style: Theme.of(context).textTheme.labelSmall)),
+                      SizedBox(height: 40)
                     ],
                   );
                 }
@@ -86,10 +175,7 @@ class HouseholdOverview extends StatelessWidget {
 class HouseholdMembers extends StatelessWidget {
   const HouseholdMembers({
     super.key,
-    required this.userData,
   });
-
-  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +185,10 @@ class HouseholdMembers extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(users.length, (index) {
+            print(users[index]['householdName']);
             return Member(userData: users[index]);
           }),
         ),
-        const SizedBox(height: 20)
       ],
     );
   }
@@ -119,18 +205,32 @@ class Member extends StatelessWidget {
       children: [
         // Icon(CupertinoIcons.person_fill, size: 50, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),),
         // const SizedBox(width: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(userData['forename'] + " " + userData['surname'],
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      )),
-              Text("@${userData['username']}",
-                  style: Theme.of(context).textTheme.bodySmall),
-            ],
+        TextButton(
+          style: ButtonStyle(
+              animationDuration: Duration.zero,
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.all(0),
+              )),
+          onPressed: () {
+            Get.to(() => PublicProfile(
+                userData: userData,
+                tasks: tasks
+                    .where((task) => task['userId'] == userData['id'])
+                    .toList()));
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(userData['forename'] + " " + userData['surname'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        )),
+                Text("@${userData['username']}",
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
         ),
         const Spacer(),
@@ -154,7 +254,7 @@ class UserPoints extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Text("${userData['points'].toString()} pts",
+        child: Text("lvl ${userData['level'].toString()}",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 )),
@@ -164,11 +264,9 @@ class UserPoints extends StatelessWidget {
 }
 
 class MoreDetailsTask extends StatelessWidget {
-  const MoreDetailsTask(
-      {super.key, required this.task, required this.userData});
+  const MoreDetailsTask({super.key, required this.task});
 
   final Map<String, dynamic> task;
-  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +281,8 @@ class MoreDetailsTask extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
+              assigned: users.firstWhere((user) => user['id'] == task['userId'],
+                  orElse: () => {'forename': null})['forename'],
             )),
         child: Container(
           width: double.infinity,
@@ -207,19 +307,21 @@ class MoreDetailsTask extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(task['name'],
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            )),
+                    Container(
+                      constraints: BoxConstraints(maxWidth: 240),
+                      child: Text(task['name'],
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                    ),
                     Builder(
                       builder: (context) {
-                        switch (task['status']) {
-                          case 1:
+                        switch (task['completed']) {
+                          case true:
                             return SvgPicture.asset("assets/images/green.svg");
-                          case 2:
+                          case false:
                             return SvgPicture.asset("assets/images/yellow.svg");
-                          case 0:
-                            return SvgPicture.asset("assets/images/red.svg");
                           default:
                             return SvgPicture.asset("assets/images/red.svg");
                         }
@@ -227,21 +329,82 @@ class MoreDetailsTask extends StatelessWidget {
                     ),
                   ],
                 ),
-                task['description'] == ""
-                    ? Container()
-                    : Text('"${task['description']}"',
-                        style: Theme.of(context).textTheme.bodySmall),
-                Text(
-                    (users.firstWhere((user) => user['id'] == task['userId'])[
-                                'forename']) ==
-                            null
-                        ? 'anyone'
-                        : "assigned to ${users.firstWhere((user) => user['id'] == task['userId'])['forename']}",
-                    style: Theme.of(context).textTheme.bodySmall),
+                // task['description'] == ""
+                //     ? Container()
+                //     : Container(
+                //         constraints: BoxConstraints(maxWidth: 160),
+                //         child: Text('"${task['description']}"',
+                //             style: Theme.of(context)
+                //                 .textTheme
+                //                 .bodySmall
+                //                 ?.copyWith(
+                //                   color: Theme.of(context).colorScheme.tertiary,
+                //                 )),
+                //       ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: 180),
+                  child: (users.firstWhere(
+                              (user) => user['id'] == task['userId'],
+                              orElse: () => {'forename': null})['forename']) ==
+                          null
+                      ? Text('anyone',
+                          style: Theme.of(context).textTheme.bodySmall)
+                      : Text(
+                          "${users.firstWhere((user) => user['id'] == task['userId'], orElse: () => {
+                                'forename': null
+                              })['forename']}",
+                          style: Theme.of(context).textTheme.bodySmall),
+                ),
+                SizedBox(height: 10),
+                Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      border: Border.all(
+                          width: 1,
+                          color: Theme.of(context).colorScheme.tertiary),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: Container(
+                        child: Text(task['reward'].toString() + " pts",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                )),
+                      ),
+                    )),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class InviteButton extends StatelessWidget {
+  const InviteButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () async {
+        // TODO: Implement invite functionality
+        await Get.to(() => const HouseholdInvitation());
+      },
+      style: ButtonStyle(
+        padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(0)),
+      ),
+      child: Row(
+        children: [
+          Text('Invite Members', style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(width: 10),
+          Icon(CupertinoIcons.arrow_right,
+              color: Theme.of(context).colorScheme.tertiary, size: 20)
+        ],
       ),
     );
   }

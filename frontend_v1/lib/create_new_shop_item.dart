@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/shop.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-
 
 void createShopItem(String name, String description, int price,
     Map<String, dynamic> userData) async {
@@ -57,10 +55,6 @@ class NewShopItem extends StatefulWidget {
   State<NewShopItem> createState() => _NewShopItemState(userData: userData);
 }
 
-//purpose: Create a new shop item
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024
-
 class _NewShopItemState extends State<NewShopItem> {
   _NewShopItemState({required this.userData});
 
@@ -93,48 +87,74 @@ class _NewShopItemState extends State<NewShopItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
             children: [
-              const BackIconRow(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const BackIconRow(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      animationDuration: Duration.zero,
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0),
+                      ),
+                    ),
+                    onPressed: () {
+                      if (required) {
+                        createShopItem(taskName.text, description.text,
+                            int.parse(taskPrice.text), userData);
+                        Get.back(result: "Task created");
+                      } else {
+                        Get.back();
+                      }
+                    },
+                    child: Text(required ? "Confirm" : "Cancel",
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: required
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : const Color.fromARGB(255, 204, 198, 196))),
+                  )
+                ],
+              ),
               Align(
                 alignment: Alignment.topLeft,
                 child: Form(
                   child: Column(
                     children: [
                       TextField(
-                        controller: taskName,
-                        decoration: const InputDecoration.collapsed(
-                          hintText: 'new item...',
-                          hintStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Sedan",
-                            fontSize: 40,
-                            color: Color.fromARGB(255, 204, 198, 196),
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          controller: taskName,
+                          maxLength: 30,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            counterText: "",
+                            hintText: 'new item...',
+                            hintStyle:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Color.fromARGB(255, 204, 198, 196),
+                                    ),
                           ),
-                        ),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Sedan",
-                          fontSize: 40,
-                        ),
-                      ),
+                          style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ),
                 ),
               ),
               const SliderWidget(),
               Padding(
-                padding: const EdgeInsets.only(top: 60, bottom: 20),
+                padding: const EdgeInsets.only(top: 50, bottom: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(
                       CupertinoIcons.add_circled,
-                      size: 25,
+                      size: 40,
                       color: Color.fromARGB(255, 204, 198, 196),
                     ),
                     const SizedBox(width: 20),
@@ -144,19 +164,23 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                     Expanded(
                       child: TextField(
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: const InputDecoration(
-                            hintText: "add price",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontSize: 20),
-                            border: InputBorder.none),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
-                      ),
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          textAlign: TextAlign.end,
+                          controller: taskPrice,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          decoration: const InputDecoration(
+                              hintText: "add price",
+                              hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  fontSize: 20),
+                              border: InputBorder.none),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -164,104 +188,46 @@ class _NewShopItemState extends State<NewShopItem> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.only(top: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(
                           CupertinoIcons.text_aligncenter,
-                          size: 25,
+                          size: 40,
                           color: Color.fromARGB(255, 204, 198, 196),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
-                          child: Text(
-                            'description',
-                              textAlign: TextAlign.left,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              )
-                              ),
-                      
+                            child: Text(
+                          'description:',
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.only(top: 10),
                     child: TextField(
-                      maxLines: 3,
-                      controller: description,
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                          hintText: 'None Yet',
-                          hintStyle: TextStyle(
-                              color: Color.fromARGB(255, 204, 198, 196),
-                              fontSize: 20),
-                          border: InputBorder.none),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)
-                    ),
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        maxLines: 4,
+                        maxLength: 100,
+                        controller: description,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                            counterText: "",
+                            hintText: 'add description...',
+                            hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 204, 198, 196),
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                   )
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 80),
-                child: Container(
-                    decoration: required
-                        ? const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromARGB(61, 109, 103, 103),
-                                  offset: Offset(5.0, 5.0),
-                                  blurRadius: 10.0,
-                                  spreadRadius: 2.0,
-                                )
-                              ])
-                        : BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(
-                                strokeAlign: BorderSide.strokeAlignOutside,
-                                width: 5,
-                                color:
-                                    const Color.fromARGB(255, 204, 198, 196)),
-                            color: const Color.fromARGB(255, 243, 243, 243),
-                          ),
-                    child: TextButton(
-                      onPressed: () {
-                          createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => MainWidget(userId: userData['id'])),
-                            (route) => false,
-                          );
-                          Navigator.push(context, MaterialPageRoute(builder: ((context) => ShopView(userData: userData)))
-                          ).then((value) {
-                          setState(() {
-                            // Perform any state updates here
-                          });
-                        });
-                        
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, left: 15, right: 15),
-                        child: Text(
-                          required ? "Confirm" : "Cancel",
-                          style: required
-                              ? const TextStyle(
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                )
-                              : const TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                ),
-                        ),
-                      ),
-                    )),
               ),
             ],
           ),
@@ -277,10 +243,6 @@ class SliderWidget extends StatefulWidget {
   @override
   _SliderWidgetState createState() => _SliderWidgetState();
 }
-
-//purpose: Create a slider widget
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024
 
 class _SliderWidgetState extends State<SliderWidget> {
   bool _isPermanent = true;
@@ -326,9 +288,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Text(
                     'permanent',
                     style: TextStyle(
-                      color: _isPermanent
-                          ? Colors.black
-                          : const Color(0xFF4A4646),
+                      color:
+                          _isPermanent ? Colors.black : const Color(0xFF4A4646),
                       fontSize: 20,
                       fontFamily: 'Karla',
                       fontWeight:
@@ -358,7 +319,3 @@ class _SliderWidgetState extends State<SliderWidget> {
     );
   }
 }
-
-//purpose: Create a back icon row
-//author: Rene, Michelle, Maurice
-//Date: 11.04.2024

@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/Create_New_ShopItem.dart';
+import 'package:frontend_v1/create_new_shop_item.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart' as profile;
 import 'package:get/get.dart';
@@ -79,7 +79,6 @@ Future<void> deleteReward(int id) async {
   );
   try {
     await client.mutate(options).timeout(const Duration(seconds: 10));
-
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -175,10 +174,20 @@ class ShopViewState extends State<ShopView> {
   ShopViewState({required this.userData});
 
   final Map<String, dynamic> userData;
+  late Future<List<Map<String, dynamic>>> _futureRewards;
 
-  @override
+    @override
+  void initState() {
+    super.initState();
+    _futureRewards = getRewards(widget.userData['householdId']);
+  }
 
-  // Getter for the itemCards list
+  void _updateRewards() {
+    setState(() {
+      _futureRewards = getRewards(userData['householdId']);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,8 +209,11 @@ class ShopViewState extends State<ShopView> {
                   ],
                 ),
                 TextButton(
-                    onPressed: () {
-                      Get.to(() => NewShopItem(userData: userData));
+                    onPressed: () async {
+                      var result = await Get.to(() => NewShopItem(userData: userData));
+                      if (result != null) {
+                        _updateRewards();
+                      }
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -213,7 +225,7 @@ class ShopViewState extends State<ShopView> {
             ),
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: getRewards(userData['householdId']),
+                  future: _futureRewards,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
@@ -230,6 +242,8 @@ class ShopViewState extends State<ShopView> {
                           ],
                         );
                       } else {
+                        rewards
+                            .sort((a, b) => a['price'].compareTo(b['price']));
                         return ListView.builder(
                           scrollDirection: Axis.vertical,
                           itemCount: rewards.length,
@@ -237,6 +251,7 @@ class ShopViewState extends State<ShopView> {
                             final reward = rewards[index];
                             return Dismissible(
                               key: Key(reward.toString()),
+                              direction: DismissDirection.endToStart,
                               onDismissed: (direction) {
                                 showDialog(
                                   context: context,
@@ -244,25 +259,25 @@ class ShopViewState extends State<ShopView> {
                                     return CupertinoAlertDialog(
                                       title: const Text('Confirm Delete'),
                                       content: Text(
-                                          'Are you sure you want to delete the reward \"${reward['name']}\"?'),
+                                          'Are you sure you want to delete the reward "${reward['name']}"?'),
                                       actions: [
                                         CupertinoDialogAction(
                                           onPressed: () {
-                                            Get.back();
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            setState(() {});
+                                            
+                                            Navigator.of(context).pop();
+                                            _updateRewards();
                                           },
-                                          child: const Text('No',
+                                          child: const Text('Back',
                                               style: TextStyle(
                                                   color: Colors.blue)),
                                         ),
                                         CupertinoDialogAction(
+                                          isDestructiveAction: true,
                                           onPressed: () {
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                             deleteReward(reward['id']);
-                                            setState(() {});
+                                            _updateRewards();
                                           },
                                           child: const Text('Yes',
                                               style:
@@ -281,7 +296,8 @@ class ShopViewState extends State<ShopView> {
                                     color: Colors.red, size: 30),
                               ),
                               child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 title: ItemCard(
                                   taskName: reward['name'],
                                   taskPrice: reward['price'].toString(),
@@ -300,11 +316,11 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge(userData['points'] == null
+                buildBadge(userData['coins'] == null
                     ? '0 pts'
-                    : '${userData['points']} pts'),
+                    : '${userData['coins']} pts'),
                 const SizedBox(width: 20),
-                buildBadge('lvl 25'),
+                buildBadge("lvl ${userData['level'].toString()}"),
               ],
             ),
             const SizedBox(height: 50)
@@ -330,27 +346,7 @@ class ShopViewState extends State<ShopView> {
 }
 
 void showNotEnoughPointsDialog(
-    BuildContext context, int taskPrice, Map<String, dynamic> userData) {
-  showCupertinoDialog(
-    context: context,
-    builder: (BuildContext context) {
-      // Automatically dismiss the dialog after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-        Navigator.of(context).pop(true); // Dismiss the dialog
-      });
-
-      return CupertinoAlertDialog(
-        title: const Text(
-          'Not enough Points to buy!',
-          textAlign: TextAlign.center,
-        ),
-        content: Text(
-          "You need ${taskPrice - userData['points']} more points to buy this item.",
-        ),
-      );
-    },
-  );
-}
+    BuildContext context, int taskPrice, Map<String, dynamic> userData) {}
 
 // ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
@@ -375,7 +371,7 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    buyable = isBuyable(int.parse(taskPrice), userData['points']);
+    buyable = isBuyable(int.parse(taskPrice), userData['coins']);
     return Column(
       children: [
         Container(
@@ -410,42 +406,100 @@ class ItemCard extends StatelessWidget {
                               .bodySmall
                               ?.copyWith(fontWeight: FontWeight.bold)),
                     ),
+                    Text(
+                      "$taskPrice pts",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
                     description == "" || description == null
                         ? Container()
                         : Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          constraints: const BoxConstraints(maxWidth: 140),
-                          child: Text(
-                            "\'$description\'",
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 204, 198, 196),
-                              fontSize: 20,
-                              fontFamily: "Karla",
-                              height: 1),
-                            textAlign: TextAlign.start,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            constraints: const BoxConstraints(maxWidth: 130),
+                            child: Text(
+                              "\'$description\'",
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                              textAlign: TextAlign.start,
+                            ),
                           ),
-                          ),
-                    Text(
-                      "$taskPrice pts",
-                      
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
-                          fontSize: 20,
-                          fontFamily: "Karla"),
-                      textAlign: TextAlign.center,
-                    ),
                   ],
                 ),
               ),
               TextButton(
                 onPressed: () {
-                    buyable
-                      ? null
-                      : showNotEnoughPointsDialog(context, int.parse(taskPrice), userData['points']);
+                  buyable
+                      ? showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text(
+                                'Confirm Purchase',
+                                textAlign: TextAlign.center,
+                              ),
+                              content: Text(
+                                  "Are you sure you want to buy this item for $taskPrice pts?"),
+                              actions: [
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text('Cancel',
+                                      style: TextStyle(color: Colors.grey)),
+                                ),
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    // Perform the purchase logic here
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text('Buy',
+                                      style: TextStyle(color: Colors.blue)),
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      : showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            //String difference = (int.parse(taskPrice) - int.parse(userData['coins'])).toString();
+                            // Automatically dismiss the dialog after 3 seconds
+                            Future.delayed(const Duration(seconds: 2), () {
+                              Navigator.of(context)
+                                  .pop(true); // Dismiss the dialog
+                            });
+
+                            return AlertDialog(
+                              title: Text(
+                                'Not enough Points to buy!',
+                                style: Theme.of(context).textTheme.bodySmall,
+                                textAlign: TextAlign.center,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                 },
                 child: Container(
                     constraints: const BoxConstraints(minWidth: 0),

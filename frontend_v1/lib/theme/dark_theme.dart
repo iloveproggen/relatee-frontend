@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //purpose: Define the dark theme for the app
-//author: Maurice Halilovic, Michelle Gerwald
+//author: Maurice, Michelle
 //Date: 11.05.2024
 
 ThemeData darktheme = ThemeData(
@@ -14,14 +14,14 @@ ThemeData darktheme = ThemeData(
             TextStyle(color: Color.fromARGB(255, 74, 70, 70), fontSize: 20)),
     textTheme: const TextTheme(
         bodyLarge: TextStyle(
-            fontSize: 40,
+            fontSize: 35,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 183, 177, 175),
             fontFamily: "Sedan",
             letterSpacing: 0),
         bodyMedium: TextStyle(
             letterSpacing: -1,
-            fontSize: 30,
+            fontSize: 25,
             color: Color.fromARGB(255, 183, 177, 175),
             fontWeight: FontWeight.w800,
             fontFamily: "Karla"),
@@ -34,12 +34,18 @@ ThemeData darktheme = ThemeData(
             color: Color.fromARGB(255, 204, 198, 196),
             fontSize: 20,
             fontFamily: "Karla",
+            fontWeight: FontWeight.bold),
+        labelLarge: TextStyle(
+            color: Color.fromARGB(255, 204, 198, 196),
+            fontSize: 15,
+            fontFamily: "Karla",
             fontWeight: FontWeight.bold)),
     colorScheme: const ColorScheme.light(
       background: Color.fromARGB(255, 50, 48, 48),
       primary: Color.fromARGB(255, 50, 48, 48),
       secondary: Color.fromARGB(168, 0, 0, 0),
       tertiary: Color.fromARGB(255, 183, 177, 175),
-      onPrimary: Color.fromARGB(255, 74, 70, 70),
-      onSecondary: Color.fromARGB(255, 204, 198, 196),
+      onPrimary: Color.fromARGB(255, 74, 70, 70) ,
+      onSecondary:Color.fromARGB(255, 204, 198, 196),
+      inversePrimary: Color(0xFF4A4646),
     ));

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
-import 'package:frontend_v1/tasks.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -57,11 +57,15 @@ class ProfileView extends StatelessWidget {
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: const Text('Continue',
-                                     style: TextStyle(
-                                         color: Colors.blue,
-                                         fontWeight: FontWeight.bold),),
-                                onPressed: () {
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () async {
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  await prefs.remove('token');
                                   Get.offAll(() => const LoginWidget());
                                 },
                               ),
@@ -108,7 +112,6 @@ class ProfileView extends StatelessWidget {
                   //     ),
                   //   ),
                   // ),
-                  
                 ],
               ),
               Column(children: [
@@ -120,6 +123,14 @@ class ProfileView extends StatelessWidget {
                     Text('${userData['forename']} ${userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
+                    Text(
+                      '@${userData['username']}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontStyle: FontStyle.italic),
+                      textAlign: TextAlign.center,
+                    ),
                     RichText(
                       text: TextSpan(
                         children: [
@@ -137,27 +148,21 @@ class ProfileView extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      '@${userData['username']}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center,
-                    ),
                     Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50, right: 10),
-                        child: _buildInfoContainer('${userData['points']} pts'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: _buildInfoContainer('lvl ${userData['points']}'),
-                      ),
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50, right: 10),
+                          child:
+                              _buildInfoContainer('${userData['coins']} pts'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50),
+                          child:
+                              _buildInfoContainer('lvl ${userData['level']}'),
+                        ),
+                      ],
+                    ),
                   ],
                 )
               ]),
@@ -221,7 +226,7 @@ class BackIconRow extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    CupertinoIcons.arrowtriangle_left_fill,
+                    CupertinoIcons.back,
                     color: Theme.of(context).colorScheme.tertiary,
                     size: 18,
                   ),
@@ -232,11 +237,7 @@ class BackIconRow extends StatelessWidget {
                   //   size: 18,
                   // )
                   Text('back_button_text'.tr,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 15,
-                          fontFamily: "Karla",
-                          fontWeight: FontWeight.bold)),
+                      style: Theme.of(context).textTheme.labelLarge),
                 ],
               ),
             ),
@@ -267,43 +268,44 @@ class TaskOverview extends StatelessWidget {
           child: Text('Their Tasks',
               style: Theme.of(context).textTheme.bodyMedium),
         ),
-        tasks.isNotEmpty ? Column(
-          children: tasks.take(2).map((task) {
-            return Task(task: task, userData: userData);
-          }).toList(),
-        )
-        : Text("No Tasks found."),
+        tasks.isNotEmpty
+            ? Column(
+                children: tasks
+                    .where((task) => task['completed'] == false)
+                    .map((task) {
+                  return Task(task: task, userData: userData);
+                }).toList(),
+              )
+            : Column(
+                children: [
+                  Text("This user currently has no tasks assigned to them.",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  SizedBox(
+                    height: 10,
+                  )
+                ],
+              ),
         Padding(
           padding: const EdgeInsets.only(bottom: 40),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton(
+                style: TextButton.styleFrom(
+                  animationDuration: Duration.zero,
+                  padding: EdgeInsets.zero,
+                ),
                 onPressed: () {
-                  Get.to(() => SeeAllTasks(userData: userData, tasks: tasks));
+                  Get.to(() => MainHouseholdOverview(pUserData: userData));
                 },
                 child: Row(
                   children: [
-                    Text('See your tasks'.tr,
+                    Text("See Household Overview",
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
-                            ?.copyWith(fontSize: 15)),
-                    Container(width: 5),
-                    Icon(
-                      CupertinoIcons.arrow_right,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: size,
-                    )
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Get.to(() => MainHouseholdOverview(userData: userData));
-                },
-                child: Row(
-                  children: [
+                            ?.copyWith(fontSize: 18)),
+                    const SizedBox(width: 10),
                     Icon(
                       CupertinoIcons.house,
                       color: Theme.of(context).colorScheme.tertiary,

@@ -31,8 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.2.1
-  postgres: ^3.2.1
-  intl: ^0.17.0
+  postgres: ^2.3.2
+  intl: any
+  #^0.17.0
+
+#to get the share interface of the device
+  share: ^2.0.4
 
   
   #for the translations
@@ -78,6 +82,7 @@ flutter:
      - assets/images/green.svg
      - assets/images/yellow.svg
      - assets/images/red.svg
+     - assets/images/gray.svg
      - assets/images/relatee.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
