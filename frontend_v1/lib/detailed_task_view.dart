@@ -6,8 +6,12 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 
 Map<String, dynamic> assignedToUser = {};
+
+DateTime? deadline;
+
 bool isPermanent = false;
 
 void updateTask(String name, String? description, int reward, int? routineId,
@@ -18,7 +22,7 @@ void updateTask(String name, String? description, int reward, int? routineId,
     'householdId': userData['householdId'],
     'routineId': routineId,
     'name': name,
-    'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
+    'deadline': deadline != null ? '${deadline!.toIso8601String().split('.')[0]}Z' : null,
     'description': description,
     'reward': reward,
     'status': 0
@@ -151,15 +155,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                           task['routineId'],
                           widget.userData,
                           task);
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                MainWidget(userId: widget.userData['id'])),
-                        (route) => false,
-                      ).then((value) {
-                        Get.forceAppUpdate();
-                      });
+                      Get.back(result: "Changed Task");
                     },
                     child: Text("Save",
                         style: Theme.of(context).textTheme.labelLarge),
@@ -351,6 +347,68 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                             .bodySmall
                             ?.copyWith(fontWeight: FontWeight.bold)),
                   ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.calendar,
+                      size: 40, color: Theme.of(context).colorScheme.tertiary),
+                  const SizedBox(width: 20, height: 60),
+                  Text("deadline:",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  const Spacer(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    ),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            color: Theme.of(context).colorScheme.background,
+                            height: 400,
+                            child: CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.date,
+                              initialDateTime: DateTime.now(),
+                              maximumYear: DateTime.now().year + 3,
+                              minimumYear: DateTime.now().year,
+                              onDateTimeChanged: (DateTime newDateTime) {
+                                print(newDateTime);
+                                setState(() {
+                                  deadline = newDateTime;
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      deadline != null
+                          ? DateFormat('dd-MM-yyyy').format(deadline!)
+                          : "none",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  deadline != null ? IconButton(
+                    style: ButtonStyle(alignment: Alignment.centerRight,
+                    animationDuration: Duration.zero, 
+                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    icon: Icon(CupertinoIcons.clear,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    onPressed: () {
+                      setState(() {
+                        deadline = null; 
+                      });
+                    },
+                  )
+                  : Container(),
                 ],
               ),
               Column(

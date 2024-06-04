@@ -66,7 +66,7 @@ class ProfileView extends StatelessWidget {
                                 onPressed: () async {
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.remove('token');
-                                  Get.off(() => const LoginWidget());
+                                  Get.offAll(() => const LoginWidget());
                                 },
                               ),
                             ],

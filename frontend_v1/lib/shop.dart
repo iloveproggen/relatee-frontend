@@ -174,10 +174,20 @@ class ShopViewState extends State<ShopView> {
   ShopViewState({required this.userData});
 
   final Map<String, dynamic> userData;
+  late Future<List<Map<String, dynamic>>> _futureRewards;
 
-  @override
+    @override
+  void initState() {
+    super.initState();
+    _futureRewards = getRewards(widget.userData['householdId']);
+  }
 
-  // Getter for the itemCards list
+  void _updateRewards() {
+    setState(() {
+      _futureRewards = getRewards(userData['householdId']);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -199,8 +209,11 @@ class ShopViewState extends State<ShopView> {
                   ],
                 ),
                 TextButton(
-                    onPressed: () {
-                      Get.to(() => NewShopItem(userData: userData));
+                    onPressed: () async {
+                      var result = await Get.to(() => NewShopItem(userData: userData));
+                      if (result != null) {
+                        _updateRewards();
+                      }
                     },
                     child: const Icon(CupertinoIcons.add,
                         color: Color.fromARGB(255, 204, 198, 196), size: 35))
@@ -212,7 +225,7 @@ class ShopViewState extends State<ShopView> {
             ),
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: getRewards(userData['householdId']),
+                  future: _futureRewards,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
@@ -250,8 +263,9 @@ class ShopViewState extends State<ShopView> {
                                       actions: [
                                         CupertinoDialogAction(
                                           onPressed: () {
-                                            Get.forceAppUpdate();
+                                            
                                             Navigator.of(context).pop();
+                                            _updateRewards();
                                           },
                                           child: const Text('Back',
                                               style: TextStyle(
@@ -263,7 +277,7 @@ class ShopViewState extends State<ShopView> {
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                             deleteReward(reward['id']);
-                                            Get.forceAppUpdate();
+                                            _updateRewards();
                                           },
                                           child: const Text('Yes',
                                               style:

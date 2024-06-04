@@ -109,8 +109,7 @@ class _NewShopItemState extends State<NewShopItem> {
                       if (required) {
                         createShopItem(taskName.text, description.text,
                             int.parse(taskPrice.text), userData);
-                        Get.forceAppUpdate();
-                        Get.back();
+                        Get.back(result: "Task created");
                       } else {
                         Get.back();
                       }

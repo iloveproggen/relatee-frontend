@@ -32,6 +32,7 @@ bool _taskView = true;
 final random = Random();
 
 Future<GraphQLClient> getGraphQLClient() async {
+  String? token;
   final prefs = await SharedPreferences.getInstance();
 
   final httpLink = HttpLink(
@@ -41,7 +42,7 @@ Future<GraphQLClient> getGraphQLClient() async {
 
   final AuthLink authLink = AuthLink(
     getToken: () async {
-      final token = prefs.getString('token');
+      token = prefs.getString('token');
       return 'Bearer $token';
     },
   );
@@ -756,8 +757,11 @@ class _TaskState extends State<TaskOverview> {
                   style: Theme.of(context).textTheme.bodyMedium),
               IconButton(
                 onPressed: () async {
-                  await Get.to(() => NewTaskMain(userData: userData));
-                  update();
+                  var result =
+                      await Get.to(() => NewTaskMain(userData: userData));
+                  if (result != null) {
+                    update();
+                  }
                 },
                 icon: Icon(CupertinoIcons.add,
                     color: Theme.of(context).colorScheme.tertiary, size: 30),
@@ -951,12 +955,18 @@ class _TaskState extends State<TaskOverview> {
                                                     return CupertinoAlertDialog(
                                                       title: const Text(
                                                           'Congratulations!'),
-                                                      content: Text(
-                                                          'You gained ${task['reward']} coins.'),
+                                                      content: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          SizedBox(height: 10),
+                                                          Image.network(
+                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                        ],
+                                                      ),
                                                       actions: [
                                                         CupertinoDialogAction(
                                                           child:
-                                                              const Text('OK'),
+                                                              const Text('OK', style: TextStyle(color: Colors.blue,)),
                                                           onPressed: () {
                                                             Navigator.pop(
                                                                 context);
@@ -995,8 +1005,10 @@ class _TaskState extends State<TaskOverview> {
                                     ],
                                   ),
                           ]
-                        : [Routine(userData: userData), SizedBox(height: 10)],
-                        : [Routine(userData: userData), SizedBox(height: 10)],
+                        : [
+                            Routine(userData: userData),
+                            const SizedBox(height: 10)
+                          ],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 40),
@@ -1058,12 +1070,14 @@ class Task extends StatelessWidget {
               const EdgeInsets.all(0),
             )),
         onPressed: () async {
-          await Get.to(() => DetailedTaskView(
+          var result = await Get.to(() => DetailedTaskView(
                 task: task,
                 userData: userData,
                 assigned: userData['forename'],
               ));
-          update();
+          if (result != null) {
+            update();
+          }
         },
         child: Container(
           width: double.infinity,
@@ -1097,7 +1111,9 @@ class Task extends StatelessWidget {
                                 ? Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(fontWeight: FontWeight.bold, color: Colors.red)
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red)
                                 : Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -1109,22 +1125,9 @@ class Task extends StatelessWidget {
                               const BorderRadius.all(Radius.circular(15)),
                           border: Border.all(
                               width: 1,
-                              width: 1,
                               color: Theme.of(context).colorScheme.tertiary),
                         ),
                         child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Text(
-                              "${task['reward']} pts",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                            ))),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
