@@ -76,6 +76,7 @@ flutter:
      - assets/images/green.svg
      - assets/images/yellow.svg
      - assets/images/red.svg
+     - assets/images/gray.svg
      - assets/images/relatee.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see

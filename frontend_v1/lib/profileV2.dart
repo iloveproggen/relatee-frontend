@@ -226,7 +226,7 @@ class BackIconRow extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    CupertinoIcons.arrowtriangle_left_fill,
+                    CupertinoIcons.back,
                     color: Theme.of(context).colorScheme.tertiary,
                     size: 18,
                   ),

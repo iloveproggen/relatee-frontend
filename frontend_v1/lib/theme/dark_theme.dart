@@ -31,6 +31,11 @@ ThemeData darktheme = ThemeData(
             color: Color.fromARGB(255, 204, 198, 196),
             fontSize: 20,
             fontFamily: "Karla",
+            fontWeight: FontWeight.bold),
+        labelLarge: TextStyle(
+            color: Color.fromARGB(255, 204, 198, 196),
+            fontSize: 15,
+            fontFamily: "Karla",
             fontWeight: FontWeight.bold)),
     colorScheme: const ColorScheme.light(
       background: Color.fromARGB(255, 50, 48, 48),
@@ -39,4 +44,5 @@ ThemeData darktheme = ThemeData(
       tertiary: Color.fromARGB(255, 183, 177, 175),
       onPrimary: Color.fromARGB(255, 74, 70, 70) ,
       onSecondary:Color.fromARGB(255, 204, 198, 196),
+      inversePrimary: Color(0xFF4A4646),
     ));

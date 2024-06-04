@@ -6,6 +6,7 @@ import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
+//import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,26 +25,31 @@ final focusNode2 = FocusNode();
 final focusNodeButton = FocusNode();
 late int userId;
 
-// Future<int?> loggedIn() async {
-//   String? tokenSaved = await isTokenSaved();
-//   if (tokenSaved != null) {
-    
-//     var response = await http.get(
-//       Uri.parse('http://85.215.50.29:3000/login'),
-//       headers: {
-//         'Authorization': 'Bearer $tokenSaved',
-//       },
-//     );
-//     if (response.statusCode == 200) {
-//       print('Response data: ${response.body}');
-//       return jsonDecode(response.body)['userId'];
-//     } else {
-//       print(response.statusCode);
-//       return null;
-//     }
+// void fetchUserId(String token) async {
+//   final HttpLink httpLink = HttpLink('http://85.215.50.29:3000/graphql');
+
+//   final AuthLink authLink = AuthLink(
+//     getToken: () async => 'Bearer $token',
+//   );
+
+//   final Link link = authLink.concat(httpLink);
+
+//   final GraphQLClient client = GraphQLClient(
+//     cache: GraphQLCache(),
+//     link: link,
+//   );
+
+//   final QueryOptions options = QueryOptions(
+//     document: gql(""),
+//   );
+
+//   final QueryResult result = await client.query(options);
+
+//   if (result.hasException) {
+//     print(result.exception.toString());
 //   } else {
-//     print('No token found. Opening LoginScreen...');
-//     return null;
+//     print('User ID: ${result.data!['id']}');
+//     Get.off(MainWidget(userId: result.data!['id']));
 //   }
 // }
 
@@ -65,16 +71,16 @@ class _LoginAppState extends State<LoginApp> {
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
-          return GetMaterialApp(
-            darkTheme: darktheme,
-            theme: brightness == Brightness.light ? lighttheme : darktheme,
-            translations: LocaleString(),
-            locale: const Locale('en-Us'),
-            fallbackLocale: const Locale('en-US'),
-            debugShowCheckedModeBanner: false,
-            title: 'Relatee',
-            home: const LoginWidget(),
-          );
+    return GetMaterialApp(
+      darkTheme: darktheme,
+      theme: brightness == Brightness.light ? lighttheme : darktheme,
+      translations: LocaleString(),
+      locale: const Locale('en-Us'),
+      fallbackLocale: const Locale('en-US'),
+      debugShowCheckedModeBanner: false,
+      title: 'Relatee',
+      home: const LoginWidget(),
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -40,16 +41,25 @@ Map<String, dynamic> pickedRoutine = nullRoutine;
 
 Map<String, dynamic> assignedToUser = nullUser;
 
+DateTime? deadline;
+
+String? deadlineString;
+
 bool isPermanent = false;
 
 void createNewTask(int? userId, String name, String description, int reward,
     int? routineId, Map<String, dynamic> userData) async {
+  if (deadline == null) {
+    deadlineString = null;
+  } else {
+    deadlineString = '${deadline?.toIso8601String().split('.')[0]}Z';
+  }
   final Map<String, dynamic> variables = {
     'userId': userId,
     'householdId': userData['householdId'],
     'routineId': routineId,
     'name': name.trim(),
-    'deadline': DateTime.now().toIso8601String().split('.')[0] + 'Z',
+    'deadline': deadlineString,
     'description': description,
     'reward': reward,
     'completed': false,
@@ -155,8 +165,7 @@ class _NewTaskState extends State<NewTask> {
   }
 
   bool _checkInputs() {
-    return taskName.text.isNotEmpty &&
-        taskPrice.text.isNotEmpty;
+    return taskName.text.isNotEmpty && taskPrice.text.isNotEmpty;
   }
 
   @override
@@ -169,6 +178,7 @@ class _NewTaskState extends State<NewTask> {
 
     assignedToUser = widget.householdUsers[0];
     pickedRoutine = widget.routines[0];
+    deadline = null;
   }
 
   void changePermanent() {
@@ -191,36 +201,35 @@ class _NewTaskState extends State<NewTask> {
                   const BackIconRow(),
                   TextButton(
                     style: ButtonStyle(
-                      alignment: Alignment.centerRight,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      animationDuration: Duration.zero
-                    ),
-                      onPressed: () {
-                        if (required) {
-                          print(taskName.text);
-                          print(taskPrice.text);
-                          print(assignedToUser);
-                          print(description.text);
-                          createNewTask(
-                              assignedToUser['id'],
-                              taskName.text,
-                              description.text,
-                              int.parse(taskPrice.text),
-                              pickedRoutine['id'],
-                              widget.userData);
-                          Get.back();
-                        } else {
-                          Get.back();
-                        }
-                      },
-                      child: Text(
-                        required ? "Confirm" : "Cancel",
+                        alignment: Alignment.centerRight,
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        animationDuration: Duration.zero),
+                    onPressed: () async {
+                      if (required) {
+                        print(taskName.text);
+                        print(taskPrice.text);
+                        print(assignedToUser);
+                        print(description.text);
+                        createNewTask(
+                            assignedToUser['id'],
+                            taskName.text,
+                            description.text,
+                            int.parse(taskPrice.text),
+                            pickedRoutine['id'],
+                            widget.userData);
+
+                        update();
+                        Get.back();
+                      } else {
+                        Get.back();
+                      }
+                    },
+                    child: Text(required ? "Confirm" : "Cancel",
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: required
+                            color: required
                                 ? Theme.of(context).colorScheme.onSecondary
-                                : const Color.fromARGB(255, 204, 198, 196))
-                      ),
-                    )
+                                : const Color.fromARGB(255, 204, 198, 196))),
+                  )
                 ],
               ),
               Align(
@@ -248,86 +257,86 @@ class _NewTaskState extends State<NewTask> {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    changePermanent();
-                  });
-                },
-                child: Padding(
-                  // Hinzufügen von Padding um den Container
-                  padding: const EdgeInsets.only(
-                      top: 40), // Verschieben Sie den Slider nach unten
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0x7FD9D9D9),
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AnimatedAlign(
-                          alignment: isPermanent
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          child: FractionallySizedBox(
-                            widthFactor: 0.5,
-                            child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD9D9D9),
-                                borderRadius: BorderRadius.circular(7),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'repeat_txt'.tr,
-                                  style: TextStyle(
-                                    color: isPermanent
-                                        ? Colors.black
-                                        : const Color(0xFF4A4646),
-                                    fontSize: 20,
-                                    fontFamily: 'Karla',
-                                    fontWeight: isPermanent
-                                        ? FontWeight.w700
-                                        : FontWeight.w300,
-                                    height: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'only_once_txt'.tr,
-                                  style: TextStyle(
-                                    color: !isPermanent
-                                        ? Colors.black
-                                        : const Color(0xFF4A4646),
-                                    fontSize: 20,
-                                    fontFamily: 'Karla',
-                                    fontWeight: !isPermanent
-                                        ? FontWeight.w700
-                                        : FontWeight.w300,
-                                    height: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     setState(() {
+              //       changePermanent();
+              //     });
+              //   },
+              //   child: Padding(
+              //     // Hinzufügen von Padding um den Container
+              //     padding: const EdgeInsets.only(
+              //         top: 40), // Verschieben Sie den Slider nach unten
+              //     child: Container(
+              //       decoration: BoxDecoration(
+              //         color: const Color(0x7FD9D9D9),
+              //         borderRadius: BorderRadius.circular(7),
+              //       ),
+              //       child: Stack(
+              //         alignment: Alignment.center,
+              //         children: [
+              //           AnimatedAlign(
+              //             alignment: isPermanent
+              //                 ? Alignment.centerLeft
+              //                 : Alignment.centerRight,
+              //             duration: const Duration(milliseconds: 200),
+              //             curve: Curves.easeInOut,
+              //             child: FractionallySizedBox(
+              //               widthFactor: 0.5,
+              //               child: Container(
+              //                 height: 50,
+              //                 decoration: BoxDecoration(
+              //                   color: const Color(0xFFD9D9D9),
+              //                   borderRadius: BorderRadius.circular(7),
+              //                 ),
+              //               ),
+              //             ),
+              //           ),
+              //           Row(
+              //             children: [
+              //               Expanded(
+              //                 child: Center(
+              //                   child: Text(
+              //                     'repeat_txt'.tr,
+              //                     style: TextStyle(
+              //                       color: isPermanent
+              //                           ? Colors.black
+              //                           : const Color(0xFF4A4646),
+              //                       fontSize: 20,
+              //                       fontFamily: 'Karla',
+              //                       fontWeight: isPermanent
+              //                           ? FontWeight.w700
+              //                           : FontWeight.w300,
+              //                       height: 0,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ),
+              //               Expanded(
+              //                 child: Center(
+              //                   child: Text(
+              //                     'only_once_txt'.tr,
+              //                     style: TextStyle(
+              //                       color: !isPermanent
+              //                           ? Colors.black
+              //                           : const Color(0xFF4A4646),
+              //                       fontSize: 20,
+              //                       fontFamily: 'Karla',
+              //                       fontWeight: !isPermanent
+              //                           ? FontWeight.w700
+              //                           : FontWeight.w300,
+              //                       height: 0,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
               //const SliderWidgetWho(),
               const SizedBox(height: 40),
               AssignTo(
@@ -357,6 +366,68 @@ class _NewTaskState extends State<NewTask> {
                       ],
                     )
                   : Container(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.calendar,
+                      size: 40, color: Theme.of(context).colorScheme.tertiary),
+                  const SizedBox(width: 20, height: 60),
+                  Text("deadline:",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  const Spacer(),
+                  TextButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    ),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            color: Theme.of(context).colorScheme.background,
+                            height: 400,
+                            child: CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.date,
+                              initialDateTime: DateTime.now(),
+                              maximumYear: DateTime.now().year + 3,
+                              minimumYear: DateTime.now().year,
+                              onDateTimeChanged: (DateTime newDateTime) {
+                                print(newDateTime);
+                                setState(() {
+                                  deadline = newDateTime;
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      deadline != null
+                          ? DateFormat('dd-MM-yyyy').format(deadline!)
+                          : "none",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  deadline != null ? IconButton(
+                    style: ButtonStyle(alignment: Alignment.centerRight,
+                    animationDuration: Duration.zero, 
+                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    icon: Icon(CupertinoIcons.clear,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    onPressed: () {
+                      setState(() {
+                        deadline = null; 
+                      });
+                    },
+                  )
+                  : Container(),
+                ],
+              ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -423,28 +494,29 @@ class _NewTaskState extends State<NewTask> {
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        maxLines: 4,
-                          keyboardType: TextInputType.visiblePassword, // Add this line
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      maxLines: 4,
+                      keyboardType:
+                          TextInputType.visiblePassword, // Add this line
 
-                        controller: description,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
+                      controller: description,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
                           counterText: "",
-                            hintText: 'add description...',
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                        maxLength: 100,
-                            ),
+                          hintText: 'add description...',
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
+                          border: InputBorder.none),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      maxLength: 100,
+                    ),
                   )
                 ],
               ),
@@ -736,7 +808,6 @@ class _AssignToState extends State<AssignTo> {
     );
   }
 }
-
 
 /*
 

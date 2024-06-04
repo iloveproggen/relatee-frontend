@@ -31,12 +31,6 @@ http.Client httpClient = http.Client();
 bool _taskView = true;
 final random = Random();
 
-_readData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int counter = prefs.getInt('counter') ?? 0;
-  print('Read counter: $counter');
-}
-
 Future<GraphQLClient> getGraphQLClient() async {
   final prefs = await SharedPreferences.getInstance();
 
@@ -382,18 +376,32 @@ Future<void> addPoints(String coinsToAdd) async {
   }
 }
 
-Builder getIndicator(Map<String, dynamic> task) {
+Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
+  DateTime now = DateTime.now();
+  DateTime? deadline =
+      DateTime.fromMillisecondsSinceEpoch(int.parse(task['deadline']));
+
+  Widget green = SvgPicture.asset("assets/images/green.svg");
+  Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
+  Widget red = SvgPicture.asset("assets/images/red.svg");
+  Widget overdue =
+      Icon(CupertinoIcons.exclamationmark_circle, color: Colors.red, size: 23);
+
   return Builder(
     builder: (context) {
-      switch (task['status']) {
-        case 1:
-          return SvgPicture.asset("assets/images/green.svg");
-        case 2:
-          return SvgPicture.asset("assets/images/yellow.svg");
-        case 0:
-          return SvgPicture.asset("assets/images/red.svg");
-        default:
-          return SvgPicture.asset("assets/images/red.svg");
+      if (deadline.isBefore(now)) {
+        return overdue;
+      } else if (deadline.year == now.year && deadline.month == now.month) {
+        switch (deadline.day - now.day) {
+          case 0:
+          case 1:
+          case 2:
+            return red;
+          default:
+            return yellow;
+        }
+      } else {
+        return green;
       }
     },
   );
@@ -492,9 +500,7 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () async {
-                    await Get.to(
-                        () => ProfileView(userData: userData, tasks: tasks));
-                    update();
+                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
@@ -690,7 +696,7 @@ class ButtonRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
               number: tasks == [] ? '0' : countToDo(tasks).toString(),
-              textBelow: 'leftThisWeek_txt'.tr,
+              textBelow: 'left to do',
             ),
           ),
         ),
@@ -721,7 +727,20 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
-  @override
+  List<Map<String, dynamic>> toDo =
+      tasks.where((task) => task['completed'] == false).toList()
+        ..sort((a, b) {
+          if (a['deadline'] == null && b['deadline'] == null) {
+            return 0;
+          } else if (a['deadline'] == null) {
+            return 1;
+          } else if (b['deadline'] == null) {
+            return -1;
+          } else {
+            return a['deadline'].compareTo(b['deadline']);
+          }
+        });
+
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -791,8 +810,17 @@ class _TaskState extends State<TaskOverview> {
                                         .bodySmall
                                         ?.copyWith(
                                           fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .inversePrimary,
                                         )
-                                    : Theme.of(context).textTheme.bodySmall),
+                                    : Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
                           ),
                         ),
                       ),
@@ -806,13 +834,22 @@ class _TaskState extends State<TaskOverview> {
                             },
                             child: Text('routine view',
                                 style: _taskView
-                                    ? Theme.of(context).textTheme.bodySmall
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .inversePrimary,
+                                        )
                                     : Theme.of(context)
                                         .textTheme
                                         .bodySmall
                                         ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        )),
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .inversePrimary)),
                           ),
                         ),
                       ),
@@ -829,7 +866,7 @@ class _TaskState extends State<TaskOverview> {
                     children: _taskView
                         ? [
                             ButtonRow(tasks: tasks),
-                            tasks.isEmpty
+                            toDo.isEmpty
                                 ? Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -847,11 +884,7 @@ class _TaskState extends State<TaskOverview> {
                                 : Column(
                                     children: [
                                       Column(
-                                        children: tasks
-                                            .where((task) =>
-                                                task['completed'] == false)
-                                            .toList()
-                                            .map((task) {
+                                        children: toDo.map((task) {
                                           return Dismissible(
                                             direction:
                                                 DismissDirection.horizontal,
@@ -1054,13 +1087,20 @@ class Task extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(task['name'],
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                    ),
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(task['name'],
+                            style: task['deadline'] != null &&
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                            int.parse(task['deadline']))
+                                        .isBefore(DateTime.now())
+                                ? Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.bold, color: Colors.red)
+                                : Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.bold))),
                     const SizedBox(height: 10),
                     Container(
                         decoration: BoxDecoration(
@@ -1086,8 +1126,11 @@ class Task extends StatelessWidget {
                   ],
                 ),
                 Padding(
-                    padding: const EdgeInsets.only(right: 30),
-                    child: getIndicator(task)),
+                  padding: const EdgeInsets.only(right: 30),
+                  child: task["deadline"] != null
+                      ? getIndicator(task, context)
+                      : SvgPicture.asset("assets/images/gray.svg"),
+                )
               ],
             ),
           ),

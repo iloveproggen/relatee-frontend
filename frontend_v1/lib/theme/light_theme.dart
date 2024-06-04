@@ -44,4 +44,5 @@ ThemeData lighttheme = ThemeData(
       tertiary: Color.fromARGB(255, 204, 198, 196),
       onPrimary:Color.fromARGB(255, 204, 198, 196),
       onSecondary:Color.fromARGB(255, 130, 122, 122),
+      inversePrimary: Color(0xFF4A4646),
     ));
