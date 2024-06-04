@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/assets/locale_strings.dart';
+import 'package:frontend_v1/assets/LocaleStrings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
