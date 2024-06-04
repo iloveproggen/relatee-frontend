@@ -1,5 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+//purpose: Define the dark theme for the app
+//author: Maurice, Michelle
+//Date: 11.05.2024
 
 ThemeData darktheme = ThemeData(
     brightness: Brightness.light,

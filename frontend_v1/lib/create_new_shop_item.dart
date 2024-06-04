@@ -105,23 +105,22 @@ class _NewShopItemState extends State<NewShopItem> {
                         const EdgeInsets.all(0),
                       ),
                     ),
-                      onPressed: () {
-                        if (required) {
-                          createShopItem(taskName.text, description.text, int.parse(taskPrice.text), userData);
-                          Get.forceAppUpdate();
-                          Get.back();
-                        }
-                      else {
-                          Get.back();
-                      }},
-                      child: Text(
-                        required ? "Confirm" : "Cancel",
+                    onPressed: () {
+                      if (required) {
+                        createShopItem(taskName.text, description.text,
+                            int.parse(taskPrice.text), userData);
+                        Get.forceAppUpdate();
+                        Get.back();
+                      } else {
+                        Get.back();
+                      }
+                    },
+                    child: Text(required ? "Confirm" : "Cancel",
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: required
                                 ? Theme.of(context).colorScheme.onSecondary
-                                : const Color.fromARGB(255, 204, 198, 196))
-                      ),
-                    )
+                                : const Color.fromARGB(255, 204, 198, 196))),
+                  )
                 ],
               ),
               Align(
@@ -130,19 +129,20 @@ class _NewShopItemState extends State<NewShopItem> {
                   child: Column(
                     children: [
                       TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        controller: taskName,
-                        maxLength: 30,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          counterText:"",
-                          hintText: 'new item...',
-                          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Color.fromARGB(255, 204, 198, 196),
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
+                          controller: taskName,
+                          maxLength: 30,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            counterText: "",
+                            hintText: 'new item...',
+                            hintStyle:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Color.fromARGB(255, 204, 198, 196),
+                                    ),
                           ),
-                        ),
-                        style: Theme.of(context).textTheme.bodyLarge
-                      ),
+                          style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ),
                 ),
@@ -230,7 +230,6 @@ class _NewShopItemState extends State<NewShopItem> {
                   )
                 ],
               ),
-              
             ],
           ),
         ),

@@ -27,7 +27,9 @@ class Routine extends StatelessWidget {
                 List<Map<String, dynamic>> users = snapshot.data!['users'];
                 List<Map<String, dynamic>> tasks = snapshot.data!['tasks'];
                 if (snapshot.data!['routines'] != null) {
-                  List<Map<String, dynamic>> routines = List<Map<String, dynamic>>.from(snapshot.data!['routines']);
+                  List<Map<String, dynamic>> routines =
+                      List<Map<String, dynamic>>.from(
+                          snapshot.data!['routines']);
                   print(routines);
                   return Column(
                     children: routines.map((routine) {
@@ -40,7 +42,8 @@ class Routine extends StatelessWidget {
                     }).toList(),
                   );
                 } else {
-                  return Text('No routines found.', style: Theme.of(context).textTheme.bodySmall);
+                  return Text('No_routines_found_txt'.tr,
+                      style: Theme.of(context).textTheme.bodySmall);
                 }
               }
             },
@@ -50,13 +53,12 @@ class Routine extends StatelessWidget {
 }
 
 class RoutineItem extends StatelessWidget {
-  const RoutineItem({
-    super.key,
-    required this.routine,
-    required this.users,
-    required this.tasks,
-    required this.userData
-  });
+  const RoutineItem(
+      {super.key,
+      required this.routine,
+      required this.users,
+      required this.tasks,
+      required this.userData});
 
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
   final Color colMid = const Color.fromARGB(255, 204, 198, 196);
@@ -65,7 +67,7 @@ class RoutineItem extends StatelessWidget {
   final Map<String, dynamic> routine;
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> users;
-  final List<Map<String, dynamic>> tasks; 
+  final List<Map<String, dynamic>> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +109,8 @@ class RoutineItem extends StatelessWidget {
                 ),
                 Container(
                   constraints: const BoxConstraints(maxWidth: 180),
-                  child: const Text(
-                    "routine description",
+                  child: Text(
+                    'routine_description_txt'.tr,
                     style: const TextStyle(
                         color: Color.fromARGB(255, 204, 198, 196),
                         fontSize: 20,
@@ -122,18 +124,21 @@ class RoutineItem extends StatelessWidget {
           Padding(
               padding: const EdgeInsets.all(5),
               child: IconButton(
-                style: ButtonStyle(
-                  animationDuration: Duration.zero,
-                  padding: MaterialStateProperty.all(EdgeInsets.all(0)),
-                ),
+                  style: ButtonStyle(
+                    animationDuration: Duration.zero,
+                    padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+                  ),
                   onPressed: () {
                     print(tasks);
                     Get.to(() => RoutineOverview(
-                      routine: routine,
-                      users: users,
-                      tasks: tasks.where((task) => task['routineId'] == routine['id']).toList(),
-                      userData: userData,
-                    ));
+                          routine: routine,
+                          users: users,
+                          tasks: tasks
+                              .where(
+                                  (task) => task['routineId'] == routine['id'])
+                              .toList(),
+                          userData: userData,
+                        ));
                   },
                   icon: Icon(
                     CupertinoIcons.info,

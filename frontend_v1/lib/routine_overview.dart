@@ -5,42 +5,57 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
 class RoutineOverview extends StatelessWidget {
-  const RoutineOverview({super.key, required this.routine, required this.users, required this.tasks, required this.userData});
+  const RoutineOverview(
+      {super.key,
+      required this.routine,
+      required this.users,
+      required this.tasks,
+      required this.userData});
 
   final Map<String, dynamic> routine;
   final List<Map<String, dynamic>> users;
-  final List<Map<String, dynamic>> tasks; 
+  final List<Map<String, dynamic>> tasks;
   final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const BackIconRow(),
-                Text(routine['name'], style: Theme.of(context).textTheme.bodyLarge),
-                Text("Routine description", style: Theme.of(context).textTheme.bodySmall),
-                SizedBox(height:30),
-                tasks.isEmpty ? Text("No tasks found.", style: Theme.of(context).textTheme.bodySmall) : Column(
-                    children: tasks.where((task) => task['completed'] == false).map((task) {
-                    return RoutineTask(task: task, users: users, userData: userData);
-                  }).toList(),
-                ),
-                SizedBox(height:30),
-              ],
-            )
-        ),
-      )
-    );
+        body: SingleChildScrollView(
+      child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const BackIconRow(),
+              Text(routine['name'],
+                  style: Theme.of(context).textTheme.bodyLarge),
+              Text("Routine description",
+                  style: Theme.of(context).textTheme.bodySmall),
+              SizedBox(height: 30),
+              tasks.isEmpty
+                  ? Text("No tasks found.",
+                      style: Theme.of(context).textTheme.bodySmall)
+                  : Column(
+                      children: tasks
+                          .where((task) => task['completed'] == false)
+                          .map((task) {
+                        return RoutineTask(
+                            task: task, users: users, userData: userData);
+                      }).toList(),
+                    ),
+              SizedBox(height: 30),
+            ],
+          )),
+    ));
   }
 }
 
 class RoutineTask extends StatelessWidget {
-  const RoutineTask({super.key, required this.task, required this.users, required this.userData});
+  const RoutineTask(
+      {super.key,
+      required this.task,
+      required this.users,
+      required this.userData});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
@@ -59,8 +74,7 @@ class RoutineTask extends StatelessWidget {
         onPressed: () => Get.to(() => DetailedTaskView(
               task: task,
               userData: userData,
-              assigned: users.firstWhere(
-                  (user) => user['id'] == task['userId'],
+              assigned: users.firstWhere((user) => user['id'] == task['userId'],
                   orElse: () => {'forename': null})['forename'],
             )),
         child: Container(
@@ -86,10 +100,9 @@ class RoutineTask extends StatelessWidget {
                 Container(
                   constraints: BoxConstraints(maxWidth: 240),
                   child: Text(task['name'],
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              )),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          )),
                 ),
                 Container(
                   constraints: BoxConstraints(maxWidth: 180),

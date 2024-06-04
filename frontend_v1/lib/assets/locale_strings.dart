@@ -41,7 +41,7 @@ class LocaleString extends Translations {
           'Choose_your_language_txt': 'Choose your language:',
           'Change_Language_txt': 'Change Language',
           'Log_In_to_Relatee_txt': 'Log In to Relatee',
-          'Username_or_Email_txt': 'Username or Email',
+          'Email_txt': 'Email',
           'Password_txt': 'Password',
           'Log_In_txt': 'Log in',
           'new_item_txt': 'new item...',
@@ -69,6 +69,10 @@ class LocaleString extends Translations {
           'October_txt': 'October',
           'November_txt': 'November',
           'December_txt': 'December',
+          'Routine_description_txt': 'Routine description.',
+          'No_tasks_found_txt': 'No tasks found.',
+          'No_routines_found_txt': 'No routines found.',
+          'routine_description_txt': 'Routine description.',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -104,7 +108,7 @@ class LocaleString extends Translations {
           'Choose_your_language_txt': 'Wähle deine Sprache:',
           'Change_Language_txt': 'Sprache ändern',
           'Log_In_to_Relatee_txt': 'Anmelden bei Relatee',
-          'Username_or_Email_txt': 'Benutzername oder Email',
+          'Email_txt': 'Email',
           'Password_txt': 'Passwort',
           'Log_In_txt': 'Log in',
           'new_item_txt': 'neuer Gegenstand...',
@@ -132,6 +136,10 @@ class LocaleString extends Translations {
           'October_txt': 'Oktober',
           'November_txt': 'November',
           'December_txt': 'Dezember',
+          'Routine_description_txt': 'Routine Beschreibung.',
+          'No_tasks_found_txt': 'Keine Aufgaben gefunden.',
+          'No_routines_found_txt': 'Keine Routinen gefunden.',
+          'routine_description_txt': 'Routine Beschreibung.',
         }
       };
 }
