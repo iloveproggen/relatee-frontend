@@ -73,6 +73,18 @@ class LocaleString extends Translations {
           'No_tasks_found_txt': 'No tasks found.',
           'No_routines_found_txt': 'No routines found.',
           'routine_description_txt': 'Routine description.',
+          'Invite_Members_txt': 'Invite Members',
+          'Send_Invitation_txt':
+              'Send an email invitation to new members to join your household.',
+          'Mail_address_txt': 'Enter email address',
+          'Field_required_txt': 'This field is required',
+          'Share_Invitation_Button_txt': 'Share Invitation...',
+          'No_tasks_left_txt': 'No tasks left todo: )',
+          'Delete_conf_txt': 'Are you sure you want to delete',
+          'Delete_Task_txt': 'Delete Task',
+          'Delete_txt': 'Delete',
+          'See_completed_Tasks_txt': 'See completed Tasks',
+          'Your_Household_txt': 'Your Household',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -140,6 +152,18 @@ class LocaleString extends Translations {
           'No_tasks_found_txt': 'Keine Aufgaben gefunden.',
           'No_routines_found_txt': 'Keine Routinen gefunden.',
           'routine_description_txt': 'Routine Beschreibung.',
+          'Invite_Members_txt': 'Mitglieder einladen',
+          'Send_Invitation_txt':
+              'Sende eine E-Mail-Einladung an neue Mitglieder, um Ihrem Haushalt beizutreten.',
+          'Mail_address_txt': 'E-Mail-Adresse eingeben',
+          'Field_required_txt': 'Dieses Feld ist erforderlich',
+          'Share_Invitation_Button_txt': 'Einladung teilen...',
+          'No_tasks_left_txt': 'Keine Aufgaben mehr zu erledigen: )',
+          'Delete_conf_txt': 'Möchten Sie wirklich löschen',
+          'Delete_Task_txt': 'Aufgabe löschen',
+          'Delete_txt': 'Löschen',
+          'See_completed_Tasks_txt': 'Erledigte Aufgaben anzeigen',
+          'Your_Household_txt': 'Dein Haushalt',
         }
       };
 }
