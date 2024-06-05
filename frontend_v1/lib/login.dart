@@ -37,6 +37,49 @@ Future<int?> checkIfSignedIn() async {
   return null;
 }
 
+class CheckLoggedIn extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final brightness = MediaQuery.of(context).platformBrightness;
+    return FutureBuilder<int?>(
+      future: checkIfSignedIn(),
+      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return GetMaterialApp(
+              darkTheme: darktheme,
+              theme: brightness == Brightness.light ? lighttheme : darktheme,
+              translations: LocaleString(),
+              locale: const Locale('en-Us'),
+              fallbackLocale: const Locale('en-US'),
+              debugShowCheckedModeBanner: false,
+              title: 'Relatee',
+              home: CircularProgressIndicator());
+        } else if (snapshot.hasData) {
+          return GetMaterialApp(
+              darkTheme: darktheme,
+              theme: brightness == Brightness.light ? lighttheme : darktheme,
+              translations: LocaleString(),
+              locale: const Locale('en-Us'),
+              fallbackLocale: const Locale('en-US'),
+              debugShowCheckedModeBanner: false,
+              title: 'Relatee',
+              home: MainWidget(userId: snapshot.data!));
+        } else {
+          return GetMaterialApp(
+              darkTheme: darktheme,
+              theme: brightness == Brightness.light ? lighttheme : darktheme,
+              translations: LocaleString(),
+              locale: const Locale('en-Us'),
+              fallbackLocale: const Locale('en-US'),
+              debugShowCheckedModeBanner: false,
+              title: 'Relatee',
+              home: LoginWidget());
+        }
+      },
+    );
+  }
+}
+
 class LoginApp extends StatefulWidget {
   const LoginApp({super.key});
 
@@ -63,18 +106,19 @@ class _LoginAppState extends State<LoginApp> {
       fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       title: 'Relatee',
-      home: FutureBuilder<int?>(
-        future: checkIfSignedIn(),
-        builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasData) {
-            return MainWidget(userId: snapshot.data!);
-          } else {
-            return LoginWidget();
-          }
-        },
-      ),
+      // home: FutureBuilder<int?>(
+      //   future: checkIfSignedIn(),
+      //   builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return const CircularProgressIndicator();
+      //     } else if (snapshot.hasData) {
+      //       return MainWidget(userId: snapshot.data!);
+      //     } else {
+      //       return const LoginWidget();
+      //     }
+      //   },
+      // ),
+      home: const LoginWidget(),
     );
   }
 }
@@ -86,7 +130,7 @@ class LoginWidget extends StatefulWidget {
   LoginWidgetState createState() => LoginWidgetState();
 }
 
-class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver{
+class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -102,7 +146,6 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver{
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
   }
-
 
   void _login() async {
     setState(() {
@@ -244,7 +287,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver{
                       ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                 ),
                 style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             TextFormField(
               autofillHints: [AutofillHints.password],
               focusNode: focusNode2,
@@ -316,95 +359,109 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver{
             //     ),
             //   title: Text('Stay Signed In?', style: Theme.of(context).textTheme.bodySmall),
             // ),
-            SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.only(top: 40),
-              child: Container(
-                decoration: requiredFields
-                    ? BoxDecoration(
+            const SizedBox(height: 80),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: requiredFields
+                          ? BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              color: const Color.fromARGB(255, 74, 70, 70),
+                              border: Border.all(
+                                color: const Color.fromARGB(255, 74, 70, 70),
+                                width: 2,
+                              ),
+                            )
+                          : BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                width: 2,
+                              ),
+                            ),
+                      child: TextButton(
+                        onPressed: requiredFields
+                            ? () async {
+                                String username = _usernameController.text;
+                                String password = _passwordController.text;
+                                _login();
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                print(
+                                    "Username: $username, Password: $password");
+                              }
+                            : null,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 15, right: 15),
+                            child: Text(
+                              'Log_In_txt'.tr,
+                              style: requiredFields
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontWeight: FontWeight.bold)
+                                  : Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      width: 140,
+                      decoration: BoxDecoration(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(10)),
-                        color: const Color.fromARGB(255, 74, 70, 70),
-                        boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.secondary,
-                              offset: const Offset(5.0, 5.0),
-                              blurRadius: 10.0,
-                              spreadRadius: 2.0,
-                            )
-                          ])
-                    : BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2,
+                        ),
                       ),
-                child: TextButton(
-                  onPressed: requiredFields
-                      ? () async {
-                          String username = _usernameController.text;
-                          String password = _passwordController.text;
-                          _login();
-                          setState(() {
-                            isLoading = true;
-                          });
-                          print("Username: $username, Password: $password");
-                        }
-                      : null,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 10, bottom: 10, left: 15, right: 15),
-                      child: Text(
-                        'Log_In_txt'.tr,
-                        style: requiredFields
-                            ? const TextStyle(
-                                color: Color.fromARGB(255, 243, 243, 243),
-                                fontFamily: "Karla",
-                                fontSize: 20,
-                              )
-                            : const TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
-                                fontFamily: "Karla",
-                                fontSize: 20,
-                              ),
+                      child: TextButton(
+                        onPressed: () {
+                          Get.to(() => SignUpScreen());
+                        },
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 15, right: 15),
+                            child: Text('Sign Up!',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary)),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    color: const Color.fromARGB(255, 243, 243, 243),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.secondary,
-                        offset: const Offset(5.0, 5.0),
-                        blurRadius: 10.0,
-                        spreadRadius: 2.0,
-                      )
-                    ]),
-                child: TextButton(
-                  onPressed: () {
-                    Get.to(() => SignUpScreen());
-                  },
-                  child: const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: 10, bottom: 10, left: 15, right: 15),
-                      child: Text('Sign Up!',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 74, 70, 70),
-                            fontFamily: "Karla",
-                            fontSize: 20,
-                          )),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                ]),
             if (isLoading)
               Center(
                 child: Padding(
