@@ -106,18 +106,6 @@ class _LoginAppState extends State<LoginApp> {
       fallbackLocale: const Locale('en-US'),
       debugShowCheckedModeBanner: false,
       title: 'Relatee',
-      // home: FutureBuilder<int?>(
-      //   future: checkIfSignedIn(),
-      //   builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const CircularProgressIndicator();
-      //     } else if (snapshot.hasData) {
-      //       return MainWidget(userId: snapshot.data!);
-      //     } else {
-      //       return const LoginWidget();
-      //     }
-      //   },
-      // ),
       home: const LoginWidget(),
     );
   }

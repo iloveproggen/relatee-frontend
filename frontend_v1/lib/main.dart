@@ -422,6 +422,22 @@ class MainWidget extends StatefulWidget {
 class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: MainView(userId: widget.userId));
+  }
+}
+
+class MainView extends StatefulWidget {
+  const MainView({super.key, required this.userId});
+
+  final int userId;
+
+  @override
+  State<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
   late Future<Map<String, dynamic>> _futureUserData;
 
   @override
@@ -440,44 +456,34 @@ class _MainWidgetState extends State<MainWidget> {
   Widget build(BuildContext context) {
     update = _updateUserData;
     return FutureBuilder<Map<String, dynamic>>(
-      future: _futureUserData,
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          print(snapshot.data!);
-          tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
-          userData = snapshot.data!;
-          return Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-                child: userData['householdId'] != null ? const MainView() : const JoinHouseholdView()
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
-}
-
-class MainView extends StatelessWidget {
-  const MainView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        IconRow(),
-        WelcomeText(),
-        ButtonRecommended(),
-        TaskOverview(),
-      ],
-    );
+        future: _futureUserData,
+        builder: (BuildContext context,
+            AsyncSnapshot<Map<String, dynamic>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            print(snapshot.error.toString());
+            return const Placeholder();
+          } else if (snapshot.data!['householdName'] == null) {
+            return const JoinHouseholdView();
+          } else {
+            print(snapshot.data!);
+            tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
+            userData = snapshot.data!;
+            print(userData);
+            return  const SingleChildScrollView(
+                    child: Padding(
+                        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+                        child: Column(
+                          children: [
+                            IconRow(),
+                            WelcomeText(),
+                            ButtonRecommended(),
+                            TaskOverview(),
+                          ],
+                        )));
+          }
+        });
   }
 }
 
