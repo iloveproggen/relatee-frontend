@@ -85,6 +85,10 @@ class LocaleString extends Translations {
           'Delete_txt': 'Delete',
           'See_completed_Tasks_txt': 'See completed Tasks',
           'Your_Household_txt': 'Your Household',
+          'Household_Overview_txt': 'See Household Overview',
+          'User_no_tasks_assigned_txt':
+              'This user currently has no tasks assigned to them.',
+          'Their_Tasks_txt': 'Their Tasks',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',

@@ -454,9 +454,10 @@ class _MainWidgetState extends State<MainWidget> {
           return Scaffold(
             body: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-                child: userData['householdId'] != null ? const MainView() : const JoinHouseholdView()
-              ),
+                  padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+                  child: userData['householdId'] != null
+                      ? const MainView()
+                      : const JoinHouseholdView()),
             ),
           );
         }
@@ -1052,7 +1053,7 @@ class _TaskState extends State<TaskOverview> {
                           },
                           child: Row(
                             children: [
-                              Text("See Household Overview",
+                              Text('Household_Overview_txt'.tr,
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelSmall
