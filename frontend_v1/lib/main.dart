@@ -616,7 +616,7 @@ class ButtonRecommended extends StatelessWidget {
                       completedTasks.isNotEmpty
                           ? completedTasks[
                               random.nextInt(completedTasks.length)]['name']
-                          : 'No tasks found,\n have a nice day!',
+                          : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
@@ -700,7 +700,7 @@ class ButtonRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
               number: tasks == [] ? '0' : countToDo(tasks).toString(),
-              textBelow: 'left to do',
+              textBelow: 'left_to_do_txt'.tr,
             ),
           ),
         ),
@@ -919,14 +919,15 @@ class _TaskState extends State<TaskOverview> {
                                                   builder:
                                                       (BuildContext context) =>
                                                           CupertinoAlertDialog(
-                                                    title: const Text(
-                                                        'Delete Task'),
-                                                    content: const Text(
-                                                        'Are you sure you want to delete this task?'),
+                                                    title: Text(
+                                                        ' ${'Delete_Task_txt'.tr}"?"'),
+                                                    content: Text(
+                                                        'Sure_delete_task?_txt'
+                                                            .tr),
                                                     actions: [
                                                       CupertinoDialogAction(
-                                                          child: const Text(
-                                                              'Cancel',
+                                                          child: Text(
+                                                              'Cancel_txt'.tr,
                                                               style: TextStyle(
                                                                   color: Colors
                                                                       .blue)),
@@ -949,8 +950,8 @@ class _TaskState extends State<TaskOverview> {
                                                         },
                                                         isDestructiveAction:
                                                             true,
-                                                        child: const Text(
-                                                            'Delete',
+                                                        child: Text(
+                                                            'Delete_txt'.tr,
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .red)),
@@ -961,7 +962,7 @@ class _TaskState extends State<TaskOverview> {
                                               } else {
                                                 _centerController.play();
                                                 print(
-                                                    "Task completed! ${task['reward']}");
+                                                    "${'Task_completed!_txt'.tr} ${task['reward']}");
                                                 updateTask(task['id'], true);
                                                 tasks.removeWhere((t) =>
                                                     t['id'] == task['id']);
@@ -974,8 +975,9 @@ class _TaskState extends State<TaskOverview> {
                                                   builder:
                                                       (BuildContext context) {
                                                     return CupertinoAlertDialog(
-                                                      title: const Text(
-                                                          'Congratulations!'),
+                                                      title: Text(
+                                                          'Congratulations!_txt'
+                                                              .tr),
                                                       content: const Column(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment

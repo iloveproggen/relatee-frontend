@@ -48,6 +48,7 @@ class LocaleString extends Translations {
           'price_txt': 'Price:',
           'add_price_txt': 'add price',
           'Cancel_txt': 'Cancel',
+          'Continue_txt': 'Continue',
           'Confirm_txt': 'Confirm',
           'description_txt': 'Description',
           'All_Tasks_txt': 'All Tasks',
@@ -89,6 +90,14 @@ class LocaleString extends Translations {
           'User_no_tasks_assigned_txt':
               'This user currently has no tasks assigned to them.',
           'Their_Tasks_txt': 'Their Tasks',
+          'Log_out?_txt': 'Log out?',
+          'Logout_desc_txt':
+              'To access your tasks, you need to log in. Do you want to continue?',
+          'Congratulations!_txt': 'Congratulations!',
+          'Task_completed!_txt': 'Task completed! ',
+          'Sure_delete_task?_txt': 'Are you sure you want to delete this task?',
+          'left_to_do_txt': 'left to do',
+          'Nice_day!_txt': 'Have a nice day!',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -131,6 +140,7 @@ class LocaleString extends Translations {
           'price_txt': 'Preis:',
           'add_price_txt': 'Preis hinzufügen',
           'Cancel_txt': 'Abbrechen',
+          'Continue_txt': 'Fortsetzen',
           'Confirm_txt': 'Bestätigen',
           'description_txt': 'Beschreibung',
           'All_Tasks_txt': 'Alle Aufgaben',
@@ -163,7 +173,7 @@ class LocaleString extends Translations {
           'Field_required_txt': 'Dieses Feld ist erforderlich',
           'Share_Invitation_Button_txt': 'Einladung teilen...',
           'No_tasks_left_txt': 'Keine Aufgaben mehr zu erledigen: )',
-          'Delete_conf_txt': 'Möchten Sie wirklich löschen',
+          'Delete_conf_txt': 'Möchten Sie wirklich diese Aufgabe löschen: ',
           'Delete_Task_txt': 'Aufgabe löschen',
           'Delete_txt': 'Löschen',
           'See_completed_Tasks_txt': 'Erledigte Aufgaben anzeigen',
@@ -172,6 +182,15 @@ class LocaleString extends Translations {
           'User_no_tasks_assigned_txt':
               'Dieser Benutzer hat derzeit keine Aufgaben zugewiesen.',
           'Their_Tasks_txt': 'Ihre Aufgaben',
+          'Log_out?_txt': 'Ausloggen?',
+          'Logout_desc_txt':
+              'Um auf Ihre Aufgaben zuzugreifen, müssen Sie sich anmelden. Möchten Sie fortfahren?',
+          'Congratulations!_txt': 'Herzlichen Glückwunsch!',
+          'Task_completed!_txt': 'Aufgabe erledigt!',
+          'Sure_delete_task?_txt':
+              'Möchten Sie diese Aufgabe wirklich löschen?',
+          'left_to_do_txt': 'noch zu tun',
+          'Nice_day!_txt': 'Hab einen schönen Tag!',
         }
       };
 }
