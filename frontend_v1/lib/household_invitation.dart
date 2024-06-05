@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:share/share.dart';
@@ -14,12 +13,14 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
   final TextEditingController _controller = TextEditingController();
   bool _isFieldEmpty = false;
 
+  // initialise the controller for the user input field
   @override
   void initState() {
     super.initState();
     _controller.addListener(_validateInput);
   }
 
+  // Method to validate the input field
   void _validateInput() {
     setState(() {
       _isFieldEmpty = _controller.text.isEmpty;
