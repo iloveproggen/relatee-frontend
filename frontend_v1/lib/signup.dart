@@ -118,14 +118,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (responseBody != null) {
         String token = responseBody['token'];
         int userId = responseBody['userId'];
-        if (token != null && userId != null) {
-          _saveToken(token);
-          Get.to(() => MainWidget(userId: userId));
-          print("Opened MainWidget");
-        } else {
-          print('Token or userId is null');
-        }
-      } else {
+        _saveToken(token);
+        Get.to(() => MainWidget(userId: userId));
+        print("Opened MainWidget");
+            } else {
         print('Response body is null');
       }
       setState(() {

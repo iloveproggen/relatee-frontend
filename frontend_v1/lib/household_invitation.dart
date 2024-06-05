@@ -41,66 +41,69 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const BackIconRow(),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 30),
-                child: Text(
-                  'HouseholdInvitation',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+              Text(
+                'Invite Members',
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Who do you want to invite?',
-                    style: Theme.of(context).textTheme.bodyMedium,
+              SizedBox(height: 40),
+              Text(
+                'Send an email invitation to new members to join your household.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 20),
+                TextField(
+                controller: _controller,
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter email address',
-                      hintStyle: _isFieldEmpty
-                          ? Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.red)
-                          : Theme.of(context).textTheme.bodySmall,
-                      errorText:
-                          _isFieldEmpty ? 'This field is required' : null,
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: _isFieldEmpty
-                                  ? Colors.blue
-                                  : Colors.transparent)),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: _isFieldEmpty
-                                  ? Colors.green
-                                  : Colors.transparent)),
+                  hintText: 'Enter email address',
+                  hintStyle: _isFieldEmpty
+                    ? Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Colors.red)
+                    : Theme.of(context).textTheme.bodySmall,
+                  errorText:
+                    _isFieldEmpty ? 'This field is required' : null,
+                  focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                ),
+              const SizedBox(height: 20),
+              TextButton(
+                style: ButtonStyle(alignment: Alignment.centerLeft,
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0))),
+                onPressed: () {
+                  final RenderBox box =
+                      context.findRenderObject() as RenderBox;
+                  Share.share(
+                    'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:',
+                    subject: 'Invitation Code',
+                    sharePositionOrigin:
+                        box.localToGlobal(Offset.zero) & box.size,
+                  );
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Share Invitation...',
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      final RenderBox box =
-                          context.findRenderObject() as RenderBox;
-                      Share.share(
-                        'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:',
-                        subject: 'Invitation Code',
-                        sharePositionOrigin:
-                            box.localToGlobal(Offset.zero) & box.size,
-                      );
-                    },
-                    child: Text(
-                      'Share Invitation',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ],
+                    //SizedBox(width: 10),
+                    //Icon(CupertinoIcons.share, color: Theme.of(context).colorScheme.onSecondary),
+                  ],
+                ),
               ),
             ],
           ),

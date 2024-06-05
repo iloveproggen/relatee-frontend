@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
+import 'package:frontend_v1/join_household.dart';
 import 'package:frontend_v1/routine.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:confetti/confetti.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -385,8 +387,8 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   Widget green = SvgPicture.asset("assets/images/green.svg");
   Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
   Widget red = SvgPicture.asset("assets/images/red.svg");
-  Widget overdue =
-      Icon(CupertinoIcons.exclamationmark_circle, color: Colors.red, size: 23);
+  Widget overdue = const Icon(CupertinoIcons.exclamationmark_circle,
+      color: Colors.red, size: 23);
 
   return Builder(
     builder: (context) {
@@ -449,11 +451,11 @@ class _MainWidgetState extends State<MainWidget> {
           print(snapshot.data!);
           tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
           userData = snapshot.data!;
-          return const Scaffold(
+          return Scaffold(
             body: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-                child: MainView(),
+                padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+                child: userData['householdId'] != null ? const MainView() : const JoinHouseholdView()
               ),
             ),
           );
@@ -728,6 +730,24 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
+  late ConfettiController _centerController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // initialize confettiController
+    _centerController =
+        ConfettiController(duration: const Duration(seconds: 10));
+  }
+
+  @override
+  void dispose() {
+    // dispose the controller
+    _centerController.dispose();
+    super.dispose();
+  }
+
   List<Map<String, dynamic>> toDo =
       tasks.where((task) => task['completed'] == false).toList()
         ..sort((a, b) {
@@ -755,6 +775,16 @@ class _TaskState extends State<TaskOverview> {
             children: [
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyMedium),
+              ConfettiWidget(
+                confettiController: _centerController,
+                blastDirection: pi / 2,
+                maxBlastForce: 9,
+                minBlastForce: 5,
+                emissionFrequency: 0.03,
+                numberOfParticles: 10,
+                shouldLoop: true,
+                gravity: 0.2,
+              ),
               IconButton(
                 onPressed: () async {
                   var result =
@@ -871,20 +901,7 @@ class _TaskState extends State<TaskOverview> {
                         ? [
                             ButtonRow(tasks: tasks),
                             toDo.isEmpty
-                                ? Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      //ButtonRow(tasks: []),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 20),
-                                        child: Text("No tasks .",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall),
-                                      ),
-                                    ],
-                                  )
+                                ? Container()
                                 : Column(
                                     children: [
                                       Column(
@@ -893,7 +910,7 @@ class _TaskState extends State<TaskOverview> {
                                             direction:
                                                 DismissDirection.horizontal,
                                             key: ValueKey(task['id']),
-                                            onDismissed: (direction) {
+                                            onDismissed: (direction) async {
                                               if (direction ==
                                                   DismissDirection.endToStart) {
                                                 showCupertinoDialog(
@@ -941,6 +958,7 @@ class _TaskState extends State<TaskOverview> {
                                                   ),
                                                 );
                                               } else {
+                                                _centerController.play();
                                                 print(
                                                     "Task completed! ${task['reward']}");
                                                 updateTask(task['id'], true);
@@ -948,6 +966,8 @@ class _TaskState extends State<TaskOverview> {
                                                     t['id'] == task['id']);
                                                 addPoints(
                                                     task['reward'].toString());
+                                                await Future.delayed(
+                                                    const Duration(seconds: 3));
                                                 showCupertinoDialog(
                                                   context: context,
                                                   builder:
@@ -955,19 +975,25 @@ class _TaskState extends State<TaskOverview> {
                                                     return CupertinoAlertDialog(
                                                       title: const Text(
                                                           'Congratulations!'),
-                                                      content: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                      content: const Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
-                                                          SizedBox(height: 10),
-                                                          Image.network(
-                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                          // SizedBox(height: 10),
+                                                          // Image.network(
+                                                          //     "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
                                                         ],
                                                       ),
                                                       actions: [
                                                         CupertinoDialogAction(
-                                                          child:
-                                                              const Text('OK', style: TextStyle(color: Colors.blue,)),
-                                                          onPressed: () {
+                                                          child: const Text(
+                                                              'OK',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors.blue,
+                                                              )),
+                                                          onPressed: () async {
                                                             Navigator.pop(
                                                                 context);
                                                             update();
@@ -1011,7 +1037,7 @@ class _TaskState extends State<TaskOverview> {
                           ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 40),
+                    padding: const EdgeInsets.only(top: 10, bottom: 60),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
