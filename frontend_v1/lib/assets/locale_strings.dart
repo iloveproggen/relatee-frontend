@@ -168,6 +168,10 @@ class LocaleString extends Translations {
           'Delete_txt': 'Löschen',
           'See_completed_Tasks_txt': 'Erledigte Aufgaben anzeigen',
           'Your_Household_txt': 'Dein Haushalt',
+          'Household_Overview_txt': 'Haushaltsübersicht anzeigen',
+          'User_no_tasks_assigned_txt':
+              'Dieser Benutzer hat derzeit keine Aufgaben zugewiesen.',
+          'Their_Tasks_txt': 'Ihre Aufgaben',
         }
       };
 }
