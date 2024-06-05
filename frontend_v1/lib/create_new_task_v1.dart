@@ -710,7 +710,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
             },
             child: Text(
                 pickedRoutine['name'] == null
-                    ? "none"
+                    ? 'none_txt'.tr
                     : "${pickedRoutine['name']}",
                 textAlign: TextAlign.end,
                 style: Theme.of(context)
@@ -799,7 +799,7 @@ class _AssignToState extends State<AssignTo> {
             },
             child: Text(
                 assignedToUser['id'] == null
-                    ? "anyone"
+                    ? 'anyone_txt'.tr
                     : "${assignedToUser['forename']}",
                 textAlign: TextAlign.end,
                 style: Theme.of(context)

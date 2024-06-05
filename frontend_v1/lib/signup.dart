@@ -87,18 +87,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
       print("Sending POST request"); // Debugging line
       response = await http
           .post(
-        Uri.parse('http://relatee.rhinebytes.com:3000/register'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'forename': _forenameController.text,
-          'surname': _surnameController.text,
-          'username': _usernameController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        }),
-      )
+            Uri.parse('http://relatee.rhinebytes.com:3000/register'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'forename': _forenameController.text,
+              'surname': _surnameController.text,
+              'username': _usernameController.text,
+              'email': _emailController.text,
+              'password': _passwordController.text,
+            }),
+          )
           .timeout(const Duration(seconds: 10));
     } catch (e) {
       print('Error: $e');
@@ -121,7 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _saveToken(token);
         Get.to(() => MainWidget(userId: userId));
         print("Opened MainWidget");
-            } else {
+      } else {
         print('Response body is null');
       }
       setState(() {
@@ -151,7 +151,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 50, right: 40, left: 40), // Adjust padding for top, right, and left
+          padding: const EdgeInsets.only(
+              top: 50,
+              right: 40,
+              left: 40), // Adjust padding for top, right, and left
           child: Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode.disabled,
@@ -165,46 +168,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    'Register'.tr,
+                    'Register_txt'.tr,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 40, bottom: 20), // Adjust padding for better spacing
+                  padding: const EdgeInsets.only(
+                      top: 40, bottom: 20), // Adjust padding for better spacing
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: TextField(
-                          cursorColor: Theme.of(context).colorScheme.onSecondary,
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
                           controller: _forenameController,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'[a-zA-Z]')),
                           ],
                           decoration: InputDecoration(
-                            hintText: "forename",
+                            hintText: 'forename_txt'.tr,
                             hintStyle: const TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                             ),
                             border: InputBorder.none,
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 width: 5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                                 width: 5,
                               ),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -219,35 +230,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextField(
                           cursorColor:
-                          Theme.of(context).colorScheme.onSecondary,
+                              Theme.of(context).colorScheme.onSecondary,
                           controller: _surnameController,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'[a-zA-Z]')),
                           ],
                           decoration: InputDecoration(
-                            hintText: "surname",
+                            hintText: 'surname_txt'.tr,
                             hintStyle: const TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                             ),
                             border: InputBorder.none,
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 width: 5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                                 width: 5,
                               ),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -262,31 +279,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextFormField(
                           cursorColor:
-                          Theme.of(context).colorScheme.onSecondary,
+                              Theme.of(context).colorScheme.onSecondary,
                           controller: _usernameController,
                           decoration: InputDecoration(
-                            hintText: "username",
+                            hintText: 'username_txt'.tr,
                             hintStyle: const TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                             ),
                             border: InputBorder.none,
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 width: 5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                                 width: 5,
                               ),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -300,33 +323,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          cursorColor: Theme.of(context).colorScheme.onSecondary,
+                          cursorColor:
+                              Theme.of(context).colorScheme.onSecondary,
                           controller: _emailController,
                           focusNode: _emailFocusNode,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
-                            hintText: "email",
+                            hintText: 'Email_txt'.tr,
                             hintStyle: const TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                             ),
                             border: InputBorder.none,
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 width: 5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                                 width: 5,
                               ),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -341,31 +371,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextFormField(
                           cursorColor:
-                          Theme.of(context).colorScheme.onSecondary,
+                              Theme.of(context).colorScheme.onSecondary,
                           controller: _passwordController,
                           decoration: InputDecoration(
-                            hintText: "password",
+                            hintText: 'Password_txt'.tr,
                             hintStyle: const TextStyle(
                               color: Color.fromARGB(255, 204, 198, 196),
                               fontSize: 20,
                             ),
                             border: InputBorder.none,
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 width: 5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
                                 width: 5,
                               ),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -374,11 +410,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ElevatedButton(
                   onPressed: _isButtonEnabled
                       ? () async {
-                    _register();
-                    setState(() {
-                      isLoading = true;
-                    });
-                  }
+                          _register();
+                          setState(() {
+                            isLoading = true;
+                          });
+                        }
                       : null,
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
@@ -388,12 +424,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderRadius: BorderRadius.circular(10.0),
                             side: const BorderSide(color: Colors.transparent))),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: 10, bottom: 10, left: 15, right: 15),
                       child: Text(
-                        'Submit',
+                        'Submit_txt'.tr,
                         style: TextStyle(
                             color: Color.fromARGB(255, 243, 243, 243),
                             fontFamily: "Karla",

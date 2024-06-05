@@ -104,6 +104,11 @@ class LocaleString extends Translations {
           'none_txt': 'none',
           'add_reward_txt': 'add reward...',
           'reward_txt': 'reward:',
+          'Register_txt': 'Register',
+          'forename_txt': 'Forename',
+          'surname_txt': 'Surname',
+          'username_txt': 'Username',
+          'Submit_txt': 'Submit',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -204,6 +209,11 @@ class LocaleString extends Translations {
           'none_txt': 'keine',
           'add_reward_txt': 'Belohnung hinzufügen...',
           'reward_txt': 'Belohnung:',
+          'Register_txt': 'Registrieren',
+          'forename_txt': 'Vorname',
+          'surname_txt': 'Nachname',
+          'username_txt': 'Benutzername',
+          'Submit_txt': 'Absenden',
         }
       };
 }
