@@ -47,8 +47,8 @@ String? deadlineString;
 
 bool isPermanent = false;
 
-Future<void> createNewTask(int? userId, String name, String description, int reward,
-    int? routineId, Map<String, dynamic> userData) async {
+Future<void> createNewTask(int? userId, String name, String description,
+    int reward, int? routineId, Map<String, dynamic> userData) async {
   if (deadline == null) {
     deadlineString = null;
   } else {
@@ -223,7 +223,7 @@ class _NewTaskState extends State<NewTask> {
                         Get.back();
                       }
                     },
-                    child: Text(required ? "Confirm" : "Cancel",
+                    child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: required
                                 ? Theme.of(context).colorScheme.onSecondary
@@ -371,7 +371,7 @@ class _NewTaskState extends State<NewTask> {
                   Icon(CupertinoIcons.calendar,
                       size: 40, color: Theme.of(context).colorScheme.tertiary),
                   const SizedBox(width: 20, height: 60),
-                  Text("deadline:",
+                  Text('deadline_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   TextButton(
@@ -405,26 +405,29 @@ class _NewTaskState extends State<NewTask> {
                     child: Text(
                       deadline != null
                           ? DateFormat('dd-MM-yyyy').format(deadline!)
-                          : "none",
+                          : 'none_txt'.tr,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  deadline != null ? IconButton(
-                    style: ButtonStyle(alignment: Alignment.centerRight,
-                    animationDuration: Duration.zero, 
-                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
-                    icon: Icon(CupertinoIcons.clear,
-                        color: Theme.of(context).colorScheme.tertiary),
-                    onPressed: () {
-                      setState(() {
-                        deadline = null; 
-                      });
-                    },
-                  )
-                  : Container(),
+                  deadline != null
+                      ? IconButton(
+                          style: ButtonStyle(
+                              alignment: Alignment.centerRight,
+                              animationDuration: Duration.zero,
+                              padding:
+                                  MaterialStateProperty.all(EdgeInsets.zero)),
+                          icon: Icon(CupertinoIcons.clear,
+                              color: Theme.of(context).colorScheme.tertiary),
+                          onPressed: () {
+                            setState(() {
+                              deadline = null;
+                            });
+                          },
+                        )
+                      : Container(),
                 ],
               ),
               Row(
@@ -439,7 +442,7 @@ class _NewTaskState extends State<NewTask> {
                     ),
                   ),
                   Text(
-                    'reward:',
+                    'reward_txt'.tr,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Expanded(
@@ -453,7 +456,7 @@ class _NewTaskState extends State<NewTask> {
                           10), // replace 9 with the maximum number of digits you want to allow
                     ],
                     decoration: InputDecoration(
-                      hintText: "add reward...",
+                      hintText: 'add_reward_txt'.tr,
                       hintStyle: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -484,7 +487,7 @@ class _NewTaskState extends State<NewTask> {
                       ),
                       Expanded(
                           child: Text(
-                        'description:',
+                        'description_txt'.tr,
                         textAlign: TextAlign.left,
                         style: Theme.of(context).textTheme.bodySmall,
                       )),
@@ -502,7 +505,7 @@ class _NewTaskState extends State<NewTask> {
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                           counterText: "",
-                          hintText: 'add description...',
+                          hintText: 'add_description_txt'.tr,
                           hintStyle: Theme.of(context)
                               .textTheme
                               .bodySmall

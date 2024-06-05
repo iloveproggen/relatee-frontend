@@ -61,10 +61,10 @@ class Settings extends StatelessWidget {
                 onPressed: () {
                   cupertinoModeDialog(context);
                 },
-                child: const Padding(
+                child: Padding(
                   padding:
                       EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-                  child: Text('Change Mode',
+                  child: Text('Change_Mode_txt'.tr,
                       style: TextStyle(
                         color: Color.fromARGB(255, 74, 70, 70),
                         fontFamily: "Karla",

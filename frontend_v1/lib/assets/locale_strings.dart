@@ -73,7 +73,6 @@ class LocaleString extends Translations {
           'Routine_description_txt': 'Routine description.',
           'No_tasks_found_txt': 'No tasks found.',
           'No_routines_found_txt': 'No routines found.',
-          'routine_description_txt': 'Routine description.',
           'Invite_Members_txt': 'Invite Members',
           'Send_Invitation_txt':
               'Send an email invitation to new members to join your household.',
@@ -98,6 +97,13 @@ class LocaleString extends Translations {
           'Sure_delete_task?_txt': 'Are you sure you want to delete this task?',
           'left_to_do_txt': 'left to do',
           'Nice_day!_txt': 'Have a nice day!',
+          'Change_Mode_txt': 'Change Mode',
+          'Task_created_txt': 'Task created!',
+          'add_description_txt': 'add description...',
+          'deadline_txt': 'deadline:',
+          'none_txt': 'none',
+          'add_reward_txt': 'add reward...',
+          'reward_txt': 'reward:',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -191,6 +197,13 @@ class LocaleString extends Translations {
               'Möchten Sie diese Aufgabe wirklich löschen?',
           'left_to_do_txt': 'noch zu tun',
           'Nice_day!_txt': 'Hab einen schönen Tag!',
+          'Change_Mode_txt': 'Design ändern',
+          'Task_created_txt': 'Aufgabe erstellt!',
+          'add_description_txt': 'Beschreibung hinzufügen...',
+          'deadline_txt': 'Frist:',
+          'none_txt': 'keine',
+          'add_reward_txt': 'Belohnung hinzufügen...',
+          'reward_txt': 'Belohnung:',
         }
       };
 }

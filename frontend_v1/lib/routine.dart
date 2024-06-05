@@ -110,7 +110,7 @@ class RoutineItem extends StatelessWidget {
                 Container(
                   constraints: const BoxConstraints(maxWidth: 180),
                   child: Text(
-                    'routine_description_txt'.tr,
+                    'Routine_description_txt'.tr,
                     style: const TextStyle(
                         color: Color.fromARGB(255, 204, 198, 196),
                         fontSize: 20,

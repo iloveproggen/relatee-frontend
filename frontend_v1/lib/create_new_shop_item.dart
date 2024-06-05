@@ -109,12 +109,12 @@ class _NewShopItemState extends State<NewShopItem> {
                       if (required) {
                         createShopItem(taskName.text, description.text,
                             int.parse(taskPrice.text), userData);
-                        Get.back(result: "Task created");
+                        Get.back(result: 'Task_created_txt'.tr);
                       } else {
                         Get.back();
                       }
                     },
-                    child: Text(required ? "Confirm" : "Cancel",
+                    child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: required
                                 ? Theme.of(context).colorScheme.onSecondary
@@ -135,7 +135,7 @@ class _NewShopItemState extends State<NewShopItem> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             counterText: "",
-                            hintText: 'new item...',
+                            hintText: 'new_item_txt'.tr,
                             hintStyle:
                                 Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       color: Color.fromARGB(255, 204, 198, 196),
@@ -159,7 +159,7 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                     const SizedBox(width: 20),
                     Text(
-                      'price:',
+                      'price_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Expanded(
@@ -171,8 +171,8 @@ class _NewShopItemState extends State<NewShopItem> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly
                           ],
-                          decoration: const InputDecoration(
-                              hintText: "add price",
+                          decoration: InputDecoration(
+                              hintText: 'add_price_txt'.tr,
                               hintStyle: TextStyle(
                                   color: Color.fromARGB(255, 204, 198, 196),
                                   fontSize: 20),
@@ -200,7 +200,7 @@ class _NewShopItemState extends State<NewShopItem> {
                         const SizedBox(width: 20),
                         Expanded(
                             child: Text(
-                          'description:',
+                          'description_txt'.tr,
                           textAlign: TextAlign.left,
                           style: Theme.of(context).textTheme.bodySmall,
                         )),
@@ -215,9 +215,9 @@ class _NewShopItemState extends State<NewShopItem> {
                         maxLength: 100,
                         controller: description,
                         textAlign: TextAlign.center,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                             counterText: "",
-                            hintText: 'add description...',
+                            hintText: 'add_description_txt'.tr,
                             hintStyle: TextStyle(
                                 color: Color.fromARGB(255, 204, 198, 196),
                                 fontSize: 20),
@@ -286,7 +286,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
-                    'permanent',
+                    'permanent_txt'.tr,
                     style: TextStyle(
                       color:
                           _isPermanent ? Colors.black : const Color(0xFF4A4646),
@@ -298,7 +298,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                     ),
                   ),
                   Text(
-                    'only once',
+                    'only_once_txt'.tr,
                     style: TextStyle(
                       color: !_isPermanent
                           ? Colors.black
