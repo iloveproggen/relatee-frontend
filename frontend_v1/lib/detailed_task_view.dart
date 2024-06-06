@@ -278,7 +278,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   ),
                   Text("assigned to:",
                       style: Theme.of(context).textTheme.bodySmall),
-                  Spacer(),
+                  const Spacer(),
                   Text(
                       task['userId'] == null
                           ? 'anyone_txt'.tr
@@ -294,13 +294,13 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        const Padding(
+                        Padding(
                           padding:
-                              EdgeInsets.only(top: 10, right: 20, bottom: 10),
+                              const EdgeInsets.only(top: 10, right: 20, bottom: 10),
                           child: Icon(
                             CupertinoIcons.clock_fill,
                             size: 40,
-                            color: Color.fromARGB(255, 204, 198, 196),
+                            color:  Theme.of(context).colorScheme.tertiary
                           ),
                         ),
                         Text(
@@ -313,12 +313,12 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                     child: Icon(
                       CupertinoIcons.add_circled,
                       size: 40,
-                      color: Color.fromARGB(255, 204, 198, 196),
+                      color:  Theme.of(context).colorScheme.tertiary
                     ),
                   ),
                   Text(
@@ -416,13 +416,13 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Padding(
+                      Padding(
                         padding:
-                            EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                            const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 40,
-                          color: Color.fromARGB(255, 204, 198, 196),
+                          color:  Theme.of(context).colorScheme.tertiary
                         ),
                       ),
                       Expanded(
@@ -462,9 +462,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color.fromARGB(
-                                          255, 74, 70, 70))))
+                                      fontWeight: FontWeight.bold,)))
                 ],
               ),
             ],

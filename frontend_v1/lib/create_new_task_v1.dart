@@ -362,7 +362,7 @@ class _NewTaskState extends State<NewTask> {
                       children: <Widget>[
                         Padding(
                           padding:
-                              EdgeInsets.only(top: 10, right: 20, bottom: 10),
+                              const EdgeInsets.only(top: 10, right: 20, bottom: 10),
                           child: Icon(
                             CupertinoIcons.clock,
                             size: 40,
@@ -442,7 +442,7 @@ class _NewTaskState extends State<NewTask> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                     child: Icon(
                       CupertinoIcons.add_circled,
                       size: 40,
@@ -486,7 +486,7 @@ class _NewTaskState extends State<NewTask> {
                     children: [
                       Padding(
                         padding:
-                            EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                            const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 40,
@@ -666,12 +666,12 @@ class _RoutinePickerState extends State<RoutinePicker> {
       children: [
         Row(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
                 CupertinoIcons.archivebox,
                 size: 40,
-                color: Color.fromARGB(255, 204, 198, 196),
+                color:  Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
@@ -754,12 +754,12 @@ class _AssignToState extends State<AssignTo> {
       children: [
         Row(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 10, right: 20, bottom: 10),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right: 20, bottom: 10),
               child: Icon(
                 CupertinoIcons.person,
                 size: 40,
-                color: Color.fromARGB(255, 204, 198, 196),
+                color:  Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('assign_to_txt'.tr),

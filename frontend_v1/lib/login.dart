@@ -53,7 +53,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: CircularProgressIndicator()));
+              home: Scaffold(body: Center(child: Text("Logging you in...", style: Theme.of(context).textTheme.bodySmall))));
         } else if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -73,7 +73,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: LoginWidget()));
+              home: const Scaffold(body: LoginWidget()));
         }
       },
     );

@@ -622,7 +622,6 @@ class ButtonRecommended extends StatelessWidget {
                           ? completedTasks[
                               random.nextInt(completedTasks.length)]['name']
                           : 'No tasks found,\n have a nice day!',
-                          : 'No tasks found,\n have a nice day!',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
@@ -707,7 +706,7 @@ class ButtonRow extends StatelessWidget {
             child: ButtonShort(
               number: tasks == [] ? '0' : countToDo(tasks).toString(),
               textBelow: 'left to do',
-              textBelow: 'left to do',
+              
             ),
           ),
         ),
