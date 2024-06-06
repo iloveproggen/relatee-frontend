@@ -85,6 +85,10 @@ class JoinHouseholdView extends StatelessWidget {
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
             ),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ],
       ),
