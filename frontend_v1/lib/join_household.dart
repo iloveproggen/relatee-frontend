@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 
 class JoinHouseholdView extends StatelessWidget {
   const JoinHouseholdView({super.key});
@@ -70,7 +71,21 @@ class JoinHouseholdView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 hintText: 'Invite code'.tr,
-              ))
+                hintStyle: Theme.of(context).textTheme.bodySmall,
+              )),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {},
+            child: Text(
+              'Join',
+              style: TextStyle(
+                fontFamily: "Karla",
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+            ),
+          ),
         ],
       ),
     )));
