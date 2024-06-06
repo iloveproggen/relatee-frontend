@@ -41,13 +41,12 @@ class ProfileView extends StatelessWidget {
                         context: context,
                         builder: (BuildContext context) {
                           return CupertinoAlertDialog(
-                            title: const Text('Log out?'),
-                            content: const Text(
-                                'To access your tasks, you need to log in. Do you want to continue?'),
+                            title: Text('Log_out?_txt'.tr),
+                            content: Text('Logout_desc_txt'.tr),
                             actions: [
                               CupertinoDialogAction(
-                                child: const Text(
-                                  'Cancel',
+                                child: Text(
+                                  'Cancel_txt'.tr,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.normal),
@@ -57,14 +56,15 @@ class ProfileView extends StatelessWidget {
                                 },
                               ),
                               CupertinoDialogAction(
-                                child: const Text(
-                                  'Continue',
+                                child: Text(
+                                  'Continue_txt'.tr,
                                   style: TextStyle(
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 onPressed: () async {
-                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
                                   await prefs.remove('token');
                                   Get.offAll(() => const LoginWidget());
                                 },
@@ -251,7 +251,7 @@ class TaskOverview extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
-          child: Text('Their Tasks',
+          child: Text('Their_Tasks_txt'.tr,
               style: Theme.of(context).textTheme.bodyMedium),
         ),
         tasks.isNotEmpty
@@ -264,7 +264,7 @@ class TaskOverview extends StatelessWidget {
               )
             : Column(
                 children: [
-                  Text("This user currently has no tasks assigned to them.",
+                  Text('User_no_tasks_assigned_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   SizedBox(
                     height: 10,
@@ -286,7 +286,7 @@ class TaskOverview extends StatelessWidget {
                 },
                 child: Row(
                   children: [
-                    Text("See Household Overview",
+                    Text('Household_Overview_txt'.tr,
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall

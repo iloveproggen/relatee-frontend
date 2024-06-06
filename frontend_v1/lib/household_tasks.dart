@@ -60,7 +60,7 @@ class HouseholdOverview extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Your Household",
+                      Text('Your_Household_txt'.tr,
                           style: Theme.of(context).textTheme.bodyLarge),
                       const SizedBox(height: 20),
                       const HouseholdMembers(),
@@ -87,7 +87,7 @@ class HouseholdOverview extends StatelessWidget {
                                 .where((task) => task['completed'] == false)
                                 .isEmpty
                             ? [
-                                Text("No tasks left todo :)",
+                                Text('No_tasks_left_txt'.tr,
                                     style:
                                         Theme.of(context).textTheme.bodySmall)
                               ]
@@ -103,9 +103,9 @@ class HouseholdOverview extends StatelessWidget {
                                       context: context,
                                       builder: (BuildContext context) =>
                                           CupertinoAlertDialog(
-                                        title: const Text('Delete Task'),
+                                        title: Text('Delete_Task_txt'.tr),
                                         content: Text(
-                                            'Are you sure you want to delete "${task['name']}"?'),
+                                            '${'Delete_conf_txt'.tr} "${task['name']}"?'),
                                         actions: [
                                           CupertinoDialogAction(
                                               child: Text('Cancel_txt'.tr,
@@ -157,7 +157,7 @@ class HouseholdOverview extends StatelessWidget {
                                     .toList(),
                                 userData: users));
                           },
-                          child: Text("See completed Tasks",
+                          child: Text('See_completed_Tasks_txt'.tr,
                               style: Theme.of(context).textTheme.labelSmall)),
                       const SizedBox(height: 40)
                     ],
@@ -400,7 +400,8 @@ class InviteButton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('Invite Members', style: Theme.of(context).textTheme.labelSmall),
+          Text('Invite_Members_txt'.tr,
+              style: Theme.of(context).textTheme.labelSmall),
           const SizedBox(width: 10),
           Icon(CupertinoIcons.arrow_right,
               color: Theme.of(context).colorScheme.tertiary, size: 20)

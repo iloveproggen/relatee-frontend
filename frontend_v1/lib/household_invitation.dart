@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/profileV2.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:share/share.dart';
 
 class HouseholdInvitation extends StatefulWidget {
@@ -14,12 +14,14 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
   final TextEditingController _controller = TextEditingController();
   bool _isFieldEmpty = false;
 
+  // initialise the controller for the user input field
   @override
   void initState() {
     super.initState();
     _controller.addListener(_validateInput);
   }
 
+  // Method to validate the input field
   void _validateInput() {
     setState(() {
       _isFieldEmpty = _controller.text.isEmpty;
@@ -44,47 +46,47 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
             children: [
               const BackIconRow(),
               Text(
-                'Invite Members',
+                'Invite_Members_txt'.tr,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               SizedBox(height: 40),
               Text(
-                'Send an email invitation to new members to join your household.',
+                'Send_Invitation_txt'.tr,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 20),
-                TextField(
+              TextField(
                 controller: _controller,
                 style: Theme.of(context).textTheme.bodySmall,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  hintText: 'Enter email address',
+                  hintText: 'Mail_address_txt'.tr,
                   hintStyle: _isFieldEmpty
-                    ? Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.red)
-                    : Theme.of(context).textTheme.bodySmall,
-                  errorText:
-                    _isFieldEmpty ? 'This field is required' : null,
+                      ? Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.red)
+                      : Theme.of(context).textTheme.bodySmall,
+                  errorText: _isFieldEmpty ? 'Field_required_txt'.tr : null,
                   focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    width: 2,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                ),
+              ),
               const SizedBox(height: 20),
               TextButton(
-                style: ButtonStyle(alignment: Alignment.centerLeft,
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0))),
+                style: ButtonStyle(
+                    alignment: Alignment.centerLeft,
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(0))),
                 onPressed: () {
-                  final RenderBox box =
-                      context.findRenderObject() as RenderBox;
+                  final RenderBox box = context.findRenderObject() as RenderBox;
                   Share.share(
                     'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:',
                     subject: 'Invitation Code',
@@ -96,7 +98,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Share Invitation...',
+                      'Share_Invitation_Button_txt'.tr,
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                     //SizedBox(width: 10),
