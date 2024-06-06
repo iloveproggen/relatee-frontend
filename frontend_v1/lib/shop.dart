@@ -5,10 +5,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/create_new_reward.dart';
+import 'package:frontend_v1/detailed_reward_view.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart' as profile;
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+
+late VoidCallback updateShop;
+late int? coins;
+
+Future<void> claimReward(int userId, int rewardId) async {
+  final Map<String, dynamic> variables = {
+    'userId': userId,
+    'rewardId': rewardId,
+  };
+
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql(r'''
+  mutation ClaimReward($userId: Int!, $rewardId: Int!) {
+    claimReward(userId: $userId, rewardId: $rewardId) {
+      reward {
+        id
+        name
+        description
+        price
+      }
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  final QueryResult result = await client.mutate(options);
+  if (result.hasException) {
+    print(result.exception.toString());
+  } else if (result.isLoading) {
+    print('Loading');
+  } else {
+    print("Claimed the reward: $variables");
+  }
+}
 
 Future<List<Map<String, dynamic>>> getRewards(int id) async {
   final client = await getGraphQLClient();
@@ -16,6 +53,10 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     document: gql('''
   query GetUserRewards(\$id: Int!) {
     household(id: \$id) {
+        users {
+            id,
+            coins
+        }
         rewards {
             id,
             name,
@@ -38,6 +79,8 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
+      coins = result.data!['household']['users']
+          .firstWhere((user) => user['id'] == userData['id'])['coins'];
       final rewards = result.data!['household']['rewards'];
       final List<Map<String, dynamic>> mappedRewards =
           rewards.map<Map<String, dynamic>>((reward) {
@@ -91,8 +134,8 @@ Future<void> deleteReward(int id) async {
   }
 }
 
-bool isBuyable(int price, int points) {
-  return points >= price;
+bool isBuyable(int price, int? points) {
+  return points != null && points >= price;
 }
 
 // ignore: must_be_immutable
@@ -190,6 +233,8 @@ class ShopViewState extends State<ShopView> {
 
   @override
   Widget build(BuildContext context) {
+    coins = widget.userData['coins'];
+    updateShop = _updateRewards;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -225,7 +270,7 @@ class ShopViewState extends State<ShopView> {
               ('Shop_info'.tr),
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                   future: _futureRewards,
@@ -312,11 +357,18 @@ class ShopViewState extends State<ShopView> {
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 10),
-                                  title: ItemCard(
-                                    taskName: reward['name'],
-                                    taskPrice: reward['price'].toString(),
-                                    description: reward['description'],
-                                    userData: userData,
+                                  title: TextButton(
+                                    onPressed: () async {
+                                      var result = await Get.to(
+                                          UpdateShopItem(shopItem: reward));
+                                      if (result != null) {
+                                        _updateRewards();
+                                      }
+                                    },
+                                    child: ItemCard(
+                                      reward: reward,
+                                      userData: userData,
+                                    ),
                                   ),
                                 ),
                               );
@@ -331,30 +383,42 @@ class ShopViewState extends State<ShopView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildBadge(userData['coins'] == null
-                    ? '0 coins'
-                    : '${userData['coins']} coins'),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(106, 205, 205, 205),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    coins == null ? '0 coins' : '$coins coins',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 25),
+                  ),
+                ),
                 const SizedBox(width: 20),
-                buildBadge("lvl ${userData['level'].toString()}"),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(106, 205, 205, 205),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    "lvl ${userData['level'].toString()}",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 25),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 50)
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildBadge(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(106, 205, 205, 205),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 25),
       ),
     );
   }
@@ -367,26 +431,18 @@ void showNotEnoughPointsDialog(
 class ItemCard extends StatelessWidget {
   ItemCard({
     super.key,
-    required this.taskName,
-    required this.taskPrice,
-    required this.description,
+    required this.reward,
     required this.userData,
   });
 
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color colText = const Color(0xFF4A4646);
-
-  final String taskName;
-  final String taskPrice;
-  final String? description;
+  final Map<String, dynamic> reward;
   final Map<String, dynamic> userData;
 
   late bool buyable = false;
 
   @override
   Widget build(BuildContext context) {
-    buyable = isBuyable(int.parse(taskPrice), userData['coins']);
+    buyable = isBuyable(reward['price'], coins);
     return Column(
       children: [
         Container(
@@ -404,75 +460,66 @@ class ItemCard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(reward['name'],
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    Row(
                       children: [
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 230),
-                          child: Text(taskName,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          "${reward['price']}",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              "$taskPrice",
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(width: 5),
-                            Opacity(
-                              opacity: 0.8,
-                              child: Image.asset(
-                                "assets/images/relatee_coin.png",
-                                height: 20,
-                                width: 20,
-                                //color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        description == "" || description == null
-                            ? Container(height: 10)
-                            : Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                constraints:
-                                    const BoxConstraints(maxWidth: 230),
-                                child: Text(
-                                  "\'$description\'",
-                                  maxLines: 5,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                      ),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ),
+                        const SizedBox(width: 5),
+                        Opacity(
+                          opacity: 0.8,
+                          child: Image.asset(
+                            "assets/images/relatee_coin.png",
+                            height: 20,
+                            width: 20,
+                            //color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        )
                       ],
                     ),
-                  ),
-                ],
+                    reward['description'] == "" || reward['description'] == null
+                        ? Container(height: 10)
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: SizedBox(
+                              child: Text(
+                                "\'${reward['description']}\'",
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                    ),
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                          )
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -486,7 +533,7 @@ class ItemCard extends StatelessWidget {
                                 textAlign: TextAlign.center,
                               ),
                               content: Text(
-                                  "Are you sure you want to buy this item for $taskPrice coins?"),
+                                  "Are you sure you want to buy this item for ${reward['price']} coins?"),
                               actions: [
                                 CupertinoDialogAction(
                                   onPressed: () {
@@ -497,7 +544,10 @@ class ItemCard extends StatelessWidget {
                                       style: TextStyle(color: Colors.grey)),
                                 ),
                                 CupertinoDialogAction(
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    updateShop();
+                                    await claimReward(
+                                        userData['id'], reward['id']);
                                     // Perform the purchase logic here
                                     Navigator.of(context)
                                         .pop(); // Close the dialog
@@ -512,8 +562,9 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            int difference = (int.parse(taskPrice.toString()) -
-                                int.parse(userData['coins']
+                            int difference = (int.parse(
+                                    reward['price'].toString()) -
+                                int.parse(coins
                                     .toString())); // Automatically dismiss the dialog after 3 seconds
                             return CupertinoAlertDialog(
                               title: const Text("Not enough Points to buy"),

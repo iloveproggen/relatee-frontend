@@ -71,7 +71,7 @@ class DetailedTaskView extends StatefulWidget {
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
-  final String assigned;
+  final String? assigned;
 
   @override
   State<DetailedTaskView> createState() => _DetailedTaskViewState(task: task);
@@ -280,16 +280,15 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   Text(
-                      task['userId'] == null
-                          ? 'anyone_txt'.tr
-                          : widget.assigned,
+                      widget.assigned != null
+                          ? widget.assigned!
+                          : "anyone_txt".tr,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
-              //Assign to...
               isPermanent
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,

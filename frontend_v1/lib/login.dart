@@ -128,7 +128,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
 
   bool isLoading = false;
 
-  // bool _staySignedIn = false;
+  //bool _staySignedIn = false;
 
   void _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -456,51 +456,45 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
                   child: CupertinoActivityIndicator(
-                      radius: 20,
+                      radius: 15,
                       color: Theme.of(context).colorScheme.tertiary),
                 ),
               ),
             if (wrongPassword)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
                     "Wrong username or password!",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontFamily: "Karla",
-                      fontSize: 23,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             if (timeOut) // change this to show error on timeout
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
                     "Issues connecting to the server, try again later.",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontFamily: "Karla",
-                      fontSize: 23,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             if (otherError) // change this to show error on timeout
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40, left: 20, right: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Text(
                     "code kaputt, bitte fixen :( \n user id = -1",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontFamily: "Karla",
-                      fontSize: 23,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ),
