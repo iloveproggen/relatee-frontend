@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_v1/login.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'main.dart';
 
 bool wrongPassword = false;
 bool timeOut = false;
@@ -68,10 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void _saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
-  }
+
 
   void _register() async {
     print("Register function called"); // Debugging line
@@ -113,16 +109,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
     print("Loading...");
     print(response.statusCode);
     if (response.statusCode == 200) {
+      print("Registration Done");
       // If the server returns a 200 OK response, parse the JSON.
       var responseBody = jsonDecode(response.body);
+      print(responseBody);
       if (responseBody != null) {
-        String token = responseBody['token'];
-        int userId = responseBody['userId'];
-        _saveToken(token);
-        Get.to(() => MainWidget(userId: userId));
+        await showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            title: const Text('Registrierung erfolgreich'),
+            content: const Text('Nach der Bestätigung der Email können Sie sich einloggen'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('Ok', style: TextStyle(color: Colors.blue)),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+
+        Get.to(() => LoginWidget());
         print("Opened MainWidget");
             } else {
-        print('Response body is null');
+        print('Response body is null or does not contain expected values');
       }
       setState(() {
         isLoading = false;
