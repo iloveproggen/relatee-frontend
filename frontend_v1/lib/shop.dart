@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/create_new_shop_item.dart';
+import 'package:frontend_v1/create_new_reward.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart' as profile;
 import 'package:get/get.dart';
@@ -250,79 +249,78 @@ class ShopViewState extends State<ShopView> {
                             .sort((a, b) => a['price'].compareTo(b['price']));
                         return ShaderMask(
                           shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            colors: [
-                            Colors.white,
-                            Colors.white.withOpacity(0.05)
-                            ],
-                            stops: [0.8, 1],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                          ).createShader(bounds);
+                            return LinearGradient(
+                              colors: [
+                                Colors.white,
+                                Colors.white.withOpacity(0.05)
+                              ],
+                              stops: [0.8, 1],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ).createShader(bounds);
                           },
                           child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount: rewards.length,
-                          itemBuilder: (context, index) {
-                            final reward = rewards[index];
-                            return Dismissible(
-                            key: Key(reward.toString()),
-                            direction: DismissDirection.endToStart,
-                            onDismissed: (direction) {
-                              showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return CupertinoAlertDialog(
-                                title: const Text('Confirm Delete'),
-                                content: Text(
-                                  'Are you sure you want to delete the reward "${reward['name']}"?'),
-                                actions: [
-                                  CupertinoDialogAction(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    _updateRewards();
-                                  },
-                                  child: const Text('Back',
-                                    style: TextStyle(
-                                      color: Colors.blue)),
+                            scrollDirection: Axis.vertical,
+                            itemCount: rewards.length,
+                            itemBuilder: (context, index) {
+                              final reward = rewards[index];
+                              return Dismissible(
+                                key: Key(reward.toString()),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (direction) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CupertinoAlertDialog(
+                                        title: const Text('Confirm Delete'),
+                                        content: Text(
+                                            'Are you sure you want to delete the reward "${reward['name']}"?'),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              _updateRewards();
+                                            },
+                                            child: const Text('Back',
+                                                style: TextStyle(
+                                                    color: Colors.blue)),
+                                          ),
+                                          CupertinoDialogAction(
+                                            isDestructiveAction: true,
+                                            onPressed: () {
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                              deleteReward(reward['id']);
+                                              _updateRewards();
+                                            },
+                                            child: const Text('Yes',
+                                                style: TextStyle(
+                                                    color: Colors.red)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                background: Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 50, bottom: 22),
+                                  alignment: Alignment.centerRight,
+                                  child: const Icon(CupertinoIcons.delete,
+                                      color: Colors.red, size: 30),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  title: ItemCard(
+                                    taskName: reward['name'],
+                                    taskPrice: reward['price'].toString(),
+                                    description: reward['description'],
+                                    userData: userData,
                                   ),
-                                  CupertinoDialogAction(
-                                  isDestructiveAction: true,
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                      .pop(); // Close the dialog
-                                    deleteReward(reward['id']);
-                                    _updateRewards();
-                                  },
-                                  child: const Text('Yes',
-                                    style: TextStyle(
-                                      color: Colors.red)),
-                                  ),
-                                ],
-                                );
-                              },
+                                ),
                               );
                             },
-                            background: Container(
-                              margin: const EdgeInsets.only(
-                                right: 50, bottom: 22),
-                              alignment: Alignment.centerRight,
-                              child: const Icon(CupertinoIcons.delete,
-                                color: Colors.red, size: 30),
-                            ),
-                            child: ListTile(
-                              contentPadding:
-                                const EdgeInsets.symmetric(
-                                  horizontal: 10),
-                              title: ItemCard(
-                              taskName: reward['name'],
-                              taskPrice: reward['price'].toString(),
-                              description: reward['description'],
-                              userData: userData,
-                              ),
-                            ),
-                            );
-                          },
                           ),
                         );
                       }

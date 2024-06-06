@@ -60,7 +60,17 @@ class JoinHouseholdView extends StatelessWidget {
           Text(
               "To get the most out of Relatee, you need to join a household. Create one now!",
               style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 40),
+          const SizedBox(height: 50),
+          Text('Join household', style: Theme.of(context).textTheme.bodyLarge),
+          const SizedBox(height: 20),
+          TextField(
+              style: Theme.of(context).textTheme.bodySmall,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                hintText: 'Invite code'.tr,
+              ))
         ],
       ),
     )));
@@ -91,18 +101,21 @@ class BackIconSignOut extends StatelessWidget {
                   builder: (BuildContext context) {
                     return CupertinoAlertDialog(
                       title: const Text('Confirm Logout'),
-                      content: const Text('Are you sure you want to log out? Your changes will not be saved'),
+                      content: const Text(
+                          'Are you sure you want to log out? Your changes will not be saved'),
                       actions: [
                         CupertinoDialogAction(
-                          child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                          child: const Text('Cancel',
+                              style: TextStyle(color: Colors.blue)),
                           onPressed: () {
-                          Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                           },
                         ),
                         CupertinoDialogAction(
-                          child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                          child: const Text('Logout',
+                              style: TextStyle(color: Colors.red)),
                           onPressed: () {
-                          Get.off(() => const LoginWidget());
+                            Get.off(() => const LoginWidget());
                           },
                         ),
                       ],
