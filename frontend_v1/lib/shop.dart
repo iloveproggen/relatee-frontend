@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/create_new_shop_item.dart';
@@ -176,7 +177,7 @@ class ShopViewState extends State<ShopView> {
   final Map<String, dynamic> userData;
   late Future<List<Map<String, dynamic>>> _futureRewards;
 
-    @override
+  @override
   void initState() {
     super.initState();
     _futureRewards = getRewards(widget.userData['householdId']);
@@ -187,7 +188,6 @@ class ShopViewState extends State<ShopView> {
       _futureRewards = getRewards(userData['householdId']);
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -204,13 +204,16 @@ class ShopViewState extends State<ShopView> {
               children: [
                 Row(
                   children: [
+                    // ShopIcon(),
+                    // SizedBox(width: 10),
                     Text('Shop_title'.tr,
                         style: Theme.of(context).textTheme.bodyLarge),
                   ],
                 ),
                 TextButton(
                     onPressed: () async {
-                      var result = await Get.to(() => NewShopItem(userData: userData));
+                      var result =
+                          await Get.to(() => NewShopItem(userData: userData));
                       if (result != null) {
                         _updateRewards();
                       }
@@ -223,6 +226,7 @@ class ShopViewState extends State<ShopView> {
               ('Shop_info'.tr),
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            SizedBox(height: 10),
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                   future: _futureRewards,
@@ -244,69 +248,82 @@ class ShopViewState extends State<ShopView> {
                       } else {
                         rewards
                             .sort((a, b) => a['price'].compareTo(b['price']));
-                        return ListView.builder(
+                        return ShaderMask(
+                          shaderCallback: (Rect bounds) {
+                          return LinearGradient(
+                            colors: [
+                            Colors.white,
+                            Colors.white.withOpacity(0.05)
+                            ],
+                            stops: [0.8, 1],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ).createShader(bounds);
+                          },
+                          child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           itemCount: rewards.length,
                           itemBuilder: (context, index) {
                             final reward = rewards[index];
                             return Dismissible(
-                              key: Key(reward.toString()),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CupertinoAlertDialog(
-                                      title: const Text('Confirm Delete'),
-                                      content: Text(
-                                          'Are you sure you want to delete the reward "${reward['name']}"?'),
-                                      actions: [
-                                        CupertinoDialogAction(
-                                          onPressed: () {
-                                            
-                                            Navigator.of(context).pop();
-                                            _updateRewards();
-                                          },
-                                          child: const Text('Back',
-                                              style: TextStyle(
-                                                  color: Colors.blue)),
-                                        ),
-                                        CupertinoDialogAction(
-                                          isDestructiveAction: true,
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            deleteReward(reward['id']);
-                                            _updateRewards();
-                                          },
-                                          child: const Text('Yes',
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
-                                    );
+                            key: Key(reward.toString()),
+                            direction: DismissDirection.endToStart,
+                            onDismissed: (direction) {
+                              showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return CupertinoAlertDialog(
+                                title: const Text('Confirm Delete'),
+                                content: Text(
+                                  'Are you sure you want to delete the reward "${reward['name']}"?'),
+                                actions: [
+                                  CupertinoDialogAction(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _updateRewards();
                                   },
+                                  child: const Text('Back',
+                                    style: TextStyle(
+                                      color: Colors.blue)),
+                                  ),
+                                  CupertinoDialogAction(
+                                  isDestructiveAction: true,
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                    deleteReward(reward['id']);
+                                    _updateRewards();
+                                  },
+                                  child: const Text('Yes',
+                                    style: TextStyle(
+                                      color: Colors.red)),
+                                  ),
+                                ],
                                 );
                               },
-                              background: Container(
-                                margin: const EdgeInsets.only(
-                                    right: 50, bottom: 22),
-                                alignment: Alignment.centerRight,
-                                child: const Icon(CupertinoIcons.delete,
-                                    color: Colors.red, size: 30),
+                              );
+                            },
+                            background: Container(
+                              margin: const EdgeInsets.only(
+                                right: 50, bottom: 22),
+                              alignment: Alignment.centerRight,
+                              child: const Icon(CupertinoIcons.delete,
+                                color: Colors.red, size: 30),
+                            ),
+                            child: ListTile(
+                              contentPadding:
+                                const EdgeInsets.symmetric(
+                                  horizontal: 10),
+                              title: ItemCard(
+                              taskName: reward['name'],
+                              taskPrice: reward['price'].toString(),
+                              description: reward['description'],
+                              userData: userData,
                               ),
-                              child: ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                title: ItemCard(
-                                  taskName: reward['name'],
-                                  taskPrice: reward['price'].toString(),
-                                  description: reward['description'],
-                                  userData: userData,
-                                ),
-                              ),
+                            ),
                             );
                           },
+                          ),
                         );
                       }
                     }
@@ -317,8 +334,8 @@ class ShopViewState extends State<ShopView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildBadge(userData['coins'] == null
-                    ? '0 pts'
-                    : '${userData['coins']} pts'),
+                    ? '0 coins'
+                    : '${userData['coins']} coins'),
                 const SizedBox(width: 20),
                 buildBadge("lvl ${userData['level'].toString()}"),
               ],
@@ -377,7 +394,7 @@ class ItemCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.background,
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
@@ -387,56 +404,77 @@ class ItemCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 140),
-                      child: Text(taskName,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                    ),
-                    Text(
-                      "$taskPrice pts",
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    description == "" || description == null
-                        ? Container()
-                        : Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            constraints: const BoxConstraints(maxWidth: 130),
-                            child: Text(
-                              "\'$description\'",
-                              maxLines: 5,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 230),
+                          child: Text(taskName,
                               overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                              textAlign: TextAlign.start,
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "$taskPrice",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                  ],
-                ),
+                            SizedBox(width: 5),
+                            Opacity(
+                              opacity: 0.8,
+                              child: Image.asset(
+                                "assets/images/relatee_coin.png",
+                                height: 20,
+                                width: 20,
+                                //color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        description == "" || description == null
+                            ? Container(height: 10)
+                            : Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                constraints:
+                                    const BoxConstraints(maxWidth: 230),
+                                child: Text(
+                                  "\'$description\'",
+                                  maxLines: 5,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary,
+                                      ),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               TextButton(
                 onPressed: () {
@@ -450,7 +488,7 @@ class ItemCard extends StatelessWidget {
                                 textAlign: TextAlign.center,
                               ),
                               content: Text(
-                                  "Are you sure you want to buy this item for $taskPrice pts?"),
+                                  "Are you sure you want to buy this item for $taskPrice coins?"),
                               actions: [
                                 CupertinoDialogAction(
                                   onPressed: () {
@@ -476,26 +514,24 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            //String difference = (int.parse(taskPrice) - int.parse(userData['coins'])).toString();
-                            // Automatically dismiss the dialog after 3 seconds
-                            Future.delayed(const Duration(seconds: 2), () {
-                              Navigator.of(context)
-                                  .pop(true); // Dismiss the dialog
-                            });
-
-                            return AlertDialog(
-                              title: Text(
-                                'Not enough Points to buy!',
-                                style: Theme.of(context).textTheme.bodySmall,
+                            int difference = (int.parse(taskPrice.toString()) -
+                                int.parse(userData['coins']
+                                    .toString())); // Automatically dismiss the dialog after 3 seconds
+                            return CupertinoAlertDialog(
+                              title: const Text("Not enough Points to buy"),
+                              content: Text(
+                                'You\'re missing $difference coins!',
                                 textAlign: TextAlign.center,
                               ),
                               actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
+                                CupertinoDialogAction(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      'OK',
+                                      style: TextStyle(color: Colors.blue),
+                                    )),
                               ],
                             );
                           },
@@ -505,13 +541,20 @@ class ItemCard extends StatelessWidget {
                     constraints: const BoxConstraints(minWidth: 0),
                     decoration: BoxDecoration(
                         border: Border.all(
-                          width: 5,
+                          width: 2,
                           strokeAlign: BorderSide.strokeAlignInside,
-                          color: buyable ? colMid : colMid.withOpacity(0.5),
+                          color: buyable
+                              ? Theme.of(context).colorScheme.tertiary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.5),
                         ),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
-                        color: buyable ? colMid : colLight),
+                        color: buyable
+                            ? Theme.of(context).colorScheme.tertiary
+                            : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(
                             top: 10, bottom: 10, left: 15, right: 15),
@@ -520,13 +563,15 @@ class ItemCard extends StatelessWidget {
                             child: Text(
                               "BUY",
                               style: TextStyle(
-                                fontFamily: "Karla",
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: buyable
-                                    ? Theme.of(context).colorScheme.background
-                                    : Theme.of(context).colorScheme.secondary,
-                              ),
+                                  fontFamily: "Karla",
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: buyable
+                                      ? Theme.of(context).colorScheme.background
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .tertiary
+                                          .withOpacity(0.5)),
                             )))),
               )
             ],

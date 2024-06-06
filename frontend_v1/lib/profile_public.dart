@@ -30,21 +30,22 @@ class PublicProfile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const BackIconRow(),
-              const Column(
+              Column(
                 children: [
-                  // Profile Picture
-                  // Container(
-                  //   height: 200,
-                  //   width: 200,
-                  //   decoration: ShapeDecoration(
-                  //     shape: CircleBorder(
-                  //       side: BorderSide(
-                  //         width: 6,
-                  //         color: Theme.of(context).colorScheme.tertiary,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
+                  //Profile Picture
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: ShapeDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(
+                          width: 6,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                    ),
+                    child: Icon(CupertinoIcons.smiley, size: 100, color: Theme.of(context).colorScheme.tertiary),
+                  ),
                 ],
               ),
               Column(children: [

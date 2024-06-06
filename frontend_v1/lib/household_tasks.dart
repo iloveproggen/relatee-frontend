@@ -108,8 +108,8 @@ class HouseholdOverview extends StatelessWidget {
                                             'Are you sure you want to delete "${task['name']}"?'),
                                         actions: [
                                           CupertinoDialogAction(
-                                              child: const Text('Cancel',
-                                                  style: TextStyle(
+                                              child: Text('Cancel_txt'.tr,
+                                                  style: const TextStyle(
                                                       color: Colors.blue)),
                                               onPressed: () {
                                                 Navigator.pop(context);
@@ -124,8 +124,8 @@ class HouseholdOverview extends StatelessWidget {
                                               Get.forceAppUpdate();
                                             },
                                             isDestructiveAction: true,
-                                            child: const Text('Delete',
-                                                style: TextStyle(
+                                            child: Text('Delete_txt'.tr,
+                                                style: const TextStyle(
                                                     color: Colors.red)),
                                           ),
                                         ],
@@ -159,7 +159,7 @@ class HouseholdOverview extends StatelessWidget {
                           },
                           child: Text("See completed Tasks",
                               style: Theme.of(context).textTheme.labelSmall)),
-                      SizedBox(height: 40)
+                      const SizedBox(height: 40)
                     ],
                   );
                 }
@@ -308,7 +308,7 @@ class MoreDetailsTask extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      constraints: BoxConstraints(maxWidth: 240),
+                      constraints: const BoxConstraints(maxWidth: 240),
                       child: Text(task['name'],
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -342,7 +342,7 @@ class MoreDetailsTask extends StatelessWidget {
                 //                 )),
                 //       ),
                 Container(
-                  constraints: BoxConstraints(maxWidth: 180),
+                  constraints: const BoxConstraints(maxWidth: 180),
                   child: (users.firstWhere(
                               (user) => user['id'] == task['userId'],
                               orElse: () => {'forename': null})['forename']) ==
@@ -355,7 +355,7 @@ class MoreDetailsTask extends StatelessWidget {
                               })['forename']}",
                           style: Theme.of(context).textTheme.bodySmall),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(15)),

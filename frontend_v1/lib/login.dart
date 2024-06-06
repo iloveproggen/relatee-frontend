@@ -53,7 +53,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: CircularProgressIndicator());
+              home: Scaffold(body: CircularProgressIndicator()));
         } else if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -63,7 +63,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: MainWidget(userId: snapshot.data!));
+              home: Scaffold(body: MainWidget(userId: snapshot.data!)));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -73,7 +73,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: LoginWidget());
+              home: Scaffold(body: LoginWidget()));
         }
       },
     );
@@ -240,6 +240,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
             ),
             TextFormField(
                 autofillHints: [AutofillHints.username],
+                cursorColor: Theme.of(context).colorScheme.onSecondary,
                 autocorrect: false,
                 focusNode: focusNode1,
                 onFieldSubmitted: (_) {

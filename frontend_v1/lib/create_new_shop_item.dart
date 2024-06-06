@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -138,7 +139,7 @@ class _NewShopItemState extends State<NewShopItem> {
                             hintText: 'new item...',
                             hintStyle:
                                 Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: Color.fromARGB(255, 204, 198, 196),
+                                      color: const Color.fromARGB(255, 204, 198, 196),
                                     ),
                           ),
                           style: Theme.of(context).textTheme.bodyLarge),
@@ -169,7 +170,8 @@ class _NewShopItemState extends State<NewShopItem> {
                           textAlign: TextAlign.end,
                           controller: taskPrice,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
+                            FilteringTextInputFormatter.digitsOnly,
+                            MaxLengthNumberInputFormatter(10),
                           ],
                           decoration: const InputDecoration(
                               hintText: "add price",

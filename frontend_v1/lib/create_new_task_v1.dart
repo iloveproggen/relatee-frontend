@@ -101,9 +101,19 @@ Future<void> createNewTask(int? userId, String name, String description, int rew
     print(e);
   }
 }
-
 class NewTaskMain extends StatelessWidget {
   const NewTaskMain({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: NewTaskFuture(userData: userData));
+  }
+}
+
+class NewTaskFuture extends StatelessWidget {
+  const NewTaskFuture({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
 
@@ -237,6 +247,7 @@ class _NewTaskState extends State<NewTask> {
                   child: Column(
                     children: [
                       TextFormField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
                         controller: taskName,
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -349,13 +360,13 @@ class _NewTaskState extends State<NewTask> {
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        const Padding(
+                        Padding(
                           padding:
                               EdgeInsets.only(top: 10, right: 20, bottom: 10),
                           child: Icon(
                             CupertinoIcons.clock,
                             size: 40,
-                            color: Color.fromARGB(255, 204, 198, 196),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
                         Text(
@@ -430,12 +441,12 @@ class _NewTaskState extends State<NewTask> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 10, right: 20),
                     child: Icon(
                       CupertinoIcons.add_circled,
                       size: 40,
-                      color: Color.fromARGB(255, 204, 198, 196),
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                   Text(
@@ -473,13 +484,13 @@ class _NewTaskState extends State<NewTask> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Padding(
+                      Padding(
                         padding:
                             EdgeInsets.only(top: 10, bottom: 10, right: 20),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 40,
-                          color: Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),
                       Expanded(

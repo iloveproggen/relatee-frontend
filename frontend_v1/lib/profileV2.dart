@@ -74,44 +74,30 @@ class ProfileView extends StatelessWidget {
                         },
                       );
                     },
-                    child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                        child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, bottom: 10, left: 10, right: 10),
-                            child: /*Text("log out",
-                              style: TextStyle(
-                                  height: 1,
-                                  color: Color.fromARGB(255, 243, 243, 243),
-                                  fontSize: 15,
-                                  fontFamily: "Karla",
-                                  fontWeight: FontWeight.w700)),*/
-                                Icon(
-                              CupertinoIcons.arrowshape_turn_up_right_fill,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
-                            ))),
+                    child: Icon(
+                      CupertinoIcons.square_arrow_right,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      size: 30,
+                    ),
                   ),
                 ],
               ),
-              const Column(
+              Column(
                 children: [
-                  // Profile Picture
-                  // Container(
-                  //   height: 200,
-                  //   width: 200,
-                  //   decoration: ShapeDecoration(
-                  //     shape: CircleBorder(
-                  //       side: BorderSide(
-                  //         width: 6,
-                  //         color: Theme.of(context).colorScheme.tertiary,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
+                  //Profile Picture
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: ShapeDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(
+                          width: 6,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                    ),
+                    child: Icon(CupertinoIcons.smiley, size: 100, color: Theme.of(context).colorScheme.tertiary),
+                  ),
                 ],
               ),
               Column(children: [

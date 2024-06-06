@@ -21,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
 
 void main() {
-  runApp(const LoginApp());
+  runApp(CheckLoggedIn());
 }
 
 late VoidCallback update;
@@ -622,6 +622,7 @@ class ButtonRecommended extends StatelessWidget {
                           ? completedTasks[
                               random.nextInt(completedTasks.length)]['name']
                           : 'No tasks found,\n have a nice day!',
+                          : 'No tasks found,\n have a nice day!',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
@@ -673,7 +674,7 @@ class ButtonShort extends StatelessWidget {
                 maxLines: 1,
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                 child: Text(
                   textBelow,
                   style: Theme.of(context).textTheme.bodySmall,
@@ -705,6 +706,7 @@ class ButtonRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 15),
             child: ButtonShort(
               number: tasks == [] ? '0' : countToDo(tasks).toString(),
+              textBelow: 'left to do',
               textBelow: 'left to do',
             ),
           ),
@@ -1156,7 +1158,7 @@ class Task extends StatelessWidget {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
                           border: Border.all(
-                              width: 1,
+                              width: 2,
                               color: Theme.of(context).colorScheme.tertiary),
                         ),
                         child: Padding(
