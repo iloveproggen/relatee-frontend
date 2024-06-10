@@ -17,6 +17,8 @@ final focusNodeSwitch = FocusNode();
 final focusNodeButton = FocusNode();
 late int userId;
 
+Map<String, dynamic> error = {'hasError': false, 'message': "",};
+
 //checks if a user has saved their token in sharedpreferences, if yes, skip log in
 Future<int?> checkIfSignedIn() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,7 +55,10 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: Center(child: Text("Logging you in...", style: Theme.of(context).textTheme.bodySmall))));
+              home: Scaffold(
+                  body: Center(
+                      child: Text("Logging you in...",
+                          style: Theme.of(context).textTheme.bodySmall))));
         } else if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -80,36 +85,36 @@ class CheckLoggedIn extends StatelessWidget {
   }
 }
 
-class LoginApp extends StatefulWidget {
-  const LoginApp({super.key});
+// class LoginApp extends StatefulWidget {
+//   const LoginApp({super.key});
 
-  @override
-  State<LoginApp> createState() => _LoginAppState();
-}
+//   @override
+//   State<LoginApp> createState() => _LoginAppState();
+// }
 
-class _LoginAppState extends State<LoginApp> {
-  late Future<void> loggedInFuture;
+// class _LoginAppState extends State<LoginApp> {
+//   late Future<void> loggedInFuture;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
-    return GetMaterialApp(
-      darkTheme: darktheme,
-      theme: brightness == Brightness.light ? lighttheme : darktheme,
-      translations: LocaleString(),
-      locale: const Locale('en-Us'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      title: 'Relatee',
-      home: const LoginWidget(),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final brightness = MediaQuery.of(context).platformBrightness;
+//     return GetMaterialApp(
+//       darkTheme: darktheme,
+//       theme: brightness == Brightness.light ? lighttheme : darktheme,
+//       translations: LocaleString(),
+//       locale: const Locale('en-Us'),
+//       fallbackLocale: const Locale('en-US'),
+//       debugShowCheckedModeBanner: false,
+//       title: 'Relatee',
+//       home: const LoginWidget(),
+//     );
+//   }
+// }
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -161,6 +166,8 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       setState(() {
         isLoading = false;
         timeOut = true;
+        error['hasError'] = true;
+        error['message'] = jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
     }
     setState(() {
@@ -168,6 +175,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
     });
     print("Loading...");
     print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON.
       String token = jsonDecode(response.body)['token'];
@@ -185,11 +193,15 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
         setState(() {
           wrongPassword = true;
           isLoading = false;
+          error['hasError'] = true;
+          error['message'] = jsonDecode(response.body)['message'];
         });
       } else {
         setState(() {
           timeOut = true;
           isLoading = false;
+          error['hasError'] = true;
+          error['message'] = jsonDecode(response.body)['message'];
         });
       }
     }
@@ -204,6 +216,11 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    error = {
+      'hasError': false,
+      'message': '',
+    };
     _usernameController.addListener(_updateRequired);
     _passwordController.addListener(_updateRequired);
   }
@@ -430,6 +447,10 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                       ),
                       child: TextButton(
                         onPressed: () {
+                          error = {
+                            'hasError': false,
+                            'message': '',
+                          };
                           Get.to(() => SignUpScreen());
                         },
                         child: Center(
@@ -451,6 +472,33 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                     ),
                   ),
                 ]),
+            if (error['hasError'] && error['message'] != "")
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                  child: Text(
+                    error['message'] == "Invalid request" ? "Invalid email adress" : error['message'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            // if (error['hasError'] && error['message'] == "" ||
+            //     error['message'].isEmpty)
+            //   Center(
+            //     child: Padding(
+            //       padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+            //       child: Text(
+            //         'Wrong password or email',
+            //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            //               color: Colors.red,
+            //             ),
+            //         textAlign: TextAlign.center,
+            //       ),
+            //     ),
+            //   ),
             if (isLoading)
               Center(
                 child: Padding(
@@ -458,45 +506,6 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                   child: CupertinoActivityIndicator(
                       radius: 15,
                       color: Theme.of(context).colorScheme.tertiary),
-                ),
-              ),
-            if (wrongPassword)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "Wrong username or password!",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            if (timeOut) // change this to show error on timeout
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "Issues connecting to the server, try again later.",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            if (otherError) // change this to show error on timeout
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "code kaputt, bitte fixen :( \n user id = -1",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
                 ),
               ),
           ],

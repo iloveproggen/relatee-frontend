@@ -43,8 +43,6 @@ Future<void> claimReward(int userId, int rewardId) async {
   }
 }
 
-
-
 Future<List<Map<String, dynamic>>> getRewards(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -251,7 +249,6 @@ class ShopViewState extends State<ShopView> {
   late Future<List<Map<String, dynamic>>> _futureRewards;
   late Future<String> _futureBalance;
 
-
   @override
   void initState() {
     super.initState();
@@ -428,9 +425,13 @@ class ShopViewState extends State<ShopView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -441,7 +442,6 @@ class ShopViewState extends State<ShopView> {
                               width: 20,
                               color: purple,
                             ),
-
                             const SizedBox(width: 5),
                             Text(
                               coins == '0' ? '0' : coins,
@@ -450,16 +450,18 @@ class ShopViewState extends State<ShopView> {
                                   .bodyMedium
                                   ?.copyWith(fontSize: 25),
                             ),
-                            
                           ],
                         ),
-
                       ),
                       const SizedBox(width: 20),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -552,7 +554,7 @@ class ItemCard extends StatelessWidget {
                         Opacity(
                           opacity: 0.8,
                           child: SvgPicture.asset(
-                              "assets/images/relatee.svg",
+                            "assets/images/relatee.svg",
                             height: 15,
                             color: purple,
                           ),
@@ -609,7 +611,7 @@ class ItemCard extends StatelessWidget {
                                   onPressed: () async {
                                     await claimReward(
                                         userData['id'], reward['id']);
-                                    
+
                                     updateShop();
                                     // Perform the purchase logic here
                                     Navigator.of(context)
@@ -625,14 +627,16 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            int difference = (int.parse(
-                                    reward['price'].toString()) -
-                                int.parse(reward['user_balance']
-                                    .toString())); // Automatically dismiss the dialog after 3 seconds
+                            int coins;
+                            if (userData['coins'] != null) {
+                              coins = int.parse(userData['coins']);
+                            } else {
+                              coins = 0;
+                            } // Automatically dismiss the dialog after 3 seconds
                             return CupertinoAlertDialog(
                               title: const Text("Not enough Points to buy"),
                               content: Text(
-                                'You\'re missing $difference coins!',
+                                'You\'re missing  coins!',
                                 textAlign: TextAlign.center,
                               ),
                               actions: [
@@ -665,7 +669,7 @@ class ItemCard extends StatelessWidget {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
                         color: buyable
-                            ? purple.withOpacity(0.6)
+                            ? purple.withOpacity(0.5)
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(

@@ -767,7 +767,8 @@ class _TaskState extends State<TaskOverview> {
             return a['deadline'].compareTo(b['deadline']);
           }
         });
-
+        
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -933,7 +934,7 @@ class _TaskState extends State<TaskOverview> {
                                                       CupertinoDialogAction(
                                                           child: Text(
                                                               'Cancel_txt'.tr,
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   color: Colors
                                                                       .blue)),
                                                           onPressed: () {

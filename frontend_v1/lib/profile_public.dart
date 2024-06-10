@@ -104,7 +104,7 @@ class PublicProfile extends StatelessWidget {
                                   "assets/images/relatee.svg",
                                   height: 20,
                                   width: 20,
-                                  color: purple.withOpacity(0.5),
+                                  color: purple,
                                 ),
                                 SizedBox(width: 5),
                                 Text(
