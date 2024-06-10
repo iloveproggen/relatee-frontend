@@ -25,7 +25,7 @@ void main() {
 }
 
 late VoidCallback update;
-
+const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
 
@@ -957,7 +957,7 @@ class _TaskState extends State<TaskOverview> {
                                                             true,
                                                         child: Text(
                                                             'Delete_txt'.tr,
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 color: Colors
                                                                     .red)),
                                                       ),
@@ -983,14 +983,14 @@ class _TaskState extends State<TaskOverview> {
                                                       title: Text(
                                                           'Congratulations!_txt'
                                                               .tr),
-                                                      content: const Column(
+                                                      content: Column(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .center,
                                                         children: [
-                                                          // SizedBox(height: 10),
-                                                          // Image.network(
-                                                          //     "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                          SizedBox(height: 10),
+                                                          Image.network(
+                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
                                                         ],
                                                       ),
                                                       actions: [
@@ -1028,7 +1028,7 @@ class _TaskState extends State<TaskOverview> {
                                               alignment: Alignment.centerLeft,
                                               child: const Icon(
                                                   CupertinoIcons.check_mark,
-                                                  color: Colors.green,
+                                                  color: purple,
                                                   size: 30),
                                             ),
                                             child: Task(
@@ -1187,55 +1187,6 @@ class Task extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class StatsRow extends StatefulWidget {
-  const StatsRow({super.key});
-
-  @override
-  State<StatsRow> createState() => _StatsRowState();
-}
-
-class _StatsRowState extends State<StatsRow> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(106, 205, 205, 205),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    coins == null ? '0 coins' : '${userData['coins']} coins',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 25),
-                  ),
-                ),
-                SizedBox(width:20),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(106, 205, 205, 205),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    "lvl ${userData['level'].toString()}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 25),
-                  ),
-                ),
-              ],
     );
   }
 }

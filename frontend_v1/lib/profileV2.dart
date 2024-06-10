@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gravatar/flutter_gravatar.dart';
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -14,6 +16,8 @@ String getDueDaysInText(int days) {
   }
 }
 
+late Gravatar gravatar;
+
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key, required this.userData, required this.tasks});
 
@@ -22,7 +26,7 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(userData);
+    gravatar = Gravatar(userData['email']);   
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -47,7 +51,7 @@ class ProfileView extends StatelessWidget {
                               CupertinoDialogAction(
                                 child: Text(
                                   'Cancel_txt'.tr,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.normal),
                                 ),
@@ -58,7 +62,7 @@ class ProfileView extends StatelessWidget {
                               CupertinoDialogAction(
                                 child: Text(
                                   'Continue_txt'.tr,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.blue,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -96,7 +100,9 @@ class ProfileView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: Icon(CupertinoIcons.smiley, size: 100, color: Theme.of(context).colorScheme.tertiary),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(gravatar.imageUrl(size: 200, defaultImage: 'mp')),
+                    ),
                   ),
                 ],
               ),
@@ -139,13 +145,58 @@ class ProfileView extends StatelessWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 50, right: 10),
-                          child:
-                              _buildInfoContainer('${userData['coins']} pts'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEDECEC),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/relatee.svg",
+                                  height: 20,
+                                  width: 20,
+                                  color: purple,
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '${userData['coins']}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Color(0xFF4A4646),
+                                    fontSize: 24,
+                                    fontFamily: 'Karla',
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 50),
-                          child:
-                              _buildInfoContainer('lvl ${userData['level']}'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEDECEC),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            child: Text(
+                              'lvl ${userData['level']}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF4A4646),
+                                fontSize: 24,
+                                fontFamily: 'Karla',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -156,7 +207,7 @@ class ProfileView extends StatelessWidget {
               //     color: Color.fromARGB(238, 126, 126, 126),
               //     height: 100,
               //     thickness: 2),
-              SizedBox(height: 80),
+              const SizedBox(height: 80),
               TaskOverview(userData: userData, tasks: tasks),
             ],
           ),
@@ -266,7 +317,7 @@ class TaskOverview extends StatelessWidget {
                 children: [
                   Text('User_no_tasks_assigned_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   )
                 ],
