@@ -5,6 +5,7 @@ import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/household_invitation.dart';
+import 'package:frontend_v1/leader_board_v2.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
@@ -60,8 +61,21 @@ class HouseholdOverview extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Your_Household_txt'.tr,
-                          style: Theme.of(context).textTheme.bodyLarge),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Your_Household_txt'.tr,
+                              style: Theme.of(context).textTheme.bodyLarge),
+                          IconButton(
+                              onPressed: () {
+                                Get.to(() => MainLeaderboardView());
+                              },
+                              icon: Icon(CupertinoIcons.chart_bar_alt_fill,
+                                  size: 40,
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary)),
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       const HouseholdMembers(),
                       const InviteButton(),
