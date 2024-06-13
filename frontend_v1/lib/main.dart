@@ -238,6 +238,9 @@ Future<Map<String, dynamic>> getUserData() async {
         mappedResult['points'] = 0;
       }
       
+    if (mappedResult['color'] != "#000000") {
+      mappedResult['color'] = "#00000000";
+    }
 
       return mappedResult;
     }
