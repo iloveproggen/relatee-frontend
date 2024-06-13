@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/completed_tasks.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/profileV2.dart';
 
@@ -9,9 +10,12 @@ purpose: This file contains the leaderboard view of the app.
 author: Maurice
 date: 17.05.2024
 */
+late List<Map<String, dynamic>> users;
+late Map<String, dynamic> userData = userData;
 
 class MainLeaderboardView extends StatelessWidget {
-  const MainLeaderboardView({super.key});
+  const MainLeaderboardView(
+      {super.key, required Map<String, dynamic> userData});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,9 @@ class MainLeaderboardView extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const MembersText(),
+            MembersText(
+              userData: userData,
+            ),
             const ChartLeaderboard(),
             WeeklyInfo(),
           ],
@@ -37,7 +43,9 @@ date: 17.05.2024
 */
 
 class MembersText extends StatelessWidget {
-  const MembersText({super.key});
+  const MembersText({super.key, required this.userData});
+
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +59,8 @@ class MembersText extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 20, bottom: 60),
               child: Text(
-                'Members_txt'.tr,
+                //'Members_txt'.tr,
+                userData['forename'],
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.left,
               ),
