@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/locale_strings.dart';
@@ -8,7 +7,6 @@ import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
-//import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,32 +20,26 @@ late int userId;
 Map<String, dynamic> error = {'hasError': false, 'message': "",};
 
 //checks if a user has saved their token in sharedpreferences, if yes, skip log in
-Future<int?> checkIfSignedIn() async {
+Future<String?> checkIfSignedIn() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('token');
-  print(token);
+  print("token: $token");
   if (token != null) {
-    List<String> parts = token.split('.');
-    String payload = parts[1];
-    String normalized = base64Url.normalize(payload);
-    var decoded = utf8.decode(base64Url.decode(normalized));
-
-    var payloadJson = jsonDecode(decoded);
-    int userId = payloadJson['userId'];
-
-    print("\n\nlogged in as user with the user id $userId\n\n");
-    return userId;
+    return token;
   }
+  print("no token found");
   return null;
 }
 
 class CheckLoggedIn extends StatelessWidget {
+  const CheckLoggedIn({super.key});
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
-    return FutureBuilder<int?>(
+    return FutureBuilder<String?>(
       future: checkIfSignedIn(),
-      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -70,7 +62,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: MainWidget(userId: snapshot.data!)));
+              home: Scaffold(body: MainWidget()));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -184,7 +176,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       _saveToken(token);
       int userId = jsonDecode(response.body)['userId'];
       print("The user id is: $userId");
-      Get.off(() => MainWidget(userId: userId));
+      Get.off(() => MainWidget());
       print("Opened MainWidget");
       setState() {
         isLoading = false;
