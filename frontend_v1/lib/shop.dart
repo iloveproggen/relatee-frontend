@@ -57,9 +57,6 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     }
 }
 '''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
   );
   try {
     final result =
