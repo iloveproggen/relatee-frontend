@@ -49,39 +49,40 @@ bool isPermanent = false;
 
 Future<void> createNewTask(int? userId, String name, String description,
     int reward, int? routineId, Map<String, dynamic> userData) async {
+  String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
   } else {
     deadlineString = '${deadline?.toIso8601String().split('.')[0]}Z';
   }
   final Map<String, dynamic> variables = {
-    'userId': userId,
-    'householdId': userData['householdId'],
-    'routineId': routineId,
-    'name': name.trim(),
-    'deadline': deadlineString,
-    'description': description,
-    'reward': reward,
-    'completed': false,
-    'ownerId': userData['id']
+    'input': {
+      'userId': userId,
+      'name': name.trim(),
+      'deadline': deadlineString,
+      'description': description,
+      'reward': reward,
+      'routineId': routineId,
+    }
   };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-    document: gql(
-        r'''mutation CreateTask($userId: Int, $householdId: Int!, $routineId: Int, $name: String!, $deadline: String, $description: String, $reward: Int!, $completed: Boolean, $ownerId: Int!) {
-    createTask(userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed, ownerId: $ownerId) {
-      userId
-      householdId
-      routineId
-      name
-      deadline
-      description
-      reward
-      completed
-      ownerId
+  document: gql(
+      r'''mutation CreateTask($input: CreateTaskInput!) {
+  createTask(input: $input) {
+    user {
+      id
+    }
+    name
+    deadline
+    description
+    reward
+    routine {
+      id
     }
   }
+}
 '''),
     variables: variables,
   );
@@ -101,6 +102,7 @@ Future<void> createNewTask(int? userId, String name, String description,
     print(e);
   }
 }
+
 class NewTaskMain extends StatelessWidget {
   const NewTaskMain({super.key, required this.userData});
 

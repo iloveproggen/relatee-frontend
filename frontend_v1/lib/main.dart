@@ -95,22 +95,18 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
       }
     }
 '''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
   );
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
 
-    if (result.hasException) {
-      print(result.exception.toString());
-      //} else if (result.isLoading) {
-    } else {
-      print(result.data!);
-      final users = result.data!['getHousehold']['users'];
-      final tasks = result.data!['getHousehold']['tasks'];
-      final routines = result.data!['getHousehold']['routines'];
+if (result.hasException) {
+  print(result.exception.toString());
+} else {
+  print(result.data!);
+  final users = result.data!['household']['users'];
+  final tasks = result.data!['household']['tasks'];
+  final routines = result.data!['household']['routines'];
 
   final List<Map<String, dynamic>> mappedUsers =
       users.map<Map<String, dynamic>>((user) {
@@ -122,8 +118,8 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
       'email': user['email'],
       'level': user['level'],
       'coins': user['coins'],
-      'householdName': result.data!['getHousehold']['household']['name'],
-      'householdId': result.data!['getHousehold']['household']['id'],
+      'householdName': result.data!['household']['name'],
+      'householdId': result.data!['household']['id'],
     };
   }).toList();
 
@@ -131,17 +127,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
       tasks.map<Map<String, dynamic>>((task) {
     return {
       'id': task['id'],
-      'userId': task['user']['id'],
-      'name': task['name'],
-      'description': task['description'],
-      'deadline': task['deadline'],
-      'reward': task['reward'],
-      'completed': task['completed'],
-      'completed_at': task['completedAt'],
-      'routine': {
-        'id': task['routine']['id'],
-        'name': task['routine']['name'],
-      },
+      // rest of your code
     };
   }).toList();
 
@@ -382,7 +368,7 @@ Future<void> addPoints(String coinsToAdd) async {
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
   DateTime? deadline =
-      DateTime.fromMillisecondsSinceEpoch(int.parse(task['deadline']));
+      DateTime.parse(task['deadline']);
 
   Widget green = SvgPicture.asset("assets/images/green.svg");
   Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
@@ -1120,9 +1106,8 @@ class Task extends StatelessWidget {
                         constraints: const BoxConstraints(maxWidth: 200),
                         child: Text(task['name'],
                             style: task['deadline'] != null &&
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                            int.parse(task['deadline']))
-                                        .isBefore(DateTime.now())
+                                 DateTime.parse((task['deadline'])
+                                 ).isBefore(DateTime.now())
                                 ? Theme.of(context)
                                     .textTheme
                                     .bodySmall
