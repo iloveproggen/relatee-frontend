@@ -10,26 +10,35 @@ purpose: This file contains the leaderboard view of the app.
 author: Maurice
 date: 17.05.2024
 */
-late List<Map<String, dynamic>> users;
-late Map<String, dynamic> userData = userData;
-
 class MainLeaderboardView extends StatelessWidget {
-  const MainLeaderboardView(
-      {super.key, required Map<String, dynamic> userData});
+  const MainLeaderboardView({super.key, required this.users});
+
+  final List<Map<String, dynamic>> users;
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> leaderboardusers =
+        users.where((user) => user['coins'] != null).toList();
+    leaderboardusers.sort((a, b) => b['coins'].compareTo(a['coins']));
+    leaderboardusers = leaderboardusers.take(3).toList();
     return Container(
       color: Theme.of(context).colorScheme.primary,
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            MembersText(
-              userData: userData,
-            ),
-            const ChartLeaderboard(),
-            WeeklyInfo(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.only(left: 40, right: 40, top: 80),
+          child: Column(
+            children: [
+              MembersText(
+                users: users,
+              ),
+              ChartLeaderboard(
+                leaderboardusers: leaderboardusers,
+              ),
+              WeeklyInfo(
+                leaderboardusers: leaderboardusers,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -43,30 +52,27 @@ date: 17.05.2024
 */
 
 class MembersText extends StatelessWidget {
-  const MembersText({super.key, required this.userData});
+  const MembersText({super.key, required this.users});
 
-  final Map<String, dynamic> userData;
+  final List<Map<String, dynamic>> users;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Column(
-          children: [
-            const BackIconRow(),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 60),
-              child: Text(
-                //'Members_txt'.tr,
-                userData['forename'],
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.left,
-              ),
+      child: Column(
+        children: [
+          const BackIconRow(),
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 60),
+            child: Text(
+              'Members_txt'.tr,
+              //users[0]['forename'],
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.left,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -79,8 +85,10 @@ date: 17.05.2024
 */
 
 class ChartLeaderboard extends StatelessWidget {
+  var leaderboardusers;
+
   //müssen noch ab deb Farben von den themes angepasst werden
-  const ChartLeaderboard({super.key});
+  ChartLeaderboard({super.key, required this.leaderboardusers});
 
   @override
   Widget build(BuildContext context) {
@@ -219,12 +227,16 @@ date: 17.05.2024
 */
 
 class WeeklyInfo extends StatelessWidget {
-  WeeklyInfo({super.key});
+  List<Map<String, dynamic>> leaderboardusers;
+
+  WeeklyInfo({super.key, required this.leaderboardusers});
 
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
+
+    print(leaderboardusers);
     return SizedBox(
       width: width,
       height: height * 0.2,
@@ -240,38 +252,42 @@ class WeeklyInfo extends StatelessWidget {
           } else {
             iconData = Icons.looks_3;
           }
-          int pts = 86 - (index * 10);
-          int tasks = 3 + (index * 4);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  children: [
-                    Icon(iconData),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      'Name ${index + 1}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-                Text(
-                  '$pts pts',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Row(
-                  children: [
-                    Icon(CupertinoIcons.checkmark_circle_fill),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      '$tasks tasks',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(iconData),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        //'Name ${index + 1}',
+                        leaderboardusers[index]['forename'],
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    //'$pts pts',
+                    leaderboardusers[index]['coins'].toString(),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Row(
+                    children: [
+                      Icon(CupertinoIcons.checkmark_circle_fill),
+                      const SizedBox(width: 8.0),
+                      Text(
+                        //'$tasks tasks',
+                        leaderboardusers[index]['level'].toString(),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },

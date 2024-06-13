@@ -68,8 +68,7 @@ class HouseholdOverview extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyLarge),
                           IconButton(
                               onPressed: () {
-                                Get.to(() =>
-                                    MainLeaderboardView(userData: userData));
+                                Get.to(() => MainLeaderboardView(users: users));
                               },
                               icon: Icon(CupertinoIcons.chart_bar_alt_fill,
                                   size: 40,

@@ -72,6 +72,8 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           email
           level
           coins
+          emoji
+          color
         }
         tasks {
           id
@@ -100,51 +102,53 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
 
-if (result.hasException) {
-  print(result.exception.toString());
-} else {
-  print(result.data!);
-  final users = result.data!['household']['users'];
-  final tasks = result.data!['household']['tasks'];
-  final routines = result.data!['household']['routines'];
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      print(result.data!);
+      final users = result.data!['household']['users'];
+      final tasks = result.data!['household']['tasks'];
+      final routines = result.data!['household']['routines'];
 
-  final List<Map<String, dynamic>> mappedUsers =
-      users.map<Map<String, dynamic>>((user) {
-    return {
-      'id': user['id'],
-      'forename': user['forename'],
-      'surname': user['surname'],
-      'username': user['username'],
-      'email': user['email'],
-      'level': user['level'],
-      'coins': user['coins'],
-      'householdName': result.data!['household']['name'],
-      'householdId': result.data!['household']['id'],
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedUsers =
+          users.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'],
+          'forename': user['forename'],
+          'surname': user['surname'],
+          'username': user['username'],
+          'email': user['email'],
+          'level': user['level'],
+          'coins': user['coins'],
+          'householdName': result.data!['household']['name'],
+          'householdId': result.data!['household']['id'],
+          'color': user['color'],
+          'emoji': user['emoji'],
+        };
+      }).toList();
 
-  final List<Map<String, dynamic>> mappedTasks =
-      tasks.map<Map<String, dynamic>>((task) {
-    return {
-      'id': task['id'],
-      // rest of your code
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedTasks =
+          tasks.map<Map<String, dynamic>>((task) {
+        return {
+          'id': task['id'],
+          // rest of your code
+        };
+      }).toList();
 
-  final List<Map<String, dynamic>> mappedRoutines =
-      routines.map<Map<String, dynamic>>((routine) {
-    return {
-      'id': routine['id'],
-      'name': routine['name'],
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedRoutines =
+          routines.map<Map<String, dynamic>>((routine) {
+        return {
+          'id': routine['id'],
+          'name': routine['name'],
+        };
+      }).toList();
 
-  return {
-    'users': mappedUsers,
-    'tasks': mappedTasks,
-    'routines': mappedRoutines,
-  };
-}
+      return {
+        'users': mappedUsers,
+        'tasks': mappedTasks,
+        'routines': mappedRoutines,
+      };
+    }
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -237,7 +241,6 @@ Future<Map<String, dynamic>> getUserData() async {
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-      
 
       return mappedResult;
     }
@@ -372,8 +375,7 @@ Future<void> addPoints(String coinsToAdd) async {
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
-  DateTime? deadline =
-      DateTime.parse(task['deadline']);
+  DateTime? deadline = DateTime.parse(task['deadline']);
 
   Widget green = SvgPicture.asset("assets/images/green.svg");
   Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
@@ -418,7 +420,9 @@ class _MainWidgetState extends State<MainWidget> {
 }
 
 class MainView extends StatefulWidget {
-  const MainView({super.key,});
+  const MainView({
+    super.key,
+  });
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -458,17 +462,17 @@ class _MainViewState extends State<MainView> {
             tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
             userData = snapshot.data!;
             print(userData);
-            return  const SingleChildScrollView(
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-                        child: Column(
-                          children: [
-                            IconRow(),
-                            WelcomeText(),
-                            ButtonRecommended(),
-                            TaskOverview(),
-                          ],
-                        )));
+            return const SingleChildScrollView(
+                child: Padding(
+                    padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+                    child: Column(
+                      children: [
+                        IconRow(),
+                        WelcomeText(),
+                        ButtonRecommended(),
+                        TaskOverview(),
+                      ],
+                    )));
           }
         });
   }
@@ -723,7 +727,6 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
-
   @override
   void initState() {
     super.initState();
@@ -747,7 +750,7 @@ class _TaskState extends State<TaskOverview> {
             return a['deadline'].compareTo(b['deadline']);
           }
         });
-        
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -928,9 +931,10 @@ class _TaskState extends State<TaskOverview> {
                                                             true,
                                                         child: Text(
                                                             'Delete_txt'.tr,
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .red)),
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ),
                                                     ],
                                                   ),
@@ -958,7 +962,9 @@ class _TaskState extends State<TaskOverview> {
                                                         children: [
                                                           SizedBox(height: 10),
                                                           Image.network(
-                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                            "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                                            scale: 1.3,
+                                                          ),
                                                         ],
                                                       ),
                                                       actions: [
@@ -1107,8 +1113,8 @@ class Task extends StatelessWidget {
                         constraints: const BoxConstraints(maxWidth: 200),
                         child: Text(task['name'],
                             style: task['deadline'] != null &&
-                                 DateTime.parse((task['deadline'])
-                                 ).isBefore(DateTime.now())
+                                    DateTime.parse((task['deadline']))
+                                        .isBefore(DateTime.now())
                                 ? Theme.of(context)
                                     .textTheme
                                     .bodySmall
