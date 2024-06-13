@@ -53,6 +53,8 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
             id,
             name,
             price,
+            emoji,
+            stock,
             description
     }
 }
@@ -74,7 +76,8 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
           'id': reward['id'],
           'name': reward['name'],
           'price': reward['price'],
-          // 'stock': reward['stock'] ?? '0',
+          'stock': reward['stock'] ?? '0',
+          'emoji': reward['emoji'],
           'description': reward['description'],
         };
       }).toList();
@@ -98,15 +101,12 @@ Future<String> getBalance(int userId) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUserBalance(\$userId: Int!) {
-    user(id: \$userId) {
+  query GetUserBalance {
+    me {
       coins
     }
   }
 '''),
-    variables: <String, dynamic>{
-      'userId': userId,
-    },
   );
   try {
     final result =
@@ -117,8 +117,8 @@ Future<String> getBalance(int userId) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      print(result.data!['user']['coins'].toString());
-      return result.data!['user']['coins'].toString();
+      print(result.data!['me']['coins'].toString());
+      return result.data!['me']['coins'].toString();
     }
   } on SocketException catch (e) {
     print('Network error: $e');
@@ -137,13 +137,13 @@ Future<void> deleteReward(int id) async {
   final client = await getGraphQLClient();
   final MutationOptions options = MutationOptions(
     document: gql('''
-      mutation DeleteReward(\$id: Int!) {
-        deleteReward(id: \$id) {
+      mutation DeleteReward(\$rewardId: Int!) {
+        deleteReward(rewardId: \$rewardId) {
         }
       }
     '''),
     variables: <String, dynamic>{
-      'id': id,
+      'rewardId': id,
     },
   );
   try {
@@ -158,6 +158,7 @@ Future<void> deleteReward(int id) async {
     print('Unexpected error: $e');
     // Handle other errors
   }
+  print("deleted?");
 }
 
 bool isBuyable(int price, int? points) {
@@ -526,7 +527,7 @@ class ItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(reward['name'],
+                    Text("${reward['emoji']} ${reward['name']}",
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
                         style: Theme.of(context)
@@ -554,14 +555,12 @@ class ItemCard extends StatelessWidget {
                             color: purple,
                           ),
                         ),
-                        // SizedBox(width: 10,)
-                        // Text(reward['stock'] == null ? "0" : reward['stock'],
-                        // overflow: TextOverflow.ellipsis,
-                        // maxLines: 3,
-                        // style: Theme.of(context)
-                        //     .textTheme
-                        //     .bodySmall
-                        //     ?.copyWith(fontWeight: FontWeight.bold)),
+                        SizedBox(width: 10,),
+                        Text(reward['stock'] == 0 ? "" : "${reward['stock'].toString()}x",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     reward['description'] == "" || reward['description'] == null
