@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinHouseholdView extends StatelessWidget {
   const JoinHouseholdView({super.key});
@@ -133,7 +133,12 @@ class BackIconSignOut extends StatelessWidget {
                         CupertinoDialogAction(
                           child: const Text('Logout',
                               style: TextStyle(color: Colors.red)),
-                          onPressed: () {
+                          onPressed: () async {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            await prefs.remove('token');
+                            print(
+                                "logging out user ${prefs.getString('token')}");
                             Get.off(() => const LoginWidget());
                           },
                         ),

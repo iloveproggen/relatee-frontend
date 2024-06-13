@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend_v1/main.dart' as main;
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 
@@ -88,13 +90,58 @@ class PublicProfile extends StatelessWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 50, right: 10),
-                          child:
-                              _buildInfoContainer('${userData['coins']} pts'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEDECEC),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/relatee.svg",
+                                  height: 20,
+                                  width: 20,
+                                  color: purple,
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '${userData['coins']}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Color(0xFF4A4646),
+                                    fontSize: 24,
+                                    fontFamily: 'Karla',
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 50),
-                          child:
-                              _buildInfoContainer('lvl ${userData['level']}'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEDECEC),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            child: Text(
+                              'lvl ${userData['level']}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF4A4646),
+                                fontSize: 24,
+                                fontFamily: 'Karla',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

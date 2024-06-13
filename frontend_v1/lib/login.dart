@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/locale_strings.dart';
@@ -16,6 +18,8 @@ final focusNode2 = FocusNode();
 final focusNodeSwitch = FocusNode();
 final focusNodeButton = FocusNode();
 late int userId;
+
+Map<String, dynamic> error = {'hasError': false, 'message': "",};
 
 //checks if a user has saved their token in sharedpreferences, if yes, skip log in
 Future<int?> checkIfSignedIn() async {
@@ -53,7 +57,10 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: Center(child: Text("Logging you in...", style: Theme.of(context).textTheme.bodySmall))));
+              home: Scaffold(
+                  body: Center(
+                      child: Text("Logging you in...",
+                          style: Theme.of(context).textTheme.bodySmall))));
         } else if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -80,36 +87,36 @@ class CheckLoggedIn extends StatelessWidget {
   }
 }
 
-class LoginApp extends StatefulWidget {
-  const LoginApp({super.key});
+// class LoginApp extends StatefulWidget {
+//   const LoginApp({super.key});
 
-  @override
-  State<LoginApp> createState() => _LoginAppState();
-}
+//   @override
+//   State<LoginApp> createState() => _LoginAppState();
+// }
 
-class _LoginAppState extends State<LoginApp> {
-  late Future<void> loggedInFuture;
+// class _LoginAppState extends State<LoginApp> {
+//   late Future<void> loggedInFuture;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
-    return GetMaterialApp(
-      darkTheme: darktheme,
-      theme: brightness == Brightness.light ? lighttheme : darktheme,
-      translations: LocaleString(),
-      locale: const Locale('en-Us'),
-      fallbackLocale: const Locale('en-US'),
-      debugShowCheckedModeBanner: false,
-      title: 'Relatee',
-      home: const LoginWidget(),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final brightness = MediaQuery.of(context).platformBrightness;
+//     return GetMaterialApp(
+//       darkTheme: darktheme,
+//       theme: brightness == Brightness.light ? lighttheme : darktheme,
+//       translations: LocaleString(),
+//       locale: const Locale('en-Us'),
+//       fallbackLocale: const Locale('en-US'),
+//       debugShowCheckedModeBanner: false,
+//       title: 'Relatee',
+//       home: const LoginWidget(),
+//     );
+//   }
+// }
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -161,6 +168,8 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       setState(() {
         isLoading = false;
         timeOut = true;
+        error['hasError'] = true;
+        error['message'] = jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
     }
     setState(() {
@@ -168,11 +177,13 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
     });
     print("Loading...");
     print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON.
       String token = jsonDecode(response.body)['token'];
       _saveToken(token);
       int userId = jsonDecode(response.body)['userId'];
+      print("The user id is: $userId");
       Get.off(() => MainWidget(userId: userId));
       print("Opened MainWidget");
       setState() {
@@ -185,11 +196,15 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
         setState(() {
           wrongPassword = true;
           isLoading = false;
+          error['hasError'] = true;
+          error['message'] = jsonDecode(response.body)['message'];
         });
       } else {
         setState(() {
           timeOut = true;
           isLoading = false;
+          error['hasError'] = true;
+          error['message'] = jsonDecode(response.body)['message'];
         });
       }
     }
@@ -204,6 +219,11 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    error = {
+      'hasError': false,
+      'message': '',
+    };
     _usernameController.addListener(_updateRequired);
     _passwordController.addListener(_updateRequired);
   }
@@ -225,28 +245,87 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            const SizedBox(
-              height: 50,
-            ),
-            Text(
-              'Log_In_to_Relatee_txt'.tr,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-                autofillHints: [AutofillHints.username],
-                cursorColor: Theme.of(context).colorScheme.onSecondary,
-                autocorrect: false,
-                focusNode: focusNode1,
+            isLoading
+                ? Positioned.fill(
+                  bottom: 150,
+                  child: Container(
+                    color: Colors.transparent,
+                    child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                      child: CupertinoActivityIndicator(
+                      radius: 15,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                    ),
+                  ),
+                  )
+                : Container(),
+            Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const SizedBox(
+                height: 50,
+              ),
+              Text(
+                'Log_In_to_Relatee_txt'.tr,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              TextFormField(
+                  autofillHints: const [AutofillHints.username],
+                  cursorColor: Theme.of(context).colorScheme.onSecondary,
+                  autocorrect: false,
+                  focusNode: focusNode1,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(focusNode2);
+                  },
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        width: 2,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                        width: 2,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ),
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(
+                        width: 2,
+                      ),
+                    ),
+                    hintText: 'Email_txt'.tr,
+                    contentPadding: const EdgeInsets.all(20),
+                    hintStyle: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 20),
+              TextFormField(
+                autofillHints: const [AutofillHints.password],
+                focusNode: focusNode2,
                 onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(focusNode2);
+                  FocusScope.of(context).requestFocus(focusNodeSwitch);
                 },
-                controller: _usernameController,
+                controller: _passwordController,
+                obscureText: !_isPasswordVisible,
+                cursorColor: Theme.of(context).colorScheme.onSecondary,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -268,238 +347,186 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                       width: 2,
                     ),
                   ),
-                  hintText: 'Email_txt'.tr,
+                  hintText: 'Password_txt'.tr,
                   contentPadding: const EdgeInsets.all(20),
                   hintStyle: Theme.of(context)
                       .textTheme
                       .bodySmall
                       ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                ),
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 20),
-            TextFormField(
-              autofillHints: [AutofillHints.password],
-              focusNode: focusNode2,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(focusNodeSwitch);
-              },
-              controller: _passwordController,
-              obscureText: !_isPasswordVisible,
-              cursorColor: Theme.of(context).colorScheme.onSecondary,
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    width: 2,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    width: 2,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                ),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    width: 2,
-                  ),
-                ),
-                hintText: 'Password_txt'.tr,
-                contentPadding: const EdgeInsets.all(20),
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: const Color.fromARGB(
-                          255, 204, 198, 196), // Set the color to grey
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: const Color.fromARGB(
+                            255, 204, 198, 196), // Set the color to grey
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
                   ),
                 ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            // ListTile(
-            //   contentPadding: const EdgeInsets.only(top: 20),
-            //   leading: CupertinoSwitch(
-            //       focusNode: focusNodeSwitch,
-            //       activeColor: Theme.of(context).colorScheme.tertiary, // Set the color to blue when the switch is on
-            //       value: _staySignedIn,
-            //       onChanged: (newValue) {
-            //         setState(() {
-            //           _staySignedIn = newValue;
-            //           print(_staySignedIn);
-            //         });
-            //       },
-            //     ),
-            //   title: Text('Stay Signed In?', style: Theme.of(context).textTheme.bodySmall),
-            // ),
-            const SizedBox(height: 80),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: requiredFields
-                          ? BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
-                              color: const Color.fromARGB(255, 74, 70, 70),
-                              border: Border.all(
+              const SizedBox(height: 0),
+              error['hasError'] && error['message'] != "" ? 
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+                    child: Text(
+                      error['message'] == "Invalid request" ? "Invalid email adress" : error['message'],
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.red,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ) : Container(height: 67),
+              // if (error['hasError'] && error['message'] == "" ||
+              //     error['message'].isEmpty)
+              //   Center(
+              //     child: Padding(
+              //       padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+              //       child: Text(
+              //         'Wrong password or email',
+              //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              //               color: Colors.red,
+              //             ),
+              //         textAlign: TextAlign.center,
+              //       ),
+              //     ),
+              //   ),
+              
+              // ListTile(
+              //   contentPadding: const EdgeInsets.only(top: 20),
+              //   leading: CupertinoSwitch(
+              //       focusNode: focusNodeSwitch,
+              //       activeColor: Theme.of(context).colorScheme.tertiary, // Set the color to blue when the switch is on
+              //       value: _staySignedIn,
+              //       onChanged: (newValue) {
+              //         setState(() {
+              //           _staySignedIn = newValue;
+              //           print(_staySignedIn);
+              //         });
+              //       },
+              //     ),
+              //   title: Text('Stay Signed In?', style: Theme.of(context).textTheme.bodySmall),
+              // ),
+              const SizedBox(height:40),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: requiredFields
+                            ? BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
                                 color: const Color.fromARGB(255, 74, 70, 70),
-                                width: 2,
+                                border: Border.all(
+                                  color: const Color.fromARGB(255, 74, 70, 70),
+                                  width: 2,
+                                ),
+                              )
+                            : BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  width: 2,
+                                ),
                               ),
-                            )
-                          : BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                width: 2,
+                        child: TextButton(
+                          onPressed: requiredFields
+                              ? () async {
+                                  String username = _usernameController.text;
+                                  String password = _passwordController.text;
+                                  _login();
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  print(
+                                      "Username: $username, Password: $password");
+                                }
+                              : null,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 10, bottom: 10, left: 15, right: 15),
+                              child: Text(
+                                'Log_In_txt'.tr,
+                                style: requiredFields
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            fontWeight: FontWeight.bold)
+                                    : Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary),
                               ),
-                            ),
-                      child: TextButton(
-                        onPressed: requiredFields
-                            ? () async {
-                                String username = _usernameController.text;
-                                String password = _passwordController.text;
-                                _login();
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                print(
-                                    "Username: $username, Password: $password");
-                              }
-                            : null,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, bottom: 10, left: 15, right: 15),
-                            child: Text(
-                              'Log_In_txt'.tr,
-                              style: requiredFields
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          fontWeight: FontWeight.bold)
-                                  : Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Container(
-                      width: 140,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        color: Theme.of(context).colorScheme.tertiary,
-                        border: Border.all(
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        width: 140,
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                           color: Theme.of(context).colorScheme.tertiary,
-                          width: 2,
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: TextButton(
-                        onPressed: () {
-                          Get.to(() => SignUpScreen());
-                        },
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, bottom: 10, left: 15, right: 15),
-                            child: Text('Sign Up!',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary)),
+                        child: TextButton(
+                          onPressed: () {
+                            error = {
+                              'hasError': false,
+                              'message': '',
+                            };
+                            Get.to(() => SignUpScreen());
+                          },
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 10, bottom: 10, left: 15, right: 15),
+                              child: Text('Sign Up!',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary)),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ]),
-            if (isLoading)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-                  child: CupertinoActivityIndicator(
-                      radius: 15,
-                      color: Theme.of(context).colorScheme.tertiary),
-                ),
-              ),
-            if (wrongPassword)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "Wrong username or password!",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            if (timeOut) // change this to show error on timeout
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "Issues connecting to the server, try again later.",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            if (otherError) // change this to show error on timeout
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    "code kaputt, bitte fixen :( \n user id = -1",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.red,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-          ],
+                  ]),
+            ],
+          ),
+          ]
         ),
       ),
     );

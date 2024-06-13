@@ -12,7 +12,9 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 late VoidCallback updateShop;
-late int? coins;
+int? coins;
+final Color purple = Color(0xFF7C4ACA);
+String userCoins = userData['coins'].toString();
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
@@ -25,12 +27,6 @@ Future<void> claimReward(int userId, int rewardId) async {
     document: gql(r'''
   mutation ClaimReward($userId: Int!, $rewardId: Int!) {
     claimReward(userId: $userId, rewardId: $rewardId) {
-      reward {
-        id
-        name
-        description
-        price
-      }
     }
   }
 '''),
@@ -51,18 +47,12 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUserRewards(\$id: Int!) {
-    household(id: \$id) {
-        users {
-            id,
-            coins
-        }
-        rewards {
+  query GetUserRewards {
+    householdRewards {
             id,
             name,
             price,
             description
-        }
     }
 }
 '''),
@@ -79,15 +69,14 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      coins = result.data!['household']['users']
-          .firstWhere((user) => user['id'] == userData['id'])['coins'];
-      final rewards = result.data!['household']['rewards'];
+      final rewards = result.data!['householdRewards'];
       final List<Map<String, dynamic>> mappedRewards =
           rewards.map<Map<String, dynamic>>((reward) {
         return {
           'id': reward['id'],
           'name': reward['name'],
           'price': reward['price'],
+          // 'stock': reward['stock'] ?? '0',
           'description': reward['description'],
         };
       }).toList();
@@ -105,6 +94,45 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     // Handle other errors
   }
   return [];
+}
+
+Future<String> getBalance(int userId) async {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql('''
+  query GetUserBalance(\$userId: Int!) {
+    user(id: \$userId) {
+      coins
+    }
+  }
+'''),
+    variables: <String, dynamic>{
+      'userId': userId,
+    },
+  );
+  try {
+    final result =
+        await client.query(options).timeout(const Duration(seconds: 10));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      print(result.data!['user']['coins'].toString());
+      return result.data!['user']['coins'].toString();
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  return '0';
 }
 
 Future<void> deleteReward(int id) async {
@@ -218,22 +246,24 @@ class ShopViewState extends State<ShopView> {
 
   final Map<String, dynamic> userData;
   late Future<List<Map<String, dynamic>>> _futureRewards;
+  late Future<String> _futureBalance;
 
   @override
   void initState() {
     super.initState();
     _futureRewards = getRewards(widget.userData['householdId']);
+    _futureBalance = getBalance(widget.userData['id']);
   }
 
   void _updateRewards() {
     setState(() {
       _futureRewards = getRewards(userData['householdId']);
+      _futureBalance = getBalance(userData['id']);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    coins = widget.userData['coins'];
     updateShop = _updateRewards;
     return Scaffold(
       body: Padding(
@@ -380,41 +410,76 @@ class ShopViewState extends State<ShopView> {
                   }),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(106, 205, 205, 205),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    coins == null ? '0 coins' : '$coins coins',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 25),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(106, 205, 205, 205),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    "lvl ${userData['level'].toString()}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 25),
-                  ),
-                ),
-              ],
+            FutureBuilder(
+              future: _futureBalance,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  userCoins = snapshot.data!;
+                  final String coins = snapshot.data!;
+                  print("coins left: " + coins);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/relatee.svg",
+                              height: 20,
+                              width: 20,
+                              color: purple,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              coins == '0' ? '0' : coins,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontSize: 25),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              "lvl ${userData['level'].toString()}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontSize: 25),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
             const SizedBox(height: 50)
           ],
@@ -423,9 +488,6 @@ class ShopViewState extends State<ShopView> {
     );
   }
 }
-
-void showNotEnoughPointsDialog(
-    BuildContext context, int taskPrice, Map<String, dynamic> userData) {}
 
 // ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
@@ -442,7 +504,7 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    buyable = isBuyable(reward['price'], coins);
+    buyable = isBuyable(reward['price'], int.parse(userCoins));
     return Column(
       children: [
         Container(
@@ -488,13 +550,20 @@ class ItemCard extends StatelessWidget {
                         const SizedBox(width: 5),
                         Opacity(
                           opacity: 0.8,
-                          child: Image.asset(
-                            "assets/images/relatee_coin.png",
-                            height: 20,
-                            width: 20,
-                            //color: Theme.of(context).colorScheme.tertiary,
+                          child: SvgPicture.asset(
+                            "assets/images/relatee.svg",
+                            height: 15,
+                            color: purple,
                           ),
-                        )
+                        ),
+                        // SizedBox(width: 10,)
+                        // Text(reward['stock'] == null ? "0" : reward['stock'],
+                        // overflow: TextOverflow.ellipsis,
+                        // maxLines: 3,
+                        // style: Theme.of(context)
+                        //     .textTheme
+                        //     .bodySmall
+                        //     ?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     reward['description'] == "" || reward['description'] == null
@@ -545,9 +614,10 @@ class ItemCard extends StatelessWidget {
                                 ),
                                 CupertinoDialogAction(
                                   onPressed: () async {
-                                    updateShop();
                                     await claimReward(
                                         userData['id'], reward['id']);
+
+                                    updateShop();
                                     // Perform the purchase logic here
                                     Navigator.of(context)
                                         .pop(); // Close the dialog
@@ -562,10 +632,8 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            int difference = (int.parse(
-                                    reward['price'].toString()) -
-                                int.parse(coins
-                                    .toString())); // Automatically dismiss the dialog after 3 seconds
+                            int difference =
+                                reward['price'] - userData['coins'];
                             return CupertinoAlertDialog(
                               title: const Text("Not enough Points to buy"),
                               content: Text(
@@ -593,7 +661,7 @@ class ItemCard extends StatelessWidget {
                           width: 2,
                           strokeAlign: BorderSide.strokeAlignInside,
                           color: buyable
-                              ? Theme.of(context).colorScheme.tertiary
+                              ? purple.withOpacity(0.0)
                               : Theme.of(context)
                                   .colorScheme
                                   .tertiary
@@ -602,7 +670,7 @@ class ItemCard extends StatelessWidget {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
                         color: buyable
-                            ? Theme.of(context).colorScheme.tertiary
+                            ? purple.withOpacity(0.5)
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(
