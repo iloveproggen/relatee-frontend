@@ -96,22 +96,14 @@ class ProfileView extends StatelessWidget {
                   Container(
                     height: 200,
                     width: 200,
-                    decoration: ShapeDecoration(
-                      shape: CircleBorder(
-                        side: BorderSide(
-                          width: 6,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ),
                     child: TextButton(
                       onPressed: () {
                         showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return CupertinoAlertDialog(
-                              title: const Text('Change Profile Picture'),
-                              content: const Text('Would you like to change your profile picture? You\'ll be navigated to Gravatar.com.'),
+                              title: const Text('Change Avatar'),
+                              content: const Text('Would you like to change your avatar?'),
                               actions: [
                                 CupertinoDialogAction(
                                   onPressed: () {
@@ -123,20 +115,15 @@ class ProfileView extends StatelessWidget {
                                   onPressed: () {
                                     Get.back();
                                   },
-                                  child: const Text("Visit Gravatar", style: TextStyle(color: Colors.blue),),
+                                  child: const Text("Go", style: TextStyle(color: Colors.blue),),
                                 ),
                               ],
                             );
                           },
                         );
                       },
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(gravatar.imageUrl(size: 200, defaultImage: 'mp')),
-                        child: Icon(
-                          CupertinoIcons.camera,
-                          color: Theme.of(context).colorScheme.tertiary,
-                          size: 30,
-                        ),
+                        child: const Text(
+                        "🌈", style: TextStyle(fontSize: 140),
                       ),
                     ),
                   ),
