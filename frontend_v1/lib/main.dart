@@ -402,9 +402,7 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
 }
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({super.key, required this.userId});
-
-  final int userId;
+  const MainWidget({super.key});
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
@@ -415,14 +413,12 @@ class _MainWidgetState extends State<MainWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: MainView(userId: widget.userId));
+    return Scaffold(body: MainView());
   }
 }
 
 class MainView extends StatefulWidget {
-  const MainView({super.key, required this.userId});
-
-  final int userId;
+  const MainView({super.key,});
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -456,7 +452,7 @@ class _MainViewState extends State<MainView> {
             print(snapshot.error.toString());
             return const Placeholder();
           } else if (snapshot.data!['householdId'] == null) {
-            return const JoinHouseholdView();
+            return JoinHouseholdView();
           } else {
             print(snapshot.data!);
             tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
