@@ -18,7 +18,6 @@ import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:confetti/confetti.dart';
 
 void main() {
   runApp(CheckLoggedIn());
@@ -60,10 +59,11 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query user(\$id: Int!) {
-    user(id: \$id) {
-      household {
+  query getHousehold{
+    household {
+        id
         name
+        emoji
         users {
           id
           forename
@@ -75,14 +75,18 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
         }
         tasks {
           id
-          userId
+          user {
+            id
+          }
           name
           description
           deadline
           reward
           completed    
-          completed_at
-          routineId
+          completedAt
+          routine {
+            id
+          }
         }
         routines {
           id
@@ -90,7 +94,6 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
         }
       }
     }
-  }
 '''),
     variables: <String, dynamic>{
       'id': id,
@@ -104,53 +107,58 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
       print(result.exception.toString());
       //} else if (result.isLoading) {
     } else {
-      final users = result.data!['user']['household']['users'];
-      final tasks = result.data!['user']['household']['tasks'];
-      final routines = result.data!['user']['household']['routines'];
+      print(result.data!);
+      final users = result.data!['getHousehold']['users'];
+      final tasks = result.data!['getHousehold']['tasks'];
+      final routines = result.data!['getHousehold']['routines'];
 
-      final List<Map<String, dynamic>> mappedUsers =
-          users.map<Map<String, dynamic>>((user) {
-        return {
-          'id': user['id'],
-          'forename': user['forename'],
-          'surname': user['surname'],
-          'username': user['username'],
-          'email': user['email'],
-          'level': user['level'],
-          'coins': user['coins'],
-          'householdName': result.data!['user']['household']['name'],
-        };
-      }).toList();
+  final List<Map<String, dynamic>> mappedUsers =
+      users.map<Map<String, dynamic>>((user) {
+    return {
+      'id': user['id'],
+      'forename': user['forename'],
+      'surname': user['surname'],
+      'username': user['username'],
+      'email': user['email'],
+      'level': user['level'],
+      'coins': user['coins'],
+      'householdName': result.data!['getHousehold']['household']['name'],
+      'householdId': result.data!['getHousehold']['household']['id'],
+    };
+  }).toList();
 
-      final List<Map<String, dynamic>> mappedTasks =
-          tasks.map<Map<String, dynamic>>((task) {
-        return {
-          'id': task['id'],
-          'userId': task['userId'],
-          'name': task['name'],
-          'description': task['description'],
-          'deadline': task['deadline'],
-          'reward': task['reward'],
-          'completed': task['completed'],
-          'completed_at': task['completed_at'],
-          'routineId': task['routineId']
-        };
-      }).toList();
+  final List<Map<String, dynamic>> mappedTasks =
+      tasks.map<Map<String, dynamic>>((task) {
+    return {
+      'id': task['id'],
+      'userId': task['user']['id'],
+      'name': task['name'],
+      'description': task['description'],
+      'deadline': task['deadline'],
+      'reward': task['reward'],
+      'completed': task['completed'],
+      'completed_at': task['completedAt'],
+      'routine': {
+        'id': task['routine']['id'],
+        'name': task['routine']['name'],
+      },
+    };
+  }).toList();
 
-      final List<Map<String, dynamic>> mappedRoutines =
-          routines.map<Map<String, dynamic>>((routine) {
-        return {
-          'id': routine['id'],
-          'name': routine['name'],
-        };
-      }).toList();
+  final List<Map<String, dynamic>> mappedRoutines =
+      routines.map<Map<String, dynamic>>((routine) {
+    return {
+      'id': routine['id'],
+      'name': routine['name'],
+    };
+  }).toList();
 
-      return {
-        'users': mappedUsers,
-        'tasks': mappedTasks,
-        'routines': mappedRoutines,
-      };
-    }
+  return {
+    'users': mappedUsers,
+    'tasks': mappedTasks,
+    'routines': mappedRoutines,
+  };
+}
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -168,41 +176,38 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   };
 }
 
-Future<Map<String, dynamic>> getUserData(int id) async {
+Future<Map<String, dynamic>> getUserData() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUser(\$id: Int!) {
-    user(id: \$id) {
+  query GetUser {
+      me {
+    id
+    username
+    forename
+    surname
+    email
+    coins
+    experience
+    level
+    household {
       id
-      householdId
-      forename
-      surname
-      username
-      email
-      experience
-      level
-      coins
-      household {
-        name
-      }
-      tasks {
-        id
-        name
-        deadline
-        description
-        reward
-        completed
-        completed_at
-        private
-      }
+    }
+    tasks {
+      id
+      name
+      deadline
+      description
+      reward
+      completed
+      completedAt
+      private
     }
   }
+}
 '''),
-    variables: <String, dynamic>{
-      'id': id,
-    },
   );
+  print("finished query");
 
   try {
     final result =
@@ -213,9 +218,9 @@ Future<Map<String, dynamic>> getUserData(int id) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      final user = result.data!['user'];
+      final user = result.data!['me'];
       final mappedResult = {
-        'id': id,
+        'id': user['id'],
         'forename': user['forename'],
         'surname': user['surname'],
         'username': user['username'],
@@ -224,11 +229,11 @@ Future<Map<String, dynamic>> getUserData(int id) async {
         'experience': user['experience'],
         'level': user['level'],
         'householdName': user['household']['name'],
-        'householdId': user['householdId'],
+        'householdId': user['household']['id'],
         'tasks': user['tasks']
             .map((task) => {
                   'id': task['id'],
-                  'userId': id,
+                  'userId': user['id'],
                   'name': task['name'],
                   'deadline': task['deadline'],
                   'description': task['description'],
@@ -295,43 +300,38 @@ Future<void> deleteTask(int id) async {
   }
 }
 
-void updateTask(int taskId, bool status) async {
-  final Map<String, dynamic> variables = {
-    'id': taskId,
-    'completed': status,
-    'completed_at': DateTime.now().toIso8601String().split('.')[0] + 'Z',
-  };
-  print(
-    DateTime.now().toIso8601String().split('.')[0] + 'Z',
-  );
-
+Future<void> completeTask(int taskId) async {
   final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql(
-        r'''mutation UpdateTask($id: Int!, $completed: Boolean!, $completed_at: String) {
-  updateTask(id: $id, completed: $completed, completed_at: $completed_at) {
-    id
-    completed
-    completed_at
-  }
-}
-'''),
-    variables: variables,
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+    mutation CompleteTask(\$taskId: Int!) {
+      completeTask(taskId: \$taskId) {
+      }
+    }
+  '''),
+    variables: <String, dynamic>{
+      'taskId': taskId,
+    },
   );
-
   try {
-    final QueryResult result = await client.query(options);
+    final result =
+        await client.mutate(options).timeout(const Duration(seconds: 10));
     if (result.hasException) {
       print(result.exception.toString());
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      // Handle the result
-      print(result.data);
-      print("Updated the task in the db: $variables");
+      print('Task completed successfully');
     }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
   } catch (e) {
-    print(e);
+    print('Unexpected error: $e');
+    // Handle other errors
   }
 }
 
@@ -339,8 +339,8 @@ Future<void> addPoints(String coinsToAdd) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-    mutation updateUser(\$id: Int!, \$coins: Int, \$email: String) {
-      updateUser(
+    mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
+      updateUserDetails(
         id: \$id
         coins: \$coins
         email: \$email
@@ -443,12 +443,12 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
-    _futureUserData = getUserData(widget.userId);
+    _futureUserData = getUserData();
   }
 
   void _updateUserData() {
     setState(() {
-      _futureUserData = getUserData(userData['id']);
+      _futureUserData = getUserData();
     });
   }
 
@@ -464,7 +464,7 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.hasError) {
             print(snapshot.error.toString());
             return const Placeholder();
-          } else if (snapshot.data!['householdName'] == null) {
+          } else if (snapshot.data!['householdId'] == null) {
             return const JoinHouseholdView();
           } else {
             print(snapshot.data!);
@@ -736,21 +736,14 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
-  late ConfettiController _centerController;
 
   @override
   void initState() {
     super.initState();
-
-    // initialize confettiController
-    _centerController =
-        ConfettiController(duration: const Duration(seconds: 10));
   }
 
   @override
   void dispose() {
-    // dispose the controller
-    _centerController.dispose();
     super.dispose();
   }
 
@@ -782,16 +775,6 @@ class _TaskState extends State<TaskOverview> {
             children: [
               Text('${'Your_txt'.tr} Tasks',
                   style: Theme.of(context).textTheme.bodyMedium),
-              ConfettiWidget(
-                confettiController: _centerController,
-                blastDirection: pi / 2,
-                maxBlastForce: 9,
-                minBlastForce: 5,
-                emissionFrequency: 0.03,
-                numberOfParticles: 10,
-                shouldLoop: true,
-                gravity: 0.2,
-              ),
               IconButton(
                 onPressed: () async {
                   var result =
@@ -966,16 +949,13 @@ class _TaskState extends State<TaskOverview> {
                                                   ),
                                                 );
                                               } else {
-                                                _centerController.play();
                                                 print(
                                                     "${'Task_completed!_txt'.tr} ${task['reward']}");
-                                                updateTask(task['id'], true);
+                                                completeTask(task['id']);
                                                 tasks.removeWhere((t) =>
                                                     t['id'] == task['id']);
-                                                addPoints(
-                                                    task['reward'].toString());
-                                                await Future.delayed(
-                                                    const Duration(seconds: 3));
+                                                // addPoints(
+                                                //     task['reward'].toString());
                                                 showCupertinoDialog(
                                                   context: context,
                                                   builder:

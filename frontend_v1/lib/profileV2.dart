@@ -24,6 +24,10 @@ class ProfileView extends StatelessWidget {
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> tasks;
 
+  void changeProfilePicture(params) {
+    //String gravatarToken = "188:gk-Q6VJK9TxLzjm_MHKMoSp-SZOSLGfH1rdVY0FiE0g0kVBSpZ8ht7sSwqX3cepn";
+  }
+
   @override
   Widget build(BuildContext context) {
     gravatar = Gravatar(userData['email']);   
@@ -100,8 +104,40 @@ class ProfileView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(gravatar.imageUrl(size: 200, defaultImage: 'mp')),
+                    child: TextButton(
+                      onPressed: () {
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text('Change Profile Picture'),
+                              content: const Text('Would you like to change your profile picture? You\'ll be navigated to Gravatar.com.'),
+                              actions: [
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: const Text("Back", style: TextStyle(color: Colors.blue),),
+                                ),
+                                CupertinoDialogAction(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: const Text("Visit Gravatar", style: TextStyle(color: Colors.blue),),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(gravatar.imageUrl(size: 200, defaultImage: 'mp')),
+                        child: Icon(
+                          CupertinoIcons.camera,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          size: 30,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -161,7 +197,7 @@ class ProfileView extends StatelessWidget {
                                   width: 20,
                                   color: purple,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
                                   '${userData['coins']}',
                                   textAlign: TextAlign.center,
@@ -216,25 +252,6 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoContainer(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 9),
-      decoration: const BoxDecoration(
-        color: Color(0xFFEDECEC),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Color(0xFF4A4646),
-          fontSize: 24,
-          fontFamily: 'Karla',
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
 }
 
 class BackIconRow extends StatelessWidget {

@@ -15,6 +15,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 late VoidCallback updateShop;
 int? coins;
 final Color purple = Color(0xFF7C4ACA);
+String userCoins = userData['coins'].toString();
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
@@ -47,14 +48,12 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUserRewards(\$id: Int!) {
-    household(id: \$id) {
-        rewards {
+  query GetUserRewards {
+    householdRewards {
             id,
             name,
             price,
             description
-        }
     }
 }
 '''),
@@ -71,13 +70,14 @@ Future<List<Map<String, dynamic>>> getRewards(int id) async {
     } else if (result.isLoading) {
       print('Loading');
     } else {
-      final rewards = result.data!['household']['rewards'];
+      final rewards = result.data!['householdRewards'];
       final List<Map<String, dynamic>> mappedRewards =
           rewards.map<Map<String, dynamic>>((reward) {
         return {
           'id': reward['id'],
           'name': reward['name'],
           'price': reward['price'],
+          // 'stock': reward['stock'] ?? '0',
           'description': reward['description'],
         };
       }).toList();
@@ -419,6 +419,7 @@ class ShopViewState extends State<ShopView> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
+                  userCoins = snapshot.data!;
                   final String coins = snapshot.data!;
                   print("coins left: " + coins);
                   return Row(
@@ -489,9 +490,6 @@ class ShopViewState extends State<ShopView> {
   }
 }
 
-void showNotEnoughPointsDialog(
-    BuildContext context, int taskPrice, Map<String, dynamic> userData) {}
-
 // ignore: must_be_immutable
 class ItemCard extends StatelessWidget {
   ItemCard({
@@ -507,7 +505,7 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    buyable = isBuyable(reward['price'], userData['coins']);
+    buyable = isBuyable(reward['price'], int.parse(userCoins));
     return Column(
       children: [
         Container(
@@ -558,7 +556,15 @@ class ItemCard extends StatelessWidget {
                             height: 15,
                             color: purple,
                           ),
-                        )
+                        ),
+                        // SizedBox(width: 10,)
+                        // Text(reward['stock'] == null ? "0" : reward['stock'],
+                        // overflow: TextOverflow.ellipsis,
+                        // maxLines: 3,
+                        // style: Theme.of(context)
+                        //     .textTheme
+                        //     .bodySmall
+                        //     ?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     reward['description'] == "" || reward['description'] == null
@@ -627,16 +633,12 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            int coins;
-                            if (userData['coins'] != null) {
-                              coins = int.parse(userData['coins']);
-                            } else {
-                              coins = 0;
-                            } // Automatically dismiss the dialog after 3 seconds
+                            int difference =
+                                reward['price'] - userData['coins'];
                             return CupertinoAlertDialog(
                               title: const Text("Not enough Points to buy"),
                               content: Text(
-                                'You\'re missing  coins!',
+                                'You\'re missing $difference coins!',
                                 textAlign: TextAlign.center,
                               ),
                               actions: [
