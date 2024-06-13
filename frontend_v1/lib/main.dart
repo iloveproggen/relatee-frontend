@@ -176,6 +176,8 @@ Future<Map<String, dynamic>> getUserData() async {
     coins
     experience
     level
+    emoji
+    color
     household {
       id
     }
@@ -214,6 +216,8 @@ Future<Map<String, dynamic>> getUserData() async {
         'coins': user['coins'],
         'experience': user['experience'],
         'level': user['level'],
+        'emoji': user['emoji'],
+        'color': user['color'],
         'householdName': user['household']['name'],
         'householdId': user['household']['id'],
         'tasks': user['tasks']
@@ -233,6 +237,7 @@ Future<Map<String, dynamic>> getUserData() async {
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
+      
 
       return mappedResult;
     }

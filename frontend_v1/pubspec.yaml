@@ -34,6 +34,7 @@ dependencies:
   postgres: ^2.3.2
   intl: any
   flutter_gravatar: any
+  keyboard_emoji_picker: ^1.0.3
   #^0.17.0
 
 #to get the share interface of the device
@@ -55,6 +56,7 @@ dependencies:
   graphql_flutter: ^5.2.0-beta.6
   http: ^1.2.1
   confetti: ^0.7.0
+  flutter_colorpicker: ^1.1.0
 
 
 dev_dependencies:
