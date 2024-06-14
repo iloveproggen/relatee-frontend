@@ -69,7 +69,8 @@ Future<void> createNewTask(int? userId, String name, String description,
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
   document: gql(
-      r'''mutation CreateTask($input: CreateTaskInput!) {
+r'''
+mutation CreateTask($input: CreateTaskInput!) {
   createTask(input: $input) {
     user {
       id
@@ -130,14 +131,15 @@ class NewTaskFuture extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
+          print(snapshot.data);
           List<Map<String, dynamic>> householdUsers = [];
           householdUsers.add(nullUser);
           householdUsers
               .addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
           List<Map<String, dynamic>> routines = [];
           routines.add(nullRoutine);
-          routines.addAll(
-              List<Map<String, dynamic>>.from(snapshot.data!['routines']));
+          // routines.addAll(
+          //     List<Map<String, dynamic>>.from(snapshot.data!['routines']));
           return NewTask(
               userData: userData,
               householdUsers: householdUsers,

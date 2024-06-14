@@ -138,27 +138,21 @@ Future<void> deleteReward(int id) async {
   final MutationOptions options = MutationOptions(
     document: gql('''
       mutation DeleteReward(\$rewardId: Int!) {
-        deleteReward(rewardId: \$rewardId) {
-        }
+        deleteReward(rewardId: \$rewardId) 
       }
     '''),
     variables: <String, dynamic>{
       'rewardId': id,
     },
   );
-  try {
-    await client.mutate(options).timeout(const Duration(seconds: 10));
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
+    final QueryResult result = await client.mutate(options);
+  if (result.hasException) {
+    print(result.exception.toString());
+  } else if (result.isLoading) {
+    print('Loading');
+  } else {
+    print("Deleted reward? ");
   }
-  print("deleted?");
 }
 
 bool isBuyable(int price, int? points) {
@@ -321,88 +315,76 @@ class ShopViewState extends State<ShopView> {
                       } else {
                         rewards
                             .sort((a, b) => a['price'].compareTo(b['price']));
-                        return ShaderMask(
-                          shaderCallback: (Rect bounds) {
-                            return LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Colors.white.withOpacity(0.05)
-                              ],
-                              stops: [0.8, 1],
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                            ).createShader(bounds);
-                          },
-                          child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            itemCount: rewards.length,
-                            itemBuilder: (context, index) {
-                              final reward = rewards[index];
-                              return Dismissible(
-                                key: Key(reward.toString()),
-                                direction: DismissDirection.endToStart,
-                                onDismissed: (direction) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CupertinoAlertDialog(
-                                        title: const Text('Confirm Delete'),
-                                        content: Text(
-                                            'Are you sure you want to delete the reward "${reward['name']}"?'),
-                                        actions: [
-                                          CupertinoDialogAction(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                              _updateRewards();
-                                            },
-                                            child: const Text('Back',
-                                                style: TextStyle(
-                                                    color: Colors.blue)),
-                                          ),
-                                          CupertinoDialogAction(
-                                            isDestructiveAction: true,
-                                            onPressed: () {
-                                              Navigator.of(context)
-                                                  .pop(); // Close the dialog
-                                              deleteReward(reward['id']);
-                                              _updateRewards();
-                                            },
-                                            child: const Text('Yes',
-                                                style: TextStyle(
-                                                    color: Colors.red)),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                background: Container(
-                                  margin: const EdgeInsets.only(
-                                      right: 50, bottom: 22),
-                                  alignment: Alignment.centerRight,
-                                  child: const Icon(CupertinoIcons.delete,
-                                      color: Colors.red, size: 30),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  title: TextButton(
-                                    onPressed: () async {
-                                      var result = await Get.to(
-                                          UpdateShopItem(shopItem: reward));
-                                      if (result != null) {
-                                        _updateRewards();
-                                      }
-                                    },
-                                    child: ItemCard(
-                                      reward: reward,
-                                      userData: userData,
-                                    ),
+                        return ListView.builder(
+                          padding: EdgeInsets.only(top: 20),
+                          scrollDirection: Axis.vertical,
+                          itemCount: rewards.length,
+                          itemBuilder: (context, index) {
+                            final reward = rewards[index];
+                            return Dismissible(
+                              key: Key(reward.toString()),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CupertinoAlertDialog(
+                                      title: const Text('Confirm Delete'),
+                                      content: Text(
+                                          'Are you sure you want to delete the reward "${reward['name']}"?'),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            _updateRewards();
+                                          },
+                                          child: const Text('Back',
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                        ),
+                                        CupertinoDialogAction(
+                                          isDestructiveAction: true,
+                                          onPressed: () async {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            await deleteReward(reward['id']);
+                                            _updateRewards();
+                                          },
+                                          child: const Text('Yes',
+                                              style: TextStyle(
+                                                  color: Colors.red)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              background: Container(
+                                margin: const EdgeInsets.only(
+                                    right: 50, bottom: 22),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(CupertinoIcons.delete,
+                                    color: Colors.red, size: 30),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                title: TextButton(
+                                  onPressed: () async {
+                                    var result = await Get.to(
+                                        UpdateShopItem(shopItem: reward));
+                                    if (result != null) {
+                                      _updateRewards();
+                                    }
+                                  },
+                                  child: ItemCard(
+                                    reward: reward,
+                                    userData: userData,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         );
                       }
                     }
@@ -503,6 +485,10 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(reward['emoji']);
+    if(reward['emoji'] != "") {
+      reward['emoji'] = reward['emoji'] + " ";
+    }
     buyable = isBuyable(reward['price'], int.parse(userCoins));
     return Column(
       children: [
@@ -527,13 +513,13 @@ class ItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${reward['emoji']} ${reward['name']}",
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    Text("${reward['emoji']}${reward['name']}",
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 3,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
                     Row(
                       children: [
                         Text(
@@ -555,12 +541,17 @@ class ItemCard extends StatelessWidget {
                             color: purple,
                           ),
                         ),
-                        SizedBox(width: 10,),
-                        Text(reward['stock'] == 0 ? "" : "${reward['stock'].toString()}x",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                            reward['stock'] == -1
+                                ? ""
+                                : "${reward['stock'].toString()}x",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     reward['description'] == "" || reward['description'] == null
@@ -691,7 +682,7 @@ class ItemCard extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 10),
       ],
     );
   }
