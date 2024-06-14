@@ -5,10 +5,11 @@ import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -18,9 +19,41 @@ String getDueDaysInText(int days) {
   }
 }
 
-updateProfilePicture(userData, newEmoji) {}
+Future<Map<String,dynamic>> updateUserProfile(String emoji, String colorPrimary, String colorSecondary) async {
+  final Map<String, dynamic> variables = {
+    'input': {
+      'emoji': emoji,
+      'colorPrimary': colorPrimary,
+      'colorSecondary': colorSecondary,
+    }
+  };
 
-late Gravatar gravatar;
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''
+  mutation UpdateUserStyle($input: UpdateUserStyleInput!) {
+    updateUserStyle(input: $input) {
+      emoji
+      colorPrimary
+      colorSecondary
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  final QueryResult result = await client.query(options);
+  print("new data: ${result.data!}");
+
+  if (result.hasException) {
+    print(result.exception.toString());
+    return {};
+  } else {
+    // Handle the updated user data
+    print(result.data!['updateUserStyle']);
+    return result.data!['updateUserStyle'];
+  }
+}
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key, required this.userData, required this.tasks});
@@ -34,26 +67,21 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   String? avatar;
-  late Color bgColor;
+  late Color colorPrimary;
+  late Color colorSecondary;
+  bool useSecondaryColor = false;
 
   @override
   void initState() {
     super.initState();
     avatar = widget.userData['emoji'];
-    if (widget.userData['color'] != "#000000") {
-      String bgColorString =
-          '0xFF' + widget.userData['color'].replaceAll('#', '');
-      bgColor = Color(int.parse(bgColorString));
-    }
+    colorPrimary = Color(int.parse(
+        // ignore: prefer_interpolation_to_compose_strings
+        '0xFF' + widget.userData['colorPrimary'].replaceAll('#', '')));
+    colorSecondary = Color(int.parse(
+        // ignore: prefer_interpolation_to_compose_strings
+        '0xFF' + widget.userData['colorSecondary'].replaceAll('#', '')));
     // Add your initialization code here
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.userData['color'] == "#000000") {
-      bgColor = Theme.of(context).colorScheme.primary;
-    }
   }
 
   @override
@@ -63,14 +91,52 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void openColorPicker() {
+    Color oldColorPrimary = colorPrimary;
+    Color oldColorSecondary = colorSecondary;
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoActionSheet(
-          title: Text("Change Profile color"),
-            message: Column(
+        return Container(
+          height: 550,
+          color: Theme.of(context).colorScheme.primary,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(height:10),
+                const SizedBox(height: 10),
+                ColorPicker(
+                  paletteType: PaletteType.hsl,
+                  labelTypes: const [],
+                  pickerAreaHeightPercent: 0.35,
+                  enableAlpha: false,
+                  pickerAreaBorderRadius:
+                      const BorderRadius.all(Radius.circular(20)),
+                  pickerColor: colorPrimary,
+                  onColorChanged: ((value) {
+                    print(value);
+                    setState(() {
+                      colorPrimary = value;
+                    });
+                  }),
+                ),
+                // Row(
+                //   children: [
+                //     CupertinoSwitch(
+                //       value: useSecondaryColor,
+                //       onChanged: (value) {
+                //         setState(() {
+                //           useSecondaryColor = value;
+                //         });
+                //       },
+                //     ),
+                //     Text(
+                //       "Use a gradient?",
+                //       style: Theme.of(context).textTheme.bodySmall,
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 20),
                 ColorPicker(
                   paletteType: PaletteType.hsl,
                   labelTypes: [],
@@ -78,41 +144,36 @@ class _ProfileViewState extends State<ProfileView> {
                   enableAlpha: false,
                   pickerAreaBorderRadius:
                       const BorderRadius.all(Radius.circular(20)),
-                  pickerColor: bgColor,
+                  pickerColor: colorSecondary, // Changed to colorSecondary
                   onColorChanged: ((value) {
                     print(value);
                     setState(() {
-                      bgColor = value;
+                      colorSecondary = value; // Changed to colorSecondary
                     });
                   }),
                 ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      colorPrimary = oldColorPrimary;
+                      colorSecondary = oldColorSecondary;
+                      Get.back();
+                    });
+                  },
+                  child:
+                      const Text('Back', style: TextStyle(color: Colors.red)),
+                ),
+                const SizedBox(height: 40),
               ],
             ),
-            actions: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  setState(() {
-                    String oldColor = '0xFF' + widget.userData['color'].replaceAll('#', '');
-                    print(oldColor);
-                    if (oldColor == "0xFF000000"){
-                      bgColor = Theme.of(context).colorScheme.primary;}
-                    else{
-                      bgColor = Color(int.parse(oldColor));}
-                    Get.back();
-                    
-                  });
-              
-                },
-                child: const Text('Back', style: TextStyle(color: Colors.red)),
-              ),
-            ]);
+          ),
+        );
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    gravatar = Gravatar(widget.userData['email']);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -124,7 +185,7 @@ class _ProfileViewState extends State<ProfileView> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  BackAndUpdateIcon(userData: widget.userData, avatar: avatar!),
+                  BackAndUpdateIcon(avatar: avatar!, colorPrimary: colorPrimary.toString(), colorSecondary: colorSecondary.toString()),
                   const Spacer(),
                   TextButton(
                     child: Icon(CupertinoIcons.paintbrush,
@@ -185,10 +246,10 @@ class _ProfileViewState extends State<ProfileView> {
                 children: [
                   const KeyboardEmojiPickerWrapper(child: SizedBox(height: 0)),
                   //Profile Picture
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Container(
+                  SizedBox(
                     height: 200,
                     width: 200,
                     // decoration: BoxDecoration(
@@ -235,27 +296,39 @@ class _ProfileViewState extends State<ProfileView> {
                         padding: MaterialStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0)),
                       ),
-                      child: CircleAvatar(
-                        backgroundColor: bgColor,
-                        radius: 200,
-                        child: avatar == null
-                            ? Text(
-                                "add icon",
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontSize: 130,
-                                ),
-                              )
-                            : Text(
-                                avatar ?? 'add icon',
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontSize: 130,
-                                ),
-                              ),
+                      child: Container(
+                        width: 400,
+                        height: 400,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [colorPrimary, colorSecondary],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: Center(
+                            child: avatar == null
+                                ? Text(
+                                    "add icon",
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 130,
+                                    ),
+                                  )
+                                : Text(
+                                    avatar ?? 'add icon',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 130,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -423,15 +496,16 @@ class BackIconRow extends StatelessWidget {
 
 class BackAndUpdateIcon extends StatelessWidget {
   const BackAndUpdateIcon(
-      {super.key, required this.userData, required this.avatar});
+      {super.key, required this.avatar, required this.colorPrimary, required this.colorSecondary});
 
   final double padding = 20;
   final double size = 40;
-  final Map<String, dynamic> userData;
-  final String avatar;
+  final String avatar, colorPrimary, colorSecondary;
 
   @override
   Widget build(BuildContext context) {
+    String formattedColorPrimary =  '#' + colorPrimary.split('(0xff')[1].split(')')[0];
+    String formattedColorSecondary =  '#' + colorSecondary.split('(0xff')[1].split(')')[0];
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -444,10 +518,8 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (avatar != userData['emoji']) {
-                  await updateProfilePicture(userData['id'], avatar);
-                }
-                Get.back();
+                Map<String, dynamic> newUserData = await updateUserProfile(avatar, formattedColorPrimary, formattedColorSecondary);
+                Get.back(result: newUserData);
               },
               child: Row(
                 children: [

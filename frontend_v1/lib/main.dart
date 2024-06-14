@@ -72,6 +72,9 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
           email
           level
           coins
+          emoji
+          colorPrimary
+          colorSecondary
         }
         tasks {
           id
@@ -118,6 +121,9 @@ if (result.hasException) {
       'email': user['email'],
       'level': user['level'],
       'coins': user['coins'],
+      'emoji': user['emoji'],
+      'colorPrimary': user['colorPrimary'],
+      'colorSecondary': user['colorSecondary'],
       'householdName': result.data!['household']['name'],
       'householdId': result.data!['household']['id'],
     };
@@ -177,7 +183,8 @@ Future<Map<String, dynamic>> getUserData() async {
     experience
     level
     emoji
-    color
+    colorPrimary
+    colorSecondary
     household {
       id
     }
@@ -217,7 +224,8 @@ Future<Map<String, dynamic>> getUserData() async {
         'experience': user['experience'],
         'level': user['level'],
         'emoji': user['emoji'],
-        'color': user['color'],
+        'colorPrimary': user['colorPrimary'],
+        'colorSecondary': user['colorSecondary'],
         'householdName': user['household']['name'],
         'householdId': user['household']['id'],
         'tasks': user['tasks']
@@ -237,10 +245,6 @@ Future<Map<String, dynamic>> getUserData() async {
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-      
-    if (mappedResult['color'] != "#000000") {
-      mappedResult['color'] = "#00000000";
-    }
 
       return mappedResult;
     }
@@ -499,7 +503,11 @@ class IconRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   iconSize: size,
                   onPressed: () async {
-                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
+                    Map<String, dynamic> newUserData = await Get.to(() => ProfileView(userData: userData, tasks: tasks));
+                    if (newUserData != {}) {
+                      userData = newUserData;
+                      update();
+                    }
                   },
                   icon: Icon(
                     CupertinoIcons.person_fill,
