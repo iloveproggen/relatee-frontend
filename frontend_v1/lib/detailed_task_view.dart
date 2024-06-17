@@ -22,7 +22,9 @@ void updateTask(String name, String? description, int reward, int? routineId,
     'householdId': userData['householdId'],
     'routineId': routineId,
     'name': name,
-    'deadline': deadline != null ? '${deadline!.toIso8601String().split('.')[0]}Z' : null,
+    'deadline': deadline != null
+        ? '${deadline!.toIso8601String().split('.')[0]}Z'
+        : null,
     'description': description,
     'reward': reward,
     'status': 0
@@ -124,6 +126,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -266,27 +269,101 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
               //     ),
               //   ),
               // ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              Text("created by ${task['ownerForename']}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(CupertinoIcons.person,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.tertiary),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, right: 20, bottom: 10),
+                        child: Icon(
+                          CupertinoIcons.person,
+                          size: 40,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      Text(('assign_to_txt'.tr),
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ],
                   ),
-                  Text("assigned to:",
-                      style: Theme.of(context).textTheme.bodySmall),
-                  const Spacer(),
-                  Text(
-                      widget.assigned != null
-                          ? widget.assigned!
-                          : "anyone_txt".tr,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  FutureBuilder(
+                    future: getHouseholdData(userData[
+                        'id']), // Ensure this returns Future<List<Map<String, dynamic>>>
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (snapshot.hasData) {
+                        print(snapshot.data!);
+                        List<Map<String, dynamic>> users =
+                            snapshot.data!['users'];
+                        return TextButton(
+                            style: ButtonStyle(
+                              alignment: Alignment.centerRight,
+                              padding:
+                                  MaterialStateProperty.all(EdgeInsets.zero),
+                            ),
+                            onPressed: () {
+                              showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .background,
+                                    height: 300,
+                                    child: CupertinoPicker(
+                                      scrollController:
+                                          FixedExtentScrollController(
+                                              initialItem: 0),
+
+                                      itemExtent:
+                                          50, // Increase the item extent to make the items bigger
+                                      onSelectedItemChanged: (int index) {
+                                        print(
+                                            'Selected member: ${users[index]['forename'] ?? ''}');
+                                        setState(() {
+                                          assignedToUser = users[index];
+                                          // widget.callback;
+                                        });
+                                      },
+                                      children: users.map((member) {
+                                        return Center(
+                                          child: Text(
+                                            member['forename'],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Text(
+                                assignedToUser['id'] == null
+                                    ? 'anyone_txt'.tr
+                                    : "${assignedToUser['forename']}",
+                                textAlign: TextAlign.end,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.bold)));
+                      } else {
+                        return Text('No data available');
+                      }
+                    },
+                  ),
                 ],
               ),
               isPermanent
@@ -294,13 +371,11 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
-                          padding:
-                              const EdgeInsets.only(top: 10, right: 20, bottom: 10),
-                          child: Icon(
-                            CupertinoIcons.clock_fill,
-                            size: 40,
-                            color:  Theme.of(context).colorScheme.tertiary
-                          ),
+                          padding: const EdgeInsets.only(
+                              top: 10, right: 20, bottom: 10),
+                          child: Icon(CupertinoIcons.clock_fill,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.tertiary),
                         ),
                         Text(
                           ('repeats_txt'.tr),
@@ -313,12 +388,11 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.add_circled,
-                      size: 40,
-                      color:  Theme.of(context).colorScheme.tertiary
-                    ),
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(CupertinoIcons.add_circled,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.tertiary),
                   ),
                   Text(
                     'price:',
@@ -395,19 +469,22 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  deadline != null ? IconButton(
-                    style: ButtonStyle(alignment: Alignment.centerRight,
-                    animationDuration: Duration.zero, 
-                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
-                    icon: Icon(CupertinoIcons.clear,
-                        color: Theme.of(context).colorScheme.tertiary),
-                    onPressed: () {
-                      setState(() {
-                        deadline = null; 
-                      });
-                    },
-                  )
-                  : Container(),
+                  deadline != null
+                      ? IconButton(
+                          style: ButtonStyle(
+                              alignment: Alignment.centerRight,
+                              animationDuration: Duration.zero,
+                              padding:
+                                  MaterialStateProperty.all(EdgeInsets.zero)),
+                          icon: Icon(CupertinoIcons.clear,
+                              color: Theme.of(context).colorScheme.tertiary),
+                          onPressed: () {
+                            setState(() {
+                              deadline = null;
+                            });
+                          },
+                        )
+                      : Container(),
                 ],
               ),
               Column(
@@ -416,13 +493,11 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                        child: Icon(
-                          CupertinoIcons.text_aligncenter,
-                          size: 40,
-                          color:  Theme.of(context).colorScheme.tertiary
-                        ),
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, right: 20),
+                        child: Icon(CupertinoIcons.text_aligncenter,
+                            size: 40,
+                            color: Theme.of(context).colorScheme.tertiary),
                       ),
                       Expanded(
                           child: Text(
@@ -457,11 +532,9 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                               border: InputBorder.none),
                           maxLength: 100,
                           style:
-                              Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,)))
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  )))
                 ],
               ),
             ],

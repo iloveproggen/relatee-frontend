@@ -100,6 +100,12 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
               level
               coins
             }
+            owner {
+              id
+              forename
+              surname
+              username
+            }
             routine {
               id
               name
@@ -151,8 +157,12 @@ if (result.hasException) {
       'completedAt': task['completedAt'],
       'private': task['private'],
       'userId': task['user'] != null ? task['user']['id'] : null,
-      'routineId': task['routine'] != null ? task['routine']['id'] : null,
-      'routineName': task['routine'] != null ? task['routine']['name'] : null,
+      'userForename': task['user'] != null ? task['user']['forename'] : null,
+      'userSurname': task['user'] != null ? task['user']['surname'] : null,
+      'ownerId': task['owner']['id'],
+      'ownerForename': task['owner']['forename'],
+      // 'routineId': task['routine'] != null ? task['routine']['id'] : null,
+      // 'routineName': task['routine'] != null ? task['routine']['name'] : null,
     };
   }).toList();
   // final List<Map<String, dynamic>> mappedRoutines =
@@ -215,6 +225,11 @@ Future<Map<String, dynamic>> getUserData() async {
       completed
       completedAt
       private
+      owner {
+        id
+        forename
+        surname
+      }
     }
   }
 }
@@ -257,6 +272,9 @@ Future<Map<String, dynamic>> getUserData() async {
                   'completed': task['completed'],
                   'completed_at': task['completed_at'],
                   'private': task['private'],
+                  'ownerId': task['owner']['id'],
+                  'ownerForename': task['owner']['forename'],
+                  'ownerSurname': task['owner']['surname']
                 })
             .toList(),
       };
@@ -313,6 +331,7 @@ Future<void> deleteTask(int id) async {
     print('Unexpected error: $e');
     // Handle other errors
   }
+  print("deleted?");
 }
 
 Future<void> completeTask(int taskId) async {
@@ -350,49 +369,49 @@ Future<void> completeTask(int taskId) async {
   }
 }
 
-Future<void> addPoints(String coinsToAdd) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-    mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
-      updateUserDetails(
-        id: \$id
-        coins: \$coins
-        email: \$email
-      ) {
-        id
-        coins
-        email
-      }
-    }
-  '''),
-    variables: <String, dynamic>{
-      'id': userData['id'],
-      'coins': userData['coins'] + int.parse(coinsToAdd),
-      'email': userData['email'],
-    },
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      print('Points added successfully');
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-}
+// Future<void> addPoints(String coinsToAdd) async {
+//   final client = await getGraphQLClient();
+//   final QueryOptions options = QueryOptions(
+//     document: gql('''
+//     mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
+//       updateUserDetails(
+//         id: \$id
+//         coins: \$coins
+//         email: \$email
+//       ) {
+//         id
+//         coins
+//         email
+//       }
+//     }
+//   '''),
+//     variables: <String, dynamic>{
+//       'id': userData['id'],
+//       'coins': userData['coins'] + int.parse(coinsToAdd),
+//       'email': userData['email'],
+//     },
+//   );
+//   try {
+//     final result =
+//         await client.query(options).timeout(const Duration(seconds: 10));
+//     if (result.hasException) {
+//       print(result.exception.toString());
+//     } else if (result.isLoading) {
+//       print('Loading');
+//     } else {
+//       print('Points added successfully');
+//     }
+//   } on SocketException catch (e) {
+//     print('Network error: $e');
+//     // Handle network error
+//   } on TimeoutException catch (e) {
+//     print('Request timed out: $e');
+//     // Handle timeout
+//   } catch (e) {
+//     print('Unexpected error: $e');
+//     // Handle other errors
+//   }
+// }
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
@@ -947,7 +966,7 @@ class _TaskState extends State<TaskOverview> {
                                                       (BuildContext context) =>
                                                           CupertinoAlertDialog(
                                                     title: Text(
-                                                        ' ${'Delete_Task_txt'.tr}"?"'),
+                                                        "${"${'Delete_Task_txt'.tr} "+ task['name']}?"),
                                                     content: Text(
                                                         'Sure_delete_task?_txt'
                                                             .tr),
@@ -967,12 +986,7 @@ class _TaskState extends State<TaskOverview> {
                                                         onPressed: () async {
                                                           await deleteTask(
                                                               task['id']);
-                                                          tasks.removeWhere(
-                                                              (t) =>
-                                                                  t['id'] ==
-                                                                  task['id']);
-                                                          Navigator.pop(
-                                                              context);
+                                                          Get.back();
                                                           update();
                                                         },
                                                         isDestructiveAction:
