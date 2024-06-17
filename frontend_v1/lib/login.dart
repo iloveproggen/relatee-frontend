@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:local_auth/local_auth.dart';
 
 final focusNode1 = FocusNode();
 final focusNode2 = FocusNode();
@@ -30,6 +31,23 @@ Future<String?> checkIfSignedIn() async {
   print("no token found");
   return null;
 }
+
+
+// Future<bool> authenticateWithFaceID() async {
+//   final localAuth = LocalAuthentication();
+//   bool authenticated = false;
+
+//   try {
+//     authenticated = await localAuth.authenticate(
+//       localizedReason: 'Authenticate with Face ID',
+//       biometricOnly: true,
+//     );
+//   } catch (e) {
+//     print('Error: $e');
+//   }
+
+//   return authenticated;
+// }
 
 class CheckLoggedIn extends StatelessWidget {
   const CheckLoggedIn({super.key});

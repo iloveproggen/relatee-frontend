@@ -8,35 +8,50 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
-void createShopItem(String name, String description, int price, int stock,
-    String? emoji, Map<String, dynamic> userData) async {
-  final Map<String, dynamic> variables = {
-    'input': {
-      'householdId': userData['householdId'],
-      'name': name,
-      'description': description,
-      'price': price,
-      'stock': stock,
-      'emoji': emoji
-    }
-  };
 
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql(r'''
-  mutation CreateReward($input: CreateRewardInput!) {
-    createReward(input: $input) {
-      name
-      description
-      price
-      stock
-      emoji
-      householdId
-    }
+Future<void> createShopItem(String name, String description, int price, int stock,
+    String emoji) async {
+  final Map<String, dynamic> variables = {
+      'input': {
+        'name': name,
+        'description': description,
+        'price': price,
+        'stock': stock,
+        'emoji': emoji,
+      }
+    };
+
+    final client = await getGraphQLClient();
+    final QueryOptions options = QueryOptions(
+      document: gql(r'''
+   mutation CreateReward($input: CreateRewardInput!) {
+  createReward(input: $input) {
+    name
+    description
+    price
+    stock
+    emoji
   }
+}
 '''),
-    variables: variables,
-  );
+      variables: variables,
+    );
+
+//   '''
+// mutation {
+//   createReward(input: {
+//     emoji: "😮",
+//     name: "Blowie",
+//     description: "auf's haus",
+//     price: 1
+//   }) {
+//     emoji,
+//     name,
+//     description,
+//     price
+//   }
+// }
+// '''
 
   try {
     final QueryResult result = await client.query(options);
@@ -121,24 +136,23 @@ class _NewShopItemState extends State<NewShopItem> {
                         const EdgeInsets.all(0),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (stock.text == "") {
-                        stock.text = "0";
+                        stock.text = "-1";
                       }
                       if (emojiDisplay == "") {
                         emojiDisplay = null;
                       }
                       if (required) {
-                        createShopItem(
+                        await createShopItem(
                             taskName.text,
                             description.text,
                             int.parse(taskPrice.text),
                             int.parse(stock.text),
-                            emojiDisplay,
-                            userData);
+                            emojiDisplay ?? "");
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
-                        Get.back();
+                        Get.back(result: 'Task_created_txt'.tr);
                       }
                     },
                     child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,

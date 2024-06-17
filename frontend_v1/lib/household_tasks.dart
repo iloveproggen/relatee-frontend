@@ -10,6 +10,7 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 late List<Map<String, dynamic>> tasks;
 late List<Map<String, dynamic>> users;
@@ -200,11 +201,105 @@ class HouseholdMembers extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(users.length, (index) {
             print(users[index]['householdName']);
-            return Member(userData: users[index]);
+            return GestureDetector(
+              onLongPress: () {
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CupertinoActionSheet(
+                      title: Text(
+                          "Manage User ${users[index]['forename']} ${users[index]['surname']}"),
+                      actions: [
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Get.to(() => PublicProfile(
+                                userData: users[index],
+                                tasks: tasks
+                                    .where((task) =>
+                                        task['userId'] == users[index]['id'])
+                                    .toList()));
+                          },
+                          child: const Text('View Profile',
+                              style: TextStyle(color: Colors.blue)),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            kickUser(users[index], context);
+                          },
+                          child: const Text('Kick from Household',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                      cancelButton: CupertinoActionSheetAction(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel',
+                            style: TextStyle(color: Colors.blue)),
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Member(userData: users[index]),
+            );
           }),
         ),
       ],
     );
+  }
+
+  void kickUser(Map<String, dynamic> user, BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Confirm Kick'),
+          content: Text(
+              'Are you sure you want to kick ${user['forename']} ${user['surname']} from the household? All tasks assigned to this user will also be deleted.'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              onPressed: () async{
+                queryKickUser(user['id']);
+                Navigator.pop(context);
+                Get.back();
+              },
+              isDestructiveAction: true,
+              child: const Text('Kick', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+Future<void> queryKickUser(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation kickUserFromHousehold(\$userId: Int!) {
+        kickUserFromHousehold(userId: \$userId) {}
+      }
+    '''),
+    variables: <String, dynamic>{
+      'userId': id,
+    },
+  );
+    final QueryResult result = await client.mutate(options);
+  if (result.hasException) {
+    print(result.exception.toString());
+  } else if (result.isLoading) {
+    print('Loading');
+  } else {
+    print("User was kicked.");
   }
 }
 
