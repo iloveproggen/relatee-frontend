@@ -28,9 +28,7 @@ class MainLeaderboardView extends StatelessWidget {
           padding: const EdgeInsets.only(left: 40, right: 40, top: 80),
           child: Column(
             children: [
-              MembersText(
-                users: users,
-              ),
+              const MembersText(),
               ChartLeaderboard(
                 leaderboardusers: leaderboardusers,
               ),
@@ -52,9 +50,7 @@ date: 17.05.2024
 */
 
 class MembersText extends StatelessWidget {
-  const MembersText({super.key, required this.users});
-
-  final List<Map<String, dynamic>> users;
+  const MembersText({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +63,6 @@ class MembersText extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20, bottom: 60),
             child: Text(
               'Members_txt'.tr,
-              //users[0]['forename'],
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.left,
             ),
