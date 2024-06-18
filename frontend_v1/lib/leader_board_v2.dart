@@ -19,8 +19,15 @@ class MainLeaderboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> leaderboardusers =
         users.where((user) => user['coins'] != null).toList();
-    leaderboardusers.sort((a, b) => b['coins'].compareTo(a['coins']));
+    leaderboardusers
+        .sort((a, b) => (b['coins'] ?? 0).compareTo(a['coins'] ?? 0));
     leaderboardusers = leaderboardusers.take(3).toList();
+    if (leaderboardusers.length < 3) {
+      while (leaderboardusers.length < 3) {
+        leaderboardusers.add({});
+      }
+    }
+
     return Container(
       color: Theme.of(context).colorScheme.primary,
       child: SingleChildScrollView(
@@ -254,33 +261,38 @@ class WeeklyInfo extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(iconData),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        //'Name ${index + 1}',
-                        leaderboardusers[index]['forename'],
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    //'$pts pts',
-                    leaderboardusers[index]['coins'].toString(),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Row(
-                    children: [
-                      Icon(CupertinoIcons.checkmark_circle_fill),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        //'$tasks tasks',
-                        leaderboardusers[index]['level'].toString(),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
+                  if (leaderboardusers[index]['forename'] != null &&
+                      leaderboardusers[index]['coins'] != null &&
+                      leaderboardusers[index]['level'] != null)
+                    Row(
+                      children: [
+                        Icon(iconData),
+                        const SizedBox(width: 8.0),
+                        Text(
+                          //'Name ${index + 1}',
+                          leaderboardusers[index]['forename'].toString(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  if (leaderboardusers[index]['coins'] != null)
+                    Text(
+                      //'$pts pts',
+                      leaderboardusers[index]['coins'].toString(),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (leaderboardusers[index]['level'] != null)
+                    Row(
+                      children: [
+                        Icon(CupertinoIcons.checkmark_circle_fill),
+                        const SizedBox(width: 8.0),
+                        Text(
+                          //'$tasks tasks',
+                          leaderboardusers[index]['level'].toString(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
