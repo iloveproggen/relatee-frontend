@@ -87,7 +87,7 @@ date: 17.05.2024
 */
 
 class ChartLeaderboard extends StatelessWidget {
-  var leaderboardusers;
+  List<Map<String, dynamic>> leaderboardusers;
 
   //müssen noch ab deb Farben von den themes angepasst werden
   ChartLeaderboard({super.key, required this.leaderboardusers});
@@ -96,6 +96,20 @@ class ChartLeaderboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
+
+    final List<Color> colorPrimaryList = leaderboardusers
+        .where((user) => user['forename'] != null && user['surname'] != null)
+        .map((user) {
+      String colorCode = user['colorPrimary'].replaceAll('#', '');
+      return Color(int.parse('0xFF$colorCode'));
+    }).toList();
+
+    final List<Color> colorSecondaryList = leaderboardusers
+        .where((user) => user['forename'] != null && user['surname'] != null)
+        .map((user) {
+      String colorCode = user['colorSecondary'].replaceAll('#', '');
+      return Color(int.parse('0xFF$colorCode'));
+    }).toList();
 
     return SizedBox(
       width: double.infinity,
@@ -111,12 +125,22 @@ class ChartLeaderboard extends StatelessWidget {
                   bottom: 2,
                 ),
                 child: Container(
-                    width: width * 0.2,
-                    height: width * 0.2,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      shape: BoxShape.circle,
-                    )),
+                  width: width * 0.2,
+                  height: width * 0.2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                      colorPrimaryList[2],
+                      colorSecondaryList[2],
+                    ]),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      leaderboardusers[0]['emoji'],
+                      style: TextStyle(fontSize: 50),
+                    ),
+                  ),
+                ),
               ),
               SizedBox(
                 height: height * 0.05,
@@ -148,12 +172,22 @@ class ChartLeaderboard extends StatelessWidget {
                   bottom: 0,
                 ),
                 child: Container(
-                    width: width * 0.2,
-                    height: width * 0.2,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      shape: BoxShape.circle,
-                    )),
+                  width: width * 0.2,
+                  height: width * 0.2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                      colorPrimaryList[0],
+                      colorSecondaryList[0],
+                    ]),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      leaderboardusers[0]['emoji'],
+                      style: TextStyle(fontSize: 50),
+                    ),
+                  ),
+                ),
               ),
               SizedBox(
                 height: height * 0.05,
@@ -186,12 +220,22 @@ class ChartLeaderboard extends StatelessWidget {
                   bottom: 0,
                 ),
                 child: Container(
-                    width: width * 0.2,
-                    height: width * 0.2,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      shape: BoxShape.circle,
-                    )),
+                  width: width * 0.2,
+                  height: width * 0.2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                      colorPrimaryList[1],
+                      colorSecondaryList[1],
+                    ]),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      leaderboardusers[1]['emoji'],
+                      style: TextStyle(fontSize: 50),
+                    ),
+                  ),
+                ),
               ),
               SizedBox(
                 height: height * 0.05,
