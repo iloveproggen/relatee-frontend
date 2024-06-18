@@ -81,7 +81,37 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
             name
           }
         }
-        getTasks: householdTasks {
+        getTasks: householdTasks (completed: false){
+            id
+            name
+            emoji
+            deadline
+            description
+            reward
+            completed
+            completedAt
+            private
+            user {
+              id
+              forename
+              surname
+              username
+              email
+              level
+              coins
+            }
+            owner {
+              id
+              forename
+              surname
+              username
+            }
+            routine {
+              id
+              name
+            }
+          }
+          getCompletedTasks: householdTasks (completed: true){
             id
             name
             emoji
@@ -125,6 +155,8 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
       print(result.data!);
       final users = result.data!['getHousehold']['users'];
       final tasks = result.data!['getTasks'];
+      final completedTasks = result.data!['getCompletedTasks'];
+      tasks.addAll(completedTasks);
 
       final List<Map<String, dynamic>> mappedUsers =
           users.map<Map<String, dynamic>>((user) {

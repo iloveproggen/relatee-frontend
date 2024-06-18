@@ -58,7 +58,7 @@ class HouseholdOverview extends StatelessWidget {
                 } else {
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
-                  print(tasks);
+                  print("all tasks: \n\n $tasks");
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -166,10 +166,11 @@ class HouseholdOverview extends StatelessWidget {
                                 const EdgeInsets.all(0),
                               )),
                           onPressed: () {
+                            List<Map<String, dynamic>> completedTasks = tasks
+                                .where((task) =>  task['completed'] == true)
+                                .toList();
                             Get.to(() => CompletedTaskList(
-                                tasks: tasks
-                                    .where((task) => task['completed'] == true)
-                                    .toList(),
+                                tasks: completedTasks,
                                 userData: users));
                           },
                           child: Text('See_completed_Tasks_txt'.tr,
@@ -200,7 +201,6 @@ class HouseholdMembers extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(users.length, (index) {
-            print(users[index]['householdName']);
             return GestureDetector(
               onLongPress: () {
                 showCupertinoModalPopup(
