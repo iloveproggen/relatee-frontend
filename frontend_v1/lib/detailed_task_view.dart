@@ -7,45 +7,68 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
-
-Map<String, dynamic> assignedToUser = {};
+import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
 DateTime? deadline;
 
 bool isPermanent = false;
 
-void updateTask(String name, String? description, int reward, int? routineId,
-    Map<String, dynamic> userData, Map<String, dynamic> task) async {
-  // Update task
-  final Map<String, dynamic> variables = {
-    'id': task['id'],
-    'householdId': userData['householdId'],
-    'routineId': routineId,
+Map<String, dynamic> nullUser = {
+  'forename': 'anyone',
+  'surname': '...',
+  'id': null,
+  'username': '...',
+};
+
+Map<String, dynamic> nullRoutine = {
+  'name': 'none',
+  'id': null,
+};
+
+Map<String, dynamic> pickedRoutine = nullRoutine;
+
+List<Map<String, dynamic>> householdUsers = [nullUser];
+
+Map<String, dynamic> assignedToUser = nullUser;
+
+late List<Map<String, dynamic>> users;
+
+void updateTask(int id, String name, String? description, int reward,
+    int? routineId, Map<String, dynamic> userData, String emoji) async {
+  // Update task to match the GraphQL schema
+  final Map<String, dynamic> input = {
+    'taskId': id, // Use 'taskId' instead of 'id'
     'name': name,
-    'deadline': deadline != null
-        ? '${deadline!.toIso8601String().split('.')[0]}Z'
-        : null,
+    'emoji': emoji, // Added emoji field
+    'deadline': deadline, // Adjusted deadline format
     'description': description,
     'reward': reward,
-    'status': 0
+    'routineId': routineId,
+    'userId': userData['id'], // Added userId field
+    'private': false, // Added private field
+  };
+
+  final Map<String, dynamic> variables = {
+    'input': input,
   };
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-    document: gql(
-        r'''mutation UpdateTask($id: Int!, $userId: Int, $householdId: Int, $routineId: Int, $name: String, $deadline: String, $description: String, $reward: Int, $completed: Boolean) {
-    updateTask(id: $id, userId: $userId, householdId: $householdId, routineId: $routineId, name: $name, deadline: $deadline, description: $description, reward: $reward, completed: $completed) {
+    document: gql(r'''mutation UpdateTask($input: UpdateTaskInput!) {
+  updateTask(input: $input) {
+    id
+    routine {
       id
-      householdId
-      routineId
-      name
-      deadline
-      description
-      reward
-      completed
     }
+    name
+    emoji
+    deadline
+    description
+    reward
+    private
   }
-  '''),
+}
+'''),
     variables: variables,
   );
   try {
@@ -57,15 +80,54 @@ void updateTask(String name, String? description, int reward, int? routineId,
     } else {
       // Handle the result
       print(result.data);
-      print("pushed the new item to the db: $variables");
     }
   } catch (e) {
     print(e);
   }
 }
 
-class DetailedTaskView extends StatefulWidget {
-  const DetailedTaskView(
+class DetailedTaskView extends StatelessWidget {
+  const DetailedTaskView({super.key,
+      required this.task,
+      required this.userData,
+      required this.assigned});
+
+
+  final Map<String, dynamic> task;
+  final Map<String, dynamic> userData;
+  final String? assigned;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: getHouseholdData(userData['id']), // Ensure this returns Future<List<Map<String, dynamic>>>
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(body: const CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          print(snapshot.data!);
+          users = snapshot.data!['users'];
+          users.insert(0, nullUser);
+          return Scaffold(
+            body: DetailedTask(
+              task: task,
+              userData: userData,
+              assigned: assigned,
+            ),
+          );
+        } else {
+          return Text('No data available');
+        }
+      },
+    );
+  }
+}
+
+class DetailedTask extends StatefulWidget {
+  const DetailedTask(
       {super.key,
       required this.task,
       required this.userData,
@@ -76,11 +138,11 @@ class DetailedTaskView extends StatefulWidget {
   final String? assigned;
 
   @override
-  State<DetailedTaskView> createState() => _DetailedTaskViewState(task: task);
+  State<DetailedTask> createState() => _DetailedTaskState(task: task);
 }
 
-class _DetailedTaskViewState extends State<DetailedTaskView> {
-  _DetailedTaskViewState({required this.task});
+class _DetailedTaskState extends State<DetailedTask> {
+  _DetailedTaskState({required this.task});
 
   bool required = false;
   final Map<String, dynamic> task;
@@ -89,6 +151,8 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
   late TextEditingController taskPrice = TextEditingController();
   late TextEditingController description = TextEditingController();
 
+  String? emojiDisplay;
+
   void _updateRequired() {
     setState(() {
       required = _checkInputs(); // Update required based on inputs
@@ -96,9 +160,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
   }
 
   bool _checkInputs() {
-    return taskName.text.isNotEmpty &&
-        taskPrice.text.isNotEmpty &&
-        assignedToUser.isNotEmpty;
+    return taskName.text.isNotEmpty && taskPrice.text.isNotEmpty;
   }
 
   @override
@@ -107,10 +169,12 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
     description.addListener(_updateRequired);
+    assignedToUser = users.where((user) => user['id'] == task['userId']).first;
 
     taskName.text = task['name'];
     taskPrice.text = task['reward'].toString();
     description.text = task['description'];
+    emojiDisplay = task['emoji'];
   }
 
   void changePermanent() {
@@ -120,9 +184,7 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
 
   @override
   Widget build(BuildContext context) {
-    print(task);
-    return Scaffold(
-      body: Padding(
+      return Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
         child: SingleChildScrollView(
           child: Column(
@@ -152,12 +214,13 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                         taskPrice.text = task['reward'].toString();
                       }
                       updateTask(
+                          task['id'],
                           taskName.text,
                           description.text,
                           int.parse(taskPrice.text),
                           task['routineId'],
                           widget.userData,
-                          task);
+                          task['emoji']);
                       Get.back(result: "Changed Task");
                     },
                     child: Text("Save",
@@ -277,6 +340,90 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
               const SizedBox(height: 10),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.smiley,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'Icon:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const Spacer(),
+                  const KeyboardEmojiPickerWrapper(child: SizedBox.shrink()),
+                  TextButton(
+                    onPressed: () async {
+                      final hasEmojiKeyboard =
+                          await KeyboardEmojiPicker().checkHasEmojiKeyboard();
+                      if (hasEmojiKeyboard) {
+                        final pickedEmoji =
+                            await KeyboardEmojiPicker().pickEmoji();
+                        setState(() {
+                          emojiDisplay = pickedEmoji;
+                        });
+                      } else {
+                        showCupertinoModalPopup(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text('Emoji Keyboard Disabled'),
+                              content: const Text(
+                                  'Please enable the emoji keyboard in your device settings.'),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    child: emojiDisplay == null
+                        ? Text(
+                            "add icon",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 20,
+                            ),
+                          )
+                        : Text(
+                            emojiDisplay ?? 'add icon',
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 40,
+                            ),
+                          ),
+                  ),
+                  emojiDisplay != null
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              emojiDisplay = null;
+                            });
+                          },
+                          icon: Icon(CupertinoIcons.clear,
+                              color: Theme.of(context).colorScheme.tertiary),
+                        )
+                      : const SizedBox.shrink(),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
@@ -294,76 +441,52 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
-                  FutureBuilder(
-                    future: getHouseholdData(userData[
-                        'id']), // Ensure this returns Future<List<Map<String, dynamic>>>
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (snapshot.hasData) {
-                        print(snapshot.data!);
-                        List<Map<String, dynamic>> users =
-                            snapshot.data!['users'];
-                        return TextButton(
-                            style: ButtonStyle(
-                              alignment: Alignment.centerRight,
-                              padding:
-                                  MaterialStateProperty.all(EdgeInsets.zero),
-                            ),
-                            onPressed: () {
-                              showCupertinoModalPopup(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    height: 300,
-                                    child: CupertinoPicker(
-                                      scrollController:
-                                          FixedExtentScrollController(
-                                              initialItem: 0),
-
-                                      itemExtent:
-                                          50, // Increase the item extent to make the items bigger
-                                      onSelectedItemChanged: (int index) {
-                                        print(
-                                            'Selected member: ${users[index]['forename'] ?? ''}');
-                                        setState(() {
-                                          assignedToUser = users[index];
-                                          // widget.callback;
-                                        });
-                                      },
-                                      children: users.map((member) {
-                                        return Center(
-                                          child: Text(
-                                            member['forename'],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        );
-                                      }).toList(),
+                  TextButton(
+                      style: ButtonStyle(
+                        alignment: Alignment.centerRight,
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      ),
+                      onPressed: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              color: Theme.of(context).colorScheme.background,
+                              height: 300,
+                              child: CupertinoPicker(
+                                itemExtent:
+                                    50, // Increase the item extent to make the items bigger
+                                onSelectedItemChanged: (int index) {
+                                  print(
+                                      'Selected member: ${users[index]['forename'] ?? ''}');
+                                  setState(() {
+                                    assignedToUser = users[index];
+                                    // widget.callback;
+                                  });
+                                },
+                                children: users.map((member) {
+                                  return Center(
+                                    child: Text(
+                                      member['forename'],
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   );
-                                },
-                              );
-                            },
-                            child: Text(
-                                assignedToUser['id'] == null
-                                    ? 'anyone_txt'.tr
-                                    : "${assignedToUser['forename']}",
-                                textAlign: TextAlign.end,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(fontWeight: FontWeight.bold)));
-                      } else {
-                        return Text('No data available');
-                      }
-                    },
-                  ),
+                                }).toList(),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                          assignedToUser['id'] == null
+                              ? 'anyone_txt'.tr
+                              : "${assignedToUser['forename']}",
+                          textAlign: TextAlign.end,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold))),
                 ],
               ),
               isPermanent
@@ -540,7 +663,6 @@ class _DetailedTaskViewState extends State<DetailedTaskView> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

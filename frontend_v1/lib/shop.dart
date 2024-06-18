@@ -18,15 +18,14 @@ String userCoins = userData['coins'].toString();
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
-    'userId': userId,
     'rewardId': rewardId,
   };
 
   final client = await getGraphQLClient();
   final MutationOptions options = MutationOptions(
     document: gql(r'''
-  mutation ClaimReward($userId: Int!, $rewardId: Int!) {
-    claimReward(userId: $userId, rewardId: $rewardId) {
+  mutation ClaimReward($rewardId: Int!) {
+    claimReward(rewardId: $rewardId) {
     }
   }
 '''),

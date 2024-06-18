@@ -7,6 +7,7 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
 class MaxLengthNumberInputFormatter extends TextInputFormatter {
   final int maxDigits;
@@ -48,7 +49,7 @@ String? deadlineString;
 bool isPermanent = false;
 
 Future<void> createNewTask(int? userId, String name, String description,
-    int reward, int? routineId, Map<String, dynamic> userData) async {
+    int reward, int? routineId, String emoji, Map<String, dynamic> userData) async {
   String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
@@ -63,6 +64,7 @@ Future<void> createNewTask(int? userId, String name, String description,
       'description': description,
       'reward': reward,
       'routineId': routineId,
+      'emoji': emoji,
     }
   };
 
@@ -82,6 +84,7 @@ mutation CreateTask($input: CreateTaskInput!) {
     routine {
       id
     }
+    emoji
   }
 }
 '''),
@@ -172,6 +175,8 @@ class _NewTaskState extends State<NewTask> {
   TextEditingController taskPrice = TextEditingController();
   TextEditingController description = TextEditingController();
 
+  String? emojiDisplay;
+
   void _updateRequired() {
     setState(() {
       required = _checkInputs(); // Update required based on inputs
@@ -185,6 +190,7 @@ class _NewTaskState extends State<NewTask> {
   @override
   void initState() {
     super.initState();
+    emojiDisplay = null;
     // Add listener to text controllers to update required variable
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
@@ -208,6 +214,7 @@ class _NewTaskState extends State<NewTask> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,6 +237,7 @@ class _NewTaskState extends State<NewTask> {
                             description.text,
                             int.parse(taskPrice.text),
                             pickedRoutine['id'],
+                            emojiDisplay ?? '',
                             widget.userData);
                         update();
                         Get.back(result: "Task created");
@@ -353,6 +361,90 @@ class _NewTaskState extends State<NewTask> {
               // ),
               //const SliderWidgetWho(),
               const SizedBox(height: 40),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.smiley,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'Icon:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const Spacer(),
+                  const KeyboardEmojiPickerWrapper(child: SizedBox.shrink()),
+                  TextButton(
+                    onPressed: () async {
+                      final hasEmojiKeyboard =
+                          await KeyboardEmojiPicker().checkHasEmojiKeyboard();
+                      if (hasEmojiKeyboard) {
+                        final pickedEmoji =
+                            await KeyboardEmojiPicker().pickEmoji();
+                        setState(() {
+                          emojiDisplay = pickedEmoji;
+                        });
+                      } else {
+                        showCupertinoModalPopup(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text('Emoji Keyboard Disabled'),
+                              content: const Text(
+                                  'Please enable the emoji keyboard in your device settings.'),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    child: emojiDisplay == null
+                        ? Text(
+                            "add icon",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 20,
+                            ),
+                          )
+                        : Text(
+                            emojiDisplay ?? 'add icon',
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 40,
+                            ),
+                          ),
+                  ),
+                  emojiDisplay != null
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              emojiDisplay = null;
+                            });
+                          },
+                          icon: Icon(CupertinoIcons.clear,
+                              color: Theme.of(context).colorScheme.tertiary),
+                        )
+                      : const SizedBox.shrink(),
+                ],
+              ),
               AssignTo(
                 userData: widget.userData,
                 callback: _updateRequired,
