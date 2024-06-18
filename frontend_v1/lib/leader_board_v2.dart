@@ -117,41 +117,46 @@ class ChartLeaderboard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: leaderboardusers.asMap().entries.map((entry) {
-          final index = entry.key;
+          final index = leaderboardusers[entry.key]['forename'] != null &&
+                  leaderboardusers[entry.key]['surname'] != null
+              ? entry.key
+              : null;
           final user = entry.value;
-          final colorPrimary = index < colorPrimaryList.length
+          final colorPrimary = index != null && index < colorPrimaryList.length
               ? colorPrimaryList[index]
               : Colors.transparent;
-          final colorSecondary = index < colorSecondaryList.length
-              ? colorSecondaryList[index]
-              : Colors.transparent;
+          final colorSecondary =
+              index != null && index < colorSecondaryList.length
+                  ? colorSecondaryList[index]
+                  : Colors.transparent;
           final emoji = user['emoji'];
 
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 2,
-                  bottom: 2,
-                ),
-                child: Container(
-                  width: width * 0.2,
-                  height: width * 0.2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      colorPrimary,
-                      colorSecondary,
-                    ]),
-                    shape: BoxShape.circle,
+              if (emoji != null && emoji.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 2,
+                    bottom: 2,
                   ),
-                  child: Center(
-                    child: Text(
-                      emoji ?? '',
-                      style: TextStyle(fontSize: 50),
+                  child: Container(
+                    width: width * 0.2,
+                    height: width * 0.2,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                        colorPrimary,
+                        colorSecondary,
+                      ]),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        emoji,
+                        style: TextStyle(fontSize: 50),
+                      ),
                     ),
                   ),
                 ),
-              ),
               SizedBox(
                 height: height * 0.05,
               ),
