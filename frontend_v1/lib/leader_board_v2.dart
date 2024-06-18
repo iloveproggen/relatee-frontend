@@ -1,7 +1,6 @@
 // ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend_v1/completed_tasks.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/profileV2.dart';
 
