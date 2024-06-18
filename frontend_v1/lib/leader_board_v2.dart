@@ -116,8 +116,18 @@ class ChartLeaderboard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Column(
+        children: leaderboardusers.asMap().entries.map((entry) {
+          final index = entry.key;
+          final user = entry.value;
+          final colorPrimary = index < colorPrimaryList.length
+              ? colorPrimaryList[index]
+              : Colors.transparent;
+          final colorSecondary = index < colorSecondaryList.length
+              ? colorSecondaryList[index]
+              : Colors.transparent;
+          final emoji = user['emoji'];
+
+          return Column(
             children: [
               Padding(
                 padding: const EdgeInsets.only(
@@ -129,14 +139,14 @@ class ChartLeaderboard extends StatelessWidget {
                   height: width * 0.2,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [
-                      colorPrimaryList[2],
-                      colorSecondaryList[2],
+                      colorPrimary,
+                      colorSecondary,
                     ]),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
-                      leaderboardusers[0]['emoji'],
+                      emoji ?? '',
                       style: TextStyle(fontSize: 50),
                     ),
                   ),
@@ -145,14 +155,56 @@ class ChartLeaderboard extends StatelessWidget {
               SizedBox(
                 height: height * 0.05,
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
+              if (index == 0)
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: width * 0.2,
+                    height: height * 0.3,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Text(
+                        'st',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              if (index == 1)
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: width * 0.2,
+                    height: height * 0.2,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Text(
+                        'nd',
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              if (index == 2)
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
                     width: width * 0.2,
                     height: height * 0.1,
                     decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary,
-                        borderRadius: BorderRadius.all(Radius.circular(25))),
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.all(15.0),
                       child: Text(
@@ -160,107 +212,12 @@ class ChartLeaderboard extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
-                    )),
-              ),
+                    ),
+                  ),
+                ),
             ],
-          ),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 0,
-                  bottom: 0,
-                ),
-                child: Container(
-                  width: width * 0.2,
-                  height: width * 0.2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      colorPrimaryList[0],
-                      colorSecondaryList[0],
-                    ]),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      leaderboardusers[0]['emoji'],
-                      style: TextStyle(fontSize: 50),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: height * 0.05,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  width: width * 0.2,
-                  height: height * 0.3,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      'st',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 0,
-                  bottom: 0,
-                ),
-                child: Container(
-                  width: width * 0.2,
-                  height: width * 0.2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      colorPrimaryList[1],
-                      colorSecondaryList[1],
-                    ]),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      leaderboardusers[1]['emoji'],
-                      style: TextStyle(fontSize: 50),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: height * 0.05,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  width: width * 0.2,
-                  height: height * 0.2,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.all(Radius.circular(25))),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Text(
-                      'nd',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
