@@ -306,100 +306,112 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
               const SizedBox(
                 height: 20,
               ),
-              TextFormField(
-                  autofillHints: const [AutofillHints.username],
-                  cursorColor: Theme.of(context).colorScheme.onSecondary,
-                  autocorrect: false,
-                  focusNode: focusNode1,
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(focusNode2);
-                  },
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        width: 2,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        width: 2,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        width: 2,
-                      ),
-                    ),
-                    hintText: 'Email_txt'.tr,
-                    contentPadding: const EdgeInsets.all(20),
-                    hintStyle: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 20),
-              TextFormField(
-                autofillHints: const [AutofillHints.password],
-                focusNode: focusNode2,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(focusNodeSwitch);
-                },
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                cursorColor: Theme.of(context).colorScheme.onSecondary,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      width: 2,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  ),
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      width: 2,
-                    ),
-                  ),
-                  hintText: 'Password_txt'.tr,
-                  contentPadding: const EdgeInsets.all(20),
-                  hintStyle: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                  suffixIcon: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: const Color.fromARGB(
-                            255, 204, 198, 196), // Set the color to grey
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+              AutofillGroup(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      autofillHints: const [AutofillHints.email],
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      autocorrect: false,
+                      focusNode: focusNode1,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(focusNode2);
                       },
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                          ),
+                        ),
+                        hintText: 'Email_txt'.tr,
+                        contentPadding: const EdgeInsets.all(20),
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      autofillHints: const [AutofillHints.password],
+                      focusNode: focusNode2,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(focusNodeSwitch);
+                      },
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                          ),
+                        ),
+                        hintText: 'Password_txt'.tr,
+                        contentPadding: const EdgeInsets.all(20),
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextButton(
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0)),
+                              animationDuration: Duration.zero
+                            ),
+                            child: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: const Color.fromARGB(
+                                  255, 204, 198, 196), // Set the color to grey
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
-                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 0),
               error['hasError'] && error['message'] != "" && isLoading == false ? 
