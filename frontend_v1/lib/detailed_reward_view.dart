@@ -6,24 +6,31 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
-void updateShopItem(int id, String name, String description, int price) async {
+Future<void> updateShopItem(int rewardId, String name, int stock, String description, int price, String emoji) async {
   final Map<String, dynamic> variables = {
-    'id': id,
-    'name': name,
-    'description': description,
-    'price': price
+    'input': {
+      'rewardId': rewardId,
+      'name': name,
+      'emoji': emoji,
+      'description': description,
+      'stock': stock,
+      'price': price,
+    },
   };
 
   final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
+  final MutationOptions options = MutationOptions(
     document: gql(r'''
-  mutation updateReward($id: Int!, $name: String, $description: String, $price: Int) {
-    updateReward(id: $id, name: $name, description: $description, price: $price) {
+  mutation updateReward($input: UpdateRewardInput!) {
+    updateReward(input: $input) {
       id
       name
       description
       price
+      emoji
+      stock
     }
   }
 '''),
@@ -31,11 +38,9 @@ void updateShopItem(int id, String name, String description, int price) async {
   );
 
   try {
-    final QueryResult result = await client.query(options);
+    final QueryResult result = await client.mutate(options);
     if (result.hasException) {
       print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
     } else {
       // Handle the result
       print(result.data);
@@ -61,8 +66,11 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
   TextEditingController taskName = TextEditingController();
   TextEditingController taskPrice = TextEditingController();
   TextEditingController description = TextEditingController();
+  TextEditingController stock = TextEditingController();
 
   bool required = false;
+
+  String? emojiDisplay;
 
   void _updateRequired() {
     setState(() {
@@ -81,10 +89,14 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
     description.addListener(_updateRequired);
+    stock.addListener(_updateRequired);
+
 
     taskName.text = widget.shopItem['name'];
     taskPrice.text = widget.shopItem['price'].toString();
     description.text = widget.shopItem['description'];
+    stock.text = widget.shopItem['stock'].toString();
+    emojiDisplay = widget.shopItem['emoji'];
   }
 
   @override
@@ -108,19 +120,21 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                         const EdgeInsets.all(0),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      if (stock.text == "") {
+                        stock.text = "-1";
+                      }
                       if (required) {
-                        if (taskName.text.isEmpty) {
-                          taskName.text = widget.shopItem['name'];
-                        }
-                        if (taskPrice.text.isEmpty) {
-                          taskPrice.text = widget.shopItem['price'].toString();
-                        }
-                        updateShopItem(widget.shopItem['id'], taskName.text,
-                            description.text, int.parse(taskPrice.text));
-                        Get.back(result: 'Task Updated');
+                        await updateShopItem(
+                            widget.shopItem['id'],
+                            taskName.text,
+                            int.parse(stock.text),
+                            description.text,
+                            int.parse(taskPrice.text),
+                            emojiDisplay ?? "");
+                        Get.back(result: 'Task_created_txt'.tr);
                       } else {
-                        Get.back();
+                        Get.back(result: 'Task_created_txt'.tr);
                       }
                     },
                     child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
@@ -158,67 +172,190 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                   ),
                 ),
               ),
-              const SliderWidget(),
-              Padding(
-                padding: const EdgeInsets.only(top: 50, bottom: 20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
+              const SizedBox(height: 40),
+              //const SliderWidget(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.smiley,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'Icon:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const Spacer(),
+                  const KeyboardEmojiPickerWrapper(child: SizedBox.shrink()),
+                  TextButton(
+                    onPressed: () async {
+                      final hasEmojiKeyboard =
+                          await KeyboardEmojiPicker().checkHasEmojiKeyboard();
+                      if (hasEmojiKeyboard) {
+                        final pickedEmoji =
+                            await KeyboardEmojiPicker().pickEmoji();
+                        setState(() {
+                          emojiDisplay = pickedEmoji;
+                        });
+                      } else {
+                        showCupertinoModalPopup(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text('Emoji Keyboard Disabled'),
+                              content: const Text(
+                                  'Please enable the emoji keyboard in your device settings.'),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    child: emojiDisplay == null
+                        ? Text(
+                            "add icon",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 20,
+                            ),
+                          )
+                        : Text(
+                            emojiDisplay ?? 'add icon',
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 40,
+                            ),
+                          ),
+                  ),
+                  emojiDisplay != null
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              emojiDisplay = null;
+                            });
+                          },
+                          icon: Icon(CupertinoIcons.clear,
+                              color: Theme.of(context).colorScheme.tertiary),
+                        )
+                      : const SizedBox.shrink(),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
                       CupertinoIcons.add_circled,
                       size: 40,
-                      color: Color.fromARGB(255, 204, 198, 196),
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
-                    const SizedBox(width: 20),
-                    Text(
-                      'price_txt'.tr,
-                      style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    'Stock',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Expanded(
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        textAlign: TextAlign.end,
+                        controller: stock,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          MaxLengthNumberInputFormatter(2),
+                        ],
+                        decoration: InputDecoration(
+                            hintText: 'add stock',
+                            hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    child: Icon(
+                      CupertinoIcons.money_dollar_circle,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
-                    Expanded(
-                      child: TextField(
-                          cursorColor:
-                              Theme.of(context).colorScheme.onSecondary,
-                          textAlign: TextAlign.end,
-                          controller: taskPrice,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            MaxLengthNumberInputFormatter(10),
-                          ],
-                          decoration: InputDecoration(
-                              hintText: 'add_price_txt'.tr,
-                              hintStyle: const TextStyle(
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  fontSize: 20),
-                              border: InputBorder.none),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    'price_txt'.tr,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Expanded(
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          MaxLengthNumberInputFormatter(10),
+                        ],
+                        decoration: InputDecoration(
+                            hintText: 'add_price_txt'.tr,
+                            hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
               Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, right: 20),
+                        child: Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 40,
-                          color: Color.fromARGB(255, 204, 198, 196),
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                            child: Text(
-                          'description_txt'.tr,
-                          textAlign: TextAlign.left,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        )),
-                      ],
-                    ),
+                      ),
+                      Expanded(
+                          child: Text(
+                        'description_txt'.tr,
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
@@ -231,8 +368,8 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                         decoration: InputDecoration(
                             counterText: "",
                             hintText: 'add_description_txt'.tr,
-                            hintStyle: const TextStyle(
-                                color: Color.fromARGB(255, 204, 198, 196),
+                            hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 fontSize: 20),
                             border: InputBorder.none),
                         style: Theme.of(context)

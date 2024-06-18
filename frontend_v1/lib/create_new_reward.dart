@@ -37,22 +37,6 @@ Future<void> createShopItem(String name, String description, int price, int stoc
       variables: variables,
     );
 
-//   '''
-// mutation {
-//   createReward(input: {
-//     emoji: "😮",
-//     name: "Blowie",
-//     description: "auf's haus",
-//     price: 1
-//   }) {
-//     emoji,
-//     name,
-//     description,
-//     price
-//   }
-// }
-// '''
-
   try {
     final QueryResult result = await client.query(options);
     if (result.hasException) {
@@ -86,7 +70,6 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskPrice = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController stock = TextEditingController();
-  TextEditingController emoji = TextEditingController();
 
   bool required = false;
 
@@ -112,7 +95,6 @@ class _NewShopItemState extends State<NewShopItem> {
     taskPrice.addListener(_updateRequired);
     description.addListener(_updateRequired);
     stock.addListener(_updateRequired);
-    emoji.addListener(_updateRequired);
   }
 
   @override
@@ -139,9 +121,6 @@ class _NewShopItemState extends State<NewShopItem> {
                     onPressed: () async {
                       if (stock.text == "") {
                         stock.text = "-1";
-                      }
-                      if (emojiDisplay == "") {
-                        emojiDisplay = null;
                       }
                       if (required) {
                         await createShopItem(

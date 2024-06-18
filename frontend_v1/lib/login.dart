@@ -58,20 +58,7 @@ class CheckLoggedIn extends StatelessWidget {
     return FutureBuilder<String?>(
       future: checkIfSignedIn(),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return GetMaterialApp(
-              darkTheme: darktheme,
-              theme: brightness == Brightness.light ? lighttheme : darktheme,
-              translations: LocaleString(),
-              locale: const Locale('en-Us'),
-              fallbackLocale: const Locale('en-US'),
-              debugShowCheckedModeBanner: false,
-              title: 'Relatee',
-              home: Scaffold(
-                  body: Center(
-                      child: Text("Logging you in...",
-                          style: Theme.of(context).textTheme.bodySmall))));
-        } else if (snapshot.hasData) {
+        if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
               theme: brightness == Brightness.light ? lighttheme : darktheme,
@@ -95,6 +82,37 @@ class CheckLoggedIn extends StatelessWidget {
       },
     );
   }
+}
+
+void checkLastLoginDate() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  //String? lastLoginDate = prefs.getString('lastLoginDate');
+// for (String key in prefs.getKeys()) {
+//   var value = prefs.get(key);
+//   print('$key: $value');
+// }
+  String? lastLoginDate = prefs.getString('lastLoginDate');
+  DateTime now = DateTime.now();
+  DateTime yesterday = now.subtract(Duration(days: 1));
+  
+  if (lastLoginDate == null) {
+    // First time login, set streak to 1 and save today's date
+    prefs.setInt('streak', 1);
+    prefs.setString('lastLoginDate', now.toString());
+    print('First time login. Streak set to 1.');
+  } else {
+    DateTime lastLogin = DateTime.parse(lastLoginDate);
+    if (lastLogin.isBefore(yesterday)) {
+      // Last login was yesterday, increment streak by 1 and save today's date
+      int streak = prefs.getInt('streak') ?? 0;
+      prefs.setInt('streak', streak + 1);
+      prefs.setString('lastLoginDate', now.toString());
+      print('Last login was yesterday. Streak incremented to ${streak + 1}.');
+    } else {
+    // Last login was today, do nothing
+    print('Last login was today.');
+  }
+  } 
 }
 
 // class LoginApp extends StatefulWidget {
@@ -384,7 +402,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 0),
-              error['hasError'] && error['message'] != "" ? 
+              error['hasError'] && error['message'] != "" && isLoading == false ? 
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 40, left: 20, right: 20),

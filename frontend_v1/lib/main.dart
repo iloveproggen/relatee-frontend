@@ -224,6 +224,7 @@ Future<Map<String, dynamic>> getUserData() async {
       reward
       completed
       completedAt
+      emoji
       private
       owner {
         id
@@ -271,6 +272,7 @@ Future<Map<String, dynamic>> getUserData() async {
                   'reward': task['reward'],
                   'completed': task['completed'],
                   'completed_at': task['completed_at'],
+                  'emoji': task['emoji'],
                   'private': task['private'],
                   'ownerId': task['owner']['id'],
                   'ownerForename': task['owner']['forename'],
@@ -456,6 +458,7 @@ class _MainWidgetState extends State<MainWidget> {
 
   @override
   Widget build(BuildContext context) {
+    checkLastLoginDate();
     return Scaffold(body: MainView());
   }
 }
@@ -1003,9 +1006,9 @@ class _TaskState extends State<TaskOverview> {
                                               } else {
                                                 print(
                                                     "${'Task_completed!_txt'.tr} ${task['reward']}");
-                                                completeTask(task['id']);
                                                 tasks.removeWhere((t) =>
                                                     t['id'] == task['id']);
+                                                completeTask(task['id']);
                                                 // addPoints(
                                                 //     task['reward'].toString());
                                                 showCupertinoDialog(
@@ -1120,13 +1123,30 @@ class _TaskState extends State<TaskOverview> {
   }
 }
 
-class Task extends StatelessWidget {
+class Task extends StatefulWidget {
   const Task({super.key, required this.task, required this.userData});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
 
   @override
+  State<Task> createState() => _MainTaskState();
+}
+
+class _MainTaskState extends State<Task> {
+  @override
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.task['emoji'] != "") {
+      widget.task['emoji'] = widget.task['emoji'] + " ";
+    }
+    else if (widget.task['emoji'] == null){
+      widget.task['emoji'] = "";
+    }
+  }
+  
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
@@ -1138,9 +1158,9 @@ class Task extends StatelessWidget {
             )),
         onPressed: () async {
           var result = await Get.to(() => DetailedTaskView(
-                task: task,
-                userData: userData,
-                assigned: userData['forename'],
+                task: widget.task,
+                userData: widget.userData,
+                assigned: widget.userData['forename'],
               ));
           if (result != null) {
             update();
@@ -1170,9 +1190,9 @@ class Task extends StatelessWidget {
                   children: [
                     Container(
                         constraints: const BoxConstraints(maxWidth: 200),
-                        child: Text(task['name'],
-                            style: task['deadline'] != null &&
-                                 DateTime.parse((task['deadline'])
+                        child: Text('${widget.task['emoji']}${widget.task['name']}',
+                            style: widget.task['deadline'] != null &&
+                                 DateTime.parse((widget.task['deadline'])
                                  ).isBefore(DateTime.now())
                                 ? Theme.of(context)
                                     .textTheme
@@ -1197,7 +1217,7 @@ class Task extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
-                              "${task['reward']} pts",
+                              "${widget.task['reward']} pts",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -1210,8 +1230,8 @@ class Task extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 30),
-                  child: task["deadline"] != null
-                      ? getIndicator(task, context)
+                  child: widget.task["deadline"] != null
+                      ? getIndicator(widget.task, context)
                       : SvgPicture.asset("assets/images/gray.svg"),
                 )
               ],
