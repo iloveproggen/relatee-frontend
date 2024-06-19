@@ -13,9 +13,8 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 late VoidCallback updateShop;
-int? coins;
+late int coins;
 final Color purple = Color(0xFF7C4ACA);
-String userCoins = userData['coins'].toString();
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
@@ -43,94 +42,110 @@ Future<void> claimReward(int userId, int rewardId) async {
   }
 }
 
-Future<List<Map<String, dynamic>>> getRewards(int id) async {
+Future<Map<String, dynamic>> getRewards() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query GetUserRewards {
-    householdRewards {
-            id,
-            name,
-            price,
-            emoji,
-            stock,
-            description
-    }
-}
-'''),
+      query GetUserRewardsAndBalance {
+        getRewards: householdRewards {
+          id
+          name
+          price
+          emoji
+          stock
+          description
+        }
+        getCoins: me {
+          coins
+        }
+      }
+    '''),
   );
+
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
 
     if (result.hasException) {
       print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
+      return {};
     } else {
-      final rewards = result.data!['householdRewards'];
+      print(result.data);
+      final rewardsData =
+          result.data!['getRewards'] as List; // Cast to List explicitly
       final List<Map<String, dynamic>> mappedRewards =
-          rewards.map<Map<String, dynamic>>((reward) {
+          rewardsData.map<Map<String, dynamic>>((reward) {
         return {
           'id': reward['id'],
           'name': reward['name'],
           'price': reward['price'],
-          'stock': reward['stock'] ?? '0',
-          'emoji': reward['emoji'],
-          'description': reward['description'],
+          'stock': reward['stock'] ??
+              '0', // Provide a default value for stock if null
+          'emoji': reward['emoji'] ?? '0',
+          'description': reward['description'] ??
+              '', // Provide a default value for description if null
         };
-      }).toList();
+      }).toList(); // Convert the result of map() to a List
+      coins = result.data!['getCoins']['coins'];
+      print(coins);
       print(mappedRewards);
-      return mappedRewards;
+      return {'rewards': mappedRewards, 'coins': coins};
     }
   } on SocketException catch (e) {
     print('Network error: $e');
-    // Handle network error
   } on TimeoutException catch (e) {
     print('Request timed out: $e');
-    // Handle timeout
   } catch (e) {
     print('Unexpected error: $e');
-    // Handle other errors
   }
-  return [];
+  return {};
 }
+// FutureBuilder(
+//               future: _futureBalance,
+//               builder: (context, snapshot) {
+//                 if (snapshot.connectionState == ConnectionState.waiting) {
+//                   return const CircularProgressIndicator();
+//                 } else if (snapshot.hasError) {
+//                   return Text('Error: ${snapshot.error}');
+//                 } else {
+//                   userCoins = snapshot.data!;
+//                   final String coins = snapshot.data!;
+//                   print("coins left: $coins");
+//                   return
+//                 }
+//               },
+//             ),
+// Future<String> getBalance(int userId) async {
+//   final client = await getGraphQLClient();
+//   final QueryOptions options = QueryOptions(
+//     document: gql('''
 
-Future<String> getBalance(int userId) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUserBalance {
-    me {
-      coins
-    }
-  }
-'''),
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
+// '''),
+//   );
+//   try {
+//     final result =
+//         await client.query(options).timeout(const Duration(seconds: 10));
 
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      print(result.data!['me']['coins'].toString());
-      return result.data!['me']['coins'].toString();
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return '0';
-}
+//     if (result.hasException) {
+//       print(result.exception.toString());
+//     } else if (result.isLoading) {
+//       print('Loading');
+//     } else {
+//       print(result.data!['me']['coins'].toString());
+//       return result.data!['me']['coins'].toString();
+//     }
+//   } on SocketException catch (e) {
+//     print('Network error: $e');
+//     // Handle network error
+//   } on TimeoutException catch (e) {
+//     print('Request timed out: $e');
+//     // Handle timeout
+//   } catch (e) {
+//     print('Unexpected error: $e');
+//     // Handle other errors
+//   }
+//   return '0';
+// }
 
 Future<void> deleteReward(int id) async {
   final client = await getGraphQLClient();
@@ -144,7 +159,7 @@ Future<void> deleteReward(int id) async {
       'rewardId': id,
     },
   );
-    final QueryResult result = await client.mutate(options);
+  final QueryResult result = await client.mutate(options);
   if (result.hasException) {
     print(result.exception.toString());
   } else if (result.isLoading) {
@@ -224,6 +239,17 @@ class _ShopIconState extends State<ShopIcon>
   }
 }
 
+class MainShopView extends StatelessWidget {
+  const MainShopView({super.key, required this.userData});
+
+  final Map<String, dynamic> userData; 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: ShopView(userData: userData));
+  }
+}
+
 class ShopView extends StatefulWidget {
   const ShopView({super.key, required this.userData});
 
@@ -237,84 +263,84 @@ class ShopViewState extends State<ShopView> {
   ShopViewState({required this.userData});
 
   final Map<String, dynamic> userData;
-  late Future<List<Map<String, dynamic>>> _futureRewards;
-  late Future<String> _futureBalance;
+  late Future<Map<String, dynamic>> _futureRewards;
 
   @override
   void initState() {
     super.initState();
-    _futureRewards = getRewards(widget.userData['householdId']);
-    _futureBalance = getBalance(widget.userData['id']);
+    _futureRewards = getRewards();
   }
 
   void _updateRewards() {
     setState(() {
-      _futureRewards = getRewards(userData['householdId']);
-      _futureBalance = getBalance(userData['id']);
+      _futureRewards = getRewards();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     updateShop = _updateRewards;
-    return Scaffold(
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const profile.BackIconRow(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    // ShopIcon(),
-                    // SizedBox(width: 10),
-                    Text('Shop_title'.tr,
-                        style: Theme.of(context).textTheme.bodyLarge),
-                  ],
-                ),
-                TextButton(
-                    onPressed: () async {
-                      var result =
-                          await Get.to(() => NewShopItem(userData: userData));
-                      if (result != null) {
-                        _updateRewards();
-                      }
-                    },
-                    child: const Icon(CupertinoIcons.add,
-                        color: Color.fromARGB(255, 204, 198, 196), size: 35))
-              ],
-            ),
-            Text(
-              ('Shop_info'.tr),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _futureRewards,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      final rewards = snapshot.data!;
-                      if (rewards.isEmpty) {
-                        return Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Text('No rewards available. Create new ones!',
-                                style: Theme.of(context).textTheme.bodySmall),
-                          ],
-                        );
-                      } else {
-                        rewards
-                            .sort((a, b) => a['price'].compareTo(b['price']));
-                        return ListView.builder(
+        child: FutureBuilder<Map<String, dynamic>>(
+            future: _futureRewards,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                print("snapshot data: " + snapshot.data.toString());
+                final List<Map<String, dynamic>> rewards =
+                    snapshot.data!['rewards'];
+                print("rewards: $rewards");
+                coins = snapshot.data!['coins'];
+                if (rewards.isEmpty) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Text('No rewards available. Create new ones!',
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  );
+                } else {
+                  rewards.sort((a, b) => a['price'].compareTo(b['price']));
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const profile.BackIconRow(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              // ShopIcon(),
+                              // SizedBox(width: 10),
+                              Text('Shop_title'.tr,
+                                  style: Theme.of(context).textTheme.bodyLarge),
+                            ],
+                          ),
+                          TextButton(
+                              onPressed: () async {
+                                var result = await Get.to(
+                                    () => NewShopItem(userData: userData));
+                                if (result != null) {
+                                  _updateRewards();
+                                }
+                              },
+                              child: const Icon(CupertinoIcons.add,
+                                  color: Color.fromARGB(255, 204, 198, 196),
+                                  size: 35))
+                        ],
+                      ),
+                      Text(
+                        ('Shop_info'.tr),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: ListView.builder(
                           padding: EdgeInsets.only(top: 20),
                           scrollDirection: Axis.vertical,
                           itemCount: rewards.length,
@@ -350,8 +376,8 @@ class ShopViewState extends State<ShopView> {
                                             _updateRewards();
                                           },
                                           child: const Text('Yes',
-                                              style: TextStyle(
-                                                  color: Colors.red)),
+                                              style:
+                                                  TextStyle(color: Colors.red)),
                                         ),
                                       ],
                                     );
@@ -366,8 +392,8 @@ class ShopViewState extends State<ShopView> {
                                     color: Colors.red, size: 30),
                               ),
                               child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 title: TextButton(
                                   onPressed: () async {
                                     var result = await Get.to(
@@ -384,94 +410,76 @@ class ShopViewState extends State<ShopView> {
                               ),
                             );
                           },
-                        );
-                      }
-                    }
-                  }),
-            ),
-            const SizedBox(height: 20),
-            FutureBuilder(
-              future: _futureBalance,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  userCoins = snapshot.data!;
-                  final String coins = snapshot.data!;
-                  print("coins left: " + coins);
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 27, vertical: 9),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .tertiary
-                              .withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              "assets/images/relatee.svg",
-                              height: 20,
-                              width: 20,
-                              color: purple,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              coins == '0' ? '0' : coins,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontSize: 25),
-                            ),
-                          ],
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 27, vertical: 9),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .tertiary
-                              .withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/relatee.svg",
+                                  height: 20,
+                                  width: 20,
+                                  color: purple,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  coins.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontSize: 25),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 27, vertical: 9),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
                               "lvl ${userData['level'].toString()}",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
                                   ?.copyWith(fontSize: 25),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 50)
                     ],
                   );
                 }
-              },
-            ),
-            const SizedBox(height: 50)
-          ],
-        ),
-      ),
-    );
+              }
+            }),
+      );
   }
 }
 
+
 // ignore: must_be_immutable
-class ItemCard extends StatelessWidget {
-  ItemCard({
+class ItemCard extends StatefulWidget {
+  const ItemCard({
     super.key,
     required this.reward,
     required this.userData,
@@ -480,15 +488,27 @@ class ItemCard extends StatelessWidget {
   final Map<String, dynamic> reward;
   final Map<String, dynamic> userData;
 
+  @override
+  State<ItemCard> createState() => _ItemCardState();
+}
+
+class _ItemCardState extends State<ItemCard> {
   late bool buyable = false;
 
   @override
-  Widget build(BuildContext context) {
-    print(reward['emoji']);
-    if(reward['emoji'] != "") {
-      reward['emoji'] = reward['emoji'] + " ";
+  void initState() {
+    super.initState();
+    print(widget.reward['emoji']);
+    if (widget.reward['emoji'] != "") {
+      widget.reward['emoji'] = widget.reward['emoji'] + " ";
     }
-    buyable = isBuyable(reward['price'], int.parse(userCoins));
+    buyable = isBuyable(widget.reward['price'], coins);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print(buyable);
+    print(coins);
     return Column(
       children: [
         Container(
@@ -512,17 +532,17 @@ class ItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${reward['emoji']}${reward['name']}",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 3,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                    Text("${widget.reward['emoji']}${widget.reward['name']}",
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     Row(
                       children: [
                         Text(
-                          "${reward['price']}",
+                          "${widget.reward['price']}",
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: Theme.of(context)
@@ -544,22 +564,23 @@ class ItemCard extends StatelessWidget {
                           width: 10,
                         ),
                         Text(
-                            reward['stock'] == -1
+                            widget.reward['stock'] == -1
                                 ? ""
-                                : "${reward['stock'].toString()}x",
+                                : "${widget.reward['stock'].toString()}x",
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
-                    reward['description'] == "" || reward['description'] == null
+                    widget.reward['description'] == "" ||
+                            widget.reward['description'] == null
                         ? Container(height: 10)
                         : Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: SizedBox(
                               child: Text(
-                                "\'${reward['description']}\'",
+                                "\'${widget.reward['description']}\'",
                                 maxLines: 5,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
@@ -589,7 +610,7 @@ class ItemCard extends StatelessWidget {
                                 textAlign: TextAlign.center,
                               ),
                               content: Text(
-                                  "Are you sure you want to buy this item for ${reward['price']} coins?"),
+                                  "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
                               actions: [
                                 CupertinoDialogAction(
                                   onPressed: () {
@@ -601,8 +622,8 @@ class ItemCard extends StatelessWidget {
                                 ),
                                 CupertinoDialogAction(
                                   onPressed: () async {
-                                    await claimReward(
-                                        userData['id'], reward['id']);
+                                    await claimReward(widget.userData['id'],
+                                        widget.reward['id']);
 
                                     updateShop();
                                     // Perform the purchase logic here
@@ -619,8 +640,8 @@ class ItemCard extends StatelessWidget {
                       : showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            int difference =
-                                reward['price'] - userData['coins'];
+                            int difference = widget.reward['price'] -
+                                widget.userData['coins'];
                             return CupertinoAlertDialog(
                               title: const Text("Not enough Points to buy"),
                               content: Text(

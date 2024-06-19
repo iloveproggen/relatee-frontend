@@ -149,67 +149,68 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
 
-if (result.hasException) {
-  print(result.exception.toString());
-} else {
-  print(result.data!);
-  final users = result.data!['getHousehold']['users'];
-  final tasks = result.data!['getTasks'];
-  final completedTasks = result.data!['getCompletedTasks'];
-  tasks.addAll(completedTasks);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      print(result.data!);
+      final users = result.data!['getHousehold']['users'];
+      final tasks = result.data!['getTasks'];
+      final completedTasks = result.data!['getCompletedTasks'];
+      tasks.addAll(completedTasks);
 
-  final List<Map<String, dynamic>> mappedUsers =
-      users.map<Map<String, dynamic>>((user) {
-    return {
-      'id': user['id'],
-      'forename': user['forename'],
-      'surname': user['surname'],
-      'username': user['username'],
-      'email': user['email'],
-      'level': user['level'],
-      'coins': user['coins'],
-      'emoji': user['emoji'],
-      'colorPrimary': user['colorPrimary'],
-      'colorSecondary': user['colorSecondary'],
-      'householdName': result.data!['getHousehold']['name'],
-      'householdId': result.data!['getHousehold']['id'],
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedUsers =
+          users.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'],
+          'forename': user['forename'],
+          'surname': user['surname'],
+          'username': user['username'],
+          'email': user['email'],
+          'level': user['level'],
+          'coins': user['coins'],
+          'emoji': user['emoji'],
+          'colorPrimary': user['colorPrimary'],
+          'colorSecondary': user['colorSecondary'],
+          'householdName': result.data!['getHousehold']['name'],
+          'householdId': result.data!['getHousehold']['id'],
+        };
+      }).toList();
 
-  final List<Map<String, dynamic>> mappedTasks =
-      tasks.map<Map<String, dynamic>>((task) {
-    return {
-      'id': task['id'],
-      'name': task['name'],
-      'emoji': task['emoji'],
-      'deadline': task['deadline'],
-      'description': task['description'],
-      'reward': task['reward'],
-      'completed': task['completed'],
-      'completedAt': task['completedAt'],
-      'private': task['private'],
-      'userId': task['user'] != null ? task['user']['id'] : null,
-      'userForename': task['user'] != null ? task['user']['forename'] : null,
-      'userSurname': task['user'] != null ? task['user']['surname'] : null,
-      'ownerId': task['owner']['id'],
-      'ownerForename': task['owner']['forename'],
-      // 'routineId': task['routine'] != null ? task['routine']['id'] : null,
-      // 'routineName': task['routine'] != null ? task['routine']['name'] : null,
-    };
-  }).toList();
-  // final List<Map<String, dynamic>> mappedRoutines =
-  //     routines.map<Map<String, dynamic>>((routine) {
-  //   return {
-  //     'id': routine['id'],
-  //     'name': routine['name'],
-  //   };
-  // }).toList();
+      final List<Map<String, dynamic>> mappedTasks =
+          tasks.map<Map<String, dynamic>>((task) {
+        return {
+          'id': task['id'],
+          'name': task['name'],
+          'emoji': task['emoji'],
+          'deadline': task['deadline'],
+          'description': task['description'],
+          'reward': task['reward'],
+          'completed': task['completed'],
+          'completedAt': task['completedAt'],
+          'private': task['private'],
+          'userId': task['user'] != null ? task['user']['id'] : null,
+          'userForename':
+              task['user'] != null ? task['user']['forename'] : null,
+          'userSurname': task['user'] != null ? task['user']['surname'] : null,
+          'ownerId': task['owner']['id'],
+          'ownerForename': task['owner']['forename'],
+          // 'routineId': task['routine'] != null ? task['routine']['id'] : null,
+          // 'routineName': task['routine'] != null ? task['routine']['name'] : null,
+        };
+      }).toList();
+      // final List<Map<String, dynamic>> mappedRoutines =
+      //     routines.map<Map<String, dynamic>>((routine) {
+      //   return {
+      //     'id': routine['id'],
+      //     'name': routine['name'],
+      //   };
+      // }).toList();
 
-  return {
-    'users': mappedUsers,
-    'tasks': mappedTasks,
-  };
-}
+      return {
+        'users': mappedUsers,
+        'tasks': mappedTasks,
+      };
+    }
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -449,8 +450,7 @@ Future<void> completeTask(int taskId) async {
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
-  DateTime? deadline =
-      DateTime.parse(task['deadline']);
+  DateTime? deadline = DateTime.parse(task['deadline']);
 
   Widget green = SvgPicture.asset("assets/images/green.svg");
   Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
@@ -496,7 +496,9 @@ class _MainWidgetState extends State<MainWidget> {
 }
 
 class MainView extends StatefulWidget {
-  const MainView({super.key,});
+  const MainView({
+    super.key,
+  });
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -536,17 +538,17 @@ class _MainViewState extends State<MainView> {
             tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
             userData = snapshot.data!;
             print(userData);
-            return  const SingleChildScrollView(
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-                        child: Column(
-                          children: [
-                            IconRow(),
-                            WelcomeText(),
-                            ButtonRecommended(),
-                            TaskOverview(),
-                          ],
-                        )));
+            return const SingleChildScrollView(
+                child: Padding(
+                    padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+                    child: Column(
+                      children: [
+                        IconRow(),
+                        WelcomeText(),
+                        ButtonRecommended(),
+                        TaskOverview(),
+                      ],
+                    )));
           }
         });
   }
@@ -561,8 +563,10 @@ class IconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color colorPrimary = Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
-    final Color colorSecondary = Color(int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
+    final Color colorPrimary =
+        Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
+    final Color colorSecondary = Color(
+        int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -576,9 +580,12 @@ class IconRow extends StatelessWidget {
                   height: 40,
                   width: 40,
                   child: TextButton(
-                    style: ButtonStyle(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero)),
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.zero)),
                     onPressed: () async {
-                      Map<String, dynamic> newUserData = await Get.to(() => ProfileView(userData: userData, tasks: tasks));
+                      Map<String, dynamic> newUserData = await Get.to(
+                          () => ProfileView(userData: userData, tasks: tasks));
                       if (newUserData != {}) {
                         userData = newUserData;
                         update();
@@ -594,15 +601,13 @@ class IconRow extends StatelessWidget {
                       child: ClipOval(
                         child: Center(
                           child: Text(
-                                  userData['emoji'],
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary,
-                                    fontSize: 25,
-                                  ),
-                                ),
+                            userData['emoji'],
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 25,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -629,7 +634,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () async {
-              Get.to(() => ShopView(userData: userData));
+              await Get.to(() => MainShopView(userData: userData));
               update();
             },
             icon: Icon(
@@ -828,7 +833,6 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
-
   @override
   void initState() {
     super.initState();
@@ -979,11 +983,26 @@ class _TaskState extends State<TaskOverview> {
               child: Column(
                 children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: _taskView
                         ? [
                             ButtonRow(tasks: tasks),
                             toDo.isEmpty
-                                ? Container()
+                                ? TextButton(
+                                    child: Text(
+                                      "No tasks left! Press here to create one.",
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    onPressed: () async {
+                                      var result = await Get.to(() =>
+                                          NewTaskMain(userData: userData));
+                                      if (result != null) {
+                                        update();
+                                      }
+                                    },
+                                  )
                                 : Column(
                                     children: [
                                       Column(
@@ -1001,7 +1020,7 @@ class _TaskState extends State<TaskOverview> {
                                                       (BuildContext context) =>
                                                           CupertinoAlertDialog(
                                                     title: Text(
-                                                        "${"${'Delete_Task_txt'.tr} "+ task['name']}?"),
+                                                        "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
                                                     content: Text(
                                                         'Sure_delete_task?_txt'
                                                             .tr),
@@ -1028,9 +1047,10 @@ class _TaskState extends State<TaskOverview> {
                                                             true,
                                                         child: Text(
                                                             'Delete_txt'.tr,
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .red)),
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ),
                                                     ],
                                                   ),
@@ -1058,7 +1078,9 @@ class _TaskState extends State<TaskOverview> {
                                                         children: [
                                                           SizedBox(height: 10),
                                                           Image.network(
-                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                            "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                                            scale: 1.3,
+                                                          ),
                                                         ],
                                                       ),
                                                       actions: [
@@ -1167,18 +1189,16 @@ class Task extends StatefulWidget {
 
 class _MainTaskState extends State<Task> {
   @override
-
   @override
   void initState() {
     super.initState();
-    if(widget.task['emoji'] != "") {
+    if (widget.task['emoji'] != "") {
       widget.task['emoji'] = widget.task['emoji'] + " ";
-    }
-    else if (widget.task['emoji'] == null){
+    } else if (widget.task['emoji'] == null) {
       widget.task['emoji'] = "";
     }
   }
-  
+
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
@@ -1222,10 +1242,11 @@ class _MainTaskState extends State<Task> {
                   children: [
                     Container(
                         constraints: const BoxConstraints(maxWidth: 200),
-                        child: Text('${widget.task['emoji']}${widget.task['name']}',
+                        child: Text(
+                            '${widget.task['emoji']}${widget.task['name']}',
                             style: widget.task['deadline'] != null &&
-                                 DateTime.parse((widget.task['deadline'])
-                                 ).isBefore(DateTime.now())
+                                    DateTime.parse((widget.task['deadline']))
+                                        .isBefore(DateTime.now())
                                 ? Theme.of(context)
                                     .textTheme
                                     .bodySmall

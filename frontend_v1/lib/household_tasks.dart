@@ -404,7 +404,7 @@ class MoreDetailsTask extends StatelessWidget {
                   children: [
                     Container(
                       constraints: const BoxConstraints(maxWidth: 240),
-                      child: Text(task['name'],
+                      child: Text(task['emoji'] != null && task['emoji'] != "" ? "${task['emoji']} ${task['name']}" : task['name'],
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.bold,
