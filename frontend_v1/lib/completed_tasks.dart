@@ -47,6 +47,7 @@ class CompletedTaskList extends StatelessWidget {
   Widget build(BuildContext context) {
     completedTasks = tasks;
     user = userData;
+    print(completedTasks);
     print(userData);
     return Scaffold(
       body: SingleChildScrollView(
@@ -82,8 +83,8 @@ class ListBuilderCompleted extends StatelessWidget {
     }).toList()
           ..sort(
             (a, b) {
-              final completedAtA = a.task['completed_at'];
-              final completedAtB = b.task['completed_at'];
+              final completedAtA = a.task['completedAt'];
+              final completedAtB = b.task['completedAt'];
               if (completedAtA == null && completedAtB == null) {
                 return 0;
               } else if (completedAtA == null) {
@@ -138,18 +139,20 @@ class CompletedTaskDetailedView extends StatelessWidget {
                           : '${userData['forename']}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: " gained ${task['reward']} ${task['reward'] == 1 ? 'point' : 'points'} for completing '${task['name']}'",
+                    TextSpan(text: " gained ${task['reward']} ${task['reward'] == 1 ? 'point' : 'points'} for completing ",
                     style: Theme.of(context).textTheme.bodySmall),
+                    TextSpan(
+                      text: "'${task['name']}' ${task['emoji']}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),)
                   ],
                 ),
               ),
               SizedBox(height: 10),
               Text(
-                  task['completed_at'] == null
+                  task['completedAt'] == null
                       ? 'unknown'
                       : formatDateWithOrdinal(
-                          DateTime.fromMillisecondsSinceEpoch(
-                              int.parse(task['completed_at']))),
+                          DateTime.parse(task['completedAt'])),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.tertiary,
                       fontWeight: FontWeight.bold)),

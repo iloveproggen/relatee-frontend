@@ -9,6 +9,7 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 late List<Map<String, dynamic>> tasks;
 late List<Map<String, dynamic>> users;
@@ -56,7 +57,7 @@ class HouseholdOverview extends StatelessWidget {
                 } else {
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
-                  print(tasks);
+                  print("all tasks: \n\n $tasks");
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -151,10 +152,11 @@ class HouseholdOverview extends StatelessWidget {
                                 const EdgeInsets.all(0),
                               )),
                           onPressed: () {
+                            List<Map<String, dynamic>> completedTasks = tasks
+                                .where((task) =>  task['completed'] == true)
+                                .toList();
                             Get.to(() => CompletedTaskList(
-                                tasks: tasks
-                                    .where((task) => task['completed'] == true)
-                                    .toList(),
+                                tasks: completedTasks,
                                 userData: users));
                           },
                           child: Text('See_completed_Tasks_txt'.tr,
@@ -185,12 +187,105 @@ class HouseholdMembers extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(users.length, (index) {
-            print(users[index]['householdName']);
-            return Member(userData: users[index]);
+            return GestureDetector(
+              onLongPress: () {
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CupertinoActionSheet(
+                      title: Text(
+                          "Manage User ${users[index]['forename']} ${users[index]['surname']}"),
+                      actions: [
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Get.to(() => PublicProfile(
+                                userData: users[index],
+                                tasks: tasks
+                                    .where((task) =>
+                                        task['userId'] == users[index]['id'])
+                                    .toList()));
+                          },
+                          child: const Text('View Profile',
+                              style: TextStyle(color: Colors.blue)),
+                        ),
+                        CupertinoActionSheetAction(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            kickUser(users[index], context);
+                          },
+                          child: const Text('Kick from Household',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                      cancelButton: CupertinoActionSheetAction(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel',
+                            style: TextStyle(color: Colors.blue)),
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Member(userData: users[index]),
+            );
           }),
         ),
       ],
     );
+  }
+
+  void kickUser(Map<String, dynamic> user, BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Confirm Kick'),
+          content: Text(
+              'Are you sure you want to kick ${user['forename']} ${user['surname']} from the household? All tasks assigned to this user will also be deleted.'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              onPressed: () async{
+                queryKickUser(user['id']);
+                Navigator.pop(context);
+                Get.back();
+              },
+              isDestructiveAction: true,
+              child: const Text('Kick', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+Future<void> queryKickUser(int id) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation kickUserFromHousehold(\$userId: Int!) {
+        kickUserFromHousehold(userId: \$userId) {}
+      }
+    '''),
+    variables: <String, dynamic>{
+      'userId': id,
+    },
+  );
+    final QueryResult result = await client.mutate(options);
+  if (result.hasException) {
+    print(result.exception.toString());
+  } else if (result.isLoading) {
+    print('Loading');
+  } else {
+    print("User was kicked.");
   }
 }
 
@@ -309,7 +404,7 @@ class MoreDetailsTask extends StatelessWidget {
                   children: [
                     Container(
                       constraints: const BoxConstraints(maxWidth: 240),
-                      child: Text(task['name'],
+                      child: Text(task['emoji'] != null && task['emoji'] != "" ? "${task['emoji']} ${task['name']}" : task['name'],
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.bold,

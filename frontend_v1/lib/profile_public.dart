@@ -22,6 +22,9 @@ class PublicProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String avatar = userData['emoji'];
+    final Color colorPrimary = Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
+    final Color colorSecondary = Color(int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
     print(userData);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -35,18 +38,40 @@ class PublicProfile extends StatelessWidget {
               Column(
                 children: [
                   //Profile Picture
-                  Container(
+                  SizedBox(
                     height: 200,
                     width: 200,
-                    decoration: ShapeDecoration(
-                      shape: CircleBorder(
-                        side: BorderSide(
-                          width: 6,
-                          color: Theme.of(context).colorScheme.tertiary,
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //   width: 7,
+                    //   color: Theme.of(context).colorScheme.onPrimary,
+                    //   strokeAlign: BorderSide.strokeAlignOutside
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(100),
+                    // ),
+                    child: Container(
+                      width: 400,
+                      height: 400,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [colorPrimary, colorSecondary],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: Center(
+                          child: Text(
+                                  avatar,
+                                  textAlign: TextAlign.end,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontSize: 130,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
-                    child: Icon(CupertinoIcons.smiley, size: 100, color: Theme.of(context).colorScheme.tertiary),
                   ),
                 ],
               ),
@@ -84,7 +109,6 @@ class PublicProfile extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -183,7 +207,8 @@ class PublicProfile extends StatelessWidget {
 }
 
 class PublicTaskOverview extends StatelessWidget {
-  const PublicTaskOverview({super.key, required this.userData, required this.tasks});
+  const PublicTaskOverview(
+      {super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> tasks;
@@ -193,7 +218,8 @@ class PublicTaskOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> taskLeft = tasks.where((task) => task['completed'] == false).toList();
+    List<Map<String, dynamic>> taskLeft =
+        tasks.where((task) => task['completed'] == false).toList();
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,

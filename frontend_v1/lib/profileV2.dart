@@ -5,8 +5,11 @@ import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gravatar/flutter_gravatar.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -16,21 +19,161 @@ String getDueDaysInText(int days) {
   }
 }
 
-late Gravatar gravatar;
+Future<Map<String,dynamic>> updateUserProfile(String emoji, String colorPrimary, String colorSecondary) async {
+  final Map<String, dynamic> variables = {
+    'input': {
+      'emoji': emoji,
+      'colorPrimary': colorPrimary,
+      'colorSecondary': colorSecondary,
+    }
+  };
 
-class ProfileView extends StatelessWidget {
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''
+  mutation UpdateUserStyle($input: UpdateUserStyleInput!) {
+    updateUserStyle(input: $input) {
+      emoji
+      colorPrimary
+      colorSecondary
+    }
+  }
+'''),
+    variables: variables,
+  );
+
+  final QueryResult result = await client.query(options);
+  print("new data: ${result.data!}");
+
+  if (result.hasException) {
+    print(result.exception.toString());
+    return {};
+  } else {
+    // Handle the updated user data
+    print(result.data!['updateUserStyle']);
+    return result.data!['updateUserStyle'];
+  }
+}
+
+class ProfileView extends StatefulWidget {
   const ProfileView({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> tasks;
 
-  void changeProfilePicture(params) {
-    //String gravatarToken = "188:gk-Q6VJK9TxLzjm_MHKMoSp-SZOSLGfH1rdVY0FiE0g0kVBSpZ8ht7sSwqX3cepn";
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  String? avatar;
+  late Color colorPrimary;
+  late Color colorSecondary;
+  bool useSecondaryColor = false;
+
+  @override
+  void initState() {
+    super.initState();
+    avatar = widget.userData['emoji'];
+    colorPrimary = Color(int.parse(
+        // ignore: prefer_interpolation_to_compose_strings
+        '0xFF' + widget.userData['colorPrimary'].replaceAll('#', '')));
+    colorSecondary = Color(int.parse(
+        // ignore: prefer_interpolation_to_compose_strings
+        '0xFF' + widget.userData['colorSecondary'].replaceAll('#', '')));
+    // Add your initialization code here
+  }
+
+  @override
+  void dispose() {
+    // Add your disposal code here
+    super.dispose();
+  }
+
+  void openColorPicker() {
+    Color oldColorPrimary = colorPrimary;
+    Color oldColorSecondary = colorSecondary;
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 550,
+          color: Theme.of(context).colorScheme.primary,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const SizedBox(height: 10),
+                ColorPicker(
+                  paletteType: PaletteType.hsl,
+                  labelTypes: const [],
+                  pickerAreaHeightPercent: 0.35,
+                  enableAlpha: false,
+                  pickerAreaBorderRadius:
+                      const BorderRadius.all(Radius.circular(20)),
+                  pickerColor: colorPrimary,
+                  onColorChanged: ((value) {
+                    print(value);
+                    setState(() {
+                      colorPrimary = value;
+                    });
+                  }),
+                ),
+                // Row(
+                //   children: [
+                //     CupertinoSwitch(
+                //       value: useSecondaryColor,
+                //       onChanged: (value) {
+                //         setState(() {
+                //           useSecondaryColor = value;
+                //         });
+                //       },
+                //     ),
+                //     Text(
+                //       "Use a gradient?",
+                //       style: Theme.of(context).textTheme.bodySmall,
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 20),
+                ColorPicker(
+                  paletteType: PaletteType.hsl,
+                  labelTypes: [],
+                  pickerAreaHeightPercent: 0.35,
+                  enableAlpha: false,
+                  pickerAreaBorderRadius:
+                      const BorderRadius.all(Radius.circular(20)),
+                  pickerColor: colorSecondary, // Changed to colorSecondary
+                  onColorChanged: ((value) {
+                    print(value);
+                    setState(() {
+                      colorSecondary = value; // Changed to colorSecondary
+                    });
+                  }),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      colorPrimary = oldColorPrimary;
+                      colorSecondary = oldColorSecondary;
+                      Get.back();
+                    });
+                  },
+                  child:
+                      const Text('Back', style: TextStyle(color: Colors.red)),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    gravatar = Gravatar(userData['email']);   
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -40,9 +183,18 @@ class ProfileView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const BackIconRow(),
+                  BackAndUpdateIcon(avatar: avatar!, colorPrimary: colorPrimary.toString(), colorSecondary: colorSecondary.toString()),
+                  const Spacer(),
+                  TextButton(
+                    child: Icon(CupertinoIcons.paintbrush,
+                        size: 30,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    onPressed: () {
+                      openColorPicker();
+                    },
+                  ),
                   TextButton(
                     onPressed: () {
                       showCupertinoDialog(
@@ -92,38 +244,91 @@ class ProfileView extends StatelessWidget {
               ),
               Column(
                 children: [
+                  const KeyboardEmojiPickerWrapper(child: SizedBox(height: 0)),
                   //Profile Picture
-                  Container(
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
                     height: 200,
                     width: 200,
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //   width: 7,
+                    //   color: Theme.of(context).colorScheme.onPrimary,
+                    //   strokeAlign: BorderSide.strokeAlignOutside
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(100),
+                    // ),
                     child: TextButton(
-                      onPressed: () {
-                        showCupertinoDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CupertinoAlertDialog(
-                              title: const Text('Change Avatar'),
-                              content: const Text('Would you like to change your avatar?'),
-                              actions: [
-                                CupertinoDialogAction(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  child: const Text("Back", style: TextStyle(color: Colors.blue),),
-                                ),
-                                CupertinoDialogAction(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  child: const Text("Go", style: TextStyle(color: Colors.blue),),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                      onPressed: () async {
+                        final hasEmojiKeyboard =
+                            await KeyboardEmojiPicker().checkHasEmojiKeyboard();
+                        if (hasEmojiKeyboard) {
+                          final pickedEmoji =
+                              await KeyboardEmojiPicker().pickEmoji();
+                          setState(() {
+                            avatar = pickedEmoji;
+                          });
+                        } else {
+                          showCupertinoModalPopup(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoAlertDialog(
+                                title: const Text('Emoji Keyboard Disabled'),
+                                content: const Text(
+                                    'Please enable the emoji keyboard in your device settings.'),
+                                actions: [
+                                  CupertinoDialogAction(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       },
-                        child: const Text(
-                        "🌈", style: TextStyle(fontSize: 140),
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0)),
+                      ),
+                      child: Container(
+                        width: 400,
+                        height: 400,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [colorPrimary, colorSecondary],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: Center(
+                            child: avatar == null
+                                ? Text(
+                                    "add icon",
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 130,
+                                    ),
+                                  )
+                                : Text(
+                                    avatar ?? 'add icon',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 130,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -135,11 +340,12 @@ class ProfileView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 30),
-                    Text('${userData['forename']} ${userData['surname']}',
+                    Text(
+                        '${widget.userData['forename']} ${widget.userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
                     Text(
-                      '@${userData['username']}',
+                      '@${widget.userData['username']}',
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -153,7 +359,7 @@ class ProfileView extends StatelessWidget {
                               text: ('part_household'.tr),
                               style: Theme.of(context).textTheme.bodySmall),
                           TextSpan(
-                              text: '"${userData['householdName']}"',
+                              text: '"${widget.userData['householdName']}"',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -186,7 +392,7 @@ class ProfileView extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  '${userData['coins']}',
+                                  '${widget.userData['coins']}',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     color: Color(0xFF4A4646),
@@ -210,7 +416,7 @@ class ProfileView extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(10)),
                             ),
                             child: Text(
-                              'lvl ${userData['level']}',
+                              'lvl ${widget.userData['level']}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4A4646),
@@ -231,14 +437,13 @@ class ProfileView extends StatelessWidget {
               //     height: 100,
               //     thickness: 2),
               const SizedBox(height: 80),
-              TaskOverview(userData: userData, tasks: tasks),
+              TaskOverview(userData: widget.userData, tasks: widget.tasks),
             ],
           ),
         ),
       ),
     );
   }
-
 }
 
 class BackIconRow extends StatelessWidget {
@@ -263,6 +468,58 @@ class BackIconRow extends StatelessWidget {
               ),
               onPressed: () async {
                 Get.back();
+              },
+              child: Row(
+                children: [
+                  Icon(
+                    CupertinoIcons.back,
+                    color: Theme.of(context).colorScheme.tertiary,
+                    size: 18,
+                  ),
+                  Container(width: 5),
+                  // Icon(
+                  //   CupertinoIcons.house_fill,
+                  //   color: col,
+                  //   size: 18,
+                  // )
+                  Text('back_button_text'.tr,
+                      style: Theme.of(context).textTheme.labelLarge),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BackAndUpdateIcon extends StatelessWidget {
+  const BackAndUpdateIcon(
+      {super.key, required this.avatar, required this.colorPrimary, required this.colorSecondary});
+
+  final double padding = 20;
+  final double size = 40;
+  final String avatar, colorPrimary, colorSecondary;
+
+  @override
+  Widget build(BuildContext context) {
+    String formattedColorPrimary =  '#' + colorPrimary.split('(0xff')[1].split(')')[0];
+    String formattedColorSecondary =  '#' + colorSecondary.split('(0xff')[1].split(')')[0];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: padding),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () async {
+                Map<String, dynamic> newUserData = await updateUserProfile(avatar, formattedColorPrimary, formattedColorSecondary);
+                Get.back(result: newUserData);
               },
               child: Row(
                 children: [

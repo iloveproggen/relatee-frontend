@@ -20,7 +20,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(CheckLoggedIn());
+  runApp(const CheckLoggedIn());
 }
 
 late VoidCallback update;
@@ -59,92 +59,158 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-  query getHousehold{
-    household {
-        id
-        name
-        emoji
-        users {
-          id
-          forename
-          surname
-          username
-          email
-          level
-          coins
-        }
-        tasks {
-          id
-          user {
-            id
-          }
-          name
-          description
-          deadline
-          reward
-          completed    
-          completedAt
-          routine {
-            id
-          }
-        }
-        routines {
+      query getHouseholdAndTasks {
+        getHousehold: household {
           id
           name
+          emoji
+          users {
+            id
+            forename
+            surname
+            username
+            email
+            level
+            coins
+            emoji
+            colorPrimary
+            colorSecondary
+          }
+          routines {
+            id
+            name
+          }
         }
-      }
-    }
-'''),
+        getTasks: householdTasks (completed: false){
+            id
+            name
+            emoji
+            deadline
+            description
+            reward
+            completed
+            completedAt
+            private
+            user {
+              id
+              forename
+              surname
+              username
+              email
+              level
+              coins
+            }
+            owner {
+              id
+              forename
+              surname
+              username
+            }
+            routine {
+              id
+              name
+            }
+          }
+          getCompletedTasks: householdTasks (completed: true){
+            id
+            name
+            emoji
+            deadline
+            description
+            reward
+            completed
+            completedAt
+            private
+            user {
+              id
+              forename
+              surname
+              username
+              email
+              level
+              coins
+            }
+            owner {
+              id
+              forename
+              surname
+              username
+            }
+            routine {
+              id
+              name
+            }
+          }
+        }
+
+    '''),
   );
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
 
-if (result.hasException) {
-  print(result.exception.toString());
-} else {
-  print(result.data!);
-  final users = result.data!['household']['users'];
-  final tasks = result.data!['household']['tasks'];
-  final routines = result.data!['household']['routines'];
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      print(result.data!);
+      final users = result.data!['getHousehold']['users'];
+      final tasks = result.data!['getTasks'];
+      final completedTasks = result.data!['getCompletedTasks'];
+      tasks.addAll(completedTasks);
 
-  final List<Map<String, dynamic>> mappedUsers =
-      users.map<Map<String, dynamic>>((user) {
-    return {
-      'id': user['id'],
-      'forename': user['forename'],
-      'surname': user['surname'],
-      'username': user['username'],
-      'email': user['email'],
-      'level': user['level'],
-      'coins': user['coins'],
-      'householdName': result.data!['household']['name'],
-      'householdId': result.data!['household']['id'],
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedUsers =
+          users.map<Map<String, dynamic>>((user) {
+        return {
+          'id': user['id'],
+          'forename': user['forename'],
+          'surname': user['surname'],
+          'username': user['username'],
+          'email': user['email'],
+          'level': user['level'],
+          'coins': user['coins'],
+          'emoji': user['emoji'],
+          'colorPrimary': user['colorPrimary'],
+          'colorSecondary': user['colorSecondary'],
+          'householdName': result.data!['getHousehold']['name'],
+          'householdId': result.data!['getHousehold']['id'],
+        };
+      }).toList();
 
-  final List<Map<String, dynamic>> mappedTasks =
-      tasks.map<Map<String, dynamic>>((task) {
-    return {
-      'id': task['id'],
-      // rest of your code
-    };
-  }).toList();
+      final List<Map<String, dynamic>> mappedTasks =
+          tasks.map<Map<String, dynamic>>((task) {
+        return {
+          'id': task['id'],
+          'name': task['name'],
+          'emoji': task['emoji'],
+          'deadline': task['deadline'],
+          'description': task['description'],
+          'reward': task['reward'],
+          'completed': task['completed'],
+          'completedAt': task['completedAt'],
+          'private': task['private'],
+          'userId': task['user'] != null ? task['user']['id'] : null,
+          'userForename':
+              task['user'] != null ? task['user']['forename'] : null,
+          'userSurname': task['user'] != null ? task['user']['surname'] : null,
+          'ownerId': task['owner']['id'],
+          'ownerForename': task['owner']['forename'],
+          // 'routineId': task['routine'] != null ? task['routine']['id'] : null,
+          // 'routineName': task['routine'] != null ? task['routine']['name'] : null,
+        };
+      }).toList();
+      // final List<Map<String, dynamic>> mappedRoutines =
+      //     routines.map<Map<String, dynamic>>((routine) {
+      //   return {
+      //     'id': routine['id'],
+      //     'name': routine['name'],
+      //   };
+      // }).toList();
 
-  final List<Map<String, dynamic>> mappedRoutines =
-      routines.map<Map<String, dynamic>>((routine) {
-    return {
-      'id': routine['id'],
-      'name': routine['name'],
-    };
-  }).toList();
-
-  return {
-    'users': mappedUsers,
-    'tasks': mappedTasks,
-    'routines': mappedRoutines,
-  };
-}
+      return {
+        'users': mappedUsers,
+        'tasks': mappedTasks,
+      };
+    }
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -158,7 +224,7 @@ if (result.hasException) {
   return {
     'users': [],
     'tasks': [],
-    'rewards': [],
+    // 'rewards': [],
   };
 }
 
@@ -176,8 +242,12 @@ Future<Map<String, dynamic>> getUserData() async {
     coins
     experience
     level
+    emoji
+    colorPrimary
+    colorSecondary
     household {
       id
+      name
     }
     tasks {
       id
@@ -187,7 +257,13 @@ Future<Map<String, dynamic>> getUserData() async {
       reward
       completed
       completedAt
+      emoji
       private
+      owner {
+        id
+        forename
+        surname
+      }
     }
   }
 }
@@ -214,6 +290,9 @@ Future<Map<String, dynamic>> getUserData() async {
         'coins': user['coins'],
         'experience': user['experience'],
         'level': user['level'],
+        'emoji': user['emoji'],
+        'colorPrimary': user['colorPrimary'],
+        'colorSecondary': user['colorSecondary'],
         'householdName': user['household']['name'],
         'householdId': user['household']['id'],
         'tasks': user['tasks']
@@ -226,7 +305,11 @@ Future<Map<String, dynamic>> getUserData() async {
                   'reward': task['reward'],
                   'completed': task['completed'],
                   'completed_at': task['completed_at'],
+                  'emoji': task['emoji'],
                   'private': task['private'],
+                  'ownerId': task['owner']['id'],
+                  'ownerForename': task['owner']['forename'],
+                  'ownerSurname': task['owner']['surname']
                 })
             .toList(),
       };
@@ -264,8 +347,7 @@ Future<void> deleteTask(int id) async {
   final MutationOptions options = MutationOptions(
     document: gql('''
       mutation DeleteTask(\$id: Int!) {
-        deleteTask(id: \$id) {
-        }
+        deleteTask(id: \$id) 
       }
     '''),
     variables: <String, dynamic>{
@@ -284,6 +366,7 @@ Future<void> deleteTask(int id) async {
     print('Unexpected error: $e');
     // Handle other errors
   }
+  print("deleted?");
 }
 
 Future<void> completeTask(int taskId) async {
@@ -321,54 +404,53 @@ Future<void> completeTask(int taskId) async {
   }
 }
 
-Future<void> addPoints(String coinsToAdd) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-    mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
-      updateUserDetails(
-        id: \$id
-        coins: \$coins
-        email: \$email
-      ) {
-        id
-        coins
-        email
-      }
-    }
-  '''),
-    variables: <String, dynamic>{
-      'id': userData['id'],
-      'coins': userData['coins'] + int.parse(coinsToAdd),
-      'email': userData['email'],
-    },
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      print('Points added successfully');
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-}
+// Future<void> addPoints(String coinsToAdd) async {
+//   final client = await getGraphQLClient();
+//   final QueryOptions options = QueryOptions(
+//     document: gql('''
+//     mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
+//       updateUserDetails(
+//         id: \$id
+//         coins: \$coins
+//         email: \$email
+//       ) {
+//         id
+//         coins
+//         email
+//       }
+//     }
+//   '''),
+//     variables: <String, dynamic>{
+//       'id': userData['id'],
+//       'coins': userData['coins'] + int.parse(coinsToAdd),
+//       'email': userData['email'],
+//     },
+//   );
+//   try {
+//     final result =
+//         await client.query(options).timeout(const Duration(seconds: 10));
+//     if (result.hasException) {
+//       print(result.exception.toString());
+//     } else if (result.isLoading) {
+//       print('Loading');
+//     } else {
+//       print('Points added successfully');
+//     }
+//   } on SocketException catch (e) {
+//     print('Network error: $e');
+//     // Handle network error
+//   } on TimeoutException catch (e) {
+//     print('Request timed out: $e');
+//     // Handle timeout
+//   } catch (e) {
+//     print('Unexpected error: $e');
+//     // Handle other errors
+//   }
+// }
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
-  DateTime? deadline =
-      DateTime.parse(task['deadline']);
+  DateTime? deadline = DateTime.parse(task['deadline']);
 
   Widget green = SvgPicture.asset("assets/images/green.svg");
   Widget yellow = SvgPicture.asset("assets/images/yellow.svg");
@@ -397,9 +479,7 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
 }
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({super.key, required this.userId});
-
-  final int userId;
+  const MainWidget({super.key});
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
@@ -410,14 +490,15 @@ class _MainWidgetState extends State<MainWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: MainView(userId: widget.userId));
+    checkLastLoginDate();
+    return Scaffold(body: MainView());
   }
 }
 
 class MainView extends StatefulWidget {
-  const MainView({super.key, required this.userId});
-
-  final int userId;
+  const MainView({
+    super.key,
+  });
 
   @override
   State<MainView> createState() => _MainViewState();
@@ -451,23 +532,23 @@ class _MainViewState extends State<MainView> {
             print(snapshot.error.toString());
             return const Placeholder();
           } else if (snapshot.data!['householdId'] == null) {
-            return const JoinHouseholdView();
+            return JoinHouseholdView();
           } else {
             print(snapshot.data!);
             tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
             userData = snapshot.data!;
             print(userData);
-            return  const SingleChildScrollView(
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 80, left: 40, right: 40),
-                        child: Column(
-                          children: [
-                            IconRow(),
-                            WelcomeText(),
-                            ButtonRecommended(),
-                            TaskOverview(),
-                          ],
-                        )));
+            return const SingleChildScrollView(
+                child: Padding(
+                    padding: EdgeInsets.only(top: 80, left: 40, right: 40),
+                    child: Column(
+                      children: [
+                        IconRow(),
+                        WelcomeText(),
+                        ButtonRecommended(),
+                        TaskOverview(),
+                      ],
+                    )));
           }
         });
   }
@@ -482,6 +563,10 @@ class IconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color colorPrimary =
+        Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
+    final Color colorSecondary = Color(
+        int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -491,15 +576,41 @@ class IconRow extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.only(right: padding),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  iconSize: size,
-                  onPressed: () async {
-                    Get.to(() => ProfileView(userData: userData, tasks: tasks));
-                  },
-                  icon: Icon(
-                    CupertinoIcons.person_fill,
-                    color: col,
+                child: SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.zero)),
+                    onPressed: () async {
+                      Map<String, dynamic> newUserData = await Get.to(
+                          () => ProfileView(userData: userData, tasks: tasks));
+                      if (newUserData != {}) {
+                        userData = newUserData;
+                        update();
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [colorPrimary, colorSecondary],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: Center(
+                          child: Text(
+                            userData['emoji'],
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 25,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -523,7 +634,7 @@ class IconRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             iconSize: size,
             onPressed: () async {
-              Get.to(() => ShopView(userData: userData));
+              await Get.to(() => MainShopView(userData: userData));
               update();
             },
             icon: Icon(
@@ -722,7 +833,6 @@ class _TaskState extends State<TaskOverview> {
   _TaskState();
   final double size = 15;
 
-
   @override
   void initState() {
     super.initState();
@@ -746,7 +856,7 @@ class _TaskState extends State<TaskOverview> {
             return a['deadline'].compareTo(b['deadline']);
           }
         });
-        
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -873,11 +983,26 @@ class _TaskState extends State<TaskOverview> {
               child: Column(
                 children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: _taskView
                         ? [
                             ButtonRow(tasks: tasks),
                             toDo.isEmpty
-                                ? Container()
+                                ? TextButton(
+                                    child: Text(
+                                      "No tasks left! Press here to create one.",
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    onPressed: () async {
+                                      var result = await Get.to(() =>
+                                          NewTaskMain(userData: userData));
+                                      if (result != null) {
+                                        update();
+                                      }
+                                    },
+                                  )
                                 : Column(
                                     children: [
                                       Column(
@@ -895,7 +1020,7 @@ class _TaskState extends State<TaskOverview> {
                                                       (BuildContext context) =>
                                                           CupertinoAlertDialog(
                                                     title: Text(
-                                                        ' ${'Delete_Task_txt'.tr}"?"'),
+                                                        "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
                                                     content: Text(
                                                         'Sure_delete_task?_txt'
                                                             .tr),
@@ -912,24 +1037,20 @@ class _TaskState extends State<TaskOverview> {
                                                             update();
                                                           }),
                                                       CupertinoDialogAction(
-                                                        onPressed: () {
-                                                          deleteTask(
+                                                        onPressed: () async {
+                                                          await deleteTask(
                                                               task['id']);
-                                                          tasks.removeWhere(
-                                                              (t) =>
-                                                                  t['id'] ==
-                                                                  task['id']);
-                                                          Navigator.pop(
-                                                              context);
+                                                          Get.back();
                                                           update();
                                                         },
                                                         isDestructiveAction:
                                                             true,
                                                         child: Text(
                                                             'Delete_txt'.tr,
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .red)),
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
                                                       ),
                                                     ],
                                                   ),
@@ -937,9 +1058,9 @@ class _TaskState extends State<TaskOverview> {
                                               } else {
                                                 print(
                                                     "${'Task_completed!_txt'.tr} ${task['reward']}");
-                                                completeTask(task['id']);
                                                 tasks.removeWhere((t) =>
                                                     t['id'] == task['id']);
+                                                completeTask(task['id']);
                                                 // addPoints(
                                                 //     task['reward'].toString());
                                                 showCupertinoDialog(
@@ -957,7 +1078,9 @@ class _TaskState extends State<TaskOverview> {
                                                         children: [
                                                           SizedBox(height: 10),
                                                           Image.network(
-                                                              "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif", scale: 1.3,),
+                                                            "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                                            scale: 1.3,
+                                                          ),
                                                         ],
                                                       ),
                                                       actions: [
@@ -1054,13 +1177,28 @@ class _TaskState extends State<TaskOverview> {
   }
 }
 
-class Task extends StatelessWidget {
+class Task extends StatefulWidget {
   const Task({super.key, required this.task, required this.userData});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
 
   @override
+  State<Task> createState() => _MainTaskState();
+}
+
+class _MainTaskState extends State<Task> {
+  @override
+  @override
+  void initState() {
+    super.initState();
+    if (widget.task['emoji'] != "") {
+      widget.task['emoji'] = widget.task['emoji'] + " ";
+    } else if (widget.task['emoji'] == null) {
+      widget.task['emoji'] = "";
+    }
+  }
+
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
@@ -1072,9 +1210,9 @@ class Task extends StatelessWidget {
             )),
         onPressed: () async {
           var result = await Get.to(() => DetailedTaskView(
-                task: task,
-                userData: userData,
-                assigned: userData['forename'],
+                task: widget.task,
+                userData: widget.userData,
+                assigned: widget.userData['forename'],
               ));
           if (result != null) {
             update();
@@ -1104,10 +1242,11 @@ class Task extends StatelessWidget {
                   children: [
                     Container(
                         constraints: const BoxConstraints(maxWidth: 200),
-                        child: Text(task['name'],
-                            style: task['deadline'] != null &&
-                                 DateTime.parse((task['deadline'])
-                                 ).isBefore(DateTime.now())
+                        child: Text(
+                            '${widget.task['emoji']}${widget.task['name']}',
+                            style: widget.task['deadline'] != null &&
+                                    DateTime.parse((widget.task['deadline']))
+                                        .isBefore(DateTime.now())
                                 ? Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -1131,7 +1270,7 @@ class Task extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             child: Text(
-                              "${task['reward']} pts",
+                              "${widget.task['reward']} pts",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -1144,8 +1283,8 @@ class Task extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 30),
-                  child: task["deadline"] != null
-                      ? getIndicator(task, context)
+                  child: widget.task["deadline"] != null
+                      ? getIndicator(widget.task, context)
                       : SvgPicture.asset("assets/images/gray.svg"),
                 )
               ],

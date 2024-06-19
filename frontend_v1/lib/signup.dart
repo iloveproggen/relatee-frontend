@@ -235,6 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       Expanded(
                         child: TextField(
+                            autofillHints: const [AutofillHints.givenName],
                             autocorrect: false,
                             focusNode: _forename,
                             onSubmitted: (value) {
@@ -283,6 +284,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       Expanded(
                         child: TextField(
+                            autofillHints: const [AutofillHints.familyName],
                             autocorrect: false,
                             focusNode: _surname,
                             onSubmitted: (value) {
@@ -333,6 +335,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: TextField(
+                      autofillHints: const [AutofillHints.newUsername],
                       autocorrect: false,
                       focusNode: _username,
                       onSubmitted: (value) {
@@ -373,76 +376,86 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
                 // Email - required
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: TextFormField(
+                AutofillGroup(
+                  child: Column(
+                  children: [
+                    Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: TextFormField(
+                      autofillHints: const [AutofillHints.email],
                       autocorrect: false,
                       cursorColor: Theme.of(context).colorScheme.onSecondary,
                       controller: _emailController,
                       focusNode: _emailFocusNode,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: InputDecoration(
-                        hintText: 'Email_txt'.tr,
-                        hintStyle: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary),
-                        border: InputBorder.none,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            width: 2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSecondary,
-                            width: 2,
-                          ),
+                      hintText: 'Email_txt'.tr,
+                      hintStyle: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
+                          color: Theme.of(context).colorScheme.tertiary),
+                      border: InputBorder.none,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        width: 2,
                         ),
                       ),
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-                // Password - required
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: TextFormField(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 2,
+                        ),
+                      ),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    ),
+                    // Password - required
+                    Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: TextFormField(
+                      autofillHints: const [AutofillHints.newPassword],
                       autocorrect: false,
                       cursorColor: Theme.of(context).colorScheme.onSecondary,
                       controller: _passwordController,
                       obscureText:
-                          true, // Add this line to make the text field hideable
+                        true, // Add this line to make the text field hideable
                       decoration: InputDecoration(
-                        hintText: 'Password_txt'.tr,
-                        hintStyle: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary),
-                        border: InputBorder.none,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            width: 2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSecondary,
-                            width: 2,
-                          ),
+                      hintText: 'Password_txt'.tr,
+                      hintStyle: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(
+                          color: Theme.of(context).colorScheme.tertiary),
+                      border: InputBorder.none,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        width: 2,
                         ),
                       ),
-                      style: Theme.of(context).textTheme.bodySmall),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 2,
+                        ),
+                      ),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    ),
+                  ],
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: _isButtonEnabled

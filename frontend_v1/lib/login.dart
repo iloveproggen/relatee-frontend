@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/locale_strings.dart';
@@ -8,10 +7,10 @@ import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
-//import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:local_auth/local_auth.dart';
 
 final focusNode1 = FocusNode();
 final focusNode2 = FocusNode();
@@ -22,33 +21,44 @@ late int userId;
 Map<String, dynamic> error = {'hasError': false, 'message': "",};
 
 //checks if a user has saved their token in sharedpreferences, if yes, skip log in
-Future<int?> checkIfSignedIn() async {
+Future<String?> checkIfSignedIn() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('token');
-  print(token);
+  print("token: $token");
   if (token != null) {
-    List<String> parts = token.split('.');
-    String payload = parts[1];
-    String normalized = base64Url.normalize(payload);
-    var decoded = utf8.decode(base64Url.decode(normalized));
-
-    var payloadJson = jsonDecode(decoded);
-    int userId = payloadJson['userId'];
-
-    print("\n\nlogged in as user with the user id $userId\n\n");
-    return userId;
+    return token;
   }
+  print("no token found");
   return null;
 }
 
+
+// Future<bool> authenticateWithFaceID() async {
+//   final localAuth = LocalAuthentication();
+//   bool authenticated = false;
+
+//   try {
+//     authenticated = await localAuth.authenticate(
+//       localizedReason: 'Authenticate with Face ID',
+//       biometricOnly: true,
+//     );
+//   } catch (e) {
+//     print('Error: $e');
+//   }
+
+//   return authenticated;
+// }
+
 class CheckLoggedIn extends StatelessWidget {
+  const CheckLoggedIn({super.key});
+
   @override
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
-    return FutureBuilder<int?>(
+    return FutureBuilder<String?>(
       future: checkIfSignedIn(),
-      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+        if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
               theme: brightness == Brightness.light ? lighttheme : darktheme,
@@ -57,20 +67,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(
-                  body: Center(
-                      child: Text("Logging you in...",
-                          style: Theme.of(context).textTheme.bodySmall))));
-        } else if (snapshot.hasData) {
-          return GetMaterialApp(
-              darkTheme: darktheme,
-              theme: brightness == Brightness.light ? lighttheme : darktheme,
-              translations: LocaleString(),
-              locale: const Locale('en-Us'),
-              fallbackLocale: const Locale('en-US'),
-              debugShowCheckedModeBanner: false,
-              title: 'Relatee',
-              home: Scaffold(body: MainWidget(userId: snapshot.data!)));
+              home: Scaffold(body: MainWidget()));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -85,6 +82,37 @@ class CheckLoggedIn extends StatelessWidget {
       },
     );
   }
+}
+
+void checkLastLoginDate() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  //String? lastLoginDate = prefs.getString('lastLoginDate');
+// for (String key in prefs.getKeys()) {
+//   var value = prefs.get(key);
+//   print('$key: $value');
+// }
+  String? lastLoginDate = prefs.getString('lastLoginDate');
+  DateTime now = DateTime.now();
+  DateTime yesterday = now.subtract(Duration(days: 1));
+  
+  if (lastLoginDate == null) {
+    // First time login, set streak to 1 and save today's date
+    prefs.setInt('streak', 1);
+    prefs.setString('lastLoginDate', now.toString());
+    print('First time login. Streak set to 1.');
+  } else {
+    DateTime lastLogin = DateTime.parse(lastLoginDate);
+    if (lastLogin.isBefore(yesterday)) {
+      // Last login was yesterday, increment streak by 1 and save today's date
+      int streak = prefs.getInt('streak') ?? 0;
+      prefs.setInt('streak', streak + 1);
+      prefs.setString('lastLoginDate', now.toString());
+      print('Last login was yesterday. Streak incremented to ${streak + 1}.');
+    } else {
+    // Last login was today, do nothing
+    print('Last login was today.');
+  }
+  } 
 }
 
 // class LoginApp extends StatefulWidget {
@@ -184,7 +212,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       _saveToken(token);
       int userId = jsonDecode(response.body)['userId'];
       print("The user id is: $userId");
-      Get.off(() => MainWidget(userId: userId));
+      Get.off(() => MainWidget());
       print("Opened MainWidget");
       setState() {
         isLoading = false;
@@ -278,103 +306,115 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
               const SizedBox(
                 height: 20,
               ),
-              TextFormField(
-                  autofillHints: const [AutofillHints.username],
-                  cursorColor: Theme.of(context).colorScheme.onSecondary,
-                  autocorrect: false,
-                  focusNode: focusNode1,
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(focusNode2);
-                  },
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        width: 2,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        width: 2,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(
-                        width: 2,
-                      ),
-                    ),
-                    hintText: 'Email_txt'.tr,
-                    contentPadding: const EdgeInsets.all(20),
-                    hintStyle: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 20),
-              TextFormField(
-                autofillHints: const [AutofillHints.password],
-                focusNode: focusNode2,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(focusNodeSwitch);
-                },
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                cursorColor: Theme.of(context).colorScheme.onSecondary,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      width: 2,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  ),
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(
-                      width: 2,
-                    ),
-                  ),
-                  hintText: 'Password_txt'.tr,
-                  contentPadding: const EdgeInsets.all(20),
-                  hintStyle: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                  suffixIcon: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: const Color.fromARGB(
-                            255, 204, 198, 196), // Set the color to grey
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+              AutofillGroup(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      autofillHints: const [AutofillHints.email],
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      autocorrect: false,
+                      focusNode: focusNode1,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(focusNode2);
                       },
+                      controller: _usernameController,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                          ),
+                        ),
+                        hintText: 'Email_txt'.tr,
+                        contentPadding: const EdgeInsets.all(20),
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      autofillHints: const [AutofillHints.password],
+                      focusNode: focusNode2,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(focusNodeSwitch);
+                      },
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            width: 2,
+                          ),
+                        ),
+                        hintText: 'Password_txt'.tr,
+                        contentPadding: const EdgeInsets.all(20),
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextButton(
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0)),
+                              animationDuration: Duration.zero
+                            ),
+                            child: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: const Color.fromARGB(
+                                  255, 204, 198, 196), // Set the color to grey
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
-                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 0),
-              error['hasError'] && error['message'] != "" ? 
+              error['hasError'] && error['message'] != "" && isLoading == false ? 
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
