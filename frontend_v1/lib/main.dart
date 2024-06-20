@@ -649,11 +649,20 @@ class IconRow extends StatelessWidget {
   }
 }
 
+final bool visibleRecommended = completedTasks.isEmpty;
+
+List<Map<String, dynamic>> completedTasks =
+    tasks.where((task) => task['completed'] == false).toList();
+
 class WelcomeText extends StatelessWidget {
   const WelcomeText({super.key});
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> completedTasks =
+        tasks.where((task) => task['completed'] == false).toList();
+    bool visibleRecommended = completedTasks.isEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -670,14 +679,15 @@ class WelcomeText extends StatelessWidget {
             ],
           ),
         ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text('Recommended_txt'.tr,
-                style: Theme.of(context).textTheme.labelSmall),
+        if (!visibleRecommended)
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text('Recommended_txt'.tr,
+                  style: Theme.of(context).textTheme.labelSmall),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -692,6 +702,11 @@ class ButtonRecommended extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> completedTasks =
         tasks.where((task) => task['completed'] == false).toList();
+    bool visibleRecommended = completedTasks.isEmpty;
+    if (visibleRecommended) {
+      return SizedBox
+          .shrink(); // Return an empty SizedBox if there are no completed tasks
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: SizedBox(
@@ -716,10 +731,8 @@ class ButtonRecommended extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                      completedTasks.isNotEmpty
-                          ? completedTasks[
-                              random.nextInt(completedTasks.length)]['name']
-                          : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
+                      completedTasks[random.nextInt(completedTasks.length)]
+                          ['name'],
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
