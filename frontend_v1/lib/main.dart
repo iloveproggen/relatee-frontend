@@ -801,20 +801,30 @@ class ButtonRow extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
-            child: ButtonShort(
-              number: tasks == [] ? '0' : countToDo(tasks).toString(),
-              textBelow: 'left_to_do_txt'.tr,
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to another screen
+              },
+              child: ButtonShort(
+                number: tasks == [] ? '0' : countToDo(tasks).toString(),
+                textBelow: 'left_to_do_txt'.tr,
+              ),
             ),
           ),
         ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
-            child: ButtonShort(
-              number: tasks == []
-                  ? '0'
-                  : (tasks.length - countToDo(tasks)).toString(),
-              textBelow: 'doneThisWeek_txt'.tr,
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to another screen
+              },
+              child: ButtonShort(
+                number: tasks == []
+                    ? '0'
+                    : (tasks.length - countToDo(tasks)).toString(),
+                textBelow: 'doneThisWeek_txt'.tr,
+              ),
             ),
           ),
         ),
