@@ -88,7 +88,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                 onPressed: () {
                   final RenderBox box = context.findRenderObject() as RenderBox;
                   Share.share(
-                    'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:',
+                    'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:', //add the Household ID here
                     subject: 'Invitation Code',
                     sharePositionOrigin:
                         box.localToGlobal(Offset.zero) & box.size,

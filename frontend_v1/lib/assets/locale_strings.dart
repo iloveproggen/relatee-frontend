@@ -109,6 +109,8 @@ class LocaleString extends Translations {
           'surname_txt': 'Surname',
           'username_txt': 'Username',
           'Submit_txt': 'Submit',
+          'LeaderBoardMessage_txt':
+              'Need 2 or more users to unlock Leaderboard',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -214,6 +216,8 @@ class LocaleString extends Translations {
           'surname_txt': 'Nachname',
           'username_txt': 'Benutzername',
           'Submit_txt': 'Absenden',
+          'LeaderBoardMessage_txt':
+              'Sie benötigen 2 oder mehr Benutzer, um das Leaderboard zu entsperren',
         }
       };
 }

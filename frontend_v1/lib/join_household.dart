@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 Future<Map<String, dynamic>> getUserData() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -53,7 +52,6 @@ Future<Map<String, dynamic>> getUserData() async {
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-      
 
       return mappedResult;
     }
@@ -110,7 +108,8 @@ class JoinHouseholdView extends StatelessWidget {
                               context: context,
                               builder: (BuildContext context) {
                                 return CupertinoAlertDialog(
-                                  title: const Text("You're creating a household"),
+                                  title:
+                                      const Text("You're creating a household"),
                                   content: const Text(
                                       'To join an existing household instead, ask a member to send you an invitation. Once you receive it, click the link to join.'),
                                   actions: [
@@ -172,22 +171,26 @@ class BackIconSignOut extends StatelessWidget {
                   builder: (BuildContext context) {
                     return CupertinoAlertDialog(
                       title: const Text('Confirm Logout'),
-                      content: const Text('Are you sure you want to log out? Your changes will not be saved'),
+                      content: const Text(
+                          'Are you sure you want to log out? Your changes will not be saved'),
                       actions: [
                         CupertinoDialogAction(
-                          child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                          child: const Text('Cancel',
+                              style: TextStyle(color: Colors.blue)),
                           onPressed: () {
-                          Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                           },
                         ),
                         CupertinoDialogAction(
-                          
-                          child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                          child: const Text('Logout',
+                              style: TextStyle(color: Colors.red)),
                           onPressed: () async {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
                             await prefs.remove('token');
-                            print("logging out user ${prefs.getString('token')}");
-                          Get.off(() => const LoginWidget());
+                            print(
+                                "logging out user ${prefs.getString('token')}");
+                            Get.off(() => const LoginWidget());
                           },
                         ),
                       ],

@@ -5,6 +5,7 @@ import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/household_invitation.dart';
+import 'package:frontend_v1/leader_board_v2.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
@@ -61,8 +62,48 @@ class HouseholdOverview extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Your_Household_txt'.tr,
-                          style: Theme.of(context).textTheme.bodyLarge),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Your_Household_txt'.tr,
+                              style: Theme.of(context).textTheme.bodyLarge),
+                          IconButton(
+                            onPressed: () {
+                              if (users.length == 1) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: IconButton(
+                                              icon: Icon(Icons.close),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ),
+                                          Text('LeaderBoardMessage_txt'.tr),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              } else {
+                                Get.to(() => MainLeaderboardView(users: users));
+                              }
+                            },
+                            icon: Icon(
+                              CupertinoIcons.chart_bar_alt_fill,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       const HouseholdMembers(),
                       const InviteButton(),
@@ -153,11 +194,10 @@ class HouseholdOverview extends StatelessWidget {
                               )),
                           onPressed: () {
                             List<Map<String, dynamic>> completedTasks = tasks
-                                .where((task) =>  task['completed'] == true)
+                                .where((task) => task['completed'] == true)
                                 .toList();
                             Get.to(() => CompletedTaskList(
-                                tasks: completedTasks,
-                                userData: users));
+                                tasks: completedTasks, userData: users));
                           },
                           child: Text('See_completed_Tasks_txt'.tr,
                               style: Theme.of(context).textTheme.labelSmall)),
@@ -252,7 +292,7 @@ class HouseholdMembers extends StatelessWidget {
               },
             ),
             CupertinoDialogAction(
-              onPressed: () async{
+              onPressed: () async {
                 queryKickUser(user['id']);
                 Navigator.pop(context);
                 Get.back();
@@ -279,7 +319,7 @@ Future<void> queryKickUser(int id) async {
       'userId': id,
     },
   );
-    final QueryResult result = await client.mutate(options);
+  final QueryResult result = await client.mutate(options);
   if (result.hasException) {
     print(result.exception.toString());
   } else if (result.isLoading) {
