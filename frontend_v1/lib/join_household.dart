@@ -9,6 +9,10 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+bool _isButtonEnabled = false;
+bool isLoading = false;
+
+
 Future<Map<String, dynamic>> getUserData() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
@@ -53,6 +57,7 @@ Future<Map<String, dynamic>> getUserData() async {
         mappedResult['points'] = 0;
       }
 
+
       return mappedResult;
     }
   } on SocketException catch (e) {
@@ -68,8 +73,75 @@ Future<Map<String, dynamic>> getUserData() async {
   return {};
 }
 
-class JoinHouseholdView extends StatelessWidget {
+Future<void> createHousehold(String name) async {
+  final Map<String, dynamic> variables = {
+    'name': name,
+  };
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql(r'''
+   mutation createHousehold($name: String!, $emoji: String) {
+        createHousehold(name: $name, emoji: $emoji) {
+          id
+          name
+          emoji
+          owner {
+            id
+            username
+          }
+          users {
+            id
+            username
+          }
+        }
+      }
+    '''),
+    variables: variables,
+  );
+
+  try {
+    final QueryResult result = await client.mutate(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else {
+      print('Household created successfully');
+    }
+  } catch (e) {
+    print('Unexpected error: $e');
+  }
+}
+
+class JoinHouseholdView extends StatefulWidget {
   const JoinHouseholdView({super.key});
+
+  @override
+  _JoinHouseholdViewState createState() => _JoinHouseholdViewState();
+}
+
+class _JoinHouseholdViewState extends State<JoinHouseholdView> {
+  bool _isButtonEnabled = false;
+  bool isLoading = false;
+  final TextEditingController _nameController = TextEditingController();
+  late Future<Map<String, dynamic>> _userDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_updateButtonState);
+    _userDataFuture = getUserData();
+  }
+
+  void _updateButtonState() {
+    setState(() {
+      _isButtonEnabled = _nameController.text.isNotEmpty;
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +150,7 @@ class JoinHouseholdView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child: FutureBuilder<Map<String, dynamic>>(
-            future: getUserData(),
+            future: _userDataFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
@@ -108,8 +180,7 @@ class JoinHouseholdView extends StatelessWidget {
                               context: context,
                               builder: (BuildContext context) {
                                 return CupertinoAlertDialog(
-                                  title:
-                                      const Text("You're creating a household"),
+                                  title: const Text("You're creating a household"),
                                   content: const Text(
                                       'To join an existing household instead, ask a member to send you an invitation. Once you receive it, click the link to join.'),
                                   actions: [
@@ -136,6 +207,92 @@ class JoinHouseholdView extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 40),
+                    TextFormField(
+                      controller: _nameController,
+                      autocorrect: false,
+                      cursorColor: Theme.of(context).colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        hintText: 'Household Name'.tr,
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary),
+                        border: InputBorder.none,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                          const BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 20), // Add this line to add space between the TextFormField and the Button
+                    ElevatedButton(
+                      onPressed: _isButtonEnabled
+                          ? () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        String name = _nameController.text;
+                        await createHousehold(name);
+                        Get.to(() => MainView());
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
+                          : null,
+                      style: _isButtonEnabled
+                          ? ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color.fromARGB(255, 74, 70, 70)),
+                        shape:
+                        MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                side: const BorderSide(
+                                    color: Colors.transparent))),
+                      )
+                          : ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.primary),
+                        shape:
+                        MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                side: BorderSide(
+                                    width: 2,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary))),
+                      ),
+                      child: Center(
+                        child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 15, bottom: 15, left: 15, right: 15),
+                            child: Text(
+                              'Submit_txt'.tr,
+                              style: _isButtonEnabled
+                                  ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold)
+                                  : Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color:
+                                  Theme.of(context).colorScheme.tertiary),
+                            )),
+                      ),
+                    ),
                   ],
                 );
               }
@@ -146,6 +303,7 @@ class JoinHouseholdView extends StatelessWidget {
     );
   }
 }
+
 
 class BackIconSignOut extends StatelessWidget {
   const BackIconSignOut({super.key});
@@ -171,25 +329,21 @@ class BackIconSignOut extends StatelessWidget {
                   builder: (BuildContext context) {
                     return CupertinoAlertDialog(
                       title: const Text('Confirm Logout'),
-                      content: const Text(
-                          'Are you sure you want to log out? Your changes will not be saved'),
+                      content: const Text('Are you sure you want to log out? Your changes will not be saved'),
                       actions: [
                         CupertinoDialogAction(
-                          child: const Text('Cancel',
-                              style: TextStyle(color: Colors.blue)),
+                          child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
                         CupertinoDialogAction(
-                          child: const Text('Logout',
-                              style: TextStyle(color: Colors.red)),
+
+                          child: const Text('Logout', style: TextStyle(color: Colors.red)),
                           onPressed: () async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
                             await prefs.remove('token');
-                            print(
-                                "logging out user ${prefs.getString('token')}");
+                            print("logging out user ${prefs.getString('token')}");
                             Get.off(() => const LoginWidget());
                           },
                         ),
@@ -217,3 +371,6 @@ class BackIconSignOut extends StatelessWidget {
     );
   }
 }
+
+
+
