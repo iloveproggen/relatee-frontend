@@ -344,10 +344,11 @@ int countToDo(List<Map<String, dynamic>> tasks) {
 
 Future<void> deleteTask(int id) async {
   final client = await getGraphQLClient();
+  print("deleting task $id");
   final MutationOptions options = MutationOptions(
     document: gql('''
       mutation DeleteTask(\$id: Int!) {
-        deleteTask(id: \$id) 
+        deleteTask(id: \$id)
       }
     '''),
     variables: <String, dynamic>{

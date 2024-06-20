@@ -60,7 +60,7 @@ class MembersText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         children: [
@@ -85,6 +85,7 @@ author: Maurice
 date: 17.05.2024
 */
 
+// ignore: must_be_immutable
 class ChartLeaderboard extends StatelessWidget {
   List<Map<String, dynamic>> leaderboardusers;
 
@@ -233,6 +234,7 @@ author: Maurice
 date: 17.05.2024
 */
 
+// ignore: must_be_immutable
 class WeeklyInfo extends StatelessWidget {
   List<Map<String, dynamic>> leaderboardusers;
 

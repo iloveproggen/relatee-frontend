@@ -677,7 +677,7 @@ class _ItemCardState extends State<ItemCard> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
                         color: buyable
-                            ? purple.withOpacity(0.5)
+                            ? purple.withOpacity(0.8)
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(
