@@ -1,7 +1,7 @@
 PODS:
   - connectivity_plus (0.0.1):
     - Flutter
-    - FlutterMacOS
+    - ReachabilitySwift
   - devicelocale (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -10,6 +10,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - ReachabilitySwift (5.2.2)
   - share (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -17,7 +18,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - Flutter (from `Flutter`)
   - keyboard_emoji_picker (from `.symlinks/plugins/keyboard_emoji_picker/ios`)
@@ -25,9 +26,13 @@ DEPENDENCIES:
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
 
+SPEC REPOS:
+  trunk:
+    - ReachabilitySwift
+
 EXTERNAL SOURCES:
   connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/darwin"
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
   Flutter:
@@ -42,11 +47,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
-  connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   keyboard_emoji_picker: efd8498af617ba0d1c5329406a0a8e5c7dd50b46
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  ReachabilitySwift: 2128f3a8c9107e1ad33574c6e58e8285d460b149
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
 

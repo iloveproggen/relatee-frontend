@@ -247,7 +247,7 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                         });
                         String name = _nameController.text;
                         await createHousehold(name);
-                        Get.to(() => MainView());
+                        Get.to(() => Scaffold(body: MainView()));
                         setState(() {
                           isLoading = false;
                         });

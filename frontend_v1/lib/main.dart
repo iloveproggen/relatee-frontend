@@ -543,6 +543,7 @@ class _MainViewState extends State<MainView> {
                 child: Padding(
                     padding: EdgeInsets.only(top: 80, left: 40, right: 40),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         IconRow(),
                         WelcomeText(),
@@ -655,6 +656,7 @@ class WelcomeText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -668,14 +670,6 @@ class WelcomeText extends StatelessWidget {
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
             ],
-          ),
-        ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text('Recommended_txt'.tr,
-                style: Theme.of(context).textTheme.labelSmall),
           ),
         ),
       ],
@@ -692,42 +686,54 @@ class ButtonRecommended extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> completedTasks =
         tasks.where((task) => task['completed'] == false).toList();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: SizedBox(
-        child: Column(
-          children: [
-            Container(
-              height: height,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(25)),
-                color: Theme.of(context).colorScheme.primary,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.secondary,
-                    offset: const Offset(5.0, 5.0),
-                    blurRadius: 10.0,
-                    spreadRadius: 2.0,
-                  )
-                ],
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                      completedTasks.isNotEmpty
-                          ? completedTasks[
-                              random.nextInt(completedTasks.length)]['name']
-                          : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-              ),
-            ),
-          ],
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text('Recommended_txt'.tr,
+                style: Theme.of(context).textTheme.labelSmall),
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 30),
+          child: SizedBox(
+            child: Column(
+              children: [
+                Container(
+                  height: height,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    color: Theme.of(context).colorScheme.primary,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.secondary,
+                        offset: const Offset(5.0, 5.0),
+                        blurRadius: 10.0,
+                        spreadRadius: 2.0,
+                      )
+                    ],
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                          completedTasks.isNotEmpty
+                              ? completedTasks[
+                                  random.nextInt(completedTasks.length)]['name']
+                              : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

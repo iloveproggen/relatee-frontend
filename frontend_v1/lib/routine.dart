@@ -1,8 +1,41 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/routine_overview.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+Future<void> deleteRoutine(int id) async {
+  final client = await getGraphQLClient();
+  print("deleting task $id");
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation DeleteRoutine(\$id: Int!) {
+        deleteRoutine(id: \$id)
+      }
+    '''),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+  try {
+    await client.mutate(options).timeout(const Duration(seconds: 10));
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+  print("deleted?");
+}
 
 class Routine extends StatelessWidget {
   const Routine({super.key, required this.userData});
@@ -42,8 +75,10 @@ class Routine extends StatelessWidget {
                     }).toList(),
                   );
                 } else {
-                  return Text('No_routines_found_txt'.tr,
-                      style: Theme.of(context).textTheme.bodySmall);
+                  return TextButton(child: Text('No_routines_found_txt'.tr,
+                      style: Theme.of(context).textTheme.bodySmall), onPressed: () {
+                        Get.to(() => NewRoutine(pUserData: userData,));
+                      });
                 }
               }
             },
@@ -71,81 +106,87 @@ class RoutineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-      margin: const EdgeInsets.all(0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.secondary,
-            offset: const Offset(5.0, 5.0),
-            blurRadius: 10.0,
-            spreadRadius: 2.0,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 180),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Text(routine['name'],
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 180),
-                  child: Text(
-                    'Routine_description_txt'.tr,
-                    style: const TextStyle(
-                        color: Color.fromARGB(255, 204, 198, 196),
-                        fontSize: 20,
-                        fontFamily: "Karla"),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-              ],
+    return Dismissible(
+      key: Key(routine['id'].toString()),
+      onDismissed: (direction) {
+        deleteRoutine(routine['id']);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+        margin: const EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.secondary,
+              offset: const Offset(5.0, 5.0),
+              blurRadius: 10.0,
+              spreadRadius: 2.0,
             ),
-          ),
-          Padding(
-              padding: const EdgeInsets.all(5),
-              child: IconButton(
-                  style: ButtonStyle(
-                    animationDuration: Duration.zero,
-                    padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 180),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Text(routine['name'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  onPressed: () {
-                    print(tasks);
-                    Get.to(() => RoutineOverview(
-                          routine: routine,
-                          users: users,
-                          tasks: tasks
-                              .where(
-                                  (task) => task['routineId'] == routine['id'])
-                              .toList(),
-                          userData: userData,
-                        ));
-                  },
-                  icon: Icon(
-                    CupertinoIcons.info,
-                    size: 25,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  )))
-        ],
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 180),
+                    child: Text(
+                      'Routine_description_txt'.tr,
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 204, 198, 196),
+                          fontSize: 20,
+                          fontFamily: "Karla"),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.all(5),
+                child: IconButton(
+                    style: ButtonStyle(
+                      animationDuration: Duration.zero,
+                      padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+                    ),
+                    onPressed: () {
+                      print(tasks);
+                      Get.to(() => RoutineOverview(
+                            routine: routine,
+                            users: users,
+                            tasks: tasks
+                                .where(
+                                    (task) => task['routineId'] == routine['id'])
+                                .toList(),
+                            userData: userData,
+                          ));
+                    },
+                    icon: Icon(
+                      CupertinoIcons.info,
+                      size: 25,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    )))
+          ],
+        ),
       ),
     );
   }
