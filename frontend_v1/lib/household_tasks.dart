@@ -58,6 +58,20 @@ class HouseholdOverview extends StatelessWidget {
                 } else {
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
+
+                  tasks.sort((a, b) {
+                    // Check if either deadline is null
+                    if (a['deadline'] == null && b['deadline'] == null) {
+                      return 0; // Both are null, considered equal
+                    } else if (a['deadline'] == null) {
+                      return 1; // a should be after b
+                    } else if (b['deadline'] == null) {
+                      return -1; // b should be after a
+                    } else {
+                      // Neither is null, proceed with normal comparison
+                      return a['deadline'].compareTo(b['deadline']);
+                    }
+                  });
                   print("all tasks: \n\n $tasks");
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,24 +458,18 @@ class MoreDetailsTask extends StatelessWidget {
                   children: [
                     Container(
                       constraints: const BoxConstraints(maxWidth: 240),
-                      child: Text(task['emoji'] != null && task['emoji'] != "" ? "${task['emoji']} ${task['name']}" : task['name'],
+                      child: Text(
+                          task['emoji'] != null && task['emoji'] != ""
+                              ? "${task['emoji']} ${task['name']}"
+                              : task['name'],
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   )),
                     ),
-                    Builder(
-                      builder: (context) {
-                        switch (task['completed']) {
-                          case true:
-                            return SvgPicture.asset("assets/images/green.svg");
-                          case false:
-                            return SvgPicture.asset("assets/images/yellow.svg");
-                          default:
-                            return SvgPicture.asset("assets/images/red.svg");
-                        }
-                      },
-                    ),
+                    task["deadline"] != null
+                        ? getIndicator(task, context)
+                        : SvgPicture.asset("assets/images/gray.svg"),
                   ],
                 ),
                 // task['description'] == ""

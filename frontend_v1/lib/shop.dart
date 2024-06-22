@@ -13,7 +13,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 late VoidCallback updateShop;
 late int coins;
-final Color purple = Color(0xFF7C4ACA);
+const Color purple = Color(0xFF7C4ACA);
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
@@ -86,8 +86,6 @@ Future<Map<String, dynamic>> getRewards() async {
         };
       }).toList(); // Convert the result of map() to a List
       coins = result.data!['getCoins']['coins'];
-      print(coins);
-      print(mappedRewards);
       return {'rewards': mappedRewards, 'coins': coins};
     }
   } on SocketException catch (e) {
@@ -241,7 +239,7 @@ class _ShopIconState extends State<ShopIcon>
 class MainShopView extends StatelessWidget {
   const MainShopView({super.key, required this.userData});
 
-  final Map<String, dynamic> userData; 
+  final Map<String, dynamic> userData;
 
   @override
   Widget build(BuildContext context) {
@@ -280,201 +278,208 @@ class ShopViewState extends State<ShopView> {
   Widget build(BuildContext context) {
     updateShop = _updateRewards;
     return Padding(
-        padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: FutureBuilder<Map<String, dynamic>>(
-            future: _futureRewards,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                print("snapshot data: " + snapshot.data.toString());
-                final List<Map<String, dynamic>> rewards =
-                    snapshot.data!['rewards'];
-                print("rewards: $rewards");
-                coins = snapshot.data!['coins'];
-                if (rewards.isEmpty) {
-                  return Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      Text('No rewards available. Create new ones!',
-                          style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  );
+      padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
+      child: FutureBuilder<Map<String, dynamic>>(
+          future: _futureRewards,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              print("snapshot data: " + snapshot.data.toString());
+              final List<Map<String, dynamic>> rewards =
+                  snapshot.data!['rewards'];
+              print("rewards: $rewards");
+              coins = snapshot.data!['coins'];
+              rewards.sort((a, b) => a['price'].compareTo(b['price']));
+              rewards.sort((a, b) {
+                if (a['stock'] == 0 && b['stock'] != 0) {
+                  return 1;
+                } else if (a['stock'] != 0 && b['stock'] == 0) {
+                  return -1;
                 } else {
-                  rewards.sort((a, b) => a['price'].compareTo(b['price']));
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  return 0;
+                }
+              });
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const profile.BackIconRow(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const profile.BackIconRow(),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              // ShopIcon(),
-                              // SizedBox(width: 10),
-                              Text('Shop_title'.tr,
-                                  style: Theme.of(context).textTheme.bodyLarge),
-                            ],
-                          ),
-                          TextButton(
-                              onPressed: () async {
-                                var result = await Get.to(
-                                    () => NewShopItem(userData: userData));
-                                if (result != null) {
-                                  _updateRewards();
-                                }
-                              },
-                              child: const Icon(CupertinoIcons.add,
-                                  color: Color.fromARGB(255, 204, 198, 196),
-                                  size: 35))
+                          // ShopIcon(),
+                          // SizedBox(width: 10),
+                          Text('Shop_title'.tr,
+                              style: Theme.of(context).textTheme.bodyLarge),
                         ],
                       ),
-                      Text(
-                        ('Shop_info'.tr),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: ListView.builder(
-                          padding: EdgeInsets.only(top: 20),
-                          scrollDirection: Axis.vertical,
-                          itemCount: rewards.length,
-                          itemBuilder: (context, index) {
-                            final reward = rewards[index];
-                            return Dismissible(
-                              key: Key(reward.toString()),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CupertinoAlertDialog(
-                                      title: const Text('Confirm Delete'),
-                                      content: Text(
-                                          'Are you sure you want to delete the reward "${reward['name']}"?'),
-                                      actions: [
-                                        CupertinoDialogAction(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            _updateRewards();
-                                          },
-                                          child: const Text('Back',
-                                              style: TextStyle(
-                                                  color: Colors.blue)),
-                                        ),
-                                        CupertinoDialogAction(
-                                          isDestructiveAction: true,
-                                          onPressed: () async {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            await deleteReward(reward['id']);
-                                            _updateRewards();
-                                          },
-                                          child: const Text('Yes',
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              background: Container(
-                                margin: const EdgeInsets.only(
-                                    right: 50, bottom: 22),
-                                alignment: Alignment.centerRight,
-                                child: const Icon(CupertinoIcons.delete,
-                                    color: Colors.red, size: 30),
-                              ),
-                              child: ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                title: TextButton(
-                                  onPressed: () async {
-                                    var result = await Get.to(
-                                        UpdateShopItem(shopItem: reward));
-                                    if (result != null) {
-                                      _updateRewards();
-                                    }
-                                  },
-                                  child: ItemCard(
-                                    reward: reward,
-                                    userData: userData,
+                      TextButton(
+                          onPressed: () async {
+                            var result = await Get.to(
+                                () => NewShopItem(userData: userData));
+                            if (result != null) {
+                              _updateRewards();
+                            }
+                          },
+                          child: const Icon(CupertinoIcons.add,
+                              color: Color.fromARGB(255, 204, 198, 196),
+                              size: 35))
+                    ],
+                  ),
+                  Text(
+                    ('Shop_info'.tr),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 10),
+                  rewards.isEmpty
+                      ? Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Text(
+                                'No rewards available. Create new ones!',
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.only(top: 20),
+                            scrollDirection: Axis.vertical,
+                            itemCount: rewards.length,
+                            itemBuilder: (context, index) {
+                              final reward = rewards[index];
+                              return Dismissible(
+                                key: Key(reward.toString()),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (direction) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CupertinoAlertDialog(
+                                        title: const Text('Confirm Delete'),
+                                        content: Text(
+                                            'Are you sure you want to delete the reward "${reward['name']}"?'),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              _updateRewards();
+                                            },
+                                            child: const Text('Back',
+                                                style: TextStyle(
+                                                    color: Colors.blue)),
+                                          ),
+                                          CupertinoDialogAction(
+                                            isDestructiveAction: true,
+                                            onPressed: () async {
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                              await deleteReward(reward['id']);
+                                              _updateRewards();
+                                            },
+                                            child: const Text('Yes',
+                                                style: TextStyle(
+                                                    color: Colors.red)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                background: Container(
+                                  margin: const EdgeInsets.only(
+                                      right: 50, bottom: 22),
+                                  alignment: Alignment.centerRight,
+                                  child: const Icon(CupertinoIcons.delete,
+                                      color: Colors.red, size: 30),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  title: TextButton(
+                                    onPressed: () async {
+                                      var result = await Get.to(
+                                          UpdateShopItem(shopItem: reward));
+                                      if (result != null) {
+                                        _updateRewards();
+                                      }
+                                    },
+                                    child: ItemCard(
+                                      reward: reward,
+                                      userData: userData,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/images/relatee.svg",
-                                  height: 20,
-                                  width: 20,
-                                  color: purple,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  coins.toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(fontSize: 25),
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                          const SizedBox(width: 20),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(10),
+                        ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/relatee.svg",
+                              height: 20,
+                              width: 20,
+                              color: purple,
                             ),
-                            child: Text(
-                              "lvl ${userData['level'].toString()}",
+                            const SizedBox(width: 5),
+                            Text(
+                              coins.toString(),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
                                   ?.copyWith(fontSize: 25),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 50)
+                      const SizedBox(width: 20),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 27, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          "lvl ${userData['level'].toString()}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontSize: 25),
+                        ),
+                      ),
                     ],
-                  );
-                }
-              }
-            }),
-      );
+                  ),
+                  const SizedBox(height: 50)
+                ],
+              );
+            }
+          }),
+    );
   }
 }
-
 
 // ignore: must_be_immutable
 class ItemCard extends StatefulWidget {
@@ -497,15 +502,17 @@ class _ItemCardState extends State<ItemCard> {
   @override
   void initState() {
     super.initState();
-    print(widget.reward['emoji']);
-    if (widget.reward['emoji'] != "") {
-      widget.reward['emoji'] = widget.reward['emoji'] + " ";
-    }
     buyable = isBuyable(widget.reward['price'], coins);
   }
 
   @override
   Widget build(BuildContext context) {
+
+    print(widget.reward['emoji']);
+    print(widget.reward['emoji']);
+    if (widget.reward['emoji'] != null && widget.reward['emoji'] != "" && !widget.reward['emoji'].contains(" ")) {
+      widget.reward['emoji'] = widget.reward['emoji'] + " ";
+    }
     print(buyable);
     print(coins);
     return Column(
@@ -562,14 +569,11 @@ class _ItemCardState extends State<ItemCard> {
                         const SizedBox(
                           width: 10,
                         ),
-                        Text(
                             widget.reward['stock'] == -1
-                                ? ""
-                                : "${widget.reward['stock'].toString()}x",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                                ? Text("")
+                                : widget.reward['stock'] == 0
+                                  ? Text("out of stock!", style: Theme.of(context).textTheme.bodySmall) 
+                                  : Text("${widget.reward['stock'].toString()}x", style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                     widget.reward['description'] == "" ||
@@ -599,67 +603,93 @@ class _ItemCardState extends State<ItemCard> {
               ),
               TextButton(
                 onPressed: () {
-                  buyable
-                      ? showCupertinoDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CupertinoAlertDialog(
-                              title: const Text(
-                                'Confirm Purchase',
-                                textAlign: TextAlign.center,
-                              ),
-                              content: Text(
-                                  "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
-                              actions: [
-                                CupertinoDialogAction(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: const Text('Cancel',
-                                      style: TextStyle(color: Colors.grey)),
-                                ),
-                                CupertinoDialogAction(
-                                  onPressed: () async {
-                                    await claimReward(widget.userData['id'],
-                                        widget.reward['id']);
-
-                                    updateShop();
-                                    // Perform the purchase logic here
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: const Text('Buy',
-                                      style: TextStyle(color: Colors.blue)),
-                                ),
-                              ],
-                            );
-                          },
-                        )
-                      : showCupertinoDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            int difference = widget.reward['price'] -
-                                widget.userData['coins'];
-                            return CupertinoAlertDialog(
-                              title: const Text("Not enough Points to buy"),
-                              content: Text(
-                                'You\'re missing $difference coins!',
-                                textAlign: TextAlign.center,
-                              ),
-                              actions: [
-                                CupertinoDialogAction(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text(
-                                      'OK',
-                                      style: TextStyle(color: Colors.blue),
-                                    )),
-                              ],
-                            );
-                          },
+                  if (widget.reward['stock'] == 0) {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: const Text(
+                              "No items left!"),
+                          content: const Text(
+                            'Edit the item to increase the stock.',
+                            textAlign: TextAlign.center,
+                          ),
+                          actions: [
+                            CupertinoDialogAction(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(color: Colors.blue),
+                                )),
+                          ],
                         );
+                      },
+                    );
+                  } else {
+                    if (buyable) {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: const Text(
+                            'Confirm Purchase',
+                            textAlign: TextAlign.center,
+                          ),
+                          content: Text(
+                              "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
+                          actions: [
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text('Cancel',
+                                  style: TextStyle(color: Colors.red)),
+                            ),
+                            CupertinoDialogAction(
+                              onPressed: () async {
+                                await claimReward(
+                                    widget.userData['id'], widget.reward['id']);
+
+                                updateShop();
+                                // Perform the purchase logic here
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: const Text('Buy',
+                                  style: TextStyle(color: Colors.blue)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        int difference =
+                            widget.reward['price'] - widget.userData['coins'];
+                        return CupertinoAlertDialog(
+                          title: const Text("Not enough Points to buy"),
+                          content: Text(
+                            'You\'re missing $difference coins!',
+                            textAlign: TextAlign.center,
+                          ),
+                          actions: [
+                            CupertinoDialogAction(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(color: Colors.blue),
+                                )),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                  }
                 },
                 child: Container(
                     constraints: const BoxConstraints(minWidth: 0),
@@ -667,7 +697,7 @@ class _ItemCardState extends State<ItemCard> {
                         border: Border.all(
                           width: 2,
                           strokeAlign: BorderSide.strokeAlignInside,
-                          color: buyable
+                          color: buyable && widget.reward['stock'] != 0
                               ? purple.withOpacity(0.0)
                               : Theme.of(context)
                                   .colorScheme
@@ -676,7 +706,7 @@ class _ItemCardState extends State<ItemCard> {
                         ),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
-                        color: buyable
+                        color: buyable && widget.reward['stock'] != 0
                             ? purple.withOpacity(0.8)
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
@@ -690,7 +720,7 @@ class _ItemCardState extends State<ItemCard> {
                                   fontFamily: "Karla",
                                   fontSize: 30,
                                   fontWeight: FontWeight.bold,
-                                  color: buyable
+                                  color: buyable && widget.reward['stock'] != 0
                                       ? Theme.of(context).colorScheme.background
                                       : Theme.of(context)
                                           .colorScheme

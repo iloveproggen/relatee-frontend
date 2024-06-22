@@ -44,46 +44,33 @@ class Routine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FutureBuilder<Map<String, dynamic>>(
-            future: getHouseholdData(userData['id']),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                print(snapshot.data!['routines']);
-                List<Map<String, dynamic>> users = snapshot.data!['users'];
-                List<Map<String, dynamic>> tasks = snapshot.data!['tasks'];
-                if (snapshot.data!['routines'] != null) {
-                  List<Map<String, dynamic>> routines =
-                      List<Map<String, dynamic>>.from(
-                          snapshot.data!['routines']);
-                  print(routines);
-                  return Column(
-                    children: routines.map((routine) {
-                      return RoutineItem(
-                        routine: routine,
-                        users: users,
-                        tasks: tasks,
-                        userData: userData,
-                      );
-                    }).toList(),
-                  );
-                } else {
-                  return TextButton(child: Text('No_routines_found_txt'.tr,
-                      style: Theme.of(context).textTheme.bodySmall), onPressed: () {
-                        Get.to(() => NewRoutine(pUserData: userData,));
-                      });
-                }
-              }
-            },
-          )
-        ]);
+    if (userData['routines'] != null) {
+      List<Map<String, dynamic>> routines = userData['routines'];
+      List<Map<String, dynamic>> users = userData['users'];
+      print(routines);
+      return Column(
+        children: routines.map((routine) {
+          return RoutineItem(
+            routine: routine,
+            users: users,
+            tasks: tasks,
+            userData: userData,
+          );
+        }).toList(),
+      );
+    } else {
+      return TextButton(
+          onPressed: () {
+            Get.to(() => NewRoutine(
+                  pUserData: userData,
+                ));
+          },
+          style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                  const EdgeInsets.all(0))),
+          child: Text('No_routines_found_txt'.tr,
+              style: Theme.of(context).textTheme.bodySmall));
+    }
   }
 }
 
@@ -174,8 +161,8 @@ class RoutineItem extends StatelessWidget {
                             routine: routine,
                             users: users,
                             tasks: tasks
-                                .where(
-                                    (task) => task['routineId'] == routine['id'])
+                                .where((task) =>
+                                    task['routineId'] == routine['id'])
                                 .toList(),
                             userData: userData,
                           ));

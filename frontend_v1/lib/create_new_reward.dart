@@ -160,8 +160,7 @@ class _NewShopItemState extends State<NewShopItem> {
                                 .textTheme
                                 .bodyLarge
                                 ?.copyWith(
-                                  color:
-                                      const Color.fromARGB(255, 204, 198, 196),
+                                  color: Colors.red.withOpacity(0.5),
                                 ),
                           ),
                           style: Theme.of(context).textTheme.bodyLarge),
@@ -184,7 +183,7 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                   ),
                   Text(
-                    'Icon:',
+                    'icon:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const Spacer(),
@@ -227,19 +226,16 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 20,
-                            ),
-                          )
+                            "add icon...",
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,)
+                            )
                         : Text(
                             emojiDisplay ?? 'add icon',
                             textAlign: TextAlign.end,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 40,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 40,)
                           ),
                   ),
                   emojiDisplay != null
@@ -268,7 +264,7 @@ class _NewShopItemState extends State<NewShopItem> {
                     ),
                   ),
                   Text(
-                    'Stock',
+                    'stock:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Expanded(
@@ -281,10 +277,9 @@ class _NewShopItemState extends State<NewShopItem> {
                           MaxLengthNumberInputFormatter(2),
                         ],
                         decoration: InputDecoration(
-                            hintText: 'add stock',
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 20),
+                            hintText: 'infinite',
+                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -321,9 +316,8 @@ class _NewShopItemState extends State<NewShopItem> {
                         ],
                         decoration: InputDecoration(
                             hintText: 'add_price_txt'.tr,
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 20),
+                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold, color: Colors.red.withOpacity(0.5)),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme

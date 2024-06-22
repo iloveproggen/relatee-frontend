@@ -242,7 +242,30 @@ class _NewTaskState extends State<NewTask> {
                         update();
                         Get.back(result: "Task created");
                       } else {
-                        Get.back();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                          return CupertinoAlertDialog(
+                            title: Text('Confirmation'),
+                            content: Text('Are you sure you want to cancel?'),
+                            actions: [
+                            CupertinoDialogAction(
+                              child: Text('No', style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                              Navigator.pop(context);
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              child: Text('Yes', style: TextStyle(color: Colors.red)),
+                              onPressed: () {
+                              Navigator.pop(context);
+                              Get.back();
+                              },
+                            ),
+                            ],
+                          );
+                          },
+                        );
                       }
                     },
                     child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
@@ -263,14 +286,13 @@ class _NewTaskState extends State<NewTask> {
                         controller: taskName,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: ('new_task_txt'.tr),
+                          hintText: ('add task name...'),
                           counterText: "",
                           hintStyle: Theme.of(context)
                               .textTheme
                               .bodyLarge
                               ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.tertiary),
+                              color: Colors.red.withOpacity(0.5)),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge,
                         maxLength: 30,
@@ -374,7 +396,7 @@ class _NewTaskState extends State<NewTask> {
                     ),
                   ),
                   Text(
-                    'Icon:',
+                    'icon:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const Spacer(),
@@ -418,10 +440,7 @@ class _NewTaskState extends State<NewTask> {
                     child: emojiDisplay == null
                         ? Text(
                             "add icon",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 20,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                           )
                         : Text(
                             emojiDisplay ?? 'add icon',
@@ -568,7 +587,8 @@ class _NewTaskState extends State<NewTask> {
                           .textTheme
                           .bodySmall
                           ?.copyWith(
-                              color: Theme.of(context).colorScheme.tertiary),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.withOpacity(0.5)),
                       border: InputBorder.none,
                     ),
                     style: Theme.of(context)

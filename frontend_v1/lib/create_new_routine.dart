@@ -134,7 +134,7 @@ class _NewRoutine extends State<NewRoutine> {
                             DateTime.now(), userData['householdId']);
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
-                        Get.back(result: 'Task_created_txt'.tr);
+                        Get.back();
                       }
                     },
                     child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
