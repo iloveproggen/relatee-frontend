@@ -4,12 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/settings.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
 
 String getDueDaysInText(int days) {
   if (days == 1) {
@@ -19,7 +19,8 @@ String getDueDaysInText(int days) {
   }
 }
 
-Future<Map<String,dynamic>> updateUserProfile(String emoji, String colorPrimary, String colorSecondary) async {
+Future<Map<String, dynamic>> updateUserProfile(
+    String emoji, String colorPrimary, String colorSecondary) async {
   final Map<String, dynamic> variables = {
     'input': {
       'emoji': emoji,
@@ -96,10 +97,34 @@ class _ProfileViewState extends State<ProfileView> {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 550,
-          color: Theme.of(context).colorScheme.primary,
-          child: Padding(
+        return CupertinoActionSheet(
+          title: const Text('Choose your colors'),
+          actions: [
+            CupertinoActionSheetAction(
+              child: const Text('Discard Changes',
+                  style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                        setState(() {
+                          colorPrimary = oldColorPrimary;
+                          colorSecondary = oldColorSecondary;
+                          Get.back();
+                        });
+                      },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text('Save changes',
+                  style: TextStyle(color: Colors.blue)),
+              onPressed: () {
+                        setState(() {
+                          colorPrimary = oldColorPrimary;
+                          colorSecondary = oldColorSecondary;
+                          Get.back();
+                        });
+                      },
+            ),
+          
+          ],
+          message: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -120,22 +145,6 @@ class _ProfileViewState extends State<ProfileView> {
                     });
                   }),
                 ),
-                // Row(
-                //   children: [
-                //     CupertinoSwitch(
-                //       value: useSecondaryColor,
-                //       onChanged: (value) {
-                //         setState(() {
-                //           useSecondaryColor = value;
-                //         });
-                //       },
-                //     ),
-                //     Text(
-                //       "Use a gradient?",
-                //       style: Theme.of(context).textTheme.bodySmall,
-                //     ),
-                //   ],
-                // ),
                 const SizedBox(height: 20),
                 ColorPicker(
                   paletteType: PaletteType.hsl,
@@ -152,18 +161,30 @@ class _ProfileViewState extends State<ProfileView> {
                     });
                   }),
                 ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      colorPrimary = oldColorPrimary;
-                      colorSecondary = oldColorSecondary;
-                      Get.back();
-                    });
-                  },
-                  child:
-                      const Text('Back', style: TextStyle(color: Colors.red)),
-                ),
-                const SizedBox(height: 40),
+                // Row(
+                //   children: [
+                //     TextButton(
+                //       onPressed: () {
+                //         setState(() {
+                //           Get.back();
+                //         });
+                //       },
+                //       child: const Text('Save',
+                //           style: TextStyle(color: Colors.blue)),
+                //     ),
+                //     TextButton(
+                //       onPressed: () {
+                //         setState(() {
+                //           colorPrimary = oldColorPrimary;
+                //           colorSecondary = oldColorSecondary;
+                //           Get.back();
+                //         });
+                //       },
+                //       child: const Text('Back',
+                //           style: TextStyle(color: Colors.red)),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
@@ -185,7 +206,10 @@ class _ProfileViewState extends State<ProfileView> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  BackAndUpdateIcon(avatar: avatar!, colorPrimary: colorPrimary.toString(), colorSecondary: colorSecondary.toString()),
+                  BackAndUpdateIcon(
+                      avatar: avatar!,
+                      colorPrimary: colorPrimary.toString(),
+                      colorSecondary: colorSecondary.toString()),
                   const Spacer(),
                   TextButton(
                     child: Icon(CupertinoIcons.paintbrush,
@@ -496,7 +520,10 @@ class BackIconRow extends StatelessWidget {
 
 class BackAndUpdateIcon extends StatelessWidget {
   const BackAndUpdateIcon(
-      {super.key, required this.avatar, required this.colorPrimary, required this.colorSecondary});
+      {super.key,
+      required this.avatar,
+      required this.colorPrimary,
+      required this.colorSecondary});
 
   final double padding = 20;
   final double size = 40;
@@ -504,8 +531,10 @@ class BackAndUpdateIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedColorPrimary =  '#' + colorPrimary.split('(0xff')[1].split(')')[0];
-    String formattedColorSecondary =  '#' + colorSecondary.split('(0xff')[1].split(')')[0];
+    String formattedColorPrimary =
+        '#' + colorPrimary.split('(0xff')[1].split(')')[0];
+    String formattedColorSecondary =
+        '#' + colorSecondary.split('(0xff')[1].split(')')[0];
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -518,7 +547,8 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Map<String, dynamic> newUserData = await updateUserProfile(avatar, formattedColorPrimary, formattedColorSecondary);
+                Map<String, dynamic> newUserData = await updateUserProfile(
+                    avatar, formattedColorPrimary, formattedColorSecondary);
                 Get.back(result: newUserData);
               },
               child: Row(
