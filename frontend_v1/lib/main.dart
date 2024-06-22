@@ -688,11 +688,20 @@ class IconRow extends StatelessWidget {
   }
 }
 
+final bool visibleRecommended = completedTasks.isEmpty;
+
+List<Map<String, dynamic>> completedTasks =
+    tasks.where((task) => task['completed'] == false).toList();
+
 class WelcomeText extends StatelessWidget {
   const WelcomeText({super.key});
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> completedTasks =
+        tasks.where((task) => task['completed'] == false).toList();
+    bool visibleRecommended = completedTasks.isEmpty;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -845,20 +854,30 @@ class ButtonRow extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(right: 15),
-            child: ButtonShort(
-              number: tasks == [] ? '0' : countToDo(tasks).toString(),
-              textBelow: 'left_to_do_txt'.tr,
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to another screen
+              },
+              child: ButtonShort(
+                number: tasks == [] ? '0' : countToDo(tasks).toString(),
+                textBelow: 'left_to_do_txt'.tr,
+              ),
             ),
           ),
         ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
-            child: ButtonShort(
-              number: tasks == []
-                  ? '0'
-                  : (tasks.length - countToDo(tasks)).toString(),
-              textBelow: 'doneThisWeek_txt'.tr,
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to another screen
+              },
+              child: ButtonShort(
+                number: tasks == []
+                    ? '0'
+                    : (tasks.length - countToDo(tasks)).toString(),
+                textBelow: 'doneThisWeek_txt'.tr,
+              ),
             ),
           ),
         ),

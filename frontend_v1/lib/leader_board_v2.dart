@@ -134,29 +134,32 @@ class ChartLeaderboard extends StatelessWidget {
           return Column(
             children: [
               if (emoji != null && emoji.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 2,
-                    bottom: 2,
-                  ),
-                  child: Container(
-                    width: width * 0.2,
-                    height: width * 0.2,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                        colorPrimary,
-                        colorSecondary,
-                      ]),
-                      shape: BoxShape.circle,
+                if (emoji != null && emoji.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 2,
+                      bottom: 2,
                     ),
-                    child: Center(
-                      child: Text(
-                        emoji,
-                        style: TextStyle(fontSize: 50),
+                    child: Container(
+                      width: width * 0.2,
+                      height: width * 0.2,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [
+                          colorPrimary,
+                          colorSecondary,
+                        ]),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: DefaultTextStyle(
+                          style: TextStyle(fontSize: 60),
+                          child: Text(
+                            emoji.toString(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
               SizedBox(
                 height: height * 0.05,
               ),
