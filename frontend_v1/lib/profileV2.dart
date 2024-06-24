@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
-import 'package:frontend_v1/settings.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
@@ -98,19 +97,8 @@ class _ProfileViewState extends State<ProfileView> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: const Text('Choose your colors'),
+          title: const Text("Choose your profile's colors"),
           actions: [
-            CupertinoActionSheetAction(
-              child: const Text('Discard Changes',
-                  style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                        setState(() {
-                          colorPrimary = oldColorPrimary;
-                          colorSecondary = oldColorSecondary;
-                          Get.back();
-                        });
-                      },
-            ),
             CupertinoActionSheetAction(
               child: const Text('Save changes',
                   style: TextStyle(color: Colors.blue)),
@@ -122,7 +110,17 @@ class _ProfileViewState extends State<ProfileView> {
                         });
                       },
             ),
-          
+            CupertinoActionSheetAction(
+              child: const Text('Discard Changes',
+                  style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                        setState(() {
+                          colorPrimary = oldColorPrimary;
+                          colorSecondary = oldColorSecondary;
+                          Get.back();
+                        });
+                      },
+            ),
           ],
           message: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -131,7 +129,7 @@ class _ProfileViewState extends State<ProfileView> {
               children: [
                 const SizedBox(height: 10),
                 ColorPicker(
-                  paletteType: PaletteType.hsl,
+                  paletteType: PaletteType.hsv,
                   labelTypes: const [],
                   pickerAreaHeightPercent: 0.35,
                   enableAlpha: false,
@@ -147,12 +145,12 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
                 const SizedBox(height: 20),
                 ColorPicker(
-                  paletteType: PaletteType.hsl,
+                  paletteType: PaletteType.hsv,
                   labelTypes: [],
                   pickerAreaHeightPercent: 0.35,
                   enableAlpha: false,
                   pickerAreaBorderRadius:
-                      const BorderRadius.all(Radius.circular(20)),
+                      const BorderRadius.all(Radius.circular(15)),
                   pickerColor: colorSecondary, // Changed to colorSecondary
                   onColorChanged: ((value) {
                     print(value);

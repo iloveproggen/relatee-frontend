@@ -22,7 +22,7 @@ int refreshDays() {
 }
 
 Future<void> createRoutine(
-    String name, String emoji, DateTime refreshDate, int householdId) async {
+    String name, String emoji, DateTime refreshDate) async {
   // Format DateTime to a string that your backend can understand
   final String formattedRefreshDate =
       DateFormat('yyyy-MM-dd').format(refreshDate);
@@ -33,7 +33,6 @@ Future<void> createRoutine(
       'emoji': emoji,
       'refreshDate': formattedRefreshDate,
       'private': false,
-      'householdId': householdId,
     }
   };
 
@@ -46,7 +45,6 @@ mutation CreateRoutine($input: CreateRoutineInput!) {
     emoji
     refreshDate
     private
-    householdId
   }
 }
 '''),
@@ -131,7 +129,7 @@ class _NewRoutine extends State<NewRoutine> {
                     onPressed: () async {
                       if (required) {
                         await createRoutine(name.text, emojiDisplay ?? "",
-                            DateTime.now(), userData['householdId']);
+                            DateTime.now());
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
                         Get.back();

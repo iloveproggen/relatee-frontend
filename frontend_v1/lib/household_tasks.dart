@@ -49,7 +49,7 @@ class HouseholdOverview extends StatelessWidget {
         Column(
           children: [
             FutureBuilder<Map<String, dynamic>>(
-              future: getHouseholdData(userData['id']),
+              future: getHouseholdData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();

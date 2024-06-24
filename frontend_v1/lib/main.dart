@@ -56,12 +56,12 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
-Future<Map<String, dynamic>> getHouseholdData(int id) async {
+Future<Map<String, dynamic>> getHouseholdData() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-      query getHouseholdAndTasks {
-        getHousehold: household {
+      query CombinedQuery {
+        household {
           id
           name
           emoji
@@ -82,38 +82,7 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
             name
             emoji
           }
-        }
-        getTasks: householdTasks (completed: false){
-            id
-            name
-            emoji
-            deadline
-            description
-            reward
-            completed
-            completedAt
-            private
-            user {
-              id
-              forename
-              surname
-              username
-              email
-              level
-              coins
-            }
-            owner {
-              id
-              forename
-              surname
-              username
-            }
-            routine {
-              id
-              name
-            }
-          }
-          getCompletedTasks: householdTasks (completed: true){
+          tasks {
             id
             name
             emoji
@@ -144,78 +113,129 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
             }
           }
         }
-
+        me {
+          id
+          username
+          forename
+          surname
+          email
+          coins
+          experience
+          level
+          emoji
+          colorPrimary
+          colorSecondary
+        }
+      }
     '''),
   );
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
+        print(result.data);
 
     if (result.hasException) {
       print(result.exception.toString());
     } else {
-      print(result.data!);
-      final users = result.data!['getHousehold']['users'];
-      final tasks = result.data!['getTasks'];
-      final completedTasks = result.data!['getCompletedTasks'];
-      final routines = result.data!['getHousehold']['routines'];
-      tasks.addAll(completedTasks);
+  print(result.data!);
+  final householdData = result.data!['household'];
+  final userData = result.data!['me'];
 
-      final List<Map<String, dynamic>> mappedUsers =
-          users.map<Map<String, dynamic>>((user) {
-        return {
-          'id': user['id'],
-          'forename': user['forename'],
-          'surname': user['surname'],
-          'username': user['username'],
-          'email': user['email'],
-          'level': user['level'],
-          'coins': user['coins'],
-          'emoji': user['emoji'],
-          'colorPrimary': user['colorPrimary'],
-          'colorSecondary': user['colorSecondary'],
-          'householdName': result.data!['getHousehold']['name'],
-          'householdId': result.data!['getHousehold']['id'],
-        };
-      }).toList();
+  // Extracting users, tasks, and routines from household data
+  final users = householdData['users'];
+  final tasks = householdData['tasks'];
+  final routines = householdData['routines'];
 
-      final List<Map<String, dynamic>> mappedTasks =
-          tasks.map<Map<String, dynamic>>((task) {
-        return {
-          'id': task['id'],
-          'name': task['name'],
-          'emoji': task['emoji'],
-          'deadline': task['deadline'],
-          'description': task['description'],
-          'reward': task['reward'],
-          'completed': task['completed'],
-          'completedAt': task['completedAt'],
-          'private': task['private'],
-          'userId': task['user'] != null ? task['user']['id'] : null,
-          'userForename':
-              task['user'] != null ? task['user']['forename'] : null,
-          'userSurname': task['user'] != null ? task['user']['surname'] : null,
-          'ownerId': task['owner']['id'],
-          'ownerForename': task['owner']['forename'],
-          'routineId': task['routine'] != null ? task['routine']['id'] : null,
-          'routineName':
-              task['routine'] != null ? task['routine']['name'] : null,
-        };
-      }).toList();
-      final List<Map<String, dynamic>> mappedRoutines =
-          routines.map<Map<String, dynamic>>((routine) {
-        return {
-          'id': routine['id'],
-          'name': routine['name'],
-        };
-      }).toList();
+  // Filtering tasks for the logged-in user
+  final myTasks = tasks.where((task) => task['user']['id'] == userData['id']).toList();
 
-      return {
-        'users': mappedUsers,
-        'tasks': mappedTasks,
-        'routines': mappedRoutines,
-      };
-    }
+  // Mapping users to a new structure
+  final List<Map<String, dynamic>> mappedUsers = users.map<Map<String, dynamic>>((user) {
+    return {
+      'id': user['id'],
+      'forename': user['forename'],
+      'surname': user['surname'],
+      'username': user['username'],
+      'email': user['email'],
+      'level': user['level'],
+      'coins': user['coins'],
+      'emoji': user['emoji'],
+      'colorPrimary': user['colorPrimary'],
+      'colorSecondary': user['colorSecondary'],
+      'householdName': householdData['name'],
+      'householdId': householdData['id'],
+    };
+  }).toList();
+
+  // Mapping tasks to a new structure
+  final List<Map<String, dynamic>> mappedTasks = tasks.map<Map<String, dynamic>>((task) {
+    return {
+      'id': task['id'],
+      'name': task['name'],
+      'emoji': task['emoji'],
+      'deadline': task['deadline'],
+      'description': task['description'],
+      'reward': task['reward'],
+      'completed': task['completed'],
+      'completedAt': task['completedAt'],
+      'private': task['private'],
+      'userId': task['user'] != null ? task['user']['id'] : null,
+      'userForename': task['user'] != null ? task['user']['forename'] : null,
+      'userSurname': task['user'] != null ? task['user']['surname'] : null,
+      'ownerId': task['owner']['id'],
+      'ownerForename': task['owner']['forename'],
+      'routineId': task['routine'] != null ? task['routine']['id'] : null,
+      'routineName': task['routine'] != null ? task['routine']['name'] : null,
+    };
+  }).toList();
+
+  // Mapping routines to a new structure
+  final List<Map<String, dynamic>> mappedRoutines = routines.map<Map<String, dynamic>>((routine) {
+    return {
+      'id': routine['id'],
+      'name': routine['name'],
+    };
+  }).toList();
+
+  // Mapping the logged-in user's data
+  final mappedUserData = {
+    'id': userData['id'],
+    'forename': userData['forename'],
+    'surname': userData['surname'],
+    'username': userData['username'],
+    'email': userData['email'],
+    'coins': userData['coins'],
+    'experience': userData['experience'],
+    'level': userData['level'],
+    'emoji': userData['emoji'],
+    'colorPrimary': userData['colorPrimary'],
+    'colorSecondary': userData['colorSecondary'],
+    'householdName': householdData['name'],
+    'householdId': householdData['id'],
+    'tasks': myTasks.map((task) => {
+              'id': task['id'],
+              'userId': userData['id'],
+              'name': task['name'],
+              'deadline': task['deadline'],
+              'description': task['description'],
+              'reward': task['reward'],
+              'completed': task['completed'],
+              'completed_at': task['completedAt'],
+              'emoji': task['emoji'],
+              'private': task['private'],
+              'ownerId': task['owner']['id'],
+              'ownerForename': task['owner']['forename'],
+              'ownerSurname': task['owner']['surname'],
+            }).toList(),
+  };
+
+  return {
+    'users': mappedUsers,
+    'tasks': mappedTasks,
+    'routines': mappedRoutines,
+    'userData': mappedUserData,
+  };
+}
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -233,109 +253,112 @@ Future<Map<String, dynamic>> getHouseholdData(int id) async {
   };
 }
 
-Future<Map<String, dynamic>> getUserData() async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-  query GetUser {
-      me {
-    id
-    username
-    forename
-    surname
-    email
-    coins
-    experience
-    level
-    emoji
-    colorPrimary
-    colorSecondary
-    household {
-      id
-      name
-    }
-    tasks {
-      id
-      name
-      deadline
-      description
-      reward
-      completed
-      completedAt
-      emoji
-      private
-      owner {
-        id
-        forename
-        surname
-      }
-    }
-  }
-}
-'''),
-  );
-  print("finished query");
+// Future<Map<String, dynamic>> getUserData() async {
+//   final client = await getGraphQLClient();
+//   final QueryOptions options = QueryOptions(
+//     document: gql('''
+//   query GetUser {
+//       me {
+//     id
+//     username
+//     forename
+//     surname
+//     email
+//     coins
+//     experience
+//     level
+//     emoji
+//     colorPrimary
+//     colorSecondary
+//     household {
+//       id
+//       name
+//     }
+//     tasks {
+//       id
+//       name
+//       deadline
+//       description
+//       reward
+//       completed
+//       completedAt
+//       emoji
+//       private
+//       owner {
+//         id
+//         username
+//         forename
+//         surname
+//       }
+//     }
+//   }
+// }
+// '''),
+//   );
+//   print("finished query");
 
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
+//   try {
+//     final result =
+//         await client.query(options).timeout(const Duration(seconds: 10));
 
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      final user = result.data!['me'];
-      final mappedResult = {
-        'id': user['id'],
-        'forename': user['forename'],
-        'surname': user['surname'],
-        'username': user['username'],
-        'email': user['email'],
-        'coins': user['coins'],
-        'experience': user['experience'],
-        'level': user['level'],
-        'emoji': user['emoji'],
-        'colorPrimary': user['colorPrimary'],
-        'colorSecondary': user['colorSecondary'],
-        'householdName': user['household']['name'],
-        'householdId': user['household']['id'],
-        'tasks': user['tasks']
-            .map((task) => {
-                  'id': task['id'],
-                  'userId': user['id'],
-                  'name': task['name'],
-                  'deadline': task['deadline'],
-                  'description': task['description'],
-                  'reward': task['reward'],
-                  'completed': task['completed'],
-                  'completed_at': task['completed_at'],
-                  'emoji': task['emoji'],
-                  'private': task['private'],
-                  'ownerId': task['owner']['id'],
-                  'ownerForename': task['owner']['forename'],
-                  'ownerSurname': task['owner']['surname']
-                })
-            .toList(),
-      };
-      if (mappedResult['points'] == null) {
-        mappedResult['points'] = 0;
-      }
+//   print(result.data!);
 
-      return mappedResult;
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-  return {};
-}
+//     if (result.hasException) {
+//       print(result.exception.toString());
+//     } else if (result.isLoading) {
+//       print('Loading');
+//     } else {
+//       final user = result.data!['me'];
+//       final mappedResult = {
+//         'id': user['id'],
+//         'forename': user['forename'],
+//         'surname': user['surname'],
+//         'username': user['username'],
+//         'email': user['email'],
+//         'coins': user['coins'],
+//         'experience': user['experience'],
+//         'level': user['level'],
+//         'emoji': user['emoji'],
+//         'colorPrimary': user['colorPrimary'],
+//         'colorSecondary': user['colorSecondary'],
+//         'householdName': user['household']['name'],
+//         'householdId': user['household']['id'],
+//         'tasks': user['tasks']
+//             .map((task) => {
+//                   'id': task['id'],
+//                   'userId': user['id'],
+//                   'name': task['name'],
+//                   'deadline': task['deadline'],
+//                   'description': task['description'],
+//                   'reward': task['reward'],
+//                   'completed': task['completed'],
+//                   'completed_at': task['completed_at'],
+//                   'emoji': task['emoji'],
+//                   'private': task['private'],
+//                   'ownerId': task['owner']['id'],
+//                   'ownerForename': task['owner']['forename'],
+//                   'ownerSurname': task['owner']['surname']
+//                 })
+//             .toList(),
+//       };
+//       if (mappedResult['points'] == null) {
+//         mappedResult['points'] = 0;
+//       }
+
+//       return mappedResult;
+//     }
+//   } on SocketException catch (e) {
+//     print('Network error: $e');
+//     // Handle network error
+//   } on TimeoutException catch (e) {
+//     print('Request timed out: $e');
+//     // Handle timeout
+//   } catch (e) {
+//     print('Unexpected error: $e');
+//     // Handle other errors
+//   }
+//   return {};
+// }
 
 int countToDo(List<Map<String, dynamic>> tasks) {
   int count = 0;
@@ -530,12 +553,12 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
-    _futureUserData = getUserData();
+    _futureUserData = getHouseholdData();
   }
 
   void _updateUserData() {
     setState(() {
-      _futureUserData = getUserData();
+      _futureUserData = getHouseholdData();
     });
   }
 
@@ -551,12 +574,13 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.hasError) {
             print(snapshot.error.toString());
             return const Placeholder();
-          } else if (snapshot.data!['householdId'] == null) {
+          } else if (snapshot.data!['userData']['householdId'] == null) {
+            print(snapshot.data!);
             return const JoinHouseholdView();
           } else {
             print(snapshot.data!);
-            tasks = List<Map<String, dynamic>>.from(snapshot.data!['tasks']);
-            userData = snapshot.data!;
+            tasks = List<Map<String, dynamic>>.from(snapshot.data!['userData']['tasks']);
+            userData = snapshot.data!['userData'];
             print(userData);
             return SingleChildScrollView(
                 child: Padding(
@@ -688,8 +712,6 @@ class IconRow extends StatelessWidget {
   }
 }
 
-final bool visibleRecommended = completedTasks.isEmpty;
-
 List<Map<String, dynamic>> completedTasks =
     tasks.where((task) => task['completed'] == false).toList();
 
@@ -698,10 +720,6 @@ class WelcomeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> completedTasks =
-        tasks.where((task) => task['completed'] == false).toList();
-    bool visibleRecommended = completedTasks.isEmpty;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
