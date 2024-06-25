@@ -927,7 +927,7 @@ class _AssignToState extends State<AssignTo> {
             child: Text(
                 assignedToUser['id'] == null
                     ? 'anyone_txt'.tr
-                    : "${assignedToUser['forename']}",
+                    : "${assignedToUser['forename'] ?? assignedToUser['username']}",
                 textAlign: TextAlign.end,
                 style: Theme.of(context)
                     .textTheme

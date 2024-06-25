@@ -1,1 +1,236 @@
+#########################################
+# TYPE DEFINITIONS                      #
+#########################################
+
+type User {
+  id: Int!
+  username: String!
+  forename: String
   surname: String
+  emoji: String!
+  colorPrimary: String!
+  colorSecondary: String!
+  color: String!
+  email: String!
+  coins: Int!
+  experience: Int!
+  level: Int!
+  verified: Boolean!
+  loginStreak: Int!
+  prestige: Int!
+  lastLogin: DateTime
+  household: Household
+  tasks: [Task]!
+  ownedTasks: [Task]!
+  ownedRoutines: [Routine]!
+}
+
+type otherUser { # This is a type for a user that is not the current user, i.e. to get another user's details
+  id: Int!
+  username: String!
+  experience: Int!
+  level: Int!
+  verified: Boolean!
+  emoji: String!
+  colorPrimary: String!
+  colorSecondary: String!
+}
+
+type Household {
+  id: Int!
+  name: String!
+  emoji: String!
+  owner: User!
+  childMode: Boolean!
+  users: [User!]!
+  rewards: [Reward!]!
+  routines: [Routine!]!
+  tasks: [Task!]!
+  invites: [Invite!]!
+}
+
+type Reward {
+  id: Int!
+  name: String!
+  emoji: String!
+  description: String
+  stock: Int!
+  price: Int!
+}
+
+type ClaimRewardResult {
+  reward: Reward
+  userBalance: Int
+}
+
+type Routine {
+  id: Int!
+  name: String!
+  emoji: String!
+  refreshDate: DateTime
+  private: Boolean!
+  owner: User!
+  tasks: [Task!]!
+}
+
+type Task {
+  id: Int!
+  name: String!
+  emoji: String!
+  deadline: DateTime
+  description: String
+  reward: Int!
+  completed: Boolean!
+  completedAt: DateTime
+  private: Boolean!
+  user: User
+  owner: User!
+  routine: Routine
+}
+
+type Invite {
+  id: Int!
+  code: String!
+  expiresAt: DateTime
+  email: String
+}
+
+#########################################
+# QUERY TYPE DEFINITIONS                #
+#########################################
+
+type Query {
+  # BASIC QUERIES
+  me: User
+  household: Household
+
+  # GENERAL QUERIES
+  user(userId: Int!): otherUser
+  task(taskId: Int!): Task
+  routine(routineId: Int!): Routine
+  reward(rewardId: Int!): Reward
+  invite(inviteId: Int!): Invite
+
+  # HOUSEHOLD QUERIES
+  householdLastCompletedTask: Task
+
+  # USER QUERIES
+  userOwnedTasks: [Task!]!
+  userOwnedRoutines: [Routine!]!
+}
+
+#########################################
+# MUTATION TYPE DEFINITIONS             #
+#########################################
+
+type Mutation {
+  updateUserDetails(input: UpdateUserDetailsInput!): User!
+  # updateUserEmail(email: String!): User!
+  updateUserStyle(input: UpdateUserStyleInput): User!
+  updateLoginStreak: User!
+  updatePrestige: User!
+
+  # HOUSEHOLD MUTATIONS
+  createHousehold(name: String!, emoji: String): Household!
+  updateHouseholdEmoji(emoji: String!): Household!
+  renameHousehold(name: String!): Household!
+  updateHouseholdOwner(userId: Int!): Household!
+  deleteHousehold: Boolean
+  kickUserFromHousehold(userId: Int!): Household!
+  toggleChildMode(mode: Boolean): Household!
+
+  # TASK MUTATIONS
+  createTask(input: CreateTaskInput!): Task!
+  updateTask(input: UpdateTaskInput!): Task!
+  reassignTask(taskId: Int!, userId: Int): Task!
+  completeTask(taskId: Int!): Task!
+  uncompleteTask(taskId: Int!): Task!
+  deleteTask(taskId: Int!): Boolean
+
+  # ROUTINE MUTATIONS
+  addTaskToRoutine(taskId: Int!, routineId: Int!): Routine!
+  removeTaskFromRoutine(taskId: Int!, routineId: Int!): Routine!
+  createRoutine(input: CreateRoutineInput!): Routine!
+  updateRoutine(input: UpdateRoutineInput!): Routine!
+
+  # REWARD MUTATIONS
+  claimReward(rewardId: Int!): ClaimRewardResult!
+  createReward(input: CreateRewardInput!): Reward!
+  updateReward(input: UpdateRewardInput!): Reward!
+  deleteReward(rewardId: Int!): Boolean
+
+  # INVITE MUTATIONS
+  createInviteByEmail(email: String!, expiresAt: DateTime): Invite!
+  createInvite(expiresAt: DateTime): Invite!
+}
+
+#########################################
+# INPUT DEFINITIONS                     #
+#########################################
+
+input UpdateUserDetailsInput {
+  forename: String
+  surname: String
+  username: String
+}
+
+input UpdateUserStyleInput {
+  emoji: String
+  colorPrimary: String
+  colorSecondary: String
+}
+
+input CreateTaskInput {
+  name: String!
+  emoji: String
+  deadline: DateTime
+  description: String
+  reward: Int
+  routineId: Int
+  userId: Int
+  private: Boolean
+}
+
+input UpdateTaskInput {
+  taskId: Int!
+  name: String
+  emoji: String
+  deadline: DateTime
+  description: String
+  reward: Int
+  routineId: Int
+  userId: Int
+  private: Boolean
+}
+
+input CreateRoutineInput {
+  name: String!
+  emoji: String
+  refreshDate: DateTime
+  private: Boolean
+}
+
+input UpdateRoutineInput {
+  routineId: Int!
+  name: String
+  emoji: String
+  refreshDate: DateTime
+  private: Boolean
+}
+
+input CreateRewardInput {
+  name: String!
+  emoji: String
+  description: String
+  stock: Int
+  price: Int!
+}
+
+input UpdateRewardInput {
+  rewardId: Int!
+  name: String
+  emoji: String
+  description: String
+  stock: Int
+  price: Int
+}
