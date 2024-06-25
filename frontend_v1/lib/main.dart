@@ -153,7 +153,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       final tasks = householdData['tasks'];
       final routines = householdData['routines'];
 
-      final rewardsData = result.data!['getRewards'] ?? [];
+      final rewardsData = result.data!['household']['rewards'] ?? [];
       final List<Map<String, dynamic>> mappedRewards =
           rewardsData.map<Map<String, dynamic>>((reward) {
         return {
@@ -167,6 +167,8 @@ Future<Map<String, dynamic>> getHouseholdData() async {
               '', // Provide a default value for description if null
         };
       }).toList();
+
+      print("rewards: $mappedRewards");
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
@@ -278,6 +280,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
                 })
             .toList(),
       };
+      print(mappedUsers);
       print(mappedUsers);
 
       return {
