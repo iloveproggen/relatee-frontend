@@ -132,7 +132,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
-        print(result.data);
+        print("result data: ${result.data}");
 
     if (result.hasException) {
       print(result.exception.toString());
@@ -147,7 +147,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
   final routines = householdData['routines'];
 
   // Filtering tasks for the logged-in user
-  final myTasks = tasks.where((task) => task['user']['id'] == userData['id']).toList();
+  final myTasks = tasks.where((task) => task['user']?['id'] == userData['id']).toList();
 
   // Mapping users to a new structure
   final List<Map<String, dynamic>> mappedUsers = users.map<Map<String, dynamic>>((user) {

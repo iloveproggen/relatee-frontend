@@ -43,7 +43,6 @@ Future<Map<String, dynamic>> updateUserProfile(
   );
 
   final QueryResult result = await client.query(options);
-  print("new data: ${result.data!}");
 
   if (result.hasException) {
     print(result.exception.toString());

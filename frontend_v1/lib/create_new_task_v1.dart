@@ -914,7 +914,7 @@ class _AssignToState extends State<AssignTo> {
                       children: widget.householdUsers.map((member) {
                         return Center(
                           child: Text(
-                            member['forename'],
+                            member['forename'] ?? member['username'],
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );

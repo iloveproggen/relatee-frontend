@@ -372,10 +372,18 @@ class Member extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(userData['forename'] + " " + userData['surname'],
+                userData['forename'] != null && userData ['surname'] != null ? Text(userData['forename'] + " " + userData['surname'],
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                        )),
+                        )) : Container(),
+                userData['forename'] != null && userData ['surname'] == null ? Text(userData['forename'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        )) : Container(),
+                userData['forename'] == null && userData ['surname'] != null ? Text(userData['surname'],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        )) : Container(),
                 Text("@${userData['username']}",
                     style: Theme.of(context).textTheme.bodySmall),
               ],
