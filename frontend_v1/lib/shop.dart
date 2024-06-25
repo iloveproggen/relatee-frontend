@@ -45,8 +45,8 @@ Future<Map<String, dynamic>> getRewards() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-      query GetUserRewardsAndBalance {
-        getRewards: householdRewards {
+      query household {
+        rewards {
           id
           name
           price
@@ -71,7 +71,7 @@ Future<Map<String, dynamic>> getRewards() async {
     } else {
       print(result.data);
       final rewardsData =
-          result.data!['getRewards'] as List; // Cast to List explicitly
+          result.data!['rewards'] as List; // Cast to List explicitly
       final List<Map<String, dynamic>> mappedRewards =
           rewardsData.map<Map<String, dynamic>>((reward) {
         return {

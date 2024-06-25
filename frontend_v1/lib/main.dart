@@ -24,6 +24,7 @@ void main() {
   runApp(const CheckLoggedIn());
 }
 
+
 late VoidCallback update;
 const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
@@ -112,6 +113,14 @@ Future<Map<String, dynamic>> getHouseholdData() async {
               name
             }
           }
+          rewards {
+            id
+            name
+            price
+            emoji
+            stock
+            description
+          }
         }
         me {
           id
@@ -136,6 +145,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
     if (result.hasException) {
       print(result.exception.toString());
     } else {
+      print(result.data);
       final householdData = result.data!['household'];
       final userData = result.data!['me'];
 
@@ -144,12 +154,22 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       final tasks = householdData['tasks'];
       final routines = householdData['routines'];
 
+      final rewardsData = result.data!['getRewards'] ?? [];
+final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dynamic>>((reward) {
+  return {
+    'id': reward['id'],
+    'name': reward['name'],
+    'price': reward['price'],
+    'stock': reward['stock'] ?? '0', // Provide a default value for stock if null
+    'emoji': reward['emoji'] ?? '0',
+    'description': reward['description'] ?? '', // Provide a default value for description if null
+  };
+}).toList();
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
       final otherTasks =
           tasks.where((task) => task['user']?['id'] != userData['id']).toList();
-      print("other tasks: \n\n $otherTasks");
 
       // Mapping users to a new structure
       final List<Map<String, dynamic>> mappedUsers =
@@ -166,7 +186,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
           'colorPrimary': user['colorPrimary'],
           'colorSecondary': user['colorSecondary'],
           'householdName': householdData['name'],
-          'householdId': householdData['id'],
+          'householdId': result.data!['household']['id'],
         };
       }).toList();
 
@@ -187,7 +207,8 @@ Future<Map<String, dynamic>> getHouseholdData() async {
           'userForename':
               task['user'] != null ? task['user']['forename'] : null,
           'userSurname': task['user'] != null ? task['user']['surname'] : null,
-          'userUsername': task['user'] != null ? task['user']['username'] : null,
+          'userUsername':
+              task['user'] != null ? task['user']['username'] : null,
           'ownerId': task['owner']['id'],
           'ownerForename': task['owner']['forename'],
           'routineId': task['routine'] != null ? task['routine']['id'] : null,
@@ -219,7 +240,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
         'colorPrimary': userData['colorPrimary'],
         'colorSecondary': userData['colorSecondary'],
         'householdName': householdData['name'],
-        'householdId': householdData['id'],
+        'householdId': result.data!['household']['id'],
         'tasks': myTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
@@ -237,6 +258,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
                   'ownerSurname': task['owner']['surname'],
                 })
             .toList(),
+
         'otherTasks': otherTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
@@ -255,12 +277,14 @@ Future<Map<String, dynamic>> getHouseholdData() async {
                 })
             .toList(),
       };
+        print(mappedUsers);
 
       return {
         'users': mappedUsers,
         'tasks': mappedTasks,
         'routines': mappedRoutines,
         'userData': mappedUserData,
+        'rewards': mappedRewards,
       };
     }
   } on SocketException catch (e) {
@@ -276,7 +300,9 @@ Future<Map<String, dynamic>> getHouseholdData() async {
   return {
     'users': [],
     'tasks': [],
-    // 'rewards': [],
+    'routines': [],
+    'userData': {},
+    'rewards': [],
   };
 }
 
@@ -303,7 +329,8 @@ Future<void> deleteTask(int taskId) async {
     },
   );
   try {
-    final result = await client.mutate(options).timeout(const Duration(seconds: 10));
+    final result =
+        await client.mutate(options).timeout(const Duration(seconds: 10));
     print(result.data);
     if (result.hasException) {
       print('GraphQL error: ${result.exception.toString()}');
@@ -836,22 +863,23 @@ class _TaskState extends State<TaskOverview> {
           }
         });
 
-  List<Map<String, dynamic>> otherTasks =
-      userData['otherTasks'].where((task) => task['completed'] == false).toList();
+  List<Map<String, dynamic>> otherTasks = userData['otherTasks']
+      .where((task) => task['completed'] == false)
+      .toList();
 
   @override
   Widget build(BuildContext context) {
-  otherTasks.sort((a, b) {
-    if (a['deadline'] == null && b['deadline'] == null) {
-      return 0;
-    } else if (a['deadline'] == null) {
-      return 1;
-    } else if (b['deadline'] == null) {
-      return -1;
-    } else {
-      return a['deadline'].compareTo(b['deadline']);
-    }
-  });
+    otherTasks.sort((a, b) {
+      if (a['deadline'] == null && b['deadline'] == null) {
+        return 0;
+      } else if (a['deadline'] == null) {
+        return 1;
+      } else if (b['deadline'] == null) {
+        return -1;
+      } else {
+        return a['deadline'].compareTo(b['deadline']);
+      }
+    });
     print(userData['otherTasks']);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -1002,7 +1030,7 @@ class _TaskState extends State<TaskOverview> {
                                           MaterialStateProperty.all<EdgeInsets>(
                                               const EdgeInsets.all(0))),
                                   child: Text(
-                                    "No tasks left! Press here to create one.",
+                                    "You don't have any tasks! Press here to create one.",
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
                                   ),
@@ -1479,9 +1507,7 @@ class _TaskState extends State<TaskOverview> {
                     ),
                   ],
                 ),
-                showRoutines
-                    ? Routine(userData: userData)
-                    : Container(),
+                showRoutines ? Routine(userData: userData) : Container(),
                 const SizedBox(height: 30),
                 // Padding(
                 //   padding: const EdgeInsets.only(top: 10, bottom: 60),
@@ -1653,7 +1679,6 @@ class OtherTasks extends StatefulWidget {
 }
 
 class _OtherTasksState extends State<OtherTasks> {
-
   bool showTasks = false;
 
   void update() {
@@ -1661,6 +1686,7 @@ class _OtherTasksState extends State<OtherTasks> {
       showTasks = !showTasks;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return widget.otherTasks.isEmpty
@@ -1680,10 +1706,12 @@ class _OtherTasksState extends State<OtherTasks> {
                     child: Row(
                       children: [
                         Icon(
-                          showTasks ? CupertinoIcons.arrow_down : CupertinoIcons.arrow_up,
+                            showTasks
+                                ? CupertinoIcons.arrow_down
+                                : CupertinoIcons.arrow_up,
                             color: Theme.of(context).colorScheme.tertiary,
                             size: 16),
-                            const SizedBox(width: 3),
+                        const SizedBox(width: 3),
                         Text("Household tasks".toUpperCase(),
                             style: Theme.of(context).textTheme.labelSmall),
                       ],
@@ -1716,103 +1744,109 @@ class _OtherTasksState extends State<OtherTasks> {
                   )
                 ],
               ),
-              showTasks ? Column(
-                children: widget.otherTasks.map((task) {
-                  return Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      Dismissible(
-                        direction: DismissDirection.horizontal,
-                        key: ValueKey(task['id']),
-                        onDismissed: (direction) async {
-                          if (direction == DismissDirection.endToStart) {
-                            showCupertinoDialog(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  CupertinoAlertDialog(
-                                title: Text(
-                                    "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
-                                content: Text('Sure_delete_task?_txt'.tr),
-                                actions: [
-                                  CupertinoDialogAction(
-                                      child: Text('Cancel_txt'.tr,
-                                          style: const TextStyle(
-                                              color: Colors.blue)),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        update();
-                                      }),
-                                  CupertinoDialogAction(
-                                    onPressed: () async {
-                                      await deleteTask(task['id']);
-                                      Get.back();
-                                      update();
-                                    },
-                                    isDestructiveAction: true,
-                                    child: Text('Delete_txt'.tr,
-                                        style:
-                                            const TextStyle(color: Colors.red)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            print(
-                                "${'Task_completed!_txt'.tr} ${task['reward']}");
-                            tasks.removeWhere((t) => t['id'] == task['id']);
-                            completeTask(task['id']);
-                            // addPoints(
-                            //     task['reward'].toString());
-                            showCupertinoDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return CupertinoAlertDialog(
-                                  title: Text('Congratulations!_txt'.tr),
-                                  content: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(height: 10),
-                                      // Image.network(
-                                      //   "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
-                                      //   scale: 1.3,
-                                      // ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    CupertinoDialogAction(
-                                      child: const Text('OK',
-                                          style: TextStyle(
-                                            color: Colors.blue,
-                                          )),
-                                      onPressed: () async {
-                                        Navigator.pop(context);
-                                        update();
-                                      },
+              showTasks
+                  ? Column(
+                      children: widget.otherTasks.map((task) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            Dismissible(
+                              direction: DismissDirection.horizontal,
+                              key: ValueKey(task['id']),
+                              onDismissed: (direction) async {
+                                if (direction == DismissDirection.endToStart) {
+                                  showCupertinoDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        CupertinoAlertDialog(
+                                      title: Text(
+                                          "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                      content: Text('Sure_delete_task?_txt'.tr),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                            child: Text('Cancel_txt'.tr,
+                                                style: const TextStyle(
+                                                    color: Colors.blue)),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              update();
+                                            }),
+                                        CupertinoDialogAction(
+                                          onPressed: () async {
+                                            await deleteTask(task['id']);
+                                            Get.back();
+                                            update();
+                                          },
+                                          isDestructiveAction: true,
+                                          child: Text('Delete_txt'.tr,
+                                              style: const TextStyle(
+                                                  color: Colors.red)),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                );
+                                  );
+                                } else {
+                                  print(
+                                      "${'Task_completed!_txt'.tr} ${task['reward']}");
+                                  tasks.removeWhere(
+                                      (t) => t['id'] == task['id']);
+                                  completeTask(task['id']);
+                                  // addPoints(
+                                  //     task['reward'].toString());
+                                  showCupertinoDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CupertinoAlertDialog(
+                                        title: Text('Congratulations!_txt'.tr),
+                                        content: const Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(height: 10),
+                                            // Image.network(
+                                            //   "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                            //   scale: 1.3,
+                                            // ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                            child: const Text('OK',
+                                                style: TextStyle(
+                                                  color: Colors.blue,
+                                                )),
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              update();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
                               },
-                            );
-                          }
-                        },
-                        secondaryBackground: Container(
-                          margin: const EdgeInsets.only(right: 30, bottom: 22),
-                          alignment: Alignment.centerRight,
-                          child: const Icon(CupertinoIcons.delete,
-                              color: Colors.red, size: 30),
-                        ),
-                        background: Container(
-                          margin: const EdgeInsets.only(left: 30, bottom: 22),
-                          alignment: Alignment.centerLeft,
-                          child: const Icon(CupertinoIcons.check_mark,
-                              color: purple, size: 30),
-                        ),
-                        child: Task(task: task, userData: userData),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ) : Container(),
+                              secondaryBackground: Container(
+                                margin: const EdgeInsets.only(
+                                    right: 30, bottom: 22),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(CupertinoIcons.delete,
+                                    color: Colors.red, size: 30),
+                              ),
+                              background: Container(
+                                margin:
+                                    const EdgeInsets.only(left: 30, bottom: 22),
+                                alignment: Alignment.centerLeft,
+                                child: const Icon(CupertinoIcons.check_mark,
+                                    color: purple, size: 30),
+                              ),
+                              child: Task(task: task, userData: userData),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    )
+                  : Container(),
             ],
           );
   }
