@@ -24,7 +24,6 @@ void main() {
   runApp(const CheckLoggedIn());
 }
 
-
 late VoidCallback update;
 const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
@@ -155,16 +154,19 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       final routines = householdData['routines'];
 
       final rewardsData = result.data!['getRewards'] ?? [];
-final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dynamic>>((reward) {
-  return {
-    'id': reward['id'],
-    'name': reward['name'],
-    'price': reward['price'],
-    'stock': reward['stock'] ?? '0', // Provide a default value for stock if null
-    'emoji': reward['emoji'] ?? '0',
-    'description': reward['description'] ?? '', // Provide a default value for description if null
-  };
-}).toList();
+      final List<Map<String, dynamic>> mappedRewards =
+          rewardsData.map<Map<String, dynamic>>((reward) {
+        return {
+          'id': reward['id'],
+          'name': reward['name'],
+          'price': reward['price'],
+          'stock': reward['stock'] ??
+              '0', // Provide a default value for stock if null
+          'emoji': reward['emoji'] ?? '0',
+          'description': reward['description'] ??
+              '', // Provide a default value for description if null
+        };
+      }).toList();
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
@@ -258,7 +260,6 @@ final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dyn
                   'ownerSurname': task['owner']['surname'],
                 })
             .toList(),
-
         'otherTasks': otherTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
@@ -277,7 +278,7 @@ final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dyn
                 })
             .toList(),
       };
-        print(mappedUsers);
+      print(mappedUsers);
 
       return {
         'users': mappedUsers,
@@ -1030,7 +1031,7 @@ class _TaskState extends State<TaskOverview> {
                                           MaterialStateProperty.all<EdgeInsets>(
                                               const EdgeInsets.all(0))),
                                   child: Text(
-                                    "You don't have any tasks! Press here to create one.",
+                                    'NoTaskCreateOne_txt'.tr,
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
                                   ),

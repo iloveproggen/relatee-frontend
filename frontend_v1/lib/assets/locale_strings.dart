@@ -72,7 +72,8 @@ class LocaleString extends Translations {
           'December_txt': 'December',
           'Routine_description_txt': 'Routine description.',
           'No_tasks_found_txt': 'No tasks found.',
-          'No_routines_found_txt': 'No routines found! Press here to create one.',
+          'No_routines_found_txt':
+              'No routines found! Press here to create one.',
           'Invite_Members_txt': 'Invite Members',
           'Send_Invitation_txt':
               'Send an email invitation to new members to join your household.',
@@ -111,6 +112,8 @@ class LocaleString extends Translations {
           'Submit_txt': 'Submit',
           'LeaderBoardMessage_txt':
               'Need 2 or more users to unlock Leaderboard',
+          'NoTaskCreateOne_txt':
+              "You don't have any tasks! Press here to create one.",
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -218,6 +221,8 @@ class LocaleString extends Translations {
           'Submit_txt': 'Absenden',
           'LeaderBoardMessage_txt':
               'Sie benötigen 2 oder mehr Benutzer, um das Leaderboard zu entsperren',
+          'NoTaskCreateOne_txt':
+              'Sie haben keine Aufgaben! Drücken Sie hier, um eine zu erstellen.',
         }
       };
 }
