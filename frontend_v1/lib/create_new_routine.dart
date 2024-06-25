@@ -128,8 +128,8 @@ class _NewRoutine extends State<NewRoutine> {
                     ),
                     onPressed: () async {
                       if (required) {
-                        await createRoutine(name.text, emojiDisplay ?? "",
-                            DateTime.now());
+                        await createRoutine(
+                            name.text, emojiDisplay ?? "", DateTime.now());
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
                         Get.back();
@@ -156,7 +156,7 @@ class _NewRoutine extends State<NewRoutine> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             counterText: "",
-                            hintText: "add routine name...",
+                            hintText: 'AddRoutineName_txt'.tr,
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodyLarge
@@ -227,14 +227,14 @@ class _NewRoutine extends State<NewRoutine> {
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon",
+                            'addIcon_txt'.tr,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 20,
                             ),
                           )
                         : Text(
-                            emojiDisplay ?? 'add icon',
+                            emojiDisplay ?? 'aaddIcon_txt'.tr,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
@@ -261,7 +261,7 @@ class _NewRoutine extends State<NewRoutine> {
                   Icon(CupertinoIcons.calendar,
                       size: 40, color: Theme.of(context).colorScheme.tertiary),
                   const SizedBox(width: 20, height: 60),
-                  Text('repeats:'.tr,
+                  Text('repeats_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   TextButton(
@@ -280,7 +280,7 @@ class _NewRoutine extends State<NewRoutine> {
                               mode: CupertinoDatePickerMode.date,
                               initialDateTime: DateTime.now(),
                               minimumDate: DateTime.now(),
-                              maximumYear: DateTime.now().year+1,
+                              maximumYear: DateTime.now().year + 1,
                               minimumYear: DateTime.now().year,
                               onDateTimeChanged: (DateTime newDateTime) {
                                 print(newDateTime);
@@ -316,19 +316,21 @@ class _NewRoutine extends State<NewRoutine> {
 }
 
 Widget _buildRefreshText(BuildContext context) {
-  int days = refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
+  int days =
+      refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
 
   if (days <= 0) {
     return Container(); // Assuming you want to return an empty Container for case 0
   } else if (days == 1) {
     return Text(
-      "The routine will refresh every day.",
+      'RoutineRefresh_txt'.tr,
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );
   } else {
     return Text(
-      "The routine will refresh every $days days.",
+      //"The routine will refresh every $days days.",
+      'RoutineRefreshVar_txt'.tr + '$days' + 'days_txt'.tr,
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );

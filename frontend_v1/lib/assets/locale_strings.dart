@@ -120,6 +120,10 @@ class LocaleString extends Translations {
           'CancelPopUp_txt': 'Are you sure you want to cancel?',
           'Yes_txt': 'Yes',
           'No_txt': 'No',
+          'AddRoutineName_txt': 'add routine name...',
+          'RoutineRefresh_txt':
+              'The routine will refresh every day. You can add tasks to it.',
+          'RoutineRefreshVar_txt': 'The routine will refresh every ',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -235,6 +239,10 @@ class LocaleString extends Translations {
           'CancelPopUp_txt': 'Möchten Sie wirklich abbrechen?',
           'Yes_txt': 'Ja',
           'No_txt': 'Nein',
+          'AddRoutineName_txt': 'Routinenname...',
+          'RoutineRefresh_txt':
+              'Die Routine wird jeden Tag aktualisiert. Sie können Aufgaben hinzufügen.',
+          'RoutineRefreshVar_txt': 'Die Routine wird jeden ',
         }
       };
 }
