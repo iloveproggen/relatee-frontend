@@ -124,6 +124,9 @@ class LocaleString extends Translations {
           'RoutineRefresh_txt':
               'The routine will refresh every day. You can add tasks to it.',
           'RoutineRefreshVar_txt': 'The routine will refresh every ',
+          'Emoji_Disabled_txt': 'Emoji Keyboard Disabled',
+          'EnableEmojiKeyboard_txt':
+              'Please enable the emoji keyboard in your device settings.',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
