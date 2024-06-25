@@ -79,7 +79,7 @@ class LocaleString extends Translations {
           'Mail_address_txt': 'Enter email address',
           'Field_required_txt': 'This field is required',
           'Share_Invitation_Button_txt': 'Share Invitation...',
-          'No_tasks_left_txt': 'No tasks left todo: )',
+          'No_tasks_left_txt': 'No tasks left to do. :)',
           'Delete_conf_txt': 'Are you sure you want to delete',
           'Delete_Task_txt': 'Delete Task',
           'Delete_txt': 'Delete',

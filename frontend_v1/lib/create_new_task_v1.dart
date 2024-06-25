@@ -914,7 +914,7 @@ class _AssignToState extends State<AssignTo> {
                       children: widget.householdUsers.map((member) {
                         return Center(
                           child: Text(
-                            member['forename'] ?? member['username'],
+                            member['forename'] ?? member['surname'] ?? member['username'] ?? "user not found",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
@@ -927,7 +927,7 @@ class _AssignToState extends State<AssignTo> {
             child: Text(
                 assignedToUser['id'] == null
                     ? 'anyone_txt'.tr
-                    : "${assignedToUser['forename'] ?? assignedToUser['username']}",
+                    : "${assignedToUser['forename'] ?? assignedToUser['surname'] ??assignedToUser['username']}",
                 textAlign: TextAlign.end,
                 style: Theme.of(context)
                     .textTheme

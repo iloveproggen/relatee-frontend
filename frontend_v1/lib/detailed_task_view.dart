@@ -173,7 +173,7 @@ class _DetailedTaskState extends State<DetailedTask> {
 
     taskName.text = task['name'];
     taskPrice.text = task['reward'].toString();
-    description.text = task['description'];
+    description.text = task['description'] ?? "";
     emojiDisplay = task['emoji'];
   }
 
@@ -458,7 +458,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                                     50, // Increase the item extent to make the items bigger
                                 onSelectedItemChanged: (int index) {
                                   print(
-                                      'Selected member: ${users[index]['forename'] ?? ''}');
+                                      'Selected member: ${users[index]['forename'] ?? users[index]['surname'] ?? users[index]['username'] ?? 'user not found'}');
                                   setState(() {
                                     assignedToUser = users[index];
                                     // widget.callback;
@@ -467,7 +467,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                                 children: users.map((member) {
                                   return Center(
                                     child: Text(
-                                      member['forename'],
+                                      member['forename'] ?? member ['surname'] ?? member['username'] ?? "user not found",
                                       style:
                                           Theme.of(context).textTheme.bodySmall,
                                     ),
@@ -481,7 +481,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                       child: Text(
                           assignedToUser['id'] == null
                               ? 'anyone_txt'.tr
-                              : "${assignedToUser['forename']}",
+                              : "${assignedToUser['forename'] ?? assignedToUser['surname'] ?? assignedToUser['username'] ?? 'user not found'}",
                           textAlign: TextAlign.end,
                           style: Theme.of(context)
                               .textTheme

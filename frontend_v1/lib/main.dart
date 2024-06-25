@@ -132,12 +132,10 @@ Future<Map<String, dynamic>> getHouseholdData() async {
   try {
     final result =
         await client.query(options).timeout(const Duration(seconds: 10));
-    print("result data: ${result.data}");
 
     if (result.hasException) {
       print(result.exception.toString());
     } else {
-      print(result.data!);
       final householdData = result.data!['household'];
       final userData = result.data!['me'];
 
@@ -149,6 +147,9 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
+      final otherTasks =
+          tasks.where((task) => task['user']?['id'] != userData['id']).toList();
+      print("other tasks: \n\n $otherTasks");
 
       // Mapping users to a new structure
       final List<Map<String, dynamic>> mappedUsers =
@@ -186,6 +187,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
           'userForename':
               task['user'] != null ? task['user']['forename'] : null,
           'userSurname': task['user'] != null ? task['user']['surname'] : null,
+          'userUsername': task['user'] != null ? task['user']['username'] : null,
           'ownerId': task['owner']['id'],
           'ownerForename': task['owner']['forename'],
           'routineId': task['routine'] != null ? task['routine']['id'] : null,
@@ -219,9 +221,26 @@ Future<Map<String, dynamic>> getHouseholdData() async {
         'householdName': householdData['name'],
         'householdId': householdData['id'],
         'tasks': myTasks
-            .map((task) => {
+            .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
                   'userId': userData['id'],
+                  'name': task['name'],
+                  'deadline': task['deadline'],
+                  'description': task['description'],
+                  'reward': task['reward'],
+                  'completed': task['completed'],
+                  'completed_at': task['completedAt'],
+                  'emoji': task['emoji'],
+                  'private': task['private'],
+                  'ownerId': task['owner']['id'],
+                  'ownerForename': task['owner']['forename'],
+                  'ownerSurname': task['owner']['surname'],
+                })
+            .toList(),
+        'otherTasks': otherTasks
+            .map<Map<String, dynamic>>((task) => {
+                  'id': task['id'],
+                  'userId': null,
                   'name': task['name'],
                   'deadline': task['deadline'],
                   'description': task['description'],
@@ -261,113 +280,6 @@ Future<Map<String, dynamic>> getHouseholdData() async {
   };
 }
 
-// Future<Map<String, dynamic>> getUserData() async {
-//   final client = await getGraphQLClient();
-//   final QueryOptions options = QueryOptions(
-//     document: gql('''
-//   query GetUser {
-//       me {
-//     id
-//     username
-//     forename
-//     surname
-//     email
-//     coins
-//     experience
-//     level
-//     emoji
-//     colorPrimary
-//     colorSecondary
-//     household {
-//       id
-//       name
-//     }
-//     tasks {
-//       id
-//       name
-//       deadline
-//       description
-//       reward
-//       completed
-//       completedAt
-//       emoji
-//       private
-//       owner {
-//         id
-//         username
-//         forename
-//         surname
-//       }
-//     }
-//   }
-// }
-// '''),
-//   );
-//   print("finished query");
-
-//   try {
-//     final result =
-//         await client.query(options).timeout(const Duration(seconds: 10));
-
-//   print(result.data!);
-
-//     if (result.hasException) {
-//       print(result.exception.toString());
-//     } else if (result.isLoading) {
-//       print('Loading');
-//     } else {
-//       final user = result.data!['me'];
-//       final mappedResult = {
-//         'id': user['id'],
-//         'forename': user['forename'],
-//         'surname': user['surname'],
-//         'username': user['username'],
-//         'email': user['email'],
-//         'coins': user['coins'],
-//         'experience': user['experience'],
-//         'level': user['level'],
-//         'emoji': user['emoji'],
-//         'colorPrimary': user['colorPrimary'],
-//         'colorSecondary': user['colorSecondary'],
-//         'householdName': user['household']['name'],
-//         'householdId': user['household']['id'],
-//         'tasks': user['tasks']
-//             .map((task) => {
-//                   'id': task['id'],
-//                   'userId': user['id'],
-//                   'name': task['name'],
-//                   'deadline': task['deadline'],
-//                   'description': task['description'],
-//                   'reward': task['reward'],
-//                   'completed': task['completed'],
-//                   'completed_at': task['completed_at'],
-//                   'emoji': task['emoji'],
-//                   'private': task['private'],
-//                   'ownerId': task['owner']['id'],
-//                   'ownerForename': task['owner']['forename'],
-//                   'ownerSurname': task['owner']['surname']
-//                 })
-//             .toList(),
-//       };
-//       if (mappedResult['points'] == null) {
-//         mappedResult['points'] = 0;
-//       }
-
-//       return mappedResult;
-//     }
-//   } on SocketException catch (e) {
-//     print('Network error: $e');
-//     // Handle network error
-//   } on TimeoutException catch (e) {
-//     print('Request timed out: $e');
-//     // Handle timeout
-//   } catch (e) {
-//     print('Unexpected error: $e');
-//     // Handle other errors
-//   }
-//   return {};
-// }
-
 int countToDo(List<Map<String, dynamic>> tasks) {
   int count = 0;
   for (var task in tasks) {
@@ -378,21 +290,24 @@ int countToDo(List<Map<String, dynamic>> tasks) {
   return count;
 }
 
-Future<void> deleteTask(int id) async {
+Future<void> deleteTask(int taskId) async {
   final client = await getGraphQLClient();
-  print("deleting task $id");
   final MutationOptions options = MutationOptions(
     document: gql('''
-      mutation DeleteTask(\$id: Int!) {
-        deleteTask(id: \$id)
+      mutation DeleteTask(\$taskId: Int!) {
+        deleteTask(taskId: \$taskId)
       }
     '''),
     variables: <String, dynamic>{
-      'id': id,
+      'taskId': taskId,
     },
   );
   try {
-    await client.mutate(options).timeout(const Duration(seconds: 10));
+    final result = await client.mutate(options).timeout(const Duration(seconds: 10));
+    print(result.data);
+    if (result.hasException) {
+      print('GraphQL error: ${result.exception.toString()}');
+    }
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -403,7 +318,6 @@ Future<void> deleteTask(int id) async {
     print('Unexpected error: $e');
     // Handle other errors
   }
-  print("deleted?");
 }
 
 Future<void> completeTask(int taskId) async {
@@ -425,10 +339,7 @@ Future<void> completeTask(int taskId) async {
     if (result.hasException) {
       print(result.exception.toString());
     } else if (result.isLoading) {
-      print('Loading');
-    } else {
-      print('Task completed successfully');
-    }
+    } else {}
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
@@ -440,50 +351,6 @@ Future<void> completeTask(int taskId) async {
     // Handle other errors
   }
 }
-
-// Future<void> addPoints(String coinsToAdd) async {
-//   final client = await getGraphQLClient();
-//   final QueryOptions options = QueryOptions(
-//     document: gql('''
-//     mutation updateUserDetails(\$id: Int!, \$coins: Int, \$email: String) {
-//       updateUserDetails(
-//         id: \$id
-//         coins: \$coins
-//         email: \$email
-//       ) {
-//         id
-//         coins
-//         email
-//       }
-//     }
-//   '''),
-//     variables: <String, dynamic>{
-//       'id': userData['id'],
-//       'coins': userData['coins'] + int.parse(coinsToAdd),
-//       'email': userData['email'],
-//     },
-//   );
-//   try {
-//     final result =
-//         await client.query(options).timeout(const Duration(seconds: 10));
-//     if (result.hasException) {
-//       print(result.exception.toString());
-//     } else if (result.isLoading) {
-//       print('Loading');
-//     } else {
-//       print('Points added successfully');
-//     }
-//   } on SocketException catch (e) {
-//     print('Network error: $e');
-//     // Handle network error
-//   } on TimeoutException catch (e) {
-//     print('Request timed out: $e');
-//     // Handle timeout
-//   } catch (e) {
-//     print('Unexpected error: $e');
-//     // Handle other errors
-//   }
-// }
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
@@ -497,11 +364,11 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
       // Handle the case where 'deadline' cannot be parsed into a DateTime
       print('Error parsing deadline: $e');
       // Return a default widget or handle the error appropriately
-      return Builder(builder: (context) => Text('Invalid deadline'));
+      return Builder(builder: (context) => const Text('Invalid deadline'));
     }
   } else {
     // Handle the case where 'deadline' is null or not a String
-    return Builder(builder: (context) => Text('No deadline'));
+    return Builder(builder: (context) => const Text('No deadline'));
   }
 
   Widget green = SvgPicture.asset("assets/images/green.svg");
@@ -584,14 +451,11 @@ class _MainViewState extends State<MainView> {
             print(snapshot.error.toString());
             return const Placeholder();
           } else if (snapshot.data!['userData']['householdId'] == null) {
-            print(snapshot.data!);
             return const JoinHouseholdView();
           } else {
-            print(snapshot.data!);
             tasks = List<Map<String, dynamic>>.from(
                 snapshot.data!['userData']['tasks']);
             userData = snapshot.data!['userData'];
-            print(userData);
             return SingleChildScrollView(
                 child: Padding(
                     padding:
@@ -928,6 +792,7 @@ class _TaskState extends State<TaskOverview> {
   final double size = 15;
   bool showTasks = true;
   bool showRoutines = true;
+  bool showOtherTasks = true;
 
   @override
   void initState() {
@@ -951,6 +816,12 @@ class _TaskState extends State<TaskOverview> {
     });
   }
 
+  void _toggleOtherTasks() {
+    setState(() {
+      showOtherTasks = !showOtherTasks;
+    });
+  }
+
   List<Map<String, dynamic>> toDo =
       tasks.where((task) => task['completed'] == false).toList()
         ..sort((a, b) {
@@ -965,8 +836,23 @@ class _TaskState extends State<TaskOverview> {
           }
         });
 
+  List<Map<String, dynamic>> otherTasks =
+      userData['otherTasks'].where((task) => task['completed'] == false).toList();
+
   @override
   Widget build(BuildContext context) {
+  otherTasks.sort((a, b) {
+    if (a['deadline'] == null && b['deadline'] == null) {
+      return 0;
+    } else if (a['deadline'] == null) {
+      return 1;
+    } else if (b['deadline'] == null) {
+      return -1;
+    } else {
+      return a['deadline'].compareTo(b['deadline']);
+    }
+  });
+    print(userData['otherTasks']);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -989,7 +875,7 @@ class _TaskState extends State<TaskOverview> {
                         showTasks
                             ? CupertinoIcons.arrow_down
                             : CupertinoIcons.arrow_up,
-                        color: Theme.of(context).colorScheme.onSecondary,
+                        color: Theme.of(context).colorScheme.tertiary,
                         size: 25),
                     const SizedBox(width: 5),
                     Text('${'Your_txt'.tr} Tasks',
@@ -997,7 +883,7 @@ class _TaskState extends State<TaskOverview> {
                   ],
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               IconButton(
                 onPressed: () async {
                   var result =
@@ -1012,7 +898,6 @@ class _TaskState extends State<TaskOverview> {
             ],
           ),
         ),
-        SizedBox(height: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1109,27 +994,30 @@ class _TaskState extends State<TaskOverview> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   toDo.isEmpty
                       ? showTasks
-                          ? TextButton(
-                              style: ButtonStyle(
-                                  padding:
-                                      MaterialStateProperty.all<EdgeInsets>(
-                                          const EdgeInsets.all(0))),
-                              child: Text(
-                                "No tasks left! Press here to create one.",
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              onPressed: () async {
-                                var result = await Get.to(
-                                    () => NewTaskMain(userData: userData));
-                                if (result != null) {
-                                  update();
-                                }
-                              },
+                          ? Column(
+                              children: [
+                                TextButton(
+                                  style: ButtonStyle(
+                                      padding:
+                                          MaterialStateProperty.all<EdgeInsets>(
+                                              const EdgeInsets.all(0))),
+                                  child: Text(
+                                    "No tasks left! Press here to create one.",
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  onPressed: () async {
+                                    var result = await Get.to(
+                                        () => NewTaskMain(userData: userData));
+                                    if (result != null) {
+                                      update();
+                                    }
+                                  },
+                                ),
+                                OtherTasks(otherTasks: otherTasks),
+                              ],
                             )
-                          : Divider(
-                              color: Theme.of(context).colorScheme.secondary,
-                              thickness: 2,
-                            )
+                          : Container()
                       : showTasks
                           ? Column(
                               children: [
@@ -1145,10 +1033,15 @@ class _TaskState extends State<TaskOverview> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Text("Recommended_txt".tr.toUpperCase(),
+                                                  Text(
+                                                      "Recommended_txt"
+                                                          .tr
+                                                          .toUpperCase(),
                                                       style: Theme.of(context)
                                                           .textTheme
-                                                          .labelSmall?.copyWith(fontSize: 16)),
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                              fontSize: 16)),
                                                   const SizedBox(height: 10),
                                                   Dismissible(
                                                     direction: DismissDirection
@@ -1204,13 +1097,6 @@ class _TaskState extends State<TaskOverview> {
                                                           ),
                                                         );
                                                       } else {
-                                                        print(
-                                                            "${'Task_completed!_txt'.tr} ${task['reward']}");
-                                                        tasks.removeWhere((t) =>
-                                                            t['id'] ==
-                                                            task['id']);
-                                                        completeTask(
-                                                            task['id']);
                                                         // addPoints(
                                                         //     task['reward'].toString());
                                                         showCupertinoDialog(
@@ -1291,7 +1177,8 @@ class _TaskState extends State<TaskOverview> {
                                                   Divider(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .onPrimary.withOpacity(0.5),
+                                                        .onPrimary
+                                                        .withOpacity(0.5),
                                                     thickness: 2,
                                                   ),
                                                 ],
@@ -1301,7 +1188,7 @@ class _TaskState extends State<TaskOverview> {
                                               index,
                                               Column(
                                                 children: [
-                                                  SizedBox(height: 10),
+                                                  const SizedBox(height: 10),
                                                   Dismissible(
                                                     direction: DismissDirection
                                                         .horizontal,
@@ -1446,7 +1333,8 @@ class _TaskState extends State<TaskOverview> {
                                       })
                                       .values
                                       .toList(),
-                                )
+                                ),
+                                OtherTasks(otherTasks: otherTasks),
                                 // Column(
                                 //   children: toDo.map((task) {
                                 //     return Dismissible(
@@ -1548,61 +1436,53 @@ class _TaskState extends State<TaskOverview> {
                                 // ),
                               ],
                             )
-                          : Divider(
-                              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
-                              thickness: 2,
-                            ),
-                  const SizedBox(height: 20),
+                          : Container(),
+                  const SizedBox(height: 30),
                   // Divider(
                   //   color: Theme.of(context).colorScheme.secondary,
                   //   thickness: 2,
                   // ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      TextButton(
-                        style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                const EdgeInsets.all(0))),
-                        onPressed: () => _toggleRoutines(),
-                        child: Row(
-                          children: [
-                            Icon(
-                                showRoutines
-                                    ? CupertinoIcons.arrow_down
-                                    : CupertinoIcons.arrow_up,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                                size: 25),
-                            const SizedBox(width: 5),
-                            Text('${'Your_txt'.tr} Routines',
-                                style: Theme.of(context).textTheme.bodyMedium),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      IconButton(
-                        onPressed: () async {
-                          var result = await Get.to(
-                              () => NewRoutine(pUserData: userData));
-                          if (result != null) {
-                            update();
-                          }
-                        },
-                        icon: Icon(CupertinoIcons.add,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            size: 30),
-                      ),
-                    ],
-                  ),
-                  showRoutines
-                      ? Routine(userData: userData)
-                      : Divider(
-                          color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
-                          thickness: 2,
-                        ),
-                  const SizedBox(height: 10)
                 ]),
+                Row(
+                  children: [
+                    TextButton(
+                      style: ButtonStyle(
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(0))),
+                      onPressed: () => _toggleRoutines(),
+                      child: Row(
+                        children: [
+                          Icon(
+                              showRoutines
+                                  ? CupertinoIcons.arrow_down
+                                  : CupertinoIcons.arrow_up,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              size: 25),
+                          const SizedBox(width: 5),
+                          Text('${'Your_txt'.tr} Routines',
+                              style: Theme.of(context).textTheme.bodyMedium),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () async {
+                        var result =
+                            await Get.to(() => NewRoutine(pUserData: userData));
+                        if (result != null) {
+                          update();
+                        }
+                      },
+                      icon: Icon(CupertinoIcons.add,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          size: 30),
+                    ),
+                  ],
+                ),
+                showRoutines
+                    ? Routine(userData: userData)
+                    : Container(),
+                const SizedBox(height: 30),
                 // Padding(
                 //   padding: const EdgeInsets.only(top: 10, bottom: 60),
                 //   child: Row(
@@ -1636,7 +1516,7 @@ class _TaskState extends State<TaskOverview> {
                 //     ],
                 //   ),
                 // ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
               ],
             )
           ],
@@ -1760,5 +1640,180 @@ class _MainTaskState extends State<Task> {
         ),
       ),
     );
+  }
+}
+
+class OtherTasks extends StatefulWidget {
+  const OtherTasks({super.key, required this.otherTasks});
+
+  final List<Map<String, dynamic>> otherTasks;
+
+  @override
+  State<OtherTasks> createState() => _OtherTasksState();
+}
+
+class _OtherTasksState extends State<OtherTasks> {
+
+  bool showTasks = false;
+
+  void update() {
+    setState(() {
+      showTasks = !showTasks;
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return widget.otherTasks.isEmpty
+        ? Container()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0))),
+                    onPressed: () {
+                      update();
+                    },
+                    child: Row(
+                      children: [
+                        Icon(
+                          showTasks ? CupertinoIcons.arrow_down : CupertinoIcons.arrow_up,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            size: 16),
+                            const SizedBox(width: 3),
+                        Text("Household tasks".toUpperCase(),
+                            style: Theme.of(context).textTheme.labelSmall),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(CupertinoIcons.info_circle,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.tertiary),
+                    onPressed: () {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) => CupertinoAlertDialog(
+                          title: const Text('What are household tasks?'),
+                          content: const Text(
+                              'Household tasks are tasks that have no user that they\'re assigned to. You can claim them yourself or reassign them.'),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: const Text('OK',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                ],
+              ),
+              showTasks ? Column(
+                children: widget.otherTasks.map((task) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      Dismissible(
+                        direction: DismissDirection.horizontal,
+                        key: ValueKey(task['id']),
+                        onDismissed: (direction) async {
+                          if (direction == DismissDirection.endToStart) {
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  CupertinoAlertDialog(
+                                title: Text(
+                                    "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                content: Text('Sure_delete_task?_txt'.tr),
+                                actions: [
+                                  CupertinoDialogAction(
+                                      child: Text('Cancel_txt'.tr,
+                                          style: const TextStyle(
+                                              color: Colors.blue)),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        update();
+                                      }),
+                                  CupertinoDialogAction(
+                                    onPressed: () async {
+                                      await deleteTask(task['id']);
+                                      Get.back();
+                                      update();
+                                    },
+                                    isDestructiveAction: true,
+                                    child: Text('Delete_txt'.tr,
+                                        style:
+                                            const TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            print(
+                                "${'Task_completed!_txt'.tr} ${task['reward']}");
+                            tasks.removeWhere((t) => t['id'] == task['id']);
+                            completeTask(task['id']);
+                            // addPoints(
+                            //     task['reward'].toString());
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return CupertinoAlertDialog(
+                                  title: Text('Congratulations!_txt'.tr),
+                                  content: const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(height: 10),
+                                      // Image.network(
+                                      //   "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                      //   scale: 1.3,
+                                      // ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      child: const Text('OK',
+                                          style: TextStyle(
+                                            color: Colors.blue,
+                                          )),
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        update();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        secondaryBackground: Container(
+                          margin: const EdgeInsets.only(right: 30, bottom: 22),
+                          alignment: Alignment.centerRight,
+                          child: const Icon(CupertinoIcons.delete,
+                              color: Colors.red, size: 30),
+                        ),
+                        background: Container(
+                          margin: const EdgeInsets.only(left: 30, bottom: 22),
+                          alignment: Alignment.centerLeft,
+                          child: const Icon(CupertinoIcons.check_mark,
+                              color: purple, size: 30),
+                        ),
+                        child: Task(task: task, userData: userData),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ) : Container(),
+            ],
+          );
   }
 }

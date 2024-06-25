@@ -33,8 +33,15 @@ class MainLeaderboardView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(left: 40, right: 40, top: 80),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const MembersText(),
+              const BackIconRow(),
+              Text(
+              'Members_txt'.tr,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 30),
               ChartLeaderboard(
                 leaderboardusers: leaderboardusers,
               ),
@@ -54,30 +61,6 @@ purpose: This widget holdas the back method and header.
 author: Maurice
 date: 17.05.2024
 */
-
-class MembersText extends StatelessWidget {
-  const MembersText({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          const BackIconRow(),
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 60),
-            child: Text(
-              'Members_txt'.tr,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.left,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /*
 purpose: This widget creates the leaderboard chart.
@@ -271,8 +254,7 @@ class WeeklyInfo extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (leaderboardusers[index]['forename'] != null &&
-                      leaderboardusers[index]['coins'] != null &&
+                  if (leaderboardusers[index]['coins'] != null &&
                       leaderboardusers[index]['level'] != null)
                     Row(
                       children: [
@@ -280,7 +262,7 @@ class WeeklyInfo extends StatelessWidget {
                         const SizedBox(width: 8.0),
                         Text(
                           //'Name ${index + 1}',
-                          leaderboardusers[index]['forename'].toString(),
+                          leaderboardusers[index]['forename'] ?? leaderboardusers[index]['surname'] ?? leaderboardusers[index]['username'],
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],

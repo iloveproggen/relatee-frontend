@@ -16,6 +16,8 @@ late List<Map<String, dynamic>> tasks;
 late List<Map<String, dynamic>> users;
 late Map<String, dynamic> userData;
 
+late Function update;
+
 class MainHouseholdOverview extends StatelessWidget {
   const MainHouseholdOverview({super.key, required this.pUserData});
 
@@ -35,13 +37,33 @@ class MainHouseholdOverview extends StatelessWidget {
   }
 }
 
-class HouseholdOverview extends StatelessWidget {
+class HouseholdOverview extends StatefulWidget {
   const HouseholdOverview({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
 
   @override
+  State<HouseholdOverview> createState() => _HouseholdOverviewState();
+}
+
+class _HouseholdOverviewState extends State<HouseholdOverview> {
+  late Future<Map<String, dynamic>> _futureHouseholdData;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureHouseholdData = getHouseholdData();
+  }
+
+  void _updateHouseholdData() {
+    setState(() {
+      _futureHouseholdData = getHouseholdData();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    update = _updateHouseholdData;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +71,7 @@ class HouseholdOverview extends StatelessWidget {
         Column(
           children: [
             FutureBuilder<Map<String, dynamic>>(
-              future: getHouseholdData(),
+              future: _futureHouseholdData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
@@ -58,171 +80,414 @@ class HouseholdOverview extends StatelessWidget {
                 } else {
                   users = snapshot.data!['users'];
                   tasks = snapshot.data!['tasks'];
-
-                  tasks.sort((a, b) {
-                    // Check if either deadline is null
-                    if (a['deadline'] == null && b['deadline'] == null) {
-                      return 0; // Both are null, considered equal
-                    } else if (a['deadline'] == null) {
-                      return 1; // a should be after b
-                    } else if (b['deadline'] == null) {
-                      return -1; // b should be after a
-                    } else {
-                      // Neither is null, proceed with normal comparison
-                      return a['deadline'].compareTo(b['deadline']);
-                    }
-                  });
-                  print("all tasks: \n\n $tasks");
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Your_Household_txt'.tr,
-                              style: Theme.of(context).textTheme.bodyLarge),
-                          IconButton(
-                            onPressed: () {
-                              if (users.length == 1) {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.centerRight,
-                                            child: IconButton(
-                                              icon: Icon(Icons.close),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          ),
-                                          Text('LeaderBoardMessage_txt'.tr),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              } else {
-                                Get.to(() => MainLeaderboardView(users: users));
-                              }
-                            },
-                            icon: Icon(
-                              CupertinoIcons.chart_bar_alt_fill,
-                              size: 40,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const HouseholdMembers(),
-                      const InviteButton(),
-                      const SizedBox(height: 40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Tasks",
-                              style: Theme.of(context).textTheme.bodyMedium),
-                          IconButton(
-                            onPressed: () {
-                              Get.to(() => NewTaskMain(userData: userData));
-                            },
-                            icon: Icon(CupertinoIcons.add,
-                                color: Theme.of(context).colorScheme.tertiary,
-                                size: 30),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Column(
-                        children: tasks
-                                .where((task) => task['completed'] == false)
-                                .isEmpty
-                            ? [
-                                Text('No_tasks_left_txt'.tr,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall)
-                              ]
-                            : tasks
-                                .where((task) => task['completed'] == false)
-                                .toList()
-                                .map((task) {
-                                return Dismissible(
-                                  key: Key(task.toString()),
-                                  direction: DismissDirection.endToStart,
-                                  onDismissed: (direction) {
-                                    showCupertinoDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          CupertinoAlertDialog(
-                                        title: Text('Delete_Task_txt'.tr),
-                                        content: Text(
-                                            '${'Delete_conf_txt'.tr} "${task['name']}"?'),
-                                        actions: [
-                                          CupertinoDialogAction(
-                                              child: Text('Cancel_txt'.tr,
-                                                  style: const TextStyle(
-                                                      color: Colors.blue)),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                Get.forceAppUpdate();
-                                              }),
-                                          CupertinoDialogAction(
-                                            onPressed: () {
-                                              deleteTask(task['id']);
-                                              tasks.removeWhere(
-                                                  (t) => t['id'] == task['id']);
-                                              Navigator.pop(context);
-                                              Get.forceAppUpdate();
-                                            },
-                                            isDestructiveAction: true,
-                                            child: Text('Delete_txt'.tr,
-                                                style: const TextStyle(
-                                                    color: Colors.red)),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  background: Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 30, bottom: 22),
-                                    alignment: Alignment.centerRight,
-                                    child: const Icon(CupertinoIcons.delete,
-                                        color: Colors.red, size: 30),
-                                  ),
-                                  child: MoreDetailsTask(task: task),
-                                );
-                              }).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      TextButton(
-                          style: ButtonStyle(
-                              animationDuration: Duration.zero,
-                              padding: MaterialStateProperty.all<EdgeInsets>(
-                                const EdgeInsets.all(0),
-                              )),
-                          onPressed: () {
-                            List<Map<String, dynamic>> completedTasks = tasks
-                                .where((task) => task['completed'] == true)
-                                .toList();
-                            Get.to(() => CompletedTaskList(
-                                tasks: completedTasks, userData: users));
-                          },
-                          child: Text('See_completed_Tasks_txt'.tr,
-                              style: Theme.of(context).textTheme.labelSmall)),
-                      const SizedBox(height: 40)
-                    ],
-                  );
+                  userData = snapshot.data!['userData'];
+                  return const HouseholdWidget();
                 }
               },
             ),
           ],
         )
+      ],
+    );
+  }
+}
+
+class HouseholdWidget extends StatefulWidget {
+  const HouseholdWidget({super.key});
+
+  @override
+  State<HouseholdWidget> createState() => _HouseholdWidgetState();
+}
+
+class _HouseholdWidgetState extends State<HouseholdWidget> {
+  String sortBy = "deadline";
+  bool isSearchBarOpen = false;
+
+  List<Map<String, dynamic>> filteredTasks = tasks;
+
+  late FocusNode searchBar;
+  TextEditingController search = TextEditingController();
+
+  void resort(List<Map<String, dynamic>> list) {
+    list.sort((a, b) {
+      // Check if either deadline is null
+      if (a[sortBy] == null && b[sortBy] == null) {
+        return 0; // Both are null, considered equal
+      } else if (a[sortBy] == null) {
+        return 1; // a should be after b
+      } else if (b[sortBy] == null) {
+        return -1; // b should be after a
+      } else {
+        // Neither is null, proceed with normal comparison
+        return a[sortBy].compareTo(b[sortBy]);
+      }
+    });
+  }
+
+
+  void filter() {
+    setState(() {
+      filteredTasks = tasks.where((task) => 
+        task['name'].contains(search.text)
+      ).toList();
+    });
+  }
+
+  void initState() {
+    super.initState();
+    resort(filteredTasks);
+    searchBar = FocusNode();
+    search.addListener(() {filter();
+    print(search.text);});
+
+    // Add the listener
+    searchBar.addListener(() {
+      if (!searchBar.hasFocus) {
+        _closeSearchBar();
+      }
+    });
+  }
+  
+  void _refreshView(String newFilterBy) {
+    setState(() {
+      sortBy = newFilterBy;
+      resort(filteredTasks);
+    });
+  }
+
+  void _reverseView() {
+    setState(() {
+      filteredTasks = filteredTasks.reversed.toList();
+    });
+  }
+
+  void _openSearchBar() {
+    setState(() {
+      isSearchBarOpen = true;
+      FocusScope.of(context).requestFocus(searchBar);
+    });
+  }
+
+  void _closeSearchBar() {
+    setState(() {
+      isSearchBarOpen = false;
+      filteredTasks = tasks;
+      search.clear();
+    });
+  }
+
+    @override
+  void dispose() {
+    // Remove the listener and dispose of the focus node
+    searchBar.removeListener(_closeSearchBar);
+    searchBar.dispose();
+    super.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Your_Household_txt'.tr,
+                style: Theme.of(context).textTheme.bodyLarge),
+            IconButton(
+              onPressed: () {
+                if (users.length == 1) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                            Text('LeaderBoardMessage_txt'.tr),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  Get.to(() => MainLeaderboardView(users: users));
+                }
+              },
+              icon: Icon(
+                CupertinoIcons.chart_bar_alt_fill,
+                size: 40,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const HouseholdMembers(),
+        const InviteButton(),
+        const SizedBox(height: 40),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Tasks", style: Theme.of(context).textTheme.bodyMedium),
+                IconButton(
+                  onPressed: () async {
+                    var result = await Get.to(() => NewTaskMain(userData: userData));
+                    if (result != null) {
+                      update();
+                    }
+                  },
+                  icon: Icon(CupertinoIcons.add,
+                      color: Theme.of(context).colorScheme.tertiary, size: 30),
+                ),
+              ],
+            ),
+            tasks.where((task) => task['completed'] == false).isEmpty ? Container()
+            : isSearchBarOpen
+                ? Row(children: [
+                    SizedBox(
+                      height: 40,
+                      width: 240,
+                      child: TextField(
+                        controller: search,
+                        focusNode: searchBar,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 20),
+                          hintText: 'Search tasks',
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                          focusColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimary
+                              .withOpacity(0.5),
+                        ),
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ),
+                    TextButton(
+                      style: ButtonStyle(
+                          animationDuration: Duration.zero,
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0),
+                          )),
+                        onPressed: () {
+                          _closeSearchBar();
+                        },
+                        child: Icon(CupertinoIcons.xmark,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            size: 20))
+                  ])
+                : Row(
+                    children: [
+                      TextButton(
+                        style: ButtonStyle(
+                            alignment: Alignment.centerLeft,
+                            animationDuration: Duration.zero,
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(0),
+                            )),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  width: 1.5),
+                              borderRadius: BorderRadius.circular(100)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 3, horizontal: 10),
+                            child: Text('Sort',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    )),
+                          ),
+                        ),
+                        onPressed: () {
+                          showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoActionSheet(
+                                title: const Text('Sort tasks by...'),
+                                actions: [
+                                  for (var sortOption in [
+                                    'Deadline (default)',
+                                    'Reward',
+                                    'Assigned to',
+                                    'Task name'
+                                  ])
+                                    CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        switch (sortOption) {
+                                          case 'Deadline (default)':
+                                            _refreshView('deadline');
+                                            print("sort by deadline");
+                                          case 'Reward':
+                                            _refreshView('reward');
+                                            print("sort by reward");
+                                          case 'Assigned to':
+                                            _refreshView('userId');
+                                            print("sort by assigned to");
+                                          case 'Task name':
+                                            _refreshView('name');
+                                            print("sort by task name");
+                                          default:
+                                            _refreshView('deadline');
+                                            print("sort by deadline");
+                                        }
+                                      },
+                                      child: Text(sortOption,
+                                          style: const TextStyle(
+                                              color: Colors.blue)),
+                                    ),
+                                ],
+                                cancelButton: CupertinoActionSheetAction(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Cancel',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      TextButton(
+                        style: ButtonStyle(
+                            alignment: Alignment.centerLeft,
+                            animationDuration: Duration.zero,
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(0),
+                            )),
+                        child: Icon(CupertinoIcons.arrow_up_arrow_down,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 25),
+                        onPressed: () {
+                          _reverseView();
+                        },
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        style: ButtonStyle(
+                            alignment: Alignment.centerRight,
+                            animationDuration: Duration.zero,
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              const EdgeInsets.all(0),
+                            )),
+                        child: Icon(CupertinoIcons.search,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 25),
+                        onPressed: () {
+                          _openSearchBar();
+                        },
+                      ),
+                      const SizedBox(width: 10)
+                    ],
+                  )
+          ],
+        ),
+        const SizedBox(height: 10),
+        Column(
+          children: tasks.where((task) => task['completed'] == false).isEmpty
+              ? [
+                  Text('No_tasks_left_txt'.tr,
+                      style: Theme.of(context).textTheme.bodySmall)
+                ]
+              : filteredTasks
+                  .where((task) => task['completed'] == false)
+                  .toList()
+                  .map((task) {
+                  return Dismissible(
+                    key: Key(task.toString()),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) => CupertinoAlertDialog(
+                          title: Text('Delete_Task_txt'.tr),
+                          content: Text(
+                              '${'Delete_conf_txt'.tr} "${task['name']}"?'),
+                          actions: [
+                            CupertinoDialogAction(
+                                child: Text('Cancel_txt'.tr,
+                                    style: const TextStyle(color: Colors.blue)),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  update();
+                                }),
+                            CupertinoDialogAction(
+                              onPressed: () async {
+                                await deleteTask(task['id']);
+                                tasks.removeWhere((t) => t['id'] == task['id']);
+                                Navigator.pop(context);
+                                update();
+                              },
+                              isDestructiveAction: true,
+                              child: Text('Delete_txt'.tr,
+                                  style: const TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    background: Container(
+                      margin: const EdgeInsets.only(right: 30, bottom: 22),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(CupertinoIcons.delete,
+                          color: Colors.red, size: 30),
+                    ),
+                    child: MoreDetailsTask(task: task),
+                  );
+                }).toList(),
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+            style: ButtonStyle(
+                animationDuration: Duration.zero,
+                padding: MaterialStateProperty.all<EdgeInsets>(
+                  const EdgeInsets.all(0),
+                )),
+            onPressed: () {
+              List<Map<String, dynamic>> completedTasks =
+                  tasks.where((task) => task['completed'] == true).toList();
+              Get.to(() =>
+                  CompletedTaskList(tasks: completedTasks, userData: users));
+            },
+            child: Text('See_completed_Tasks_txt'.tr,
+                style: Theme.of(context).textTheme.labelSmall)),
+        const SizedBox(height: 40)
       ],
     );
   }
@@ -372,18 +637,24 @@ class Member extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                userData['forename'] != null && userData ['surname'] != null ? Text(userData['forename'] + " " + userData['surname'],
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        )) : Container(),
-                userData['forename'] != null && userData ['surname'] == null ? Text(userData['forename'],
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        )) : Container(),
-                userData['forename'] == null && userData ['surname'] != null ? Text(userData['surname'],
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        )) : Container(),
+                userData['forename'] != null && userData['surname'] != null
+                    ? Text(userData['forename'] + " " + userData['surname'],
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ))
+                    : Container(),
+                userData['forename'] != null && userData['surname'] == null
+                    ? Text(userData['forename'],
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ))
+                    : Container(),
+                userData['forename'] == null && userData['surname'] != null
+                    ? Text(userData['surname'],
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ))
+                    : Container(),
                 Text("@${userData['username']}",
                     style: Theme.of(context).textTheme.bodySmall),
               ],
