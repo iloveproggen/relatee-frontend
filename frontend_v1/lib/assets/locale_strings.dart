@@ -242,7 +242,8 @@ class LocaleString extends Translations {
           'AddRoutineName_txt': 'Routinenname...',
           'RoutineRefresh_txt':
               'Die Routine wird jeden Tag aktualisiert. Sie können Aufgaben hinzufügen.',
-          'RoutineRefreshVar_txt': 'Die Routine wird jeden ',
+          'RoutineRefreshVar_txt': 'Die Routine wird jede ',
+          'RoutineRefreshVarGermanAdd_txt': ' Tage wiederholt.',
         }
       };
 }

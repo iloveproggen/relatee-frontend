@@ -123,6 +123,7 @@ cupertinoBuildDialog(BuildContext context) {
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
             onPressed: () {
               updateLanguage(const Locale('de-DE'));
+              String languageCode = 'de';
               // Add logic for selecting German language
               Navigator.pop(context);
             },
@@ -134,6 +135,7 @@ cupertinoBuildDialog(BuildContext context) {
               // Add logic for selecting English language
               Navigator.pop(context);
               updateLanguage(const Locale('en-US'));
+              String languageCode = 'en';
             },
           ),
         ],

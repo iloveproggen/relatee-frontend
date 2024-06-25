@@ -278,7 +278,9 @@ class _NewRoutine extends State<NewRoutine> {
                             height: 400,
                             child: CupertinoDatePicker(
                               mode: CupertinoDatePickerMode.date,
-                              initialDateTime: DateTime.now(),
+                              initialDateTime: DateTime.now().add(Duration(
+                                  seconds:
+                                      1)), // Add 1 second to avoid assertion error,
                               minimumDate: DateTime.now(),
                               maximumYear: DateTime.now().year + 1,
                               minimumYear: DateTime.now().year,
@@ -328,9 +330,18 @@ Widget _buildRefreshText(BuildContext context) {
       textAlign: TextAlign.center,
     );
   } else {
+    //String languageCode = Localizations.localeOf(context).languageCode;
+    String languageCode = Get.locale!.languageCode;
+    print(languageCode);
     return Text(
-      //"The routine will refresh every $days days.",
-      'RoutineRefreshVar_txt'.tr + '$days' + 'days_txt'.tr,
+      languageCode == 'de-DE'
+          ? 'RoutineRefreshVar_txt'.tr +
+              '$days' +
+              'RoutineRefreshVarGermanAdd_txt'.tr // German translation
+          : 'RoutineRefreshVar_txt'.tr +
+              '$days' +
+              ' ' +
+              'days_txt'.tr, // English translation
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );
