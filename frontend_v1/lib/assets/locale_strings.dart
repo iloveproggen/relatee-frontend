@@ -114,6 +114,12 @@ class LocaleString extends Translations {
               'Need 2 or more users to unlock Leaderboard',
           'NoTaskCreateOne_txt':
               "You don't have any tasks! Press here to create one.",
+          'AddTaskName_txt': 'add task name...',
+          'addIcon_txt': 'add icon',
+          'Confirmation_txt': 'Confirmation',
+          'CancelPopUp_txt': 'Are you sure you want to cancel?',
+          'Yes_txt': 'Yes',
+          'No_txt': 'No',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -223,6 +229,12 @@ class LocaleString extends Translations {
               'Sie benötigen 2 oder mehr Benutzer, um das Leaderboard zu entsperren',
           'NoTaskCreateOne_txt':
               'Sie haben keine Aufgaben! Drücken Sie hier, um eine zu erstellen.',
+          'AddTaskName_txt': 'Aufgabenname...',
+          'addIcon_txt': 'Icon hinzufügen',
+          'Confirmation_txt': 'Bestätigung',
+          'CancelPopUp_txt': 'Möchten Sie wirklich abbrechen?',
+          'Yes_txt': 'Ja',
+          'No_txt': 'Nein',
         }
       };
 }

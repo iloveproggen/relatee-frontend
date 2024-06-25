@@ -48,8 +48,14 @@ String? deadlineString;
 
 bool isPermanent = false;
 
-Future<void> createNewTask(int? userId, String name, String description,
-    int reward, int? routineId, String emoji, Map<String, dynamic> userData) async {
+Future<void> createNewTask(
+    int? userId,
+    String name,
+    String description,
+    int reward,
+    int? routineId,
+    String emoji,
+    Map<String, dynamic> userData) async {
   String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
@@ -70,8 +76,7 @@ Future<void> createNewTask(int? userId, String name, String description,
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-  document: gql(
-r'''
+    document: gql(r'''
 mutation CreateTask($input: CreateTaskInput!) {
   createTask(input: $input) {
     user {
@@ -214,7 +219,6 @@ class _NewTaskState extends State<NewTask> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,25 +249,27 @@ class _NewTaskState extends State<NewTask> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                          return CupertinoAlertDialog(
-                            title: Text('Confirmation'),
-                            content: Text('Are you sure you want to cancel?'),
-                            actions: [
-                            CupertinoDialogAction(
-                              child: Text('No', style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                              Navigator.pop(context);
-                              },
-                            ),
-                            CupertinoDialogAction(
-                              child: Text('Yes', style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                              Navigator.pop(context);
-                              Get.back();
-                              },
-                            ),
-                            ],
-                          );
+                            return CupertinoAlertDialog(
+                              title: Text('Confirmation_txt'.tr),
+                              content: Text('CancelPopUp_txt'.tr),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: Text('No_txt'.tr,
+                                      style: TextStyle(color: Colors.blue)),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                CupertinoDialogAction(
+                                  child: Text('Yes_txt'.tr,
+                                      style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Get.back();
+                                  },
+                                ),
+                              ],
+                            );
                           },
                         );
                       }
@@ -286,13 +292,12 @@ class _NewTaskState extends State<NewTask> {
                         controller: taskName,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: ('add task name...'),
+                          hintText: ('AddTaskName_txt'.tr),
                           counterText: "",
                           hintStyle: Theme.of(context)
                               .textTheme
                               .bodyLarge
-                              ?.copyWith(
-                              color: Colors.red.withOpacity(0.5)),
+                              ?.copyWith(color: Colors.red.withOpacity(0.5)),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge,
                         maxLength: 30,
@@ -439,8 +444,11 @@ class _NewTaskState extends State<NewTask> {
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                            "addIcon_txt".tr,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           )
                         : Text(
                             emojiDisplay ?? 'add icon',
@@ -476,8 +484,8 @@ class _NewTaskState extends State<NewTask> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
-                          padding:
-                              const EdgeInsets.only(top: 10, right: 20, bottom: 10),
+                          padding: const EdgeInsets.only(
+                              top: 10, right: 20, bottom: 10),
                           child: Icon(
                             CupertinoIcons.clock,
                             size: 40,
@@ -560,7 +568,8 @@ class _NewTaskState extends State<NewTask> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    padding:
+                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
                     child: Icon(
                       CupertinoIcons.add_circled,
                       size: 40,
@@ -604,8 +613,8 @@ class _NewTaskState extends State<NewTask> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 10, right: 20),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
                           size: 40,
@@ -790,7 +799,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
               child: Icon(
                 CupertinoIcons.archivebox,
                 size: 40,
-                color:  Theme.of(context).colorScheme.tertiary,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
@@ -878,7 +887,7 @@ class _AssignToState extends State<AssignTo> {
               child: Icon(
                 CupertinoIcons.person,
                 size: 40,
-                color:  Theme.of(context).colorScheme.tertiary,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('assign_to_txt'.tr),
@@ -914,7 +923,10 @@ class _AssignToState extends State<AssignTo> {
                       children: widget.householdUsers.map((member) {
                         return Center(
                           child: Text(
-                            member['forename'] ?? member['surname'] ?? member['username'] ?? "user not found",
+                            member['forename'] ??
+                                member['surname'] ??
+                                member['username'] ??
+                                "user not found",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
@@ -927,7 +939,7 @@ class _AssignToState extends State<AssignTo> {
             child: Text(
                 assignedToUser['id'] == null
                     ? 'anyone_txt'.tr
-                    : "${assignedToUser['forename'] ?? assignedToUser['surname'] ??assignedToUser['username']}",
+                    : "${assignedToUser['forename'] ?? assignedToUser['surname'] ?? assignedToUser['username']}",
                 textAlign: TextAlign.end,
                 style: Theme.of(context)
                     .textTheme
