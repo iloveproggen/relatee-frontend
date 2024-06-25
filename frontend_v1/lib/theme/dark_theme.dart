@@ -14,25 +14,25 @@ ThemeData darktheme = ThemeData(
             TextStyle(color: Color.fromARGB(255, 74, 70, 70), fontSize: 20)),
     textTheme: const TextTheme(
         bodyLarge: TextStyle(
-            fontSize: 35,
+            fontSize: 30,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 183, 177, 175),
             fontFamily: "Sedan",
             letterSpacing: 0),
         bodyMedium: TextStyle(
             letterSpacing: -1,
-            fontSize: 25,
+            fontSize: 23,
             color: Color.fromARGB(255, 183, 177, 175),
             fontWeight: FontWeight.w800,
             fontFamily: "Karla"),
         bodySmall: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             color: Color.fromARGB(255, 183, 177, 175),
             fontFamily: "Karla",
             letterSpacing: 0),
         labelSmall: TextStyle(
             color: Color.fromARGB(255, 204, 198, 196),
-            fontSize: 20,
+            fontSize: 16,
             fontFamily: "Karla",
             fontWeight: FontWeight.bold),
         labelLarge: TextStyle(
