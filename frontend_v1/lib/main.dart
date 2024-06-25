@@ -24,7 +24,6 @@ void main() {
   runApp(const CheckLoggedIn());
 }
 
-
 late VoidCallback update;
 const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
@@ -154,17 +153,22 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       final tasks = householdData['tasks'];
       final routines = householdData['routines'];
 
-      final rewardsData = result.data!['getRewards'] ?? [];
-final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dynamic>>((reward) {
-  return {
-    'id': reward['id'],
-    'name': reward['name'],
-    'price': reward['price'],
-    'stock': reward['stock'] ?? '0', // Provide a default value for stock if null
-    'emoji': reward['emoji'] ?? '0',
-    'description': reward['description'] ?? '', // Provide a default value for description if null
-  };
-}).toList();
+      final rewardsData = result.data!['household']['rewards'] ?? [];
+      final List<Map<String, dynamic>> mappedRewards =
+          rewardsData.map<Map<String, dynamic>>((reward) {
+        return {
+          'id': reward['id'],
+          'name': reward['name'],
+          'price': reward['price'],
+          'stock': reward['stock'] ??
+              '0', // Provide a default value for stock if null
+          'emoji': reward['emoji'] ?? '0',
+          'description': reward['description'] ??
+              '', // Provide a default value for description if null
+        };
+      }).toList();
+
+      print("rewards: $mappedRewards");
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
@@ -258,7 +262,6 @@ final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dyn
                   'ownerSurname': task['owner']['surname'],
                 })
             .toList(),
-
         'otherTasks': otherTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
@@ -277,7 +280,7 @@ final List<Map<String, dynamic>> mappedRewards = rewardsData.map<Map<String, dyn
                 })
             .toList(),
       };
-        print(mappedUsers);
+      print(mappedUsers);
 
       return {
         'users': mappedUsers,

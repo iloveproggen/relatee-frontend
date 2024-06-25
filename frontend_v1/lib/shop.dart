@@ -45,16 +45,18 @@ Future<Map<String, dynamic>> getRewards() async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
-      query household {
-        rewards {
-          id
-          name
-          price
-          emoji
-          stock
-          description
-        }
-        getCoins: me {
+      query CombinedQuery {
+      household {
+          rewards {
+            id
+            name
+            price
+            emoji
+            stock
+            description
+          }
+      }
+        me {
           coins
         }
       }
@@ -62,16 +64,15 @@ Future<Map<String, dynamic>> getRewards() async {
   );
 
   try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
+    final result = await client.query(options).timeout(const Duration(seconds: 10));
 
     if (result.hasException) {
       print(result.exception.toString());
       return {};
     } else {
       print(result.data);
-      final rewardsData =
-          result.data!['rewards'] as List; // Cast to List explicitly
+      // Corrected the typo in 'household'
+      final rewardsData = result.data!['household']['rewards'] ?? [];
       final List<Map<String, dynamic>> mappedRewards =
           rewardsData.map<Map<String, dynamic>>((reward) {
         return {
@@ -84,8 +85,10 @@ Future<Map<String, dynamic>> getRewards() async {
           'description': reward['description'] ??
               '', // Provide a default value for description if null
         };
-      }).toList(); // Convert the result of map() to a List
-      coins = result.data!['getCoins']['coins'];
+      }).toList();
+      print("mapped rewards: $mappedRewards");
+      // Corrected the path to access 'coins' value
+      final coins = result.data!['me']['coins'];
       return {'rewards': mappedRewards, 'coins': coins};
     }
   } on SocketException catch (e) {
@@ -287,10 +290,8 @@ class ShopViewState extends State<ShopView> {
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
-              print("snapshot data: " + snapshot.data.toString());
               final List<Map<String, dynamic>> rewards =
                   snapshot.data!['rewards'];
-              print("rewards: $rewards");
               coins = snapshot.data!['coins'];
               rewards.sort((a, b) => a['price'].compareTo(b['price']));
               rewards.sort((a, b) {
@@ -507,10 +508,11 @@ class _ItemCardState extends State<ItemCard> {
 
   @override
   Widget build(BuildContext context) {
-
     print(widget.reward['emoji']);
     print(widget.reward['emoji']);
-    if (widget.reward['emoji'] != null && widget.reward['emoji'] != "" && !widget.reward['emoji'].contains(" ")) {
+    if (widget.reward['emoji'] != null &&
+        widget.reward['emoji'] != "" &&
+        !widget.reward['emoji'].contains(" ")) {
       widget.reward['emoji'] = widget.reward['emoji'] + " ";
     }
     print(buyable);
@@ -569,11 +571,18 @@ class _ItemCardState extends State<ItemCard> {
                         const SizedBox(
                           width: 10,
                         ),
-                            widget.reward['stock'] == -1
-                                ? Text("")
-                                : widget.reward['stock'] == 0
-                                  ? Text("out of stock!", style: Theme.of(context).textTheme.bodySmall) 
-                                  : Text("${widget.reward['stock'].toString()}x", style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+                        widget.reward['stock'] == -1
+                            ? Text("")
+                            : widget.reward['stock'] == 0
+                                ? Text("out of stock!",
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall)
+                                : Text("${widget.reward['stock'].toString()}x",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
                       ],
                     ),
                     widget.reward['description'] == "" ||
@@ -608,8 +617,7 @@ class _ItemCardState extends State<ItemCard> {
                       context: context,
                       builder: (BuildContext context) {
                         return CupertinoAlertDialog(
-                          title: const Text(
-                              "No items left!"),
+                          title: const Text("No items left!"),
                           content: const Text(
                             'Edit the item to increase the stock.',
                             textAlign: TextAlign.center,
@@ -629,66 +637,68 @@ class _ItemCardState extends State<ItemCard> {
                     );
                   } else {
                     if (buyable) {
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
-                          title: const Text(
-                            'Confirm Purchase',
-                            textAlign: TextAlign.center,
-                          ),
-                          content: Text(
-                              "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
-                          actions: [
-                            CupertinoDialogAction(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text('Cancel',
-                                  style: TextStyle(color: Colors.red)),
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoAlertDialog(
+                            title: const Text(
+                              'Confirm Purchase',
+                              textAlign: TextAlign.center,
                             ),
-                            CupertinoDialogAction(
-                              onPressed: () async {
-                                await claimReward(
-                                    widget.userData['id'], widget.reward['id']);
-
-                                updateShop();
-                                // Perform the purchase logic here
-                                Navigator.of(context).pop(); // Close the dialog
-                              },
-                              child: const Text('Buy',
-                                  style: TextStyle(color: Colors.blue)),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    showCupertinoDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        int difference =
-                            widget.reward['price'] - widget.userData['coins'];
-                        return CupertinoAlertDialog(
-                          title: const Text("Not enough Points to buy"),
-                          content: Text(
-                            'You\'re missing $difference coins!',
-                            textAlign: TextAlign.center,
-                          ),
-                          actions: [
-                            CupertinoDialogAction(
+                            content: Text(
+                                "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
+                            actions: [
+                              CupertinoDialogAction(
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
                                 },
-                                child: const Text(
-                                  'OK',
-                                  style: TextStyle(color: Colors.blue),
-                                )),
-                          ],
-                        );
-                      },
-                    );
-                  }
+                                child: const Text('Cancel',
+                                    style: TextStyle(color: Colors.red)),
+                              ),
+                              CupertinoDialogAction(
+                                onPressed: () async {
+                                  await claimReward(widget.userData['id'],
+                                      widget.reward['id']);
+
+                                  updateShop();
+                                  // Perform the purchase logic here
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: const Text('Buy',
+                                    style: TextStyle(color: Colors.blue)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          int difference =
+                              widget.reward['price'] - widget.userData['coins'];
+                          return CupertinoAlertDialog(
+                            title: const Text("Not enough Points to buy"),
+                            content: Text(
+                              'You\'re missing $difference coins!',
+                              textAlign: TextAlign.center,
+                            ),
+                            actions: [
+                              CupertinoDialogAction(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.blue),
+                                  )),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   }
                 },
                 child: Container(
