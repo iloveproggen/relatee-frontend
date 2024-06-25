@@ -329,7 +329,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Center(
                             child: avatar == null
                                 ? Text(
-                                    "add icon",
+                                    'addIcon_txt'.tr,
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme
@@ -338,7 +338,7 @@ class _ProfileViewState extends State<ProfileView> {
                                     ),
                                   )
                                 : Text(
-                                    avatar ?? 'add icon',
+                                    avatar ?? 'addIcon_txt'.tr,
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
                                       color: Theme.of(context)

@@ -69,7 +69,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                           .bodySmall
                           ?.copyWith(color: Colors.red)
                       : Theme.of(context).textTheme.bodySmall,
-                  errorText: _isFieldEmpty ? 'Field_required_txt'.tr : null,
+                  //errorText: _isFieldEmpty ? 'Field_required_txt'.tr : null,
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       width: 2,
@@ -80,6 +80,19 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                 ),
               ),
               const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(left: 220),
+                child: ElevatedButton(
+                  onPressed: () {
+                    //hier den Code einfügen, der die Mail verschickt
+                  },
+                  child: Text(
+                    'Send Mail',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
               TextButton(
                 style: ButtonStyle(
                     alignment: Alignment.centerLeft,
@@ -88,7 +101,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                 onPressed: () {
                   final RenderBox box = context.findRenderObject() as RenderBox;
                   Share.share(
-                    'Hey! I am inviting you to join my household on HomeTasks. Use the following to join:', //add the Household ID here
+                    'Hey! I am inviting you to join my household. Use the following to join:', //add the Household ID here
                     subject: 'Invitation Code',
                     sharePositionOrigin:
                         box.localToGlobal(Offset.zero) & box.size,
@@ -99,7 +112,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                   children: [
                     Text(
                       'Share_Invitation_Button_txt'.tr,
-                      style: Theme.of(context).textTheme.labelSmall,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     //SizedBox(width: 10),
                     //Icon(CupertinoIcons.share, color: Theme.of(context).colorScheme.onSecondary),
