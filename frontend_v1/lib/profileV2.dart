@@ -102,23 +102,23 @@ class _ProfileViewState extends State<ProfileView> {
               child: const Text('Save changes',
                   style: TextStyle(color: Colors.blue)),
               onPressed: () {
-                        setState(() {
-                          colorPrimary = oldColorPrimary;
-                          colorSecondary = oldColorSecondary;
-                          Get.back();
-                        });
-                      },
+                setState(() {
+                  colorPrimary = oldColorPrimary;
+                  colorSecondary = oldColorSecondary;
+                  Get.back();
+                });
+              },
             ),
             CupertinoActionSheetAction(
               child: const Text('Discard Changes',
                   style: TextStyle(color: Colors.red)),
               onPressed: () {
-                        setState(() {
-                          colorPrimary = oldColorPrimary;
-                          colorSecondary = oldColorSecondary;
-                          Get.back();
-                        });
-                      },
+                setState(() {
+                  colorPrimary = oldColorPrimary;
+                  colorSecondary = oldColorSecondary;
+                  Get.back();
+                });
+              },
             ),
           ],
           message: Padding(
@@ -297,9 +297,8 @@ class _ProfileViewState extends State<ProfileView> {
                             context: context,
                             builder: (BuildContext context) {
                               return CupertinoAlertDialog(
-                                title: const Text('Emoji Keyboard Disabled'),
-                                content: const Text(
-                                    'Please enable the emoji keyboard in your device settings.'),
+                                title: Text('Emoji_Disabled_txt'.tr),
+                                content: Text('EnableEmojiKeyboard_txt'.tr),
                                 actions: [
                                   CupertinoDialogAction(
                                     child: const Text('OK'),
@@ -330,7 +329,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Center(
                             child: avatar == null
                                 ? Text(
-                                    "add icon",
+                                    'addIcon_txt'.tr,
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme
@@ -339,7 +338,7 @@ class _ProfileViewState extends State<ProfileView> {
                                     ),
                                   )
                                 : Text(
-                                    avatar ?? 'add icon',
+                                    avatar ?? 'addIcon_txt'.tr,
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
                                       color: Theme.of(context)

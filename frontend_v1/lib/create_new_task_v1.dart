@@ -59,6 +59,14 @@ Future<void> createNewTask(
     int? routineId,
     String emoji,
     Map<String, dynamic> userData) async {
+Future<void> createNewTask(
+    int? userId,
+    String name,
+    String description,
+    int reward,
+    int? routineId,
+    String emoji,
+    Map<String, dynamic> userData) async {
   String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
@@ -252,27 +260,29 @@ class _NewTaskState extends State<NewTask> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return CupertinoAlertDialog(
-                              title: Text('Confirmation'),
-                              content: Text('Are you sure you want to cancel?'),
-                              actions: [
-                                CupertinoDialogAction(
-                                  child: Text('No',
+                              return CupertinoAlertDialog(
+                                title: Text('Confirmation_txt'.tr),
+                                content: Text('CancelPopUp_txt'.tr),
+                                actions: [
+                                    CupertinoDialogAction(
+                                      child: Text('No_txt'.tr,
+                                     
                                       style: TextStyle(color: Colors.blue)),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                CupertinoDialogAction(
-                                  child: Text('Yes',
+                                      onPressed: () {
+                                          Navigator.pop(context);
+                                      },
+                                    ),
+                                    CupertinoDialogAction(
+                                      child: Text('Yes_txt'.tr,
+                                     
                                       style: TextStyle(color: Colors.red)),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Get.back();
-                                  },
-                                ),
-                              ],
-                            );
+                                      onPressed: () {
+                                          Navigator.pop(context);
+                                          Get.back();
+                                      },
+                                    ),
+                                ],
+                              );
                           },
                         );
                       }
@@ -305,7 +315,7 @@ class _NewTaskState extends State<NewTask> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'add task name',
+                              text: ('AddTaskName_txt'.tr),
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                     color: Theme.of(context).colorScheme.tertiary,
                                   ),
@@ -504,7 +514,7 @@ class _NewTaskState extends State<NewTask> {
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon",
+                            "addIcon_txt".tr,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall

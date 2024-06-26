@@ -156,7 +156,7 @@ class _NewRoutine extends State<NewRoutine> {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             counterText: "",
-                            hintText: "add routine name...",
+                            hintText: 'AddRoutineName_txt'.tr,
                             hintStyle: Theme.of(context)
                                 .textTheme
                                 .bodyLarge
@@ -227,14 +227,14 @@ class _NewRoutine extends State<NewRoutine> {
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon",
+                            'addIcon_txt'.tr,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 20,
                             ),
                           )
                         : Text(
-                            emojiDisplay ?? 'add icon',
+                            emojiDisplay ?? 'aaddIcon_txt'.tr,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
@@ -261,7 +261,7 @@ class _NewRoutine extends State<NewRoutine> {
                   Icon(CupertinoIcons.calendar,
                       size: 40, color: Theme.of(context).colorScheme.tertiary),
                   const SizedBox(width: 20, height: 60),
-                  Text('repeats:'.tr,
+                  Text('repeats_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   TextButton(
@@ -321,18 +321,30 @@ class _NewRoutine extends State<NewRoutine> {
 Widget _buildRefreshText(BuildContext context) {
   int days =
       refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
+  int days =
+      refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
 
   if (days <= 0) {
     return Container(); // Assuming you want to return an empty Container for case 0
   } else if (days == 1) {
     return Text(
-      "The routine will refresh every day.",
+      'RoutineRefresh_txt'.tr,
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );
   } else {
+    //String languageCode = Localizations.localeOf(context).languageCode;
+    String languageCode = Get.locale!.languageCode;
+    print(languageCode);
     return Text(
-      "The routine will refresh every $days days.",
+      languageCode == 'de-DE'
+          ? 'RoutineRefreshVar_txt'.tr +
+              '$days' +
+              'RoutineRefreshVarGermanAdd_txt'.tr // German translation
+          : 'RoutineRefreshVar_txt'.tr +
+              '$days' +
+              ' ' +
+              'days_txt'.tr, // English translation
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );

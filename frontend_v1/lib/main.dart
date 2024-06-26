@@ -281,6 +281,7 @@ Future<Map<String, dynamic>> getHouseholdData() async {
             .toList(),
       };
       print(mappedUsers);
+      print(mappedUsers);
 
       return {
         'users': mappedUsers,
@@ -1033,7 +1034,7 @@ class _TaskState extends State<TaskOverview> {
                                           MaterialStateProperty.all<EdgeInsets>(
                                               const EdgeInsets.all(0))),
                                   child: Text(
-                                    "You don't have any tasks! Press here to create one.",
+                                    'NoTaskCreateOne_txt'.tr,
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
                                   ),

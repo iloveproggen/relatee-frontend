@@ -72,7 +72,8 @@ class LocaleString extends Translations {
           'December_txt': 'December',
           'Routine_description_txt': 'Routine description.',
           'No_tasks_found_txt': 'No tasks found.',
-          'No_routines_found_txt': 'No routines found! Press here to create one.',
+          'No_routines_found_txt':
+              'No routines found! Press here to create one.',
           'Invite_Members_txt': 'Invite Members',
           'Send_Invitation_txt':
               'Send an email invitation to new members to join your household.',
@@ -111,6 +112,21 @@ class LocaleString extends Translations {
           'Submit_txt': 'Submit',
           'LeaderBoardMessage_txt':
               'Need 2 or more users to unlock Leaderboard',
+          'NoTaskCreateOne_txt':
+              "You don't have any tasks! Press here to create one.",
+          'AddTaskName_txt': 'add task name...',
+          'addIcon_txt': 'add icon',
+          'Confirmation_txt': 'Confirmation',
+          'CancelPopUp_txt': 'Are you sure you want to cancel?',
+          'Yes_txt': 'Yes',
+          'No_txt': 'No',
+          'AddRoutineName_txt': 'add routine name...',
+          'RoutineRefresh_txt':
+              'The routine will refresh every day. You can add tasks to it.',
+          'RoutineRefreshVar_txt': 'The routine will refresh every ',
+          'Emoji_Disabled_txt': 'Emoji Keyboard Disabled',
+          'EnableEmojiKeyboard_txt':
+              'Please enable the emoji keyboard in your device settings.',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -209,8 +225,8 @@ class LocaleString extends Translations {
           'add_description_txt': 'Beschreibung hinzufügen...',
           'deadline_txt': 'Frist:',
           'none_txt': 'keine',
-          'add_reward_txt': 'Belohnung hinzufügen...',
-          'reward_txt': 'Belohnung:',
+          'add_reward_txt': 'Münzen hinzufügen...',
+          'reward_txt': 'Münzen:',
           'Register_txt': 'Registrieren',
           'forename_txt': 'Vorname',
           'surname_txt': 'Nachname',
@@ -218,6 +234,19 @@ class LocaleString extends Translations {
           'Submit_txt': 'Absenden',
           'LeaderBoardMessage_txt':
               'Sie benötigen 2 oder mehr Benutzer, um das Leaderboard zu entsperren',
+          'NoTaskCreateOne_txt':
+              'Sie haben keine Aufgaben! Drücken Sie hier, um eine zu erstellen.',
+          'AddTaskName_txt': 'Aufgabenname...',
+          'addIcon_txt': 'Icon hinzufügen',
+          'Confirmation_txt': 'Bestätigung',
+          'CancelPopUp_txt': 'Möchten Sie wirklich abbrechen?',
+          'Yes_txt': 'Ja',
+          'No_txt': 'Nein',
+          'AddRoutineName_txt': 'Routinenname...',
+          'RoutineRefresh_txt':
+              'Die Routine wird jeden Tag aktualisiert. Sie können Aufgaben hinzufügen.',
+          'RoutineRefreshVar_txt': 'Die Routine wird jede ',
+          'RoutineRefreshVarGermanAdd_txt': ' Tage wiederholt.',
         }
       };
 }
