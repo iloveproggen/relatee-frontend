@@ -59,14 +59,6 @@ Future<void> createNewTask(
     int? routineId,
     String emoji,
     Map<String, dynamic> userData) async {
-Future<void> createNewTask(
-    int? userId,
-    String name,
-    String description,
-    int reward,
-    int? routineId,
-    String emoji,
-    Map<String, dynamic> userData) async {
   String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
