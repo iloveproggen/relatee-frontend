@@ -321,8 +321,6 @@ class _NewRoutine extends State<NewRoutine> {
 Widget _buildRefreshText(BuildContext context) {
   int days =
       refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
-  int days =
-      refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
 
   if (days <= 0) {
     return Container(); // Assuming you want to return an empty Container for case 0
