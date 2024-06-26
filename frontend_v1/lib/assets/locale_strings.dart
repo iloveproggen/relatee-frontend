@@ -102,7 +102,7 @@ class LocaleString extends Translations {
           'add_description_txt': 'add description...',
           'deadline_txt': 'deadline:',
           'none_txt': 'none',
-          'add_reward_txt': 'add coins...',
+          'add_reward_txt': 'add coins',
           'reward_txt': 'coins:',
           'Register_txt': 'Register',
           'forename_txt': 'Forename',

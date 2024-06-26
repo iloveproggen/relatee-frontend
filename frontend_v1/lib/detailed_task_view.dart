@@ -11,6 +11,9 @@ import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
 DateTime? deadline;
 
+double paddingRight = 10;
+double iconSize = 30;
+
 bool isPermanent = false;
 
 Map<String, dynamic> nullUser = {
@@ -33,15 +36,15 @@ Map<String, dynamic> assignedToUser = nullUser;
 
 late List<Map<String, dynamic>> users;
 
-void updateTask(int id, String name, String? description, int reward,
-    int? routineId, Map<String, dynamic> userData, String emoji) async {
+Future<void> updateTask(int id, String name, String? description, int reward,
+    int? routineId, Map<String, dynamic> userData, String emoji, DateTime? deadline) async {
   // Update task to match the GraphQL schema
   final Map<String, dynamic> input = {
     'taskId': id, // Use 'taskId' instead of 'id'
     'name': name,
     'emoji': emoji, // Added emoji field
-    'deadline': deadline, // Adjusted deadline format
-    'description': description,
+    'deadline': deadline != null ? '${deadline.toIso8601String().split('.')[0]}Z' : null, // Adjusted deadline format
+    'description': description ?? "",
     'reward': reward,
     'routineId': routineId,
     'userId': userData['id'], // Added userId field
@@ -175,6 +178,7 @@ class _DetailedTaskState extends State<DetailedTask> {
     taskPrice.text = task['reward'].toString();
     description.text = task['description'] ?? "";
     emojiDisplay = task['emoji'];
+    deadline = task['deadline'] != null ? DateTime.parse(task['deadline']) : null;
   }
 
   void changePermanent() {
@@ -203,7 +207,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                       ),
                       animationDuration: Duration.zero,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       print(taskName.text);
                       print(taskPrice.text);
                       print(description.text);
@@ -213,14 +217,14 @@ class _DetailedTaskState extends State<DetailedTask> {
                       if (taskPrice.text.isEmpty) {
                         taskPrice.text = task['reward'].toString();
                       }
-                      updateTask(
+                      await updateTask(
                           task['id'],
                           taskName.text,
                           description.text,
                           int.parse(taskPrice.text),
                           task['routineId'],
                           widget.userData,
-                          task['emoji']);
+                          emojiDisplay ?? task['emoji'], deadline);
                       Get.back(result: "Changed Task");
                     },
                     child: Text("Save",
@@ -228,29 +232,43 @@ class _DetailedTaskState extends State<DetailedTask> {
                   )
                 ],
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Form(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: taskName,
-                        decoration: InputDecoration(
-                            counterText: '',
-                            border: InputBorder.none,
-                            hintText: "rename task...",
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                )),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        maxLength: 30,
-                      ),
-                    ],
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  TextFormField(
+                    controller: taskName,
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: "",
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    maxLength: 30,
                   ),
-                ),
+                  IgnorePointer(
+                    child: Visibility(
+                      visible: taskName.text.isEmpty,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'add task name',
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: ' *',
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.red.withOpacity(0.5),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               // GestureDetector(
               //   onTap: () {
@@ -332,26 +350,68 @@ class _DetailedTaskState extends State<DetailedTask> {
               //     ),
               //   ),
               // ),
-              const SizedBox(height: 10),
               Text("created by ${task['ownerForename']}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.tertiary,
                       fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                       EdgeInsets.only(top: 10, bottom: 10, right: paddingRight),
+                    child: Icon(CupertinoIcons.add_circled,
+                        size: iconSize,
+                        color: Theme.of(context).colorScheme.tertiary),
+                  ),
+                  Text(
+                    'coins:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(" *",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red.withOpacity(0.5),
+                          fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: InputDecoration(
+                            hintText: "add coins",
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        EdgeInsets.only(top: 10, bottom: 10, right: paddingRight),
                     child: Icon(
                       CupertinoIcons.smiley,
-                      size: 40,
+                      size: iconSize,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                   Text(
-                    'Icon:',
+                    'icon:',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const Spacer(),
@@ -396,7 +456,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                         ? Text(
                             "add icon",
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Theme.of(context).colorScheme.tertiary,
                               fontSize: 20,
                             ),
                           )
@@ -405,7 +465,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 40,
+                              fontSize: 30,
                             ),
                           ),
                   ),
@@ -429,11 +489,11 @@ class _DetailedTaskState extends State<DetailedTask> {
                   Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, right: 20, bottom: 10),
+                        padding: EdgeInsets.only(
+                            top: 10, right: paddingRight, bottom: 10),
                         child: Icon(
                           CupertinoIcons.person,
-                          size: 40,
+                          size: iconSize,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),
@@ -483,74 +543,23 @@ class _DetailedTaskState extends State<DetailedTask> {
                               ? 'anyone_txt'.tr
                               : "${assignedToUser['forename'] ?? assignedToUser['surname'] ?? assignedToUser['username'] ?? 'user not found'}",
                           textAlign: TextAlign.end,
-                          style: Theme.of(context)
+                          style: assignedToUser['id'] != null ? Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold))),
+                              ?.copyWith(fontWeight: FontWeight.bold) :Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary)
+                              )),
                 ],
               ),
-              isPermanent
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 10, right: 20, bottom: 10),
-                          child: Icon(CupertinoIcons.clock_fill,
-                              size: 40,
-                              color: Theme.of(context).colorScheme.tertiary),
-                        ),
-                        Text(
-                          ('repeats_txt'.tr),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    )
-                  : Container(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(CupertinoIcons.add_circled,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.tertiary),
-                  ),
-                  Text(
-                    'price:',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Expanded(
-                    child: TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        decoration: InputDecoration(
-                            hintText: "change reward...",
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+              
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(CupertinoIcons.calendar,
-                      size: 40, color: Theme.of(context).colorScheme.tertiary),
-                  const SizedBox(width: 20, height: 60),
+                      size: iconSize, color: Theme.of(context).colorScheme.tertiary),
+                  SizedBox(width: paddingRight),
                   Text("deadline:",
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
@@ -586,10 +595,14 @@ class _DetailedTaskState extends State<DetailedTask> {
                       deadline != null
                           ? DateFormat('dd-MM-yyyy').format(deadline!)
                           : "none",
-                      style: Theme.of(context)
+                      style: deadline != null ? Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                          ?.copyWith(fontWeight: FontWeight.bold)
+                          : Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary)
                     ),
                   ),
                   deadline != null
@@ -616,10 +629,10 @@ class _DetailedTaskState extends State<DetailedTask> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 20),
+                        padding: EdgeInsets.only(
+                            top: 10, bottom: 10, right: paddingRight),
                         child: Icon(CupertinoIcons.text_aligncenter,
-                            size: 40,
+                            size: iconSize,
                             color: Theme.of(context).colorScheme.tertiary),
                       ),
                       Expanded(
@@ -644,7 +657,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
                               counterText: '',
-                              hintText: "change description...",
+                              hintText: "add description...",
                               hintStyle: Theme.of(context)
                                   .textTheme
                                   .bodySmall

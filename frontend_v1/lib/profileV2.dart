@@ -598,7 +598,7 @@ class TaskOverview extends StatelessWidget {
                 children: tasks
                     .where((task) => task['completed'] == false)
                     .map((task) {
-                  return Task(task: task, userData: userData);
+                  return Task(task: task, userData: userData, isRecommended: false,);
                 }).toList(),
               )
             : Column(

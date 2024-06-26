@@ -1057,7 +1057,6 @@ class _TaskState extends State<TaskOverview> {
                                       .asMap()
                                       .map((index, task) {
                                         if (index == 0 && toDo.length > 1) {
-                                          // This is the first widget, display it differently
                                           return MapEntry(
                                               index,
                                               Column(
@@ -1202,14 +1201,15 @@ class _TaskState extends State<TaskOverview> {
                                                           size: 30),
                                                     ),
                                                     child: Task(
-                                                        task: task,
-                                                        userData: userData),
+                                                      task: task,
+                                                      userData: userData,
+                                                      isRecommended: true,
+                                                    ),
                                                   ),
                                                   Divider(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .onPrimary
-                                                        .withOpacity(0.5),
+                                                        .secondary,
                                                     thickness: 2,
                                                   ),
                                                 ],
@@ -1355,8 +1355,10 @@ class _TaskState extends State<TaskOverview> {
                                                           size: 30),
                                                     ),
                                                     child: Task(
-                                                        task: task,
-                                                        userData: userData),
+                                                      task: task,
+                                                      userData: userData,
+                                                      isRecommended: false,
+                                                    ),
                                                   ),
                                                 ],
                                               ));
@@ -1556,10 +1558,15 @@ class _TaskState extends State<TaskOverview> {
 }
 
 class Task extends StatefulWidget {
-  const Task({super.key, required this.task, required this.userData});
+  const Task(
+      {super.key,
+      required this.task,
+      required this.userData,
+      required this.isRecommended});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
+  final bool isRecommended;
 
   @override
   State<Task> createState() => _MainTaskState();
@@ -1843,7 +1850,11 @@ class _OtherTasksState extends State<OtherTasks> {
                                 child: const Icon(CupertinoIcons.check_mark,
                                     color: purple, size: 30),
                               ),
-                              child: Task(task: task, userData: userData),
+                              child: Task(
+                                task: task,
+                                userData: userData,
+                                isRecommended: false,
+                              ),
                             ),
                           ],
                         );

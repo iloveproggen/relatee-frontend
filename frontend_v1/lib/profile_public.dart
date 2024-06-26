@@ -232,7 +232,7 @@ class PublicTaskOverview extends StatelessWidget {
         taskLeft.isNotEmpty
             ? Column(
                 children: taskLeft.map((task) {
-                  return main.Task(task: task, userData: userData);
+                  return main.Task(task: task, userData: userData, isRecommended: false,);
                 }).toList(),
               )
             : Column(

@@ -25,7 +25,7 @@ Future<void> createRoutine(
     String name, String emoji, DateTime refreshDate) async {
   // Format DateTime to a string that your backend can understand
   final String formattedRefreshDate =
-      DateFormat('yyyy-MM-dd').format(refreshDate);
+      '${refreshDate.toIso8601String().split('.')[0]}Z';
 
   final Map<String, dynamic> variables = {
     'input': {
@@ -128,8 +128,8 @@ class _NewRoutine extends State<NewRoutine> {
                     ),
                     onPressed: () async {
                       if (required) {
-                        await createRoutine(name.text, emojiDisplay ?? "",
-                            DateTime.now());
+                        await createRoutine(
+                            name.text, emojiDisplay ?? "", DateTime.now());
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
                         Get.back();
@@ -270,6 +270,7 @@ class _NewRoutine extends State<NewRoutine> {
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
                     onPressed: () {
+                      DateTime now = DateTime.now();
                       showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext context) {
@@ -278,10 +279,12 @@ class _NewRoutine extends State<NewRoutine> {
                             height: 400,
                             child: CupertinoDatePicker(
                               mode: CupertinoDatePickerMode.date,
-                              initialDateTime: DateTime.now(),
-                              minimumDate: DateTime.now(),
-                              maximumYear: DateTime.now().year+1,
-                              minimumYear: DateTime.now().year,
+                              initialDateTime:
+                                  now, // Use the same 'now' DateTime object
+                              minimumDate:
+                                  now, // Use the same 'now' DateTime object
+                              maximumYear: now.year + 1,
+                              minimumYear: now.year,
                               onDateTimeChanged: (DateTime newDateTime) {
                                 print(newDateTime);
                                 setState(() {
@@ -316,7 +319,8 @@ class _NewRoutine extends State<NewRoutine> {
 }
 
 Widget _buildRefreshText(BuildContext context) {
-  int days = refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
+  int days =
+      refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
 
   if (days <= 0) {
     return Container(); // Assuming you want to return an empty Container for case 0

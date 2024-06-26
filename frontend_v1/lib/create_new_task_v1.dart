@@ -9,6 +9,9 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
+double paddingRight = 10;
+double iconSize = 30;
+
 class MaxLengthNumberInputFormatter extends TextInputFormatter {
   final int maxDigits;
 
@@ -48,8 +51,14 @@ String? deadlineString;
 
 bool isPermanent = false;
 
-Future<void> createNewTask(int? userId, String name, String description,
-    int reward, int? routineId, String emoji, Map<String, dynamic> userData) async {
+Future<void> createNewTask(
+    int? userId,
+    String name,
+    String description,
+    int reward,
+    int? routineId,
+    String emoji,
+    Map<String, dynamic> userData) async {
   String? deadlineString;
   if (deadline == null) {
     deadlineString = null;
@@ -70,8 +79,7 @@ Future<void> createNewTask(int? userId, String name, String description,
 
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
-  document: gql(
-r'''
+    document: gql(r'''
 mutation CreateTask($input: CreateTaskInput!) {
   createTask(input: $input) {
     user {
@@ -214,7 +222,6 @@ class _NewTaskState extends State<NewTask> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,25 +252,27 @@ class _NewTaskState extends State<NewTask> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                          return CupertinoAlertDialog(
-                            title: Text('Confirmation'),
-                            content: Text('Are you sure you want to cancel?'),
-                            actions: [
-                            CupertinoDialogAction(
-                              child: Text('No', style: TextStyle(color: Colors.blue)),
-                              onPressed: () {
-                              Navigator.pop(context);
-                              },
-                            ),
-                            CupertinoDialogAction(
-                              child: Text('Yes', style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                              Navigator.pop(context);
-                              Get.back();
-                              },
-                            ),
-                            ],
-                          );
+                            return CupertinoAlertDialog(
+                              title: Text('Confirmation'),
+                              content: Text('Are you sure you want to cancel?'),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: Text('No',
+                                      style: TextStyle(color: Colors.blue)),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                CupertinoDialogAction(
+                                  child: Text('Yes',
+                                      style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Get.back();
+                                  },
+                                ),
+                              ],
+                            );
                           },
                         );
                       }
@@ -276,30 +285,43 @@ class _NewTaskState extends State<NewTask> {
                   )
                 ],
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Form(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        controller: taskName,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: ('add task name...'),
-                          counterText: "",
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(
-                              color: Colors.red.withOpacity(0.5)),
-                        ),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        maxLength: 30,
-                      ),
-                    ],
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  TextFormField(
+                    controller: taskName,
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      counterText: "",
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    maxLength: 30,
                   ),
-                ),
+                  IgnorePointer(
+                    child: Visibility(
+                      visible: taskName.text.isEmpty,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'add task name',
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: ' *',
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.red.withOpacity(0.5),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               // GestureDetector(
               //   onTap: () {
@@ -382,16 +404,59 @@ class _NewTaskState extends State<NewTask> {
               //   ),
               // ),
               //const SliderWidgetWho(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    padding: EdgeInsets.only(
+                        top: 10, bottom: 10, right: paddingRight),
+                    child: Icon(
+                      CupertinoIcons.add_circled,
+                      size: iconSize,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'reward_txt'.tr,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(" *", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red.withOpacity(0.8))),
+                  Expanded(
+                      child: TextField(
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    textAlign: TextAlign.end,
+                    controller: taskPrice,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      MaxLengthNumberInputFormatter(10),
+                    ],
+                    decoration: InputDecoration(
+                      hintText: 'add_reward_txt'.tr,
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.tertiary),
+                      border: InputBorder.none,
+                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  )),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 10, bottom: 10, right: paddingRight),
                     child: Icon(
                       CupertinoIcons.smiley,
-                      size: 40,
+                      size: iconSize,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
@@ -440,25 +505,36 @@ class _NewTaskState extends State<NewTask> {
                     child: emojiDisplay == null
                         ? Text(
                             "add icon",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                           )
                         : Text(
                             emojiDisplay ?? 'add icon',
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 40,
+                              fontSize: 30,
                             ),
                           ),
                   ),
                   emojiDisplay != null
-                      ? IconButton(
+                      ? TextButton(
+                        style: ButtonStyle(
+                            animationDuration: Duration.zero,
+                            padding:
+                                MaterialStateProperty.all(EdgeInsets.zero)
+                        ),
                           onPressed: () {
                             setState(() {
                               emojiDisplay = null;
                             });
                           },
-                          icon: Icon(CupertinoIcons.clear,
+                          child: Icon(CupertinoIcons.clear,
                               color: Theme.of(context).colorScheme.tertiary),
                         )
                       : const SizedBox.shrink(),
@@ -471,32 +547,13 @@ class _NewTaskState extends State<NewTask> {
               ),
               RoutinePicker(
                   callback: _updateRequired, routines: widget.routines),
-              isPermanent
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(top: 10, right: 20, bottom: 10),
-                          child: Icon(
-                            CupertinoIcons.clock,
-                            size: 40,
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
-                        ),
-                        Text(
-                          ('repeats_txt'.tr),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    )
-                  : Container(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(CupertinoIcons.calendar,
-                      size: 40, color: Theme.of(context).colorScheme.tertiary),
-                  const SizedBox(width: 20, height: 60),
+                      size: iconSize,
+                      color: Theme.of(context).colorScheme.tertiary),
+                  SizedBox(width: paddingRight),
                   Text('deadline_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
@@ -529,14 +586,17 @@ class _NewTaskState extends State<NewTask> {
                       );
                     },
                     child: Text(
-                      deadline != null
-                          ? DateFormat('dd-MM-yyyy').format(deadline!)
-                          : 'none_txt'.tr,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                        deadline != null
+                            ? DateFormat('dd-MM-yyyy').format(deadline!)
+                            : 'none_txt'.tr,
+                        style: deadline != null
+                            ? Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold)
+                            : Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.tertiary)),
                   ),
                   deadline != null
                       ? IconButton(
@@ -556,59 +616,17 @@ class _NewTaskState extends State<NewTask> {
                       : Container(),
                 ],
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.add_circled,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                  Text(
-                    'reward_txt'.tr,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Expanded(
-                      child: TextField(
-                    cursorColor: Theme.of(context).colorScheme.onSecondary,
-                    textAlign: TextAlign.end,
-                    controller: taskPrice,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      MaxLengthNumberInputFormatter(
-                          10), // replace 9 with the maximum number of digits you want to allow
-                    ],
-                    decoration: InputDecoration(
-                      hintText: 'add_reward_txt'.tr,
-                      hintStyle: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red.withOpacity(0.5)),
-                      border: InputBorder.none,
-                    ),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  )),
-                ],
-              ),
               Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        padding: EdgeInsets.only(
+                            top: 10, bottom: 10, right: paddingRight),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
-                          size: 40,
+                          size: iconSize,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),
@@ -786,11 +804,12 @@ class _RoutinePickerState extends State<RoutinePicker> {
         Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              padding:
+                  EdgeInsets.only(top: 10, right: paddingRight, bottom: 10),
               child: Icon(
                 CupertinoIcons.archivebox,
-                size: 40,
-                color:  Theme.of(context).colorScheme.tertiary,
+                size: iconSize,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
@@ -840,10 +859,14 @@ class _RoutinePickerState extends State<RoutinePicker> {
                     ? 'none_txt'.tr
                     : "${pickedRoutine['name']}",
                 textAlign: TextAlign.end,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontWeight: FontWeight.bold))),
+                style: pickedRoutine['name'] == null
+                    ? Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold)
+                    : Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.tertiary))),
       ],
     );
   }
@@ -874,11 +897,12 @@ class _AssignToState extends State<AssignTo> {
         Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 10, right: 20, bottom: 10),
+              padding:
+                  EdgeInsets.only(top: 10, right: paddingRight, bottom: 10),
               child: Icon(
                 CupertinoIcons.person,
-                size: 40,
-                color:  Theme.of(context).colorScheme.tertiary,
+                size: iconSize,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             ),
             Text(('assign_to_txt'.tr),
@@ -914,7 +938,10 @@ class _AssignToState extends State<AssignTo> {
                       children: widget.householdUsers.map((member) {
                         return Center(
                           child: Text(
-                            member['forename'] ?? member['surname'] ?? member['username'] ?? "user not found",
+                            member['forename'] ??
+                                member['surname'] ??
+                                member['username'] ??
+                                "user not found",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
@@ -927,12 +954,16 @@ class _AssignToState extends State<AssignTo> {
             child: Text(
                 assignedToUser['id'] == null
                     ? 'anyone_txt'.tr
-                    : "${assignedToUser['forename'] ?? assignedToUser['surname'] ??assignedToUser['username']}",
+                    : "${assignedToUser['forename'] ?? assignedToUser['surname'] ?? assignedToUser['username']}",
                 textAlign: TextAlign.end,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontWeight: FontWeight.bold))),
+                style: assignedToUser['id'] != null
+                    ? Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold)
+                    : Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.tertiary))),
       ],
     );
   }
