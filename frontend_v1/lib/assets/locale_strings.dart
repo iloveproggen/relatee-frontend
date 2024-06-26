@@ -193,7 +193,7 @@ class LocaleString extends Translations {
           'December_txt': 'Dezember',
           'Routine_description_txt': 'Routine Beschreibung.',
           'No_tasks_found_txt': 'Keine Aufgaben gefunden.',
-          'No_routines_found_txt': 'Keine Routinen gefunden.',
+          'No_routines_found_txt': 'Keine Routinen gefunden. Klick hier, um eine zu erstellen.',
           'routine_description_txt': 'Routine Beschreibung.',
           'Invite_Members_txt': 'Mitglieder einladen',
           'Send_Invitation_txt':
@@ -235,7 +235,7 @@ class LocaleString extends Translations {
           'LeaderBoardMessage_txt':
               'Sie benötigen 2 oder mehr Benutzer, um das Leaderboard zu entsperren',
           'NoTaskCreateOne_txt':
-              'Sie haben keine Aufgaben! Drücken Sie hier, um eine zu erstellen.',
+              'Keine Tasks mehr! Klicke hier, um eine zu erstellen.',
           'AddTaskName_txt': 'Aufgabenname...',
           'addIcon_txt': 'Icon hinzufügen',
           'Confirmation_txt': 'Bestätigung',
