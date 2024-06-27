@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/household_tasks.dart' as ht;
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/settings.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
@@ -74,13 +75,8 @@ class _ProfileViewState extends State<ProfileView> {
   void initState() {
     super.initState();
     avatar = widget.userData['emoji'];
-    colorPrimary = Color(int.parse(
-        // ignore: prefer_interpolation_to_compose_strings
-        '0xFF' + widget.userData['colorPrimary'].replaceAll('#', '')));
-    colorSecondary = Color(int.parse(
-        // ignore: prefer_interpolation_to_compose_strings
-        '0xFF' + widget.userData['colorSecondary'].replaceAll('#', '')));
-    // Add your initialization code here
+    colorPrimary = hexToColor(widget.userData['colorPrimary']);
+    colorSecondary = hexToColor(widget.userData['colorSecondary']);
   }
 
   @override
@@ -103,8 +99,6 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(color: Colors.blue)),
               onPressed: () {
                 setState(() {
-                  colorPrimary = oldColorPrimary;
-                  colorSecondary = oldColorSecondary;
                   Get.back();
                 });
               },
@@ -201,22 +195,51 @@ class _ProfileViewState extends State<ProfileView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   BackAndUpdateIcon(
                       avatar: avatar!,
                       colorPrimary: colorPrimary.toString(),
                       colorSecondary: colorSecondary.toString()),
                   const Spacer(),
-                  TextButton(
-                    child: Icon(CupertinoIcons.paintbrush,
-                        size: 30,
-                        color: Theme.of(context).colorScheme.tertiary),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    icon: Icon(CupertinoIcons.sparkles,
+                        size: 40, color: userColor),
                     onPressed: () {
                       openColorPicker();
                     },
                   ),
-                  TextButton(
+                  const SizedBox(width: 10),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    icon: Icon(CupertinoIcons.gear_solid,
+                        size: 42, color: userColor),
+                    onPressed: () async {
+                      Get.to(() => Settings(userData: userData));
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      if (prefs.getBool('useUserColor') == true) {
+                        userColor = Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            0.5)!;
+                      } else {
+                        userColor = Theme.of(context).colorScheme.tertiary;
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
                     onPressed: () {
                       showCupertinoDialog(
                         context: context,
@@ -255,10 +278,10 @@ class _ProfileViewState extends State<ProfileView> {
                         },
                       );
                     },
-                    child: Icon(
+                    icon: Icon(
                       CupertinoIcons.square_arrow_right,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: 30,
+                      color: Colors.red.withOpacity(0.5),
+                      size: 40,
                     ),
                   ),
                 ],
@@ -408,7 +431,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   "assets/images/relatee.svg",
                                   height: 20,
                                   width: 20,
-                                  color: purple,
+                                  color: userColor,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
@@ -589,7 +612,7 @@ class TaskOverview extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
-          child: Text('Their_Tasks_txt'.tr,
+          child: Text("${'Your_txt'.tr} Tasks",
               style: Theme.of(context).textTheme.bodyMedium),
         ),
         tasks.isNotEmpty
@@ -597,12 +620,16 @@ class TaskOverview extends StatelessWidget {
                 children: tasks
                     .where((task) => task['completed'] == false)
                     .map((task) {
-                  return Task(task: task, userData: userData, isRecommended: false,);
+                  return Task(
+                    task: task,
+                    userData: userData,
+                    isRecommended: false,
+                  );
                 }).toList(),
               )
             : Column(
                 children: [
-                  Text('User_no_tasks_assigned_txt'.tr,
+                  Text('No tasks.'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(
                     height: 10,
@@ -620,7 +647,7 @@ class TaskOverview extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(pUserData: userData));
+                  Get.to(() => ht.MainHouseholdOverview(pUserData: userData));
                 },
                 child: Row(
                   children: [

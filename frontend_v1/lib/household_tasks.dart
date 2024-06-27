@@ -6,7 +6,7 @@ import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/household_invitation.dart';
 import 'package:frontend_v1/leader_board_v2.dart';
-import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/main.dart' as main;
 import 'package:frontend_v1/profileV2.dart';
 import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
@@ -52,12 +52,12 @@ class _HouseholdOverviewState extends State<HouseholdOverview> {
   @override
   void initState() {
     super.initState();
-    _futureHouseholdData = getHouseholdData();
+    _futureHouseholdData = main.getHouseholdData(context);
   }
 
   void _updateHouseholdData() {
     setState(() {
-      _futureHouseholdData = getHouseholdData();
+      _futureHouseholdData = main.getHouseholdData(context);
     });
   }
 
@@ -227,7 +227,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
               icon: Icon(
                 CupertinoIcons.chart_bar_alt_fill,
                 size: 40,
-                color: Theme.of(context).colorScheme.tertiary,
+                color: main.userColor,
               ),
             ),
           ],
@@ -251,7 +251,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                     }
                   },
                   icon: Icon(CupertinoIcons.add,
-                      color: Theme.of(context).colorScheme.tertiary, size: 30),
+                      color: main.userColor, size: 30),
                 ),
               ],
             ),
@@ -449,7 +449,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                                 }),
                             CupertinoDialogAction(
                               onPressed: () async {
-                                await deleteTask(task['id']);
+                                await main.deleteTask(task['id']);
                                 tasks.removeWhere((t) => t['id'] == task['id']);
                                 Navigator.pop(context);
                                 update();
@@ -587,7 +587,7 @@ class HouseholdMembers extends StatelessWidget {
 }
 
 Future<void> queryKickUser(int id) async {
-  final client = await getGraphQLClient();
+  final client = await main.getGraphQLClient();
   final MutationOptions options = MutationOptions(
     document: gql('''
       mutation kickUserFromHousehold(\$userId: Int!) {
@@ -747,7 +747,7 @@ class MoreDetailsTask extends StatelessWidget {
                                   )),
                     ),
                     task["deadline"] != null
-                        ? getIndicator(task, context)
+                        ? main.getIndicator(task, context)
                         : SvgPicture.asset("assets/images/gray.svg"),
                   ],
                 ),

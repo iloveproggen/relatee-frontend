@@ -14,7 +14,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/settings.dart';
 import 'package:frontend_v1/shop.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +23,7 @@ void main() {
   runApp(const CheckLoggedIn());
 }
 
+late Color userColor;
 late VoidCallback update;
 const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
@@ -56,7 +56,7 @@ Future<GraphQLClient> getGraphQLClient() async {
   );
 }
 
-Future<Map<String, dynamic>> getHouseholdData() async {
+Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
   final client = await getGraphQLClient();
   final QueryOptions options = QueryOptions(
     document: gql('''
@@ -283,6 +283,14 @@ Future<Map<String, dynamic>> getHouseholdData() async {
       print(mappedUsers);
       print(mappedUsers);
 
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('useUserColor') == true) {
+        userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']), hexToColor(mappedUserData['colorSecondary']), 0.5)!;
+      }
+      else {
+        userColor = Theme.of(context).colorScheme.tertiary;
+      }
+
       return {
         'users': mappedUsers,
         'tasks': mappedTasks,
@@ -428,6 +436,13 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   );
 }
 
+Color hexToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+  buffer.write(hexString.replaceFirst('#', ''));
+  return Color(int.parse(buffer.toString(), radix: 16));
+}
+
 class MainWidget extends StatefulWidget {
   const MainWidget({super.key});
 
@@ -460,12 +475,12 @@ class _MainViewState extends State<MainView> {
   @override
   void initState() {
     super.initState();
-    _futureUserData = getHouseholdData();
+    _futureUserData = getHouseholdData(context);
   }
 
   void _updateUserData() {
     setState(() {
-      _futureUserData = getHouseholdData();
+      _futureUserData = getHouseholdData(context);
     });
   }
 
@@ -495,6 +510,7 @@ class _MainViewState extends State<MainView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const IconRow(),
+                        // const NotificationCentre(), 
                         const WelcomeText(),
                         ButtonRow(tasks: tasks),
                         //ButtonRecommended(),
@@ -509,16 +525,16 @@ class _MainViewState extends State<MainView> {
 class IconRow extends StatelessWidget {
   const IconRow({super.key});
 
+
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
-    final Color colorPrimary =
-        Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
-    final Color colorSecondary = Color(
-        int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
+    final Color colorPrimary = hexToColor(userData['colorPrimary']);
+    final Color colorSecondary = hexToColor(userData['colorSecondary']);
+    // slider in den einstellungen
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -529,8 +545,8 @@ class IconRow extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: padding),
                 child: SizedBox(
-                  height: 40,
-                  width: 40,
+                  height: 45,
+                  width: 45,
                   child: TextButton(
                     style: ButtonStyle(
                         padding: MaterialStateProperty.all<EdgeInsets>(
@@ -554,10 +570,10 @@ class IconRow extends StatelessWidget {
                         child: Center(
                           child: Text(
                             userData['emoji'],
-                            textAlign: TextAlign.end,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 25,
+                              fontSize: 28,
                             ),
                           ),
                         ),
@@ -566,20 +582,20 @@ class IconRow extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(right: padding),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  iconSize: size,
-                  onPressed: () {
-                    Get.to(() => Settings(userData: userData));
-                  },
-                  icon: Icon(
-                    CupertinoIcons.gear_solid,
-                    color: col,
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsets.only(right: padding),
+              //   child: IconButton(
+              //     padding: EdgeInsets.zero,
+              //     iconSize: size,
+              //     onPressed: () {
+              //       Get.to(() => Settings(userData: userData));
+              //     },
+              //     icon: Icon(
+              //       CupertinoIcons.gear_solid,
+              //       color: userColor,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           Row(
@@ -593,10 +609,11 @@ class IconRow extends StatelessWidget {
                 },
                 icon: Icon(
                   CupertinoIcons.cart_fill,
-                  color: col,
+                  color: userColor,
+                  size: 43,
                 ),
               ),
-              SizedBox(width: padding),
+              SizedBox(width: 10),
               IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: size,
@@ -608,7 +625,8 @@ class IconRow extends StatelessWidget {
                 },
                 icon: Icon(
                   CupertinoIcons.house_fill,
-                  color: col,
+                  color: userColor,
+                  size: 40,
                 ),
               ),
             ],
@@ -907,7 +925,7 @@ class _TaskState extends State<TaskOverview> {
                         showTasks
                             ? CupertinoIcons.arrow_down
                             : CupertinoIcons.arrow_up,
-                        color: Theme.of(context).colorScheme.tertiary,
+                        color: userColor,
                         size: 25),
                     const SizedBox(width: 5),
                     Text('${'Your_txt'.tr} Tasks',
@@ -925,7 +943,7 @@ class _TaskState extends State<TaskOverview> {
                   }
                 },
                 icon: Icon(CupertinoIcons.add,
-                    color: Theme.of(context).colorScheme.tertiary, size: 30),
+                    color: userColor, size: 30),
               ),
             ],
           ),
@@ -1490,7 +1508,7 @@ class _TaskState extends State<TaskOverview> {
                               showRoutines
                                   ? CupertinoIcons.arrow_down
                                   : CupertinoIcons.arrow_up,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: userColor,
                               size: 25),
                           const SizedBox(width: 5),
                           Text('${'Your_txt'.tr} Routines',
@@ -1508,7 +1526,7 @@ class _TaskState extends State<TaskOverview> {
                         }
                       },
                       icon: Icon(CupertinoIcons.add,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: userColor,
                           size: 30),
                     ),
                   ],
@@ -1648,7 +1666,7 @@ class _MainTaskState extends State<Task> {
                               const BorderRadius.all(Radius.circular(15)),
                           border: Border.all(
                               width: 2,
-                              color: Theme.of(context).colorScheme.tertiary),
+                              color: userColor),
                         ),
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -1660,7 +1678,7 @@ class _MainTaskState extends State<Task> {
                                   .bodySmall
                                   ?.copyWith(
                                     color:
-                                        Theme.of(context).colorScheme.tertiary,
+                                        userColor,
                                   ),
                             ))),
                   ],

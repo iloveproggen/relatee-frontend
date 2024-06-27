@@ -18,10 +18,13 @@ final focusNodeSwitch = FocusNode();
 final focusNodeButton = FocusNode();
 late int userId;
 
-Map<String, dynamic> error = {'hasError': false, 'message': "",};
+Map<String, dynamic> error = {
+  'hasError': false,
+  'message': "",
+};
 
 //checks if a user has saved their token in sharedpreferences, if yes, skip log in
-Future<String?> checkIfSignedIn() async {
+Future<String?> getPrefs() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('token');
   print("token: $token");
@@ -31,7 +34,6 @@ Future<String?> checkIfSignedIn() async {
   print("no token found");
   return null;
 }
-
 
 // Future<bool> authenticateWithFaceID() async {
 //   final localAuth = LocalAuthentication();
@@ -56,7 +58,7 @@ class CheckLoggedIn extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = MediaQuery.of(context).platformBrightness;
     return FutureBuilder<String?>(
-      future: checkIfSignedIn(),
+      future: getPrefs(),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.hasData) {
           return GetMaterialApp(
@@ -67,7 +69,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: Scaffold(body: MainWidget()));
+              home: const Scaffold(body: MainWidget()));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -93,8 +95,8 @@ void checkLastLoginDate() async {
 // }
   String? lastLoginDate = prefs.getString('lastLoginDate');
   DateTime now = DateTime.now();
-  DateTime yesterday = now.subtract(Duration(days: 1));
-  
+  DateTime yesterday = now.subtract(const Duration(days: 1));
+
   if (lastLoginDate == null) {
     // First time login, set streak to 1 and save today's date
     prefs.setInt('streak', 1);
@@ -109,10 +111,10 @@ void checkLastLoginDate() async {
       prefs.setString('lastLoginDate', now.toString());
       print('Last login was yesterday. Streak incremented to ${streak + 1}.');
     } else {
-    // Last login was today, do nothing
-    print('Last login was today.');
+      // Last login was today, do nothing
+      print('Last login was today.');
+    }
   }
-  } 
 }
 
 // class LoginApp extends StatefulWidget {
@@ -197,7 +199,8 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
         isLoading = false;
         timeOut = true;
         error['hasError'] = true;
-        error['message'] = jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
+        error['message'] =
+            jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
     }
     setState(() {
@@ -212,7 +215,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       _saveToken(token);
       int userId = jsonDecode(response.body)['userId'];
       print("The user id is: $userId");
-      Get.off(() => MainWidget());
+      Get.off(() => const MainWidget());
       print("Opened MainWidget");
       setState() {
         isLoading = false;
@@ -273,29 +276,28 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(
         padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
-        child: Stack(
-          children: [
-            isLoading
-                ? Positioned.fill(
+        child: Stack(children: [
+          isLoading
+              ? Positioned.fill(
                   bottom: 150,
                   child: Container(
                     color: Colors.transparent,
                     child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-                      child: CupertinoActivityIndicator(
-                      radius: 15,
-                      color: Theme.of(context).colorScheme.tertiary,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 40, left: 20, right: 20),
+                        child: CupertinoActivityIndicator(
+                          radius: 15,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
                       ),
                     ),
-                    ),
                   ),
-                  )
-                : Container(),
-            Column(
+                )
+              : Container(),
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const SizedBox(
                 height: 50,
               ),
@@ -320,14 +322,16 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                       controller: _usernameController,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onPrimary,
                             width: 2,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             width: 2,
                             color: Theme.of(context).colorScheme.onSecondary,
@@ -344,7 +348,8 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                            ?.copyWith(
+                                color: Theme.of(context).colorScheme.tertiary),
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
@@ -360,14 +365,16 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                       cursorColor: Theme.of(context).colorScheme.onSecondary,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onPrimary,
                             width: 2,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             width: 2,
                             color: Theme.of(context).colorScheme.onSecondary,
@@ -384,15 +391,15 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                         hintStyle: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                            ?.copyWith(
+                                color: Theme.of(context).colorScheme.tertiary),
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: TextButton(
                             style: ButtonStyle(
-                              padding: MaterialStateProperty.all<EdgeInsets>(
-                                  const EdgeInsets.all(0)),
-                              animationDuration: Duration.zero
-                            ),
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                    const EdgeInsets.all(0)),
+                                animationDuration: Duration.zero),
                             child: Icon(
                               _isPasswordVisible
                                   ? Icons.visibility
@@ -414,19 +421,24 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                 ),
               ),
               const SizedBox(height: 0),
-              error['hasError'] && error['message'] != "" && isLoading == false ? 
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
-                    child: Text(
-                      error['message'] == "Invalid request" ? "Invalid email adress" : error['message'],
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.red,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ) : Container(height: 67),
+              error['hasError'] && error['message'] != "" && isLoading == false
+                  ? Center(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 40, left: 20, right: 20),
+                        child: Text(
+                          error['message'] == "Invalid request"
+                              ? "Invalid email adress"
+                              : error['message'],
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.red,
+                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : Container(height: 67),
               // if (error['hasError'] && error['message'] == "" ||
               //     error['message'].isEmpty)
               //   Center(
@@ -441,7 +453,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
               //       ),
               //     ),
               //   ),
-              
+
               // ListTile(
               //   contentPadding: const EdgeInsets.only(top: 20),
               //   leading: CupertinoSwitch(
@@ -457,7 +469,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
               //     ),
               //   title: Text('Stay Signed In?', style: Theme.of(context).textTheme.bodySmall),
               // ),
-              const SizedBox(height:40),
+              const SizedBox(height: 40),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,8 +578,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                   ]),
             ],
           ),
-          ]
-        ),
+        ]),
       ),
     );
   }

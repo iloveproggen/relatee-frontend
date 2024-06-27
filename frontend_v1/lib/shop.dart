@@ -13,7 +13,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 late VoidCallback updateShop;
 late int coins;
-const Color purple = Color(0xFF7C4ACA);
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
@@ -279,6 +278,7 @@ class ShopViewState extends State<ShopView> {
 
   @override
   Widget build(BuildContext context) {
+    userColor = Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!;
     updateShop = _updateRewards;
     return Padding(
       padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -327,8 +327,8 @@ class ShopViewState extends State<ShopView> {
                               _updateRewards();
                             }
                           },
-                          child: const Icon(CupertinoIcons.add,
-                              color: Color.fromARGB(255, 204, 198, 196),
+                          child: Icon(CupertinoIcons.add,
+                              color: userColor,
                               size: 35))
                     ],
                   ),
@@ -439,7 +439,7 @@ class ShopViewState extends State<ShopView> {
                               "assets/images/relatee.svg",
                               height: 20,
                               width: 20,
-                              color: purple,
+                              color: userColor,
                             ),
                             const SizedBox(width: 5),
                             Text(
@@ -565,7 +565,7 @@ class _ItemCardState extends State<ItemCard> {
                           child: SvgPicture.asset(
                             "assets/images/relatee.svg",
                             height: 15,
-                            color: purple,
+                            color: userColor,
                           ),
                         ),
                         const SizedBox(
@@ -708,7 +708,7 @@ class _ItemCardState extends State<ItemCard> {
                           width: 2,
                           strokeAlign: BorderSide.strokeAlignInside,
                           color: buyable && widget.reward['stock'] != 0
-                              ? purple.withOpacity(0.0)
+                              ? userColor
                               : Theme.of(context)
                                   .colorScheme
                                   .tertiary
@@ -717,7 +717,7 @@ class _ItemCardState extends State<ItemCard> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
                         color: buyable && widget.reward['stock'] != 0
-                            ? purple.withOpacity(0.8)
+                            ? userColor
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(

@@ -103,7 +103,7 @@ class DetailedTaskView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getHouseholdData(), // Ensure this returns Future<List<Map<String, dynamic>>>
+      future: getHouseholdData(context), // Ensure this returns Future<List<Map<String, dynamic>>>
       builder:
           (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
