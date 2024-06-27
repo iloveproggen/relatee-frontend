@@ -271,7 +271,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                               .textTheme
                               .labelSmall
                               ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
+                                color: main.userColor,
                               ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -279,15 +279,13 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: main.userColor,
                             ),
                           ),
-                          focusColor: Theme.of(context)
-                              .colorScheme
-                              .onPrimary
+                          focusColor: main.userColor
                               .withOpacity(0.5),
                         ),
-                        style: Theme.of(context).textTheme.labelSmall,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: main.userColor),
                       ),
                     ),
                     TextButton(
@@ -300,7 +298,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                           _closeSearchBar();
                         },
                         child: Icon(CupertinoIcons.xmark,
-                            color: Theme.of(context).colorScheme.tertiary,
+                            color:main.userColor,
                             size: 20))
                   ])
                 : Row(
@@ -316,7 +314,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                           decoration: BoxDecoration(
                               border: Border.all(
                                   color:
-                                      Theme.of(context).colorScheme.onPrimary,
+                                      main.userColor,
                                   width: 1.5),
                               borderRadius: BorderRadius.circular(100)),
                           child: Padding(
@@ -327,9 +325,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                                     .textTheme
                                     .labelSmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
+                                      color: main.userColor
                                     )),
                           ),
                         ),
@@ -392,7 +388,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                               const EdgeInsets.all(0),
                             )),
                         child: Icon(CupertinoIcons.arrow_up_arrow_down,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: main.userColor,
                             size: 25),
                         onPressed: () {
                           _reverseView();
@@ -407,7 +403,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                               const EdgeInsets.all(0),
                             )),
                         child: Icon(CupertinoIcons.search,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: main.userColor,
                             size: 25),
                         onPressed: () {
                           _openSearchBar();
@@ -486,7 +482,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                   CompletedTaskList(tasks: completedTasks, userData: users));
             },
             child: Text('See_completed_Tasks_txt'.tr,
-                style: Theme.of(context).textTheme.labelSmall)),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.tertiary))),
         const SizedBox(height: 40)
       ],
     );
@@ -617,7 +613,7 @@ class Member extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Icon(CupertinoIcons.person_fill, size: 50, color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),),
+        // Icon(CupertinoIcons.person_fill, size: 50, color:main.userColor.withOpacity(0.5),),
         // const SizedBox(width: 10),
         TextButton(
           style: ButtonStyle(
@@ -678,7 +674,7 @@ class UserPoints extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(15)),
-        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+        color:Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -760,7 +756,7 @@ class MoreDetailsTask extends StatelessWidget {
                 //                 .textTheme
                 //                 .bodySmall
                 //                 ?.copyWith(
-                //                   color: Theme.of(context).colorScheme.tertiary,
+                //                   color:main.userColor,
                 //                 )),
                 //       ),
                 Container(
@@ -783,7 +779,7 @@ class MoreDetailsTask extends StatelessWidget {
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
                       border: Border.all(
                           width: 1,
-                          color: Theme.of(context).colorScheme.tertiary),
+                          color:main.userColor),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -794,7 +790,7 @@ class MoreDetailsTask extends StatelessWidget {
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(
-                                  color: Theme.of(context).colorScheme.tertiary,
+                                  color:main.userColor,
                                 )),
                       ),
                     )),
@@ -823,10 +819,12 @@ class InviteButton extends StatelessWidget {
       child: Row(
         children: [
           Text('Invite_Members_txt'.tr,
-              style: Theme.of(context).textTheme.labelSmall),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.tertiary,
+                    )),
           const SizedBox(width: 10),
           Icon(CupertinoIcons.arrow_right,
-              color: Theme.of(context).colorScheme.tertiary, size: 20)
+              color:Theme.of(context).colorScheme.tertiary, size: 20)
         ],
       ),
     );

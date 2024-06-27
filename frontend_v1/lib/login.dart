@@ -5,7 +5,7 @@ import 'package:frontend_v1/assets/locale_strings.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
-import 'package:frontend_v1/theme/light_theme.dart';
+import 'package:frontend_v1/theme/light_theme_alt.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
