@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart';
@@ -380,6 +381,11 @@ class _ProfileViewState extends State<ProfileView> {
                               style: Theme.of(context).textTheme.bodySmall),
                           TextSpan(
                               text: '"${widget.userData['householdName']}"',
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Get.to(() => MainHouseholdOverview(
+                                      pUserData: widget.userData));
+                                },
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
