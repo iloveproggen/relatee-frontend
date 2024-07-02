@@ -23,8 +23,10 @@ class PublicProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String avatar = userData['emoji'];
-    final Color colorPrimary = Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
-    final Color colorSecondary = Color(int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
+    final Color colorPrimary =
+        Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
+    final Color colorSecondary = Color(
+        int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
     print(userData);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -61,14 +63,13 @@ class PublicProfile extends StatelessWidget {
                       child: ClipOval(
                         child: Center(
                           child: Text(
-                                  avatar,
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    fontSize: 130,
-                                  ),
-                                ),
+                            avatar,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 130,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -81,7 +82,8 @@ class PublicProfile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 30),
-                    Text('${userData['forename']} ${userData['surname']}',
+                    Text(
+                        '${userData['forename'] ?? ""} ${userData['surname'] ?? ""}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
                     Text(
@@ -117,8 +119,8 @@ class PublicProfile extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
@@ -128,18 +130,16 @@ class PublicProfile extends StatelessWidget {
                                   "assets/images/relatee.svg",
                                   height: 20,
                                   width: 20,
-                                  color: purple,
+                                  color: Color.lerp(
+                                      hexToColor(userData['colorPrimary']),
+                                      hexToColor(userData['colorSecondary']),
+                                      0.5)!,
                                 ),
                                 SizedBox(width: 5),
                                 Text(
                                   '${userData['coins']}',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4A4646),
-                                    fontSize: 24,
-                                    fontFamily: 'Karla',
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style:Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
                             ),
@@ -150,20 +150,15 @@ class PublicProfile extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration:  BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
                             child: Text(
                               'lvl ${userData['level']}',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFF4A4646),
-                                fontSize: 24,
-                                fontFamily: 'Karla',
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
                             ),
                           ),
                         ),
@@ -232,7 +227,11 @@ class PublicTaskOverview extends StatelessWidget {
         taskLeft.isNotEmpty
             ? Column(
                 children: taskLeft.map((task) {
-                  return main.Task(task: task, userData: userData, isRecommended: false,);
+                  return main.Task(
+                    task: task,
+                    userData: userData,
+                    isRecommended: false,
+                  );
                 }).toList(),
               )
             : Column(

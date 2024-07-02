@@ -377,10 +377,11 @@ class ShopViewState extends State<ShopView> {
                                           CupertinoDialogAction(
                                             isDestructiveAction: true,
                                             onPressed: () async {
+                                              
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
                                               await deleteReward(reward['id']);
-                                              _updateRewards();
+                                              //_updateRewards();
                                             },
                                             child: const Text('Yes',
                                                 style: TextStyle(

@@ -285,9 +285,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
 
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('useUserColor') == true) {
-        userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']), hexToColor(mappedUserData['colorSecondary']), 0.5)!;
-      }
-      else {
+        userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']),
+            hexToColor(mappedUserData['colorSecondary']), 0.5)!;
+      } else {
         userColor = Theme.of(context).colorScheme.tertiary;
       }
 
@@ -484,6 +484,12 @@ class _MainViewState extends State<MainView> {
     });
   }
 
+  void _updateWithoutReload(){
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
@@ -510,7 +516,7 @@ class _MainViewState extends State<MainView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const IconRow(),
-                        // const NotificationCentre(), 
+                        // const NotificationCentre(),
                         const WelcomeText(),
                         ButtonRow(tasks: tasks),
                         //ButtonRecommended(),
@@ -525,9 +531,8 @@ class _MainViewState extends State<MainView> {
 class IconRow extends StatelessWidget {
   const IconRow({super.key});
 
-
   final double padding = 20;
-  final double size = 40;
+  final double size = 30;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
@@ -610,10 +615,10 @@ class IconRow extends StatelessWidget {
                 icon: Icon(
                   CupertinoIcons.cart_fill,
                   color: userColor,
-                  size: 43,
+                  size: size,
                 ),
               ),
-              SizedBox(width: 10),
+              SizedBox(width: 5),
               IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: size,
@@ -626,7 +631,7 @@ class IconRow extends StatelessWidget {
                 icon: Icon(
                   CupertinoIcons.house_fill,
                   color: userColor,
-                  size: 40,
+                  size: size,
                 ),
               ),
             ],
@@ -942,8 +947,7 @@ class _TaskState extends State<TaskOverview> {
                     update();
                   }
                 },
-                icon: Icon(CupertinoIcons.add,
-                    color: userColor, size: 30),
+                icon: Icon(CupertinoIcons.add, color: userColor, size: 30),
               ),
             ],
           ),
@@ -1127,10 +1131,9 @@ class _TaskState extends State<TaskOverview> {
                                                               CupertinoDialogAction(
                                                                 onPressed:
                                                                     () async {
-                                                                  await deleteTask(
-                                                                      task[
-                                                                          'id']);
                                                                   Get.back();
+                                                                  await deleteTask(
+                                                                      task['id']);
                                                                   update();
                                                                 },
                                                                 isDestructiveAction:
@@ -1525,9 +1528,8 @@ class _TaskState extends State<TaskOverview> {
                           update();
                         }
                       },
-                      icon: Icon(CupertinoIcons.add,
-                          color: userColor,
-                          size: 30),
+                      icon:
+                          Icon(CupertinoIcons.add, color: userColor, size: 30),
                     ),
                   ],
                 ),
@@ -1664,9 +1666,7 @@ class _MainTaskState extends State<Task> {
                         decoration: BoxDecoration(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                              width: 2,
-                              color: userColor),
+                          border: Border.all(width: 2, color: userColor),
                         ),
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -1677,8 +1677,7 @@ class _MainTaskState extends State<Task> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color:
-                                        userColor,
+                                    color: userColor,
                                   ),
                             ))),
                   ],
@@ -1708,11 +1707,12 @@ class OtherTasks extends StatefulWidget {
 }
 
 class _OtherTasksState extends State<OtherTasks> {
-  bool showTasks = false;
+  bool showTasks = true;
 
-  void update() {
+  void updateView() {
     setState(() {
       showTasks = !showTasks;
+      update();
     });
   }
 
@@ -1803,7 +1803,9 @@ class _OtherTasksState extends State<OtherTasks> {
                                         CupertinoDialogAction(
                                           onPressed: () async {
                                             await deleteTask(task['id']);
+                                            print("deleted task");
                                             Get.back();
+                                            print("updating now");
                                             update();
                                           },
                                           isDestructiveAction: true,

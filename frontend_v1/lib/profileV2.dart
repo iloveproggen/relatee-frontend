@@ -186,6 +186,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final double iconSize = 30;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -207,19 +208,19 @@ class _ProfileViewState extends State<ProfileView> {
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.sparkles,
-                        size: 40, color: userColor),
+                        size: iconSize, color: userColor),
                     onPressed: () {
                       openColorPicker();
                     },
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.gear_solid,
-                        size: 42, color: userColor),
+                        size: iconSize, color: userColor),
                     onPressed: () async {
                       Get.to(() => Settings(userData: userData));
                       SharedPreferences prefs =
@@ -234,7 +235,7 @@ class _ProfileViewState extends State<ProfileView> {
                       }
                     },
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all<EdgeInsets>(
@@ -281,7 +282,7 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(
                       CupertinoIcons.square_arrow_right,
                       color: Colors.red.withOpacity(0.5),
-                      size: 40,
+                      size: iconSize,
                     ),
                   ),
                 ],
@@ -420,8 +421,8 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
@@ -437,12 +438,7 @@ class _ProfileViewState extends State<ProfileView> {
                                 Text(
                                   '${widget.userData['coins']}',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4A4646),
-                                    fontSize: 24,
-                                    fontFamily: 'Karla',
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium
                                 ),
                               ],
                             ),
@@ -453,20 +449,15 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
                             child: Text(
                               'lvl ${widget.userData['level']}',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFF4A4646),
-                                fontSize: 24,
-                                fontFamily: 'Karla',
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
                             ),
                           ),
                         ),

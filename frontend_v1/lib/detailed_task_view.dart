@@ -177,6 +177,10 @@ class _DetailedTaskState extends State<DetailedTask> {
     taskName.text = task['name'];
     taskPrice.text = task['reward'].toString();
     description.text = task['description'] ?? "";
+    print("task emoji: ${task['emoji']}");
+    if (task['emoji'] == "") {
+      emojiDisplay = null;
+    }
     emojiDisplay = task['emoji'];
     deadline = task['deadline'] != null ? DateTime.parse(task['deadline']) : null;
   }
@@ -452,12 +456,12 @@ class _DetailedTaskState extends State<DetailedTask> {
                       padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
-                    child: emojiDisplay == null
+                    child: emojiDisplay == null || emojiDisplay == ""
                         ? Text(
                             "add icon",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 20,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                fontWeight: FontWeight.bold
                             ),
                           )
                         : Text(
@@ -469,11 +473,11 @@ class _DetailedTaskState extends State<DetailedTask> {
                             ),
                           ),
                   ),
-                  emojiDisplay != null
+                  emojiDisplay != null && emojiDisplay != ""
                       ? IconButton(
                           onPressed: () {
                             setState(() {
-                              emojiDisplay = null;
+                              emojiDisplay = "";
                             });
                           },
                           icon: Icon(CupertinoIcons.clear,
