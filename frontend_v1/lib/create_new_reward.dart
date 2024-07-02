@@ -71,6 +71,9 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController description = TextEditingController();
   TextEditingController stock = TextEditingController();
 
+  FocusNode _descriptionFocusNode = FocusNode();
+                          
+
   bool required = false;
 
   String? emojiDisplay;
@@ -131,7 +134,7 @@ class _NewShopItemState extends State<NewShopItem> {
                             emojiDisplay ?? "");
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
-                        Get.back(result: 'Task_created_txt'.tr);
+                        Get.back();
                       }
                     },
                     child: Text(required ? 'Confirm_txt'.tr : 'Cancel_txt'.tr,
@@ -142,46 +145,105 @@ class _NewShopItemState extends State<NewShopItem> {
                   )
                 ],
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Form(
-                  child: Column(
-                    children: [
-                      TextField(
-                          cursorColor:
-                              Theme.of(context).colorScheme.onSecondary,
-                          controller: taskName,
-                          maxLength: 30,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: "",
-                            hintText: 'new_item_txt'.tr,
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                  color: Colors.red.withOpacity(0.5),
-                                ),
-                          ),
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ],
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  TextFormField(
+                    controller: taskName,
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: "",
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    maxLength: 30,
                   ),
-                ),
+                  IgnorePointer(
+                    child: Visibility(
+                      visible: taskName.text.isEmpty,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: ('new_item_txt'.tr),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: ' *',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.red.withOpacity(0.5),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.money_dollar_circle,
+                    size: iconSize,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  SizedBox(width: paddingRight),
+                  Text(
+                    'reward_txt'.tr,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(" *",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.red.withOpacity(0.8))),
+                  Expanded(
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          MaxLengthNumberInputFormatter(10),
+                        ],
+                        decoration: InputDecoration(
+                            hintText: 'add_price_txt'.tr,
+                            hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.tertiary),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
               //const SliderWidget(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.smiley,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
+                  Icon(
+                    CupertinoIcons.smiley,
+                    size: iconSize,
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
+                  SizedBox(width: paddingRight,),
                   Text(
                     'icon:',
                     style: Theme.of(context).textTheme.bodySmall,
@@ -221,14 +283,18 @@ class _NewShopItemState extends State<NewShopItem> {
                       }
                     },
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     child: emojiDisplay == null
                         ? Text(
-                            "add icon...",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,)
+                            "add icon",
+                            style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.tertiary),
                             )
                         : Text(
                             emojiDisplay ?? 'add icon',
@@ -254,15 +320,12 @@ class _NewShopItemState extends State<NewShopItem> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.add_circled,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
+                  Icon(
+                    CupertinoIcons.add_circled,
+                    size: iconSize,
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
+                  SizedBox(width: paddingRight),
                   Text(
                     'stock:',
                     style: Theme.of(context).textTheme.bodySmall,
@@ -278,8 +341,12 @@ class _NewShopItemState extends State<NewShopItem> {
                         ],
                         decoration: InputDecoration(
                             hintText: 'infinite',
-                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,),
+                            hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.tertiary),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -288,59 +355,29 @@ class _NewShopItemState extends State<NewShopItem> {
                   ),
                 ],
               ),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.money_dollar_circle,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                  Text(
-                    'price_txt'.tr,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Expanded(
-                    child: TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          MaxLengthNumberInputFormatter(10),
-                        ],
-                        decoration: InputDecoration(
-                            hintText: 'add_price_txt'.tr,
-                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold, color: Colors.red.withOpacity(0.5)),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+              
               Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 20),
-                        child: Icon(
-                          CupertinoIcons.text_aligncenter,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
+                      Icon(
+                        CupertinoIcons.text_aligncenter,
+                        size: iconSize,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
-                      Expanded(
+                      SizedBox(width: paddingRight),
+                      TextButton(
+                        style: ButtonStyle(
+                          alignment: Alignment.centerLeft,
+                          animationDuration: Duration.zero,
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0),
+                          ),
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                        },
                           child: Text(
                         'description_txt'.tr,
                         textAlign: TextAlign.left,
@@ -351,6 +388,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: TextField(
+                      focusNode: _descriptionFocusNode,
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
                         maxLines: 4,
                         maxLength: 100,
@@ -359,9 +397,7 @@ class _NewShopItemState extends State<NewShopItem> {
                         decoration: InputDecoration(
                             counterText: "",
                             hintText: 'add_description_txt'.tr,
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 20),
+                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary, fontWeight: FontWeight.bold),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme

@@ -24,7 +24,7 @@ class _SettingsState extends State<Settings> {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const BackIconRow(),
+            const BackIconRow(getTo: MainWidget()),
             const SettingsWidget(),
             Container(
               width: double.infinity,

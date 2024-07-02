@@ -278,7 +278,6 @@ class ShopViewState extends State<ShopView> {
 
   @override
   Widget build(BuildContext context) {
-    userColor = Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!;
     updateShop = _updateRewards;
     return Padding(
       padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
@@ -381,7 +380,7 @@ class ShopViewState extends State<ShopView> {
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
                                               await deleteReward(reward['id']);
-                                              //_updateRewards();
+                                              _updateRewards();
                                             },
                                             child: const Text('Yes',
                                                 style: TextStyle(

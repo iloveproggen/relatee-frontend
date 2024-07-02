@@ -481,8 +481,9 @@ class _ProfileViewState extends State<ProfileView> {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key});
+  const BackIconRow({super.key, this.getTo});
 
+  final Widget? getTo;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
@@ -501,7 +502,12 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Get.back();
+                if (getTo != null) {
+                  print(getTo ?? "no widget found");
+                  Get.offAll(() => getTo!);
+                } else {
+                  Get.back();
+                }
               },
               child: Row(
                 children: [
