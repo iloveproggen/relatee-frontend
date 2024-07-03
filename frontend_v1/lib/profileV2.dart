@@ -92,10 +92,10 @@ class _ProfileViewState extends State<ProfileView> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: const Text("Choose your profile's colors"),
+          title: Text('ChooseProfileColor_txt'.tr),
           actions: [
             CupertinoActionSheetAction(
-              child: const Text('Save changes',
+              child: Text('SaveChanges_txt'.tr,
                   style: TextStyle(color: Colors.blue)),
               onPressed: () {
                 setState(() {
@@ -104,7 +104,7 @@ class _ProfileViewState extends State<ProfileView> {
               },
             ),
             CupertinoActionSheetAction(
-              child: const Text('Discard Changes',
+              child: Text('DiscardChanges_txt'.tr,
                   style: TextStyle(color: Colors.red)),
               onPressed: () {
                 setState(() {
@@ -422,7 +422,10 @@ class _ProfileViewState extends State<ProfileView> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
@@ -435,11 +438,10 @@ class _ProfileViewState extends State<ProfileView> {
                                   color: userColor,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  '${widget.userData['coins']}',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                ),
+                                Text('${widget.userData['coins']}',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium),
                               ],
                             ),
                           ),
@@ -450,15 +452,16 @@ class _ProfileViewState extends State<ProfileView> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
-                            child: Text(
-                              'lvl ${widget.userData['level']}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium
-                            ),
+                            child: Text('lvl ${widget.userData['level']}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium),
                           ),
                         ),
                       ],
