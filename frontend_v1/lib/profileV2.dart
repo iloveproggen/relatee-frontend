@@ -71,6 +71,58 @@ class _ProfileViewState extends State<ProfileView> {
   late Color colorSecondary;
   bool useSecondaryColor = false;
 
+//brauchen wir für die Levle
+//main usercolor gemischte Farbe -> usercolor
+  final List<int> levelList = [
+    0,
+    200,
+    400,
+    600,
+    800,
+    1000,
+    1300,
+    1600,
+    1900,
+    2200,
+    2400,
+    2700,
+    3000,
+    3400,
+    3800,
+    4200,
+    4600,
+    5000,
+    5500,
+    6000,
+    6500,
+    7000,
+    7600,
+    8200,
+    8800,
+    9400,
+    10000,
+    11000,
+    12000,
+    13500,
+  ];
+
+  //get correct next level xp
+  @override
+  int getLevelProgress() {
+    int level = widget.userData['level'];
+    return levelList[level];
+  }
+
+  //get correct progress value
+  //1 = 100%
+  //0.1 = 10%
+  //getLevelProgress -> 100%
+  //experience
+  double getLevelProgressValue() {
+    int experience = widget.userData['experience'];
+    return (experience / getLevelProgress()).toDouble();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -387,6 +439,21 @@ class _ProfileViewState extends State<ProfileView> {
                     Text(
                         '${widget.userData['forename']} ${widget.userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: LinearProgressIndicator(
+                        //dreisatz für das berechnen des values
+                        value: getLevelProgressValue(),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        valueColor: AlwaysStoppedAnimation<Color>(colorPrimary),
+                      ),
+                    ),
+                    //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
+                    Text(
+                        '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
+                        style: Theme.of(context).textTheme.bodySmall),
                     const SizedBox(height: 20),
                     Text(
                       '@${widget.userData['username']}',

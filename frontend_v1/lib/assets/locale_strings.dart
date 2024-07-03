@@ -130,6 +130,8 @@ class LocaleString extends Translations {
           'ChooseProfileColor_txt': 'Choose your profile\'s colors',
           'SaveChanges_txt': 'Save changes',
           'DiscardChanges_txt': 'Discard changes',
+          'Progress_1_txt': 'You got ',
+          'Progress_2_txt': 'of ',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -257,6 +259,8 @@ class LocaleString extends Translations {
           'ChooseProfileColor_txt': 'Wählen Sie die Farben Ihres Profils',
           'SaveChanges_txt': 'Änderungen speichern',
           'DiscardChanges_txt': 'Änderungen verwerfen',
+          'Progress_1_txt': 'Du hast ',
+          'Progress_2_txt': 'von ',
         }
       };
 }
