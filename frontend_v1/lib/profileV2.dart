@@ -447,7 +447,7 @@ class _ProfileViewState extends State<ProfileView> {
                         value: getLevelProgressValue(),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
-                        valueColor: AlwaysStoppedAnimation<Color>(colorPrimary),
+                        valueColor: AlwaysStoppedAnimation<Color>(userColor),
                       ),
                     ),
                     //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
