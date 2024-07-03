@@ -238,7 +238,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     onPressed: () {
@@ -481,15 +481,20 @@ class _ProfileViewState extends State<ProfileView> {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key, this.getTo});
+  const BackIconRow({super.key, this.getTo, this.updateNeeded});
 
   final Widget? getTo;
+  final bool? updateNeeded;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
+    bool pUpdateNeeded = false;
+    if (updateNeeded != null && updateNeeded == true) {
+      pUpdateNeeded = true;
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -502,11 +507,17 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
+                
                 if (getTo != null) {
                   print(getTo ?? "no widget found");
                   Get.offAll(() => getTo!);
                 } else {
+                  print(pUpdateNeeded);
+                  if (pUpdateNeeded) {
+                    Get.back(result: true);
+                  } else {
                   Get.back();
+                  }
                 }
               },
               child: Row(
@@ -565,6 +576,7 @@ class BackAndUpdateIcon extends StatelessWidget {
               onPressed: () async {
                 Map<String, dynamic> newUserData = await updateUserProfile(
                     avatar, formattedColorPrimary, formattedColorSecondary);
+                    print(newUserData);
                 Get.back(result: newUserData);
               },
               child: Row(

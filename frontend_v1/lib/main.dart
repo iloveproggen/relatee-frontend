@@ -484,10 +484,8 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  void _updateWithoutReload(){
-    setState(() {
-
-    });
+  void _updateWithoutReload() {
+    setState(() {});
   }
 
   @override
@@ -528,11 +526,18 @@ class _MainViewState extends State<MainView> {
   }
 }
 
-class IconRow extends StatelessWidget {
+class IconRow extends StatefulWidget {
   const IconRow({super.key});
 
+  @override
+  State<IconRow> createState() => _IconRowState();
+}
+
+class _IconRowState extends State<IconRow> {
   final double padding = 20;
+
   final double size = 30;
+
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
@@ -554,14 +559,15 @@ class IconRow extends StatelessWidget {
                   width: 45,
                   child: TextButton(
                     style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             EdgeInsets.zero)),
                     onPressed: () async {
-                      Map<String, dynamic> newUserData = await Get.to(
+                      var result = await Get.to(
                           () => ProfileView(userData: userData, tasks: tasks));
-                      if (newUserData != {}) {
-                        userData = newUserData;
-                        update();
+                      if (result != null) {
+                        setState(() {
+                          userData = result;
+                        },);
                       }
                     },
                     child: Container(
@@ -609,8 +615,11 @@ class IconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 iconSize: size,
                 onPressed: () async {
-                  await Get.to(() => MainShopView(userData: userData));
-                  update();
+                  bool? result = await Get.to(() => MainShopView(userData: userData));
+                  if (result == true) {
+                    print("main page was updated");
+                    update();
+                  }
                 },
                 icon: Icon(
                   CupertinoIcons.cart_fill,
@@ -1133,7 +1142,8 @@ class _TaskState extends State<TaskOverview> {
                                                                     () async {
                                                                   Get.back();
                                                                   await deleteTask(
-                                                                      task['id']);
+                                                                      task[
+                                                                          'id']);
                                                                   update();
                                                                 },
                                                                 isDestructiveAction:

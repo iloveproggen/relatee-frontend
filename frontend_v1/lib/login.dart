@@ -202,6 +202,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
         error['message'] =
             jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
+      //Get.to(() => const LoginWidget());
     }
     setState(() {
       isLoading = true;

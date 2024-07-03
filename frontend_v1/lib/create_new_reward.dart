@@ -371,7 +371,7 @@ class _NewShopItemState extends State<NewShopItem> {
                         style: ButtonStyle(
                           alignment: Alignment.centerLeft,
                           animationDuration: Duration.zero,
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0),
                           ),
                         ),
