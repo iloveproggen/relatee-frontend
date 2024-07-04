@@ -70,6 +70,8 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController description = TextEditingController();
   TextEditingController stock = TextEditingController();
 
+  FocusNode _descriptionFocusNode = FocusNode();
+
   bool required = false;
 
   String? emojiDisplay;
@@ -334,16 +336,23 @@ class _NewShopItemState extends State<NewShopItem> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 20),
-                        child: Icon(
-                          CupertinoIcons.text_aligncenter,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
+                      Icon(
+                        CupertinoIcons.text_aligncenter,
+                        size: iconSize,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
-                      Expanded(
+                      SizedBox(width: paddingRight),
+                      TextButton(
+                        style: ButtonStyle(
+                          alignment: Alignment.centerLeft,
+                          animationDuration: Duration.zero,
+                          padding: WidgetStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0),
+                          ),
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                        },
                           child: Text(
                         'description_txt'.tr,
                         textAlign: TextAlign.left,
@@ -354,6 +363,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: TextField(
+                        focusNode: _descriptionFocusNode,
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
                         maxLines: 4,
                         maxLength: 100,
