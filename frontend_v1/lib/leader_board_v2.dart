@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/profileV2.dart';
 
@@ -36,10 +37,26 @@ class MainLeaderboardView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const BackIconRow(),
-              Text(
-                'Members_txt'.tr,
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.left,
+              Row(
+                children: [
+                  Text(
+                    'Members_txt'.tr,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    textAlign: TextAlign.left,
+                  ),
+                  const SizedBox(width: 160.0),
+                  TextButton(
+                    style: ButtonStyle(
+                        alignment: Alignment.centerRight,
+                        animationDuration: Duration.zero,
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0),
+                        )),
+                    child: Icon(CupertinoIcons.arrow_up_arrow_down,
+                        color: userColor, size: 25),
+                    onPressed: () {},
+                  ),
+                ],
               ),
               SizedBox(height: 30),
               ChartLeaderboard(
@@ -55,12 +72,6 @@ class MainLeaderboardView extends StatelessWidget {
     );
   }
 }
-
-/*
-purpose: This widget holdas the back method and header.
-author: Maurice
-date: 17.05.2024
-*/
 
 /*
 purpose: This widget creates the leaderboard chart.
@@ -150,17 +161,11 @@ class ChartLeaderboard extends StatelessWidget {
                     width: width * 0.2,
                     height: height * 0.3,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
+                      gradient: LinearGradient(
+                          colors: [colorPrimary, colorSecondary]),
                       borderRadius: BorderRadius.all(Radius.circular(25)),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text(
-                        'st',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                    child: Padding(padding: EdgeInsets.all(15.0)),
                   ),
                 ),
               if (index == 1)
@@ -170,16 +175,13 @@ class ChartLeaderboard extends StatelessWidget {
                     width: width * 0.2,
                     height: height * 0.2,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text(
-                        'nd',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorPrimary,
+                          colorSecondary,
+                        ],
                       ),
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
                     ),
                   ),
                 ),
@@ -190,16 +192,9 @@ class ChartLeaderboard extends StatelessWidget {
                     width: width * 0.2,
                     height: height * 0.1,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
+                      gradient: LinearGradient(
+                          colors: [colorPrimary, colorSecondary]),
                       borderRadius: BorderRadius.all(Radius.circular(25)),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text(
-                        'rd',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                      ),
                     ),
                   ),
                 ),
