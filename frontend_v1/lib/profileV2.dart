@@ -381,14 +381,6 @@ class _ProfileViewState extends State<ProfileView> {
                   SizedBox(
                     height: 200,
                     width: 200,
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //   width: 7,
-                    //   color: Theme.of(context).colorScheme.onPrimary,
-                    //   strokeAlign: BorderSide.strokeAlignOutside
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(100),
-                    // ),
                     child: TextButton(
                       onPressed: () async {
                         final hasEmojiKeyboard =
@@ -422,7 +414,7 @@ class _ProfileViewState extends State<ProfileView> {
                         }
                       },
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0)),
                       ),
                       child: Container(
@@ -476,6 +468,8 @@ class _ProfileViewState extends State<ProfileView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
                       child: LinearProgressIndicator(
+                      borderRadius: BorderRadius.circular(10),
+                      minHeight: 10,
                         //dreisatz für das berechnen des values
                         value: widget.userData['level'] <= 1
                             ? getLevelProgressValue()
@@ -485,10 +479,11 @@ class _ProfileViewState extends State<ProfileView> {
                         valueColor: AlwaysStoppedAnimation<Color>(userColor),
                       ),
                     ),
+                    SizedBox(height: 5),
                     //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
                     Text(
                         '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: Theme.of(context).textTheme.labelSmall),
                     const SizedBox(height: 20),
                     Text(
                       '@${widget.userData['username']}',

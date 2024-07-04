@@ -31,7 +31,7 @@ class RoutineOverview extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge),
               Text("Routine description",
                   style: Theme.of(context).textTheme.bodySmall),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               tasks.isEmpty
                   ? Text("No tasks found.",
                       style: Theme.of(context).textTheme.bodySmall)
@@ -43,7 +43,7 @@ class RoutineOverview extends StatelessWidget {
                             task: task, users: users, userData: userData);
                       }).toList(),
                     ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
             ],
           )),
     ));
@@ -68,7 +68,7 @@ class RoutineTask extends StatelessWidget {
       child: TextButton(
         style: ButtonStyle(
             animationDuration: Duration.zero,
-            padding: MaterialStateProperty.all<EdgeInsets>(
+            padding: WidgetStateProperty.all<EdgeInsets>(
               const EdgeInsets.all(0),
             )),
         onPressed: () => Get.to(() => DetailedTaskView(
@@ -98,14 +98,14 @@ class RoutineTask extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  constraints: BoxConstraints(maxWidth: 240),
+                  constraints: const BoxConstraints(maxWidth: 240),
                   child: Text(task['name'],
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           )),
                 ),
                 Container(
-                  constraints: BoxConstraints(maxWidth: 180),
+                  constraints: const BoxConstraints(maxWidth: 180),
                   child: (users.firstWhere(
                               (user) => user['id'] == task['userId'],
                               orElse: () => {'forename': null})['forename']) ==
@@ -118,7 +118,7 @@ class RoutineTask extends StatelessWidget {
                               })['forename']}",
                           style: Theme.of(context).textTheme.bodySmall),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(15)),

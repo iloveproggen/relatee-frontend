@@ -24,10 +24,15 @@ void main() {
 }
 
 late Color userColor;
+
 late VoidCallback update;
+late VoidCallback updateWithoutReload;
+
 const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
+
+late Map<String, dynamic> householdData;
 
 http.Client httpClient = http.Client();
 bool _taskView = true;
@@ -226,6 +231,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
         return {
           'id': routine['id'],
           'name': routine['name'],
+          'emoji': routine['emoji'],
         };
       }).toList();
 
@@ -490,6 +496,7 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
+    updateWithoutReload = _updateWithoutReload;
     return FutureBuilder<Map<String, dynamic>>(
         future: _futureUserData,
         builder: (BuildContext context,
@@ -504,9 +511,10 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.data!['userData']['householdId'] == null) {
             return const JoinHouseholdView();
           } else {
-            tasks = List<Map<String, dynamic>>.from(
-                snapshot.data!['userData']['tasks']);
-            userData = snapshot.data!['userData'];
+            householdData = snapshot.data!;
+            userData = householdData['userData'];
+            tasks = userData['tasks'];
+            print(householdData['routines']);
             return SingleChildScrollView(
                 child: Padding(
                     padding:
@@ -592,20 +600,6 @@ class _IconRowState extends State<IconRow> {
                   ),
                 ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.only(right: padding),
-              //   child: IconButton(
-              //     padding: EdgeInsets.zero,
-              //     iconSize: size,
-              //     onPressed: () {
-              //       Get.to(() => Settings(userData: userData));
-              //     },
-              //     icon: Icon(
-              //       CupertinoIcons.gear_solid,
-              //       color: userColor,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
           Row(
@@ -626,7 +620,7 @@ class _IconRowState extends State<IconRow> {
                   size: size,
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: size,
@@ -882,6 +876,10 @@ class _TaskState extends State<TaskOverview> {
     setState(() {
       showOtherTasks = !showOtherTasks;
     });
+  }
+
+  void _refreshState() {
+    setState(() {});
   }
 
   List<Map<String, dynamic>> toDo =
@@ -1243,7 +1241,7 @@ class _TaskState extends State<TaskOverview> {
                                                     thickness: 2,
                                                   ),
                                                 ],
-                                              )); // Assuming CustomFirstTaskWidget is your custom widget for the first item
+                                              )); 
                                         } else {
                                           return MapEntry(
                                               index,
@@ -1265,7 +1263,8 @@ class _TaskState extends State<TaskOverview> {
                                                                   context) =>
                                                               CupertinoAlertDialog(
                                                             title: Text(
-                                                                "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                                                // ignore: prefer_interpolation_to_compose_strings
+                                                                "${'Delete_Task_txt'.tr} ${task['name']}?"),
                                                             content: Text(
                                                                 'Sure_delete_task?_txt'
                                                                     .tr),
@@ -1311,8 +1310,6 @@ class _TaskState extends State<TaskOverview> {
                                                             task['id']);
                                                         completeTask(
                                                             task['id']);
-                                                        // addPoints(
-                                                        //     task['reward'].toString());
                                                         showCupertinoDialog(
                                                           context: context,
                                                           builder: (BuildContext
@@ -1330,10 +1327,6 @@ class _TaskState extends State<TaskOverview> {
                                                                   SizedBox(
                                                                       height:
                                                                           10),
-                                                                  // Image.network(
-                                                                  //   "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
-                                                                  //   scale: 1.3,
-                                                                  // ),
                                                                 ],
                                                               ),
                                                               actions: [
@@ -1398,105 +1391,6 @@ class _TaskState extends State<TaskOverview> {
                                       .toList(),
                                 ),
                                 OtherTasks(otherTasks: otherTasks),
-                                // Column(
-                                //   children: toDo.map((task) {
-                                //     return Dismissible(
-                                //       direction: DismissDirection.horizontal,
-                                //       key: ValueKey(task['id']),
-                                //       onDismissed: (direction) async {
-                                //         if (direction ==
-                                //             DismissDirection.endToStart) {
-                                //           showCupertinoDialog(
-                                //             context: context,
-                                //             builder: (BuildContext context) =>
-                                //                 CupertinoAlertDialog(
-                                //               title: Text(
-                                //                   "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
-                                //               content:
-                                //                   Text('Sure_delete_task?_txt'.tr),
-                                //               actions: [
-                                //                 CupertinoDialogAction(
-                                //                     child: Text('Cancel_txt'.tr,
-                                //                         style: const TextStyle(
-                                //                             color: Colors.blue)),
-                                //                     onPressed: () {
-                                //                       Navigator.pop(context);
-                                //                       update();
-                                //                     }),
-                                //                 CupertinoDialogAction(
-                                //                   onPressed: () async {
-                                //                     await deleteTask(task['id']);
-                                //                     Get.back();
-                                //                     update();
-                                //                   },
-                                //                   isDestructiveAction: true,
-                                //                   child: Text('Delete_txt'.tr,
-                                //                       style: const TextStyle(
-                                //                           color: Colors.red)),
-                                //                 ),
-                                //               ],
-                                //             ),
-                                //           );
-                                //         } else {
-                                //           print(
-                                //               "${'Task_completed!_txt'.tr} ${task['reward']}");
-                                //           tasks.removeWhere(
-                                //               (t) => t['id'] == task['id']);
-                                //           completeTask(task['id']);
-                                //           // addPoints(
-                                //           //     task['reward'].toString());
-                                //           showCupertinoDialog(
-                                //             context: context,
-                                //             builder: (BuildContext context) {
-                                //               return CupertinoAlertDialog(
-                                //                 title:
-                                //                     Text('Congratulations!_txt'.tr),
-                                //                 content: Column(
-                                //                   mainAxisAlignment:
-                                //                       MainAxisAlignment.center,
-                                //                   children: [
-                                //                     const SizedBox(height: 10),
-                                //                     Image.network(
-                                //                       "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
-                                //                       scale: 1.3,
-                                //                     ),
-                                //                   ],
-                                //                 ),
-                                //                 actions: [
-                                //                   CupertinoDialogAction(
-                                //                     child: const Text('OK',
-                                //                         style: TextStyle(
-                                //                           color: Colors.blue,
-                                //                         )),
-                                //                     onPressed: () async {
-                                //                       Navigator.pop(context);
-                                //                       update();
-                                //                     },
-                                //                   ),
-                                //                 ],
-                                //               );
-                                //             },
-                                //           );
-                                //         }
-                                //       },
-                                //       secondaryBackground: Container(
-                                //         margin: const EdgeInsets.only(
-                                //             right: 30, bottom: 22),
-                                //         alignment: Alignment.centerRight,
-                                //         child: const Icon(CupertinoIcons.delete,
-                                //             color: Colors.red, size: 30),
-                                //       ),
-                                //       background: Container(
-                                //         margin: const EdgeInsets.only(
-                                //             left: 30, bottom: 22),
-                                //         alignment: Alignment.centerLeft,
-                                //         child: const Icon(CupertinoIcons.check_mark,
-                                //             color: purple, size: 30),
-                                //       ),
-                                //       child: Task(task: task, userData: userData),
-                                //     );
-                                //   }).toList(),
-                                // ),
                               ],
                             )
                           : Container(),
@@ -1510,7 +1404,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     TextButton(
                       style: ButtonStyle(
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                               const EdgeInsets.all(0))),
                       onPressed: () => _toggleRoutines(),
                       child: Row(
@@ -1541,41 +1435,7 @@ class _TaskState extends State<TaskOverview> {
                     ),
                   ],
                 ),
-                showRoutines ? Routine(userData: userData) : Container(),
-                const SizedBox(height: 30),
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 10, bottom: 60),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       TextButton(
-                //         style: ButtonStyle(
-                //             padding: MaterialStateProperty.all<EdgeInsets>(
-                //                 const EdgeInsets.all(0))),
-                //         onPressed: () async {
-                //           await Get.to(
-                //               () => MainHouseholdOverview(pUserData: userData));
-                //           update();
-                //         },
-                //         child: Row(
-                //           children: [
-                //             Text('Household_Overview_txt'.tr,
-                //                 style: Theme.of(context)
-                //                     .textTheme
-                //                     .labelSmall
-                //                     ?.copyWith(fontSize: 18)),
-                //             const SizedBox(width: 10),
-                //             Icon(
-                //               CupertinoIcons.house,
-                //               color: Theme.of(context).colorScheme.tertiary,
-                //               size: size,
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
+                showRoutines ? Routine(householdData: householdData) : Container(),
                 const SizedBox(height: 50),
               ],
             )
