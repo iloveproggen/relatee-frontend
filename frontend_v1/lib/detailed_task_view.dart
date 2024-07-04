@@ -354,7 +354,7 @@ class _DetailedTaskState extends State<DetailedTask> {
               //     ),
               //   ),
               // ),
-              Text("created by ${task['ownerForename']}",
+              Text("created by ${task['ownerForename'] ?? task['ownerSurname'] ?? task['ownerUsername'] ?? 'user not found'}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.tertiary,
                       fontWeight: FontWeight.bold)),

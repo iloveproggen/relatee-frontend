@@ -69,7 +69,8 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: const Scaffold(body: MainWidget()));
+              home: const Scaffold(body: MainWidget())
+              );
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,

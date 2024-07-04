@@ -5,6 +5,9 @@ import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+bool changedColorSetting = false;
+bool useUserColor = false;
+
 class Settings extends StatefulWidget {
   const Settings({super.key, required this.userData});
 
@@ -15,7 +18,13 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    changedColorSetting = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +85,7 @@ class _SettingsState extends State<Settings> {
               children: [
                 IconButton(
                   style: ButtonStyle(
-                    padding: MaterialStateProperty.all(
-                        const EdgeInsets.all(0)),
+                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
                   ),
                   icon: Icon(CupertinoIcons.question_circle,
                       color: Theme.of(context).colorScheme.tertiary),
@@ -87,7 +95,26 @@ class _SettingsState extends State<Settings> {
                       builder: (BuildContext context) {
                         return CupertinoAlertDialog(
                           title: const Text('What are custom colors?'),
-                          content: const Text('This setting changes the accent colors of this app to those from your profile picture. If you disable this setting, the app will use the default colors.'),
+                          content: Column(
+                            children: [
+                              const Text(
+                                  'This setting changes the accent colors of this app to those from your profile picture. If you disable this setting, the app will use the default colors.'),
+                              SizedBox(height:10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.bell_fill,
+                                      color: userColor, size: 40),
+                                  SizedBox(width: 15),
+                                  Icon(CupertinoIcons.heart_fill,
+                                      color: userColor, size: 40),
+                                  SizedBox(width: 15),
+                                  Icon(CupertinoIcons.gear_solid,
+                                      color: userColor, size: 40),
+                                ],
+                              )
+                            ],
+                          ),
                           actions: <Widget>[
                             CupertinoDialogAction(
                               child: const Text('OK',
@@ -109,7 +136,8 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
                 FutureBuilder<bool>(
-                  future: SharedPreferences.getInstance().then((prefs) => prefs.getBool('useUserColor') ?? false),
+                  future: SharedPreferences.getInstance()
+                      .then((prefs) => prefs.getBool('useUserColor') ?? false),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Container();
@@ -119,21 +147,77 @@ class _SettingsState extends State<Settings> {
                         trackColor: Theme.of(context).colorScheme.tertiary,
                         thumbColor: Theme.of(context).colorScheme.primary,
                         value: useUserColor,
-                        activeColor: Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!,
+                        activeColor: Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            0.5)!,
                         onChanged: (value) async {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            await prefs.setBool('useUserColor', value);
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool('useUserColor', value);
                           setState(() {
-                            userColor = Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!;
+                            changedColorSetting = true;
+                            useUserColor = value;
+                            if (value) {
+                              userColor = Color.lerp(
+                                  hexToColor(userData['colorPrimary']),
+                                  hexToColor(userData['colorSecondary']),
+                                  0.5)!;
+                            } else {
+                              userColor =
+                                  Theme.of(context).colorScheme.tertiary;
+                            }
                           });
                         },
                       );
                     }
                   },
                 )
-                
               ],
-            )
+            ),
+            // const SizedBox(height: 20),
+            // changedColorSetting
+            //     ? Container(
+            //         width: double.infinity,
+            //         decoration: const BoxDecoration(
+            //           borderRadius: BorderRadius.all(Radius.circular(10)),
+            //         ),
+            //         child: Column(
+            //           mainAxisAlignment: MainAxisAlignment.start,
+            //           crossAxisAlignment: CrossAxisAlignment.end,
+            //           children: [
+            //             Row(
+            //               children: [
+            //                 Text("This is how your Icons will look: ",
+            //                     style: Theme.of(context).textTheme.labelSmall),
+            //                 IconButton(
+            //                   icon:
+            //                       Icon(CupertinoIcons.xmark, color: userColor),
+            //                   onPressed: () {
+            //                     setState(() {
+            //                       changedColorSetting = false;
+            //                     });
+            //                   },
+            //                 ),
+            //               ],
+            //             ),
+            //             const SizedBox(height: 10),
+            //             Row(
+            //               mainAxisAlignment: MainAxisAlignment.center,
+            //               children: [
+            //                 Icon(CupertinoIcons.bell_fill,
+            //                     color: userColor, size: 40),
+            //                 SizedBox(width: 15),
+            //                 Icon(CupertinoIcons.heart_fill,
+            //                     color: userColor, size: 40),
+            //                 SizedBox(width: 15),
+            //                 Icon(CupertinoIcons.gear_solid,
+            //                     color: userColor, size: 40),
+            //               ],
+            //             ),
+            //           ],
+            //         ))
+            //     : Container()
           ]),
         ),
       ),

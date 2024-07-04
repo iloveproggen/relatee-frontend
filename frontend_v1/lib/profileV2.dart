@@ -19,6 +19,8 @@ String getDueDaysInText(int days) {
   }
 }
 
+late bool didUserDataChange;
+
 Future<Map<String, dynamic>> updateUserProfile(
     String emoji, String colorPrimary, String colorSecondary) async {
   final Map<String, dynamic> variables = {
@@ -50,7 +52,6 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
-    print(result.data!['updateUserStyle']);
     return result.data!['updateUserStyle'];
   }
 }
@@ -107,13 +108,12 @@ class _ProfileViewState extends State<ProfileView> {
   ];
 
   //get correct next level xp
-  @override
   int getLevelProgress() {
     // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
     int level = widget.userData['level'] ?? 0;
     // Check if `levelList` contains the key before accessing it to prevent a runtime error
     // Provide a default value if the key is not found
-    return levelList[level] ?? 0;
+    return levelList[level];
   }
 
   int getPreviousLevelProgress() {
@@ -121,7 +121,7 @@ class _ProfileViewState extends State<ProfileView> {
     int level = widget.userData['level'] - 1 ?? 0;
     // Check if `levelList` contains the key before accessing it to prevent a runtime error
     // Provide a default value if the key is not found
-    return levelList[level + 1] - levelList[level] ?? 0;
+    return levelList[level + 1] - levelList[level];
   }
 
   //to get the previous level progress
@@ -150,6 +150,7 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
+    didUserDataChange = false;
     avatar = widget.userData['emoji'];
     colorPrimary = hexToColor(widget.userData['colorPrimary']);
     colorSecondary = hexToColor(widget.userData['colorSecondary']);
@@ -162,6 +163,7 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void openColorPicker() {
+    didUserDataChange = true;
     Color oldColorPrimary = colorPrimary;
     Color oldColorSecondary = colorSecondary;
     showCupertinoModalPopup(
@@ -184,6 +186,7 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(color: Colors.red)),
               onPressed: () {
                 setState(() {
+                  didUserDataChange = false;
                   colorPrimary = oldColorPrimary;
                   colorSecondary = oldColorSecondary;
                   Get.back();
@@ -206,9 +209,11 @@ class _ProfileViewState extends State<ProfileView> {
                       const BorderRadius.all(Radius.circular(20)),
                   pickerColor: colorPrimary,
                   onColorChanged: ((value) {
-                    print(value);
                     setState(() {
                       colorPrimary = value;
+                      if(userColor != Theme.of(context).colorScheme.tertiary){
+                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      }
                     });
                   }),
                 ),
@@ -225,6 +230,9 @@ class _ProfileViewState extends State<ProfileView> {
                     print(value);
                     setState(() {
                       colorSecondary = value; // Changed to colorSecondary
+                      if(userColor != Theme.of(context).colorScheme.tertiary){
+                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      }
                     });
                   }),
                 ),
@@ -262,7 +270,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final double iconSize = 30;
+    const double iconSize = 30;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -280,7 +288,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const Spacer(),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.sparkles,
@@ -292,7 +300,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.gear_solid,
@@ -386,6 +394,7 @@ class _ProfileViewState extends State<ProfileView> {
                         final hasEmojiKeyboard =
                             await KeyboardEmojiPicker().checkHasEmojiKeyboard();
                         if (hasEmojiKeyboard) {
+                          didUserDataChange = true;
                           final pickedEmoji =
                               await KeyboardEmojiPicker().pickEmoji();
                           setState(() {
@@ -654,9 +663,9 @@ class BackAndUpdateIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedColorPrimary =
-        '#' + colorPrimary.split('(0xff')[1].split(')')[0];
+        '#${colorPrimary.split('(0xff')[1].split(')')[0]}';
     String formattedColorSecondary =
-        '#' + colorSecondary.split('(0xff')[1].split(')')[0];
+        '#${colorSecondary.split('(0xff')[1].split(')')[0]}';
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -669,10 +678,16 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Map<String, dynamic> newUserData = await updateUserProfile(
+                if (didUserDataChange){
+                  print(didUserDataChange);
+                  Map<String, dynamic> newUserData = await updateUserProfile(
                     avatar, formattedColorPrimary, formattedColorSecondary);
-                print(newUserData);
-                Get.back(result: newUserData);
+                  Get.back(result: newUserData);
+                }
+                else {
+                  Get.back();
+                }
+                
               },
               child: Row(
                 children: [
