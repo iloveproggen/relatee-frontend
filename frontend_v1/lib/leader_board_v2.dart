@@ -37,11 +37,11 @@ class MainLeaderboardView extends StatelessWidget {
             children: [
               const BackIconRow(),
               Text(
-              'Members_txt'.tr,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.left,
-            ),
-            SizedBox(height: 30),
+                'Members_txt'.tr,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.left,
+              ),
+              SizedBox(height: 30),
               ChartLeaderboard(
                 leaderboardusers: leaderboardusers,
               ),
@@ -80,16 +80,14 @@ class ChartLeaderboard extends StatelessWidget {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    final List<Color> colorPrimaryList = leaderboardusers
-        .where((user) => user['forename'] != null && user['surname'] != null)
-        .map((user) {
+    final List<Color> colorPrimaryList =
+        leaderboardusers.where((user) => user['username'] != null).map((user) {
       String colorCode = user['colorPrimary'].replaceAll('#', '');
       return Color(int.parse('0xFF$colorCode'));
     }).toList();
 
-    final List<Color> colorSecondaryList = leaderboardusers
-        .where((user) => user['forename'] != null && user['surname'] != null)
-        .map((user) {
+    final List<Color> colorSecondaryList =
+        leaderboardusers.where((user) => user['username'] != null).map((user) {
       String colorCode = user['colorSecondary'].replaceAll('#', '');
       return Color(int.parse('0xFF$colorCode'));
     }).toList();
@@ -100,8 +98,7 @@ class ChartLeaderboard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: leaderboardusers.asMap().entries.map((entry) {
-          final index = leaderboardusers[entry.key]['forename'] != null &&
-                  leaderboardusers[entry.key]['surname'] != null
+          final index = leaderboardusers[entry.key]['username'] != null
               ? entry.key
               : null;
           final user = entry.value;
@@ -262,7 +259,9 @@ class WeeklyInfo extends StatelessWidget {
                         const SizedBox(width: 8.0),
                         Text(
                           //'Name ${index + 1}',
-                          leaderboardusers[index]['forename'] ?? leaderboardusers[index]['surname'] ?? leaderboardusers[index]['username'],
+                          leaderboardusers[index]['forename'] ??
+                              leaderboardusers[index]['surname'] ??
+                              leaderboardusers[index]['username'],
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
