@@ -1,15 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
   const Settings({super.key, required this.userData});
 
   final Map<String, dynamic> userData;
 
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  @override
+  State<Settings> createState() => _SettingsState();
+}
 
+class _SettingsState extends State<Settings> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,17 +24,13 @@ class Settings extends StatelessWidget {
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const BackIconRow(),
+            const BackIconRow(getTo: MainWidget()),
             const SettingsWidget(),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                border: Border.all(
-                    strokeAlign: BorderSide.strokeAlignInside,
-                    width: 5,
-                    color: Theme.of(context).colorScheme.tertiary),
-                color: Theme.of(context).colorScheme.tertiary,
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
               ),
               child: TextButton(
                 onPressed: () {
@@ -51,21 +53,17 @@ class Settings extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                border: Border.all(
-                    strokeAlign: BorderSide.strokeAlignInside,
-                    width: 5,
-                    color: Theme.of(context).colorScheme.tertiary),
-                color: Theme.of(context).colorScheme.tertiary,
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
               ),
               child: TextButton(
                 onPressed: () {
                   cupertinoModeDialog(context);
                 },
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                  padding: const EdgeInsets.only(
+                      top: 10, bottom: 10, left: 15, right: 15),
                   child: Text('Change_Mode_txt'.tr,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color.fromARGB(255, 74, 70, 70),
                         fontFamily: "Karla",
                         fontSize: 20,
@@ -73,6 +71,69 @@ class Settings extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                IconButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(
+                        const EdgeInsets.all(0)),
+                  ),
+                  icon: Icon(CupertinoIcons.question_circle,
+                      color: Theme.of(context).colorScheme.tertiary),
+                  onPressed: () {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: const Text('What are custom colors?'),
+                          content: const Text('This setting changes the accent colors of this app to those from your profile picture. If you disable this setting, the app will use the default colors.'),
+                          actions: <Widget>[
+                            CupertinoDialogAction(
+                              child: const Text('OK',
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                Expanded(
+                  child: Text(
+                    "Use custom colors?",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                FutureBuilder<bool>(
+                  future: SharedPreferences.getInstance().then((prefs) => prefs.getBool('useUserColor') ?? false),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container();
+                    } else {
+                      bool useUserColor = snapshot.data ?? false;
+                      return CupertinoSwitch(
+                        trackColor: Theme.of(context).colorScheme.tertiary,
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        value: useUserColor,
+                        activeColor: Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!,
+                        onChanged: (value) async {
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('useUserColor', value);
+                          setState(() {
+                            userColor = Color.lerp(hexToColor(userData['colorPrimary']), hexToColor(userData['colorSecondary']), 0.5)!;
+                          });
+                        },
+                      );
+                    }
+                  },
+                )
+                
+              ],
+            )
           ]),
         ),
       ),
@@ -121,21 +182,25 @@ cupertinoBuildDialog(BuildContext context) {
           CupertinoActionSheetAction(
             child: const Text('German',
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
-            onPressed: () {
+            onPressed: () async {
               updateLanguage(const Locale('de-DE'));
               String languageCode = 'de';
-              // Add logic for selecting German language
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('language', languageCode);
               Navigator.pop(context);
+              print("changed language to German");
             },
           ),
           CupertinoActionSheetAction(
             child: const Text('English',
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
-            onPressed: () {
-              // Add logic for selecting English language
-              Navigator.pop(context);
+            onPressed: () async {
               updateLanguage(const Locale('en-US'));
               String languageCode = 'en';
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('language', languageCode);
+              Navigator.pop(context);
+              print("changed language to English");
             },
           ),
         ],
@@ -162,8 +227,9 @@ cupertinoModeDialog(BuildContext context) {
           CupertinoActionSheetAction(
             child: const Text('Light Mode',
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
-            onPressed: () {
-              // Add logic for selecting Light Mode
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('brightness', 'light');
               Get.changeThemeMode(ThemeMode.light);
               Navigator.pop(context);
             },
@@ -171,8 +237,9 @@ cupertinoModeDialog(BuildContext context) {
           CupertinoActionSheetAction(
             child: const Text('Dark Mode',
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
-            onPressed: () {
-              // Add logic for selecting Dark Mode
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('brightness', 'dark');
               Get.changeThemeMode(ThemeMode.dark);
               Navigator.pop(context);
             },
@@ -180,8 +247,9 @@ cupertinoModeDialog(BuildContext context) {
           CupertinoActionSheetAction(
             child: const Text('System Default',
                 style: TextStyle(color: Color.fromARGB(255, 74, 70, 70))),
-            onPressed: () {
-              // Add logic for selecting System Default Mode
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.remove('brightness');
               Get.changeThemeMode(ThemeMode.system);
               Navigator.pop(context);
             },

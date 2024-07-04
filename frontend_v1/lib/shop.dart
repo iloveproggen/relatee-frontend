@@ -13,12 +13,15 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 late VoidCallback updateShop;
 late int coins;
-const Color purple = Color(0xFF7C4ACA);
+bool didUserDataChange = false;
 
 Future<void> claimReward(int userId, int rewardId) async {
   final Map<String, dynamic> variables = {
     'rewardId': rewardId,
   };
+
+  didUserDataChange = true; 
+
 
   final client = await getGraphQLClient();
   final MutationOptions options = MutationOptions(
@@ -35,7 +38,6 @@ Future<void> claimReward(int userId, int rewardId) async {
   if (result.hasException) {
     print(result.exception.toString());
   } else if (result.isLoading) {
-    print('Loading');
   } else {
     print("Claimed the reward: $variables");
   }
@@ -70,7 +72,6 @@ Future<Map<String, dynamic>> getRewards() async {
       print(result.exception.toString());
       return {};
     } else {
-      print(result.data);
       // Corrected the typo in 'household'
       final rewardsData = result.data!['household']['rewards'] ?? [];
       final List<Map<String, dynamic>> mappedRewards =
@@ -86,7 +87,6 @@ Future<Map<String, dynamic>> getRewards() async {
               '', // Provide a default value for description if null
         };
       }).toList();
-      print("mapped rewards: $mappedRewards");
       // Corrected the path to access 'coins' value
       final coins = result.data!['me']['coins'];
       return {'rewards': mappedRewards, 'coins': coins};
@@ -100,52 +100,6 @@ Future<Map<String, dynamic>> getRewards() async {
   }
   return {};
 }
-// FutureBuilder(
-//               future: _futureBalance,
-//               builder: (context, snapshot) {
-//                 if (snapshot.connectionState == ConnectionState.waiting) {
-//                   return const CircularProgressIndicator();
-//                 } else if (snapshot.hasError) {
-//                   return Text('Error: ${snapshot.error}');
-//                 } else {
-//                   userCoins = snapshot.data!;
-//                   final String coins = snapshot.data!;
-//                   print("coins left: $coins");
-//                   return
-//                 }
-//               },
-//             ),
-// Future<String> getBalance(int userId) async {
-//   final client = await getGraphQLClient();
-//   final QueryOptions options = QueryOptions(
-//     document: gql('''
-
-// '''),
-//   );
-//   try {
-//     final result =
-//         await client.query(options).timeout(const Duration(seconds: 10));
-
-//     if (result.hasException) {
-//       print(result.exception.toString());
-//     } else if (result.isLoading) {
-//       print('Loading');
-//     } else {
-//       print(result.data!['me']['coins'].toString());
-//       return result.data!['me']['coins'].toString();
-//     }
-//   } on SocketException catch (e) {
-//     print('Network error: $e');
-//     // Handle network error
-//   } on TimeoutException catch (e) {
-//     print('Request timed out: $e');
-//     // Handle timeout
-//   } catch (e) {
-//     print('Unexpected error: $e');
-//     // Handle other errors
-//   }
-//   return '0';
-// }
 
 Future<void> deleteReward(int id) async {
   final client = await getGraphQLClient();
@@ -162,10 +116,7 @@ Future<void> deleteReward(int id) async {
   final QueryResult result = await client.mutate(options);
   if (result.hasException) {
     print(result.exception.toString());
-  } else if (result.isLoading) {
-    print('Loading');
   } else {
-    print("Deleted reward? ");
   }
 }
 
@@ -307,7 +258,7 @@ class ShopViewState extends State<ShopView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const profile.BackIconRow(),
+                  profile.BackIconRow(updateNeeded: didUserDataChange),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -327,8 +278,8 @@ class ShopViewState extends State<ShopView> {
                               _updateRewards();
                             }
                           },
-                          child: const Icon(CupertinoIcons.add,
-                              color: Color.fromARGB(255, 204, 198, 196),
+                          child: Icon(CupertinoIcons.add,
+                              color: userColor,
                               size: 35))
                     ],
                   ),
@@ -377,6 +328,7 @@ class ShopViewState extends State<ShopView> {
                                           CupertinoDialogAction(
                                             isDestructiveAction: true,
                                             onPressed: () async {
+                                              
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
                                               await deleteReward(reward['id']);
@@ -439,7 +391,7 @@ class ShopViewState extends State<ShopView> {
                               "assets/images/relatee.svg",
                               height: 20,
                               width: 20,
-                              color: purple,
+                              color: userColor,
                             ),
                             const SizedBox(width: 5),
                             Text(
@@ -503,20 +455,16 @@ class _ItemCardState extends State<ItemCard> {
   @override
   void initState() {
     super.initState();
-    buyable = isBuyable(widget.reward['price'], coins);
+    buyable = isBuyable(widget.reward['price'] ?? 0, coins);
   }
 
   @override
   Widget build(BuildContext context) {
-    print(widget.reward['emoji']);
-    print(widget.reward['emoji']);
     if (widget.reward['emoji'] != null &&
         widget.reward['emoji'] != "" &&
         !widget.reward['emoji'].contains(" ")) {
       widget.reward['emoji'] = widget.reward['emoji'] + " ";
     }
-    print(buyable);
-    print(coins);
     return Column(
       children: [
         Container(
@@ -565,7 +513,7 @@ class _ItemCardState extends State<ItemCard> {
                           child: SvgPicture.asset(
                             "assets/images/relatee.svg",
                             height: 15,
-                            color: purple,
+                            color: userColor,
                           ),
                         ),
                         const SizedBox(
@@ -646,7 +594,7 @@ class _ItemCardState extends State<ItemCard> {
                               textAlign: TextAlign.center,
                             ),
                             content: Text(
-                                "Are you sure you want to buy this item for ${widget.reward['price']} coins?"),
+                                "Are you sure you want to buy this item for ${widget.reward['price']} coins? You'll have ${coins - widget.reward['price']} coins left.",),
                             actions: [
                               CupertinoDialogAction(
                                 onPressed: () {
@@ -658,6 +606,8 @@ class _ItemCardState extends State<ItemCard> {
                               ),
                               CupertinoDialogAction(
                                 onPressed: () async {
+                                  print(widget.userData['id']);
+                                  print(widget.reward['id']);
                                   await claimReward(widget.userData['id'],
                                       widget.reward['id']);
 
@@ -708,7 +658,7 @@ class _ItemCardState extends State<ItemCard> {
                           width: 2,
                           strokeAlign: BorderSide.strokeAlignInside,
                           color: buyable && widget.reward['stock'] != 0
-                              ? purple.withOpacity(0.0)
+                              ? userColor
                               : Theme.of(context)
                                   .colorScheme
                                   .tertiary
@@ -717,7 +667,7 @@ class _ItemCardState extends State<ItemCard> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
                         color: buyable && widget.reward['stock'] != 0
-                            ? purple.withOpacity(0.8)
+                            ? userColor
                             : Theme.of(context).colorScheme.primary),
                     child: Padding(
                         padding: const EdgeInsets.only(
@@ -731,7 +681,7 @@ class _ItemCardState extends State<ItemCard> {
                                   fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                   color: buyable && widget.reward['stock'] != 0
-                                      ? Theme.of(context).colorScheme.background
+                                      ? Theme.of(context).colorScheme.primary
                                       : Theme.of(context)
                                           .colorScheme
                                           .tertiary

@@ -134,7 +134,7 @@ class NewTaskFuture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getHouseholdData(),
+      future: getHouseholdData(context),
       builder:
           (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -184,6 +184,7 @@ class _NewTaskState extends State<NewTask> {
   TextEditingController description = TextEditingController();
 
   String? emojiDisplay;
+  bool useTime = true;
 
   void _updateRequired() {
     setState(() {
@@ -246,35 +247,32 @@ class _NewTaskState extends State<NewTask> {
                             pickedRoutine['id'],
                             emojiDisplay ?? '',
                             widget.userData);
-                        update();
                         Get.back(result: "Task created");
                       } else {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                              return CupertinoAlertDialog(
-                                title: Text('Confirmation_txt'.tr),
-                                content: Text('CancelPopUp_txt'.tr),
-                                actions: [
-                                    CupertinoDialogAction(
-                                      child: Text('No_txt'.tr,
-                                     
+                            return CupertinoAlertDialog(
+                              title: Text('Confirmation_txt'.tr),
+                              content: Text('CancelPopUp_txt'.tr),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: Text('No_txt'.tr,
                                       style: TextStyle(color: Colors.blue)),
-                                      onPressed: () {
-                                          Navigator.pop(context);
-                                      },
-                                    ),
-                                    CupertinoDialogAction(
-                                      child: Text('Yes_txt'.tr,
-                                     
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                CupertinoDialogAction(
+                                  child: Text('Yes_txt'.tr,
                                       style: TextStyle(color: Colors.red)),
-                                      onPressed: () {
-                                          Navigator.pop(context);
-                                          Get.back();
-                                      },
-                                    ),
-                                ],
-                              );
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Get.back();
+                                  },
+                                ),
+                              ],
+                            );
                           },
                         );
                       }
@@ -293,7 +291,7 @@ class _NewTaskState extends State<NewTask> {
                   TextFormField(
                     controller: taskName,
                     cursorColor: Theme.of(context).colorScheme.onSecondary,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                       counterText: "",
                     ),
@@ -308,13 +306,20 @@ class _NewTaskState extends State<NewTask> {
                           children: [
                             TextSpan(
                               text: ('AddTaskName_txt'.tr),
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context).colorScheme.tertiary,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                             ),
                             TextSpan(
                               text: ' *',
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
                                     color: Colors.red.withOpacity(0.5),
                                   ),
                             ),
@@ -423,7 +428,11 @@ class _NewTaskState extends State<NewTask> {
                     'reward_txt'.tr,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  Text(" *", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red.withOpacity(0.8))),
+                  Text(" *",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.red.withOpacity(0.8))),
                   Expanded(
                       child: TextField(
                     cursorColor: Theme.of(context).colorScheme.onSecondary,
@@ -526,11 +535,10 @@ class _NewTaskState extends State<NewTask> {
                   ),
                   emojiDisplay != null
                       ? TextButton(
-                        style: ButtonStyle(
-                            animationDuration: Duration.zero,
-                            padding:
-                                MaterialStateProperty.all(EdgeInsets.zero)
-                        ),
+                          style: ButtonStyle(
+                              animationDuration: Duration.zero,
+                              padding:
+                                  MaterialStateProperty.all(EdgeInsets.zero)),
                           onPressed: () {
                             setState(() {
                               emojiDisplay = null;
@@ -572,7 +580,9 @@ class _NewTaskState extends State<NewTask> {
                             color: Theme.of(context).colorScheme.background,
                             height: 400,
                             child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.date,
+                              mode: useTime
+                                  ? CupertinoDatePickerMode.dateAndTime
+                                  : CupertinoDatePickerMode.date,
                               initialDateTime: DateTime.now(),
                               maximumYear: DateTime.now().year + 3,
                               minimumYear: DateTime.now().year,
@@ -616,6 +626,30 @@ class _NewTaskState extends State<NewTask> {
                           },
                         )
                       : Container(),
+                ],
+              ),
+              Row(
+                children: [
+                  Icon(CupertinoIcons.clock,
+                      size: iconSize,
+                      color: Theme.of(context).colorScheme.tertiary),
+                  SizedBox(width: paddingRight),
+                  Text("Use time?",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  Spacer(),
+                  IconButton(
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.zero,
+                    style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.all(Colors.transparent), // Removes ripple effect
+                    ),
+                    icon: Icon(useTime ? CupertinoIcons.checkmark : CupertinoIcons.xmark, size: 20),
+                    onPressed: () {
+                      setState(() {
+                        useTime = !useTime;
+                      });
+                    },
+                  )
                 ],
               ),
               Column(

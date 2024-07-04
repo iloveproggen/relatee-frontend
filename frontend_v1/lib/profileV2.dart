@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/household_tasks.dart';
+import 'package:frontend_v1/household_tasks.dart' as ht;
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
+import 'package:frontend_v1/settings.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
@@ -71,17 +72,64 @@ class _ProfileViewState extends State<ProfileView> {
   late Color colorSecondary;
   bool useSecondaryColor = false;
 
+//brauchen wir für die Levle
+//main usercolor gemischte Farbe -> usercolor
+  final List<int> levelList = [
+    0,
+    200,
+    400,
+    600,
+    800,
+    1000,
+    1300,
+    1600,
+    1900,
+    2200,
+    2400,
+    2700,
+    3000,
+    3400,
+    3800,
+    4200,
+    4600,
+    5000,
+    5500,
+    6000,
+    6500,
+    7000,
+    7600,
+    8200,
+    8800,
+    9400,
+    10000,
+    11000,
+    12000,
+    13500,
+  ];
+
+  //get correct next level xp
+  @override
+  int getLevelProgress() {
+    int level = widget.userData['level'];
+    return levelList[level];
+  }
+
+  //get correct progress value
+  //1 = 100%
+  //0.1 = 10%
+  //getLevelProgress -> 100%
+  //experience
+  double getLevelProgressValue() {
+    int experience = widget.userData['experience'];
+    return (experience / getLevelProgress()).toDouble();
+  }
+
   @override
   void initState() {
     super.initState();
     avatar = widget.userData['emoji'];
-    colorPrimary = Color(int.parse(
-        // ignore: prefer_interpolation_to_compose_strings
-        '0xFF' + widget.userData['colorPrimary'].replaceAll('#', '')));
-    colorSecondary = Color(int.parse(
-        // ignore: prefer_interpolation_to_compose_strings
-        '0xFF' + widget.userData['colorSecondary'].replaceAll('#', '')));
-    // Add your initialization code here
+    colorPrimary = hexToColor(widget.userData['colorPrimary']);
+    colorSecondary = hexToColor(widget.userData['colorSecondary']);
   }
 
   @override
@@ -97,21 +145,19 @@ class _ProfileViewState extends State<ProfileView> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: const Text("Choose your profile's colors"),
+          title: Text('ChooseProfileColor_txt'.tr),
           actions: [
             CupertinoActionSheetAction(
-              child: const Text('Save changes',
+              child: Text('SaveChanges_txt'.tr,
                   style: TextStyle(color: Colors.blue)),
               onPressed: () {
                 setState(() {
-                  colorPrimary = oldColorPrimary;
-                  colorSecondary = oldColorSecondary;
                   Get.back();
                 });
               },
             ),
             CupertinoActionSheetAction(
-              child: const Text('Discard Changes',
+              child: Text('DiscardChanges_txt'.tr,
                   style: TextStyle(color: Colors.red)),
               onPressed: () {
                 setState(() {
@@ -193,6 +239,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final double iconSize = 30;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -202,22 +249,51 @@ class _ProfileViewState extends State<ProfileView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   BackAndUpdateIcon(
                       avatar: avatar!,
                       colorPrimary: colorPrimary.toString(),
                       colorSecondary: colorSecondary.toString()),
                   const Spacer(),
-                  TextButton(
-                    child: Icon(CupertinoIcons.paintbrush,
-                        size: 30,
-                        color: Theme.of(context).colorScheme.tertiary),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    icon: Icon(CupertinoIcons.sparkles,
+                        size: iconSize, color: userColor),
                     onPressed: () {
                       openColorPicker();
                     },
                   ),
-                  TextButton(
+                  const SizedBox(width: 5),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
+                    icon: Icon(CupertinoIcons.gear_solid,
+                        size: iconSize, color: userColor),
+                    onPressed: () async {
+                      Get.to(() => Settings(userData: userData));
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      if (prefs.getBool('useUserColor') == true) {
+                        userColor = Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            0.5)!;
+                      } else {
+                        userColor = Theme.of(context).colorScheme.tertiary;
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 5),
+                  IconButton(
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0)),
+                    ),
                     onPressed: () {
                       showCupertinoDialog(
                         context: context,
@@ -256,10 +332,10 @@ class _ProfileViewState extends State<ProfileView> {
                         },
                       );
                     },
-                    child: Icon(
+                    icon: Icon(
                       CupertinoIcons.square_arrow_right,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      size: 30,
+                      color: Colors.red.withOpacity(0.5),
+                      size: iconSize,
                     ),
                   ),
                 ],
@@ -365,6 +441,21 @@ class _ProfileViewState extends State<ProfileView> {
                         '${widget.userData['forename']} ${widget.userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: LinearProgressIndicator(
+                        //dreisatz für das berechnen des values
+                        value: getLevelProgressValue(),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        valueColor: AlwaysStoppedAnimation<Color>(colorPrimary),
+                      ),
+                    ),
+                    //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
+                    Text(
+                        '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 20),
                     Text(
                       '@${widget.userData['username']}',
                       style: Theme.of(context)
@@ -403,8 +494,11 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
@@ -414,19 +508,13 @@ class _ProfileViewState extends State<ProfileView> {
                                   "assets/images/relatee.svg",
                                   height: 20,
                                   width: 20,
-                                  color: purple,
+                                  color: userColor,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  '${widget.userData['coins']}',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4A4646),
-                                    fontSize: 24,
-                                    fontFamily: 'Karla',
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                                Text('${widget.userData['coins']}',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium),
                               ],
                             ),
                           ),
@@ -436,21 +524,17 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDECEC),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
-                            child: Text(
-                              'lvl ${widget.userData['level']}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFF4A4646),
-                                fontSize: 24,
-                                fontFamily: 'Karla',
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                            child: Text('lvl ${widget.userData['level']}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium),
                           ),
                         ),
                       ],
@@ -473,14 +557,20 @@ class _ProfileViewState extends State<ProfileView> {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key});
+  const BackIconRow({super.key, this.getTo, this.updateNeeded});
 
+  final Widget? getTo;
+  final bool? updateNeeded;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
+    bool pUpdateNeeded = false;
+    if (updateNeeded != null && updateNeeded == true) {
+      pUpdateNeeded = true;
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -493,7 +583,18 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Get.back();
+                
+                if (getTo != null) {
+                  print(getTo ?? "no widget found");
+                  Get.offAll(() => getTo!);
+                } else {
+                  print(pUpdateNeeded);
+                  if (pUpdateNeeded) {
+                    Get.back(result: true);
+                  } else {
+                  Get.back();
+                  }
+                }
               },
               child: Row(
                 children: [
@@ -551,6 +652,7 @@ class BackAndUpdateIcon extends StatelessWidget {
               onPressed: () async {
                 Map<String, dynamic> newUserData = await updateUserProfile(
                     avatar, formattedColorPrimary, formattedColorSecondary);
+                    print(newUserData);
                 Get.back(result: newUserData);
               },
               child: Row(
@@ -595,7 +697,7 @@ class TaskOverview extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 20),
-          child: Text('Their_Tasks_txt'.tr,
+          child: Text("${'Your_txt'.tr} Tasks",
               style: Theme.of(context).textTheme.bodyMedium),
         ),
         tasks.isNotEmpty
@@ -603,12 +705,16 @@ class TaskOverview extends StatelessWidget {
                 children: tasks
                     .where((task) => task['completed'] == false)
                     .map((task) {
-                  return Task(task: task, userData: userData, isRecommended: false,);
+                  return Task(
+                    task: task,
+                    userData: userData,
+                    isRecommended: false,
+                  );
                 }).toList(),
               )
             : Column(
                 children: [
-                  Text('User_no_tasks_assigned_txt'.tr,
+                  Text('No tasks.'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(
                     height: 10,
@@ -626,7 +732,7 @@ class TaskOverview extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
                 onPressed: () {
-                  Get.to(() => MainHouseholdOverview(pUserData: userData));
+                  Get.to(() => ht.MainHouseholdOverview(pUserData: userData));
                 },
                 child: Row(
                   children: [

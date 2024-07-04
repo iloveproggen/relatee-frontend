@@ -8,22 +8,21 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
-
-Future<void> createShopItem(String name, String description, int price, int stock,
-    String emoji) async {
+Future<void> createShopItem(
+    String name, String description, int price, int stock, String emoji) async {
   final Map<String, dynamic> variables = {
-      'input': {
-        'name': name,
-        'description': description,
-        'price': price,
-        'stock': stock,
-        'emoji': emoji,
-      }
-    };
+    'input': {
+      'name': name,
+      'description': description,
+      'price': price,
+      'stock': stock,
+      'emoji': emoji,
+    }
+  };
 
-    final client = await getGraphQLClient();
-    final QueryOptions options = QueryOptions(
-      document: gql(r'''
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''
    mutation CreateReward($input: CreateRewardInput!) {
   createReward(input: $input) {
     name
@@ -34,8 +33,8 @@ Future<void> createShopItem(String name, String description, int price, int stoc
   }
 }
 '''),
-      variables: variables,
-    );
+    variables: variables,
+  );
 
   try {
     final QueryResult result = await client.query(options);
@@ -70,6 +69,8 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController taskPrice = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController stock = TextEditingController();
+
+  FocusNode _descriptionFocusNode = FocusNode();
 
   bool required = false;
 
@@ -156,12 +157,10 @@ class _NewShopItemState extends State<NewShopItem> {
                             border: InputBorder.none,
                             counterText: "",
                             hintText: 'new_item_txt'.tr,
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                  color: Colors.red.withOpacity(0.5),
-                                ),
+                            hintStyle:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.red.withOpacity(0.5),
+                                    ),
                           ),
                           style: Theme.of(context).textTheme.bodyLarge),
                     ],
@@ -225,18 +224,18 @@ class _NewShopItemState extends State<NewShopItem> {
                           const EdgeInsets.all(0)),
                     ),
                     child: emojiDisplay == null
-                        ? Text(
-                            "add icon...",
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,)
-                            )
-                        : Text(
-                            emojiDisplay ?? 'add icon',
+                        ? Text("add icon...",
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ))
+                        : Text(emojiDisplay ?? 'add icon',
                             textAlign: TextAlign.end,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 40,)
-                          ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 40,
+                                    )),
                   ),
                   emojiDisplay != null
                       ? IconButton(
@@ -278,8 +277,10 @@ class _NewShopItemState extends State<NewShopItem> {
                         ],
                         decoration: InputDecoration(
                             hintText: 'infinite',
-                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,),
+                            hintStyle:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -316,8 +317,12 @@ class _NewShopItemState extends State<NewShopItem> {
                         ],
                         decoration: InputDecoration(
                             hintText: 'add_price_txt'.tr,
-                            hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold, color: Colors.red.withOpacity(0.5)),
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.withOpacity(0.5)),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme
@@ -331,16 +336,23 @@ class _NewShopItemState extends State<NewShopItem> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 20),
-                        child: Icon(
-                          CupertinoIcons.text_aligncenter,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
+                      Icon(
+                        CupertinoIcons.text_aligncenter,
+                        size: iconSize,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
-                      Expanded(
+                      SizedBox(width: paddingRight),
+                      TextButton(
+                        style: ButtonStyle(
+                          alignment: Alignment.centerLeft,
+                          animationDuration: Duration.zero,
+                          padding: WidgetStateProperty.all<EdgeInsets>(
+                            const EdgeInsets.all(0),
+                          ),
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                        },
                           child: Text(
                         'description_txt'.tr,
                         textAlign: TextAlign.left,
@@ -351,6 +363,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: TextField(
+                        focusNode: _descriptionFocusNode,
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
                         maxLines: 4,
                         maxLength: 100,
