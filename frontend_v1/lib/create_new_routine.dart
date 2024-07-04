@@ -26,12 +26,15 @@ Future<void> createRoutine(
   // Format DateTime to a string that your backend can understand
   final String formattedRefreshDate =
       '${refreshDate.toIso8601String().split('.')[0]}Z';
+  final String formattedStartDate =
+      '${DateTime.now().toIso8601String().split('.')[0]}Z'; // Correctly formatting startDate
 
   final Map<String, dynamic> variables = {
     'input': {
       'name': name,
       'emoji': emoji,
       'refreshDate': formattedRefreshDate,
+      'startDate': formattedStartDate, // Correctly formatted startDate
       'private': false,
     }
   };
@@ -44,6 +47,7 @@ mutation CreateRoutine($input: CreateRoutineInput!) {
     name
     emoji
     refreshDate
+    startDate
     private
   }
 }

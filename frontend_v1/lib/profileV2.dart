@@ -52,7 +52,6 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
-    print(result.data!['updateUserStyle']);
     return result.data!['updateUserStyle'];
   }
 }
@@ -109,13 +108,12 @@ class _ProfileViewState extends State<ProfileView> {
   ];
 
   //get correct next level xp
-  @override
   int getLevelProgress() {
     // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
     int level = widget.userData['level'] ?? 0;
     // Check if `levelList` contains the key before accessing it to prevent a runtime error
     // Provide a default value if the key is not found
-    return levelList[level] ?? 0;
+    return levelList[level];
   }
 
   int getPreviousLevelProgress() {
@@ -123,7 +121,7 @@ class _ProfileViewState extends State<ProfileView> {
     int level = widget.userData['level'] - 1 ?? 0;
     // Check if `levelList` contains the key before accessing it to prevent a runtime error
     // Provide a default value if the key is not found
-    return levelList[level + 1] - levelList[level] ?? 0;
+    return levelList[level + 1] - levelList[level];
   }
 
   //to get the previous level progress
@@ -211,7 +209,6 @@ class _ProfileViewState extends State<ProfileView> {
                       const BorderRadius.all(Radius.circular(20)),
                   pickerColor: colorPrimary,
                   onColorChanged: ((value) {
-                    print(value);
                     setState(() {
                       colorPrimary = value;
                       if(userColor != Theme.of(context).colorScheme.tertiary){
@@ -685,7 +682,6 @@ class BackAndUpdateIcon extends StatelessWidget {
                   print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
                     avatar, formattedColorPrimary, formattedColorSecondary);
-                    print(newUserData);
                   Get.back(result: newUserData);
                 }
                 else {

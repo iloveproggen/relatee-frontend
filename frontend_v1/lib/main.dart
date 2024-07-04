@@ -144,7 +144,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
     if (result.hasException) {
       print(result.exception.toString());
     } else {
-      print(result.data);
       final householdData = result.data!['household'];
       final userData = result.data!['me'];
 
@@ -167,8 +166,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
               '', // Provide a default value for description if null
         };
       }).toList();
-
-      print("rewards: $mappedRewards");
       // Filtering tasks for the logged-in user
       final myTasks =
           tasks.where((task) => task['user']?['id'] == userData['id']).toList();
@@ -284,8 +281,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                 })
             .toList(),
       };
-      print(mappedUsers);
-      print(mappedUsers);
 
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('useUserColor') == true) {
@@ -920,7 +915,6 @@ class _TaskState extends State<TaskOverview> {
         return a['deadline'].compareTo(b['deadline']);
       }
     });
-    print(userData['otherTasks']);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1741,10 +1735,12 @@ class _OtherTasksState extends State<OtherTasks> {
                 children: [
                   TextButton(
                     style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0))),
                     onPressed: () {
-                      update();
+                      setState(() {
+                        showTasks = !showTasks;
+                      });
                     },
                     child: Row(
                       children: [
@@ -1817,9 +1813,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                         CupertinoDialogAction(
                                           onPressed: () async {
                                             await deleteTask(task['id']);
-                                            print("deleted task");
                                             Get.back();
-                                            print("updating now");
                                             update();
                                           },
                                           isDestructiveAction: true,
