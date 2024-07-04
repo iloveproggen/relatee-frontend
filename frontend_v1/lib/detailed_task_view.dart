@@ -37,7 +37,7 @@ Map<String, dynamic> assignedToUser = nullUser;
 late List<Map<String, dynamic>> users;
 
 Future<void> updateTask(int id, String name, String? description, int reward,
-    int? routineId, Map<String, dynamic> userData, String emoji, DateTime? deadline) async {
+    int? routineId, int assignTo, String emoji, DateTime? deadline) async {
   // Update task to match the GraphQL schema
   final Map<String, dynamic> input = {
     'taskId': id, // Use 'taskId' instead of 'id'
@@ -47,7 +47,7 @@ Future<void> updateTask(int id, String name, String? description, int reward,
     'description': description ?? "",
     'reward': reward,
     'routineId': routineId,
-    'userId': userData['id'], // Added userId field
+    'userId': assignTo, // Added userId field
     'private': false, // Added private field
   };
 
@@ -227,7 +227,7 @@ class _DetailedTaskState extends State<DetailedTask> {
                           description.text,
                           int.parse(taskPrice.text),
                           task['routineId'],
-                          widget.userData,
+                          assignedToUser['id'] ?? task['userId'],
                           emojiDisplay ?? task['emoji'], deadline);
                       Get.back(result: "Changed Task");
                     },

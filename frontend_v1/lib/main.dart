@@ -1436,6 +1436,7 @@ class _TaskState extends State<TaskOverview> {
                   ],
                 ),
                 showRoutines ? Routine(householdData: householdData) : Container(),
+                const SizedBox(height: 30),
                 const SizedBox(height: 50),
               ],
             )

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:frontend_v1/detailed_task_view.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -84,9 +86,13 @@ class _NewRoutine extends State<NewRoutine> {
   _NewRoutine();
 
   TextEditingController name = TextEditingController();
+  TextEditingController customIntervalAmount = TextEditingController();
 
   bool required = false;
   String? emojiDisplay;
+  late int interval;
+  DateTime startDate = DateTime.now();
+  bool customIntervalPicker = false;
 
   void _updateRequired() {
     setState(() {
@@ -98,14 +104,24 @@ class _NewRoutine extends State<NewRoutine> {
     return name.text.isNotEmpty && deadline != null;
   }
 
+  void setCustomInterval() {
+    setState(() {
+      print("ping");
+      interval = int.tryParse(customIntervalAmount.text) ?? 0;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    customIntervalAmount.addListener(_updateRequired);
 
     userData = widget.pUserData;
     emojiDisplay = null;
     name.addListener(_updateRequired);
     deadline = DateTime.now();
+    interval = 1;
+    customIntervalPicker = false;
   }
 
   @override
@@ -126,7 +142,7 @@ class _NewRoutine extends State<NewRoutine> {
                     style: ButtonStyle(
                       alignment: Alignment.centerRight,
                       animationDuration: Duration.zero,
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                         const EdgeInsets.all(0),
                       ),
                     ),
@@ -179,11 +195,11 @@ class _NewRoutine extends State<NewRoutine> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                    padding: EdgeInsets.only(
+                        top: 10, bottom: 10, right: paddingRight),
                     child: Icon(
                       CupertinoIcons.smiley,
-                      size: 40,
+                      size: iconSize,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
@@ -226,7 +242,7 @@ class _NewRoutine extends State<NewRoutine> {
                       }
                     },
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     child: emojiDisplay == null
@@ -263,47 +279,108 @@ class _NewRoutine extends State<NewRoutine> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(CupertinoIcons.calendar,
-                      size: 40, color: Theme.of(context).colorScheme.tertiary),
-                  const SizedBox(width: 20, height: 60),
+                      size: iconSize,
+                      color: Theme.of(context).colorScheme.tertiary),
+                  SizedBox(width: paddingRight),
                   Text('repeats_txt'.tr,
                       style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   TextButton(
                     style: ButtonStyle(
                       alignment: Alignment.centerRight,
-                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      padding: WidgetStateProperty.all(EdgeInsets.zero),
                     ),
                     onPressed: () {
-                      DateTime now = DateTime.now();
                       showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext context) {
                           return Container(
-                            color: Theme.of(context).colorScheme.background,
-                            height: 400,
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.date,
-                              initialDateTime:
-                                  now, // Use the same 'now' DateTime object
-                              minimumDate:
-                                  now, // Use the same 'now' DateTime object
-                              maximumYear: now.year + 1,
-                              minimumYear: now.year,
-                              onDateTimeChanged: (DateTime newDateTime) {
-                                print(newDateTime);
-                                setState(() {
-                                  deadline = newDateTime;
-                                });
+                            color: Theme.of(context).colorScheme.primary,
+                            height: 300,
+                            child: CupertinoPicker(
+                              scrollController: FixedExtentScrollController(
+                                  initialItem: _getScrollController(
+                                      interval)), // Set the initial item to 0
+                              itemExtent:
+                                  50, // Increase the item extent to make the items bigger
+                              onSelectedItemChanged: (int index) {
+                                switch (index) {
+                                  case 0:
+                                    setState(() {
+                                      interval = 1;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = false;
+                                    });
+                                    print('daily');
+                                    break;
+                                  case 1:
+                                    setState(() {
+                                      interval = 7;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = false;
+                                    });
+                                    print('weekly');
+                                    break;
+                                  case 2:
+                                    setState(() {
+                                      interval = 14;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = false;
+                                    });
+                                    print('bi-weekly');
+                                    break;
+                                  case 3:
+                                    setState(() {
+                                      interval = 31;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = false;
+                                    });
+                                    print('monthly');
+                                    break;
+                                  case 4:
+                                    setState(() {
+                                      interval = 365;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = false;
+                                    });
+                                    print('yearly');
+                                    break;
+                                  default:
+                                    setState(() {
+                                      interval = 0;
+                                      customIntervalAmount.text = '';
+                                      customIntervalPicker = true;
+                                    });
+                                    print('custom');
+                                    break;
+                                }
                               },
+                              children: [
+                                "daily",
+                                "weekly",
+                                "bi-weekly",
+                                "monthly",
+                                "yearly",
+                                "custom..."
+                              ]
+                                  .map(
+                                    (String item) => Center(
+                                      child: Text(
+                                        item,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
                           );
                         },
                       );
                     },
                     child: Text(
-                      deadline != null
-                          ? DateFormat('dd-MM-yyyy').format(deadline!)
-                          : 'none_txt'.tr,
+                      _getIntervalStatement(interval),
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -312,8 +389,83 @@ class _NewRoutine extends State<NewRoutine> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              _buildRefreshText(context),
+              customIntervalPicker
+                  ? Row(
+                        children: [
+                          Expanded(
+                          child: TextField(
+                        onChanged: (value) {
+                          setCustomInterval();
+                        },
+                            controller: customIntervalAmount,
+                            inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(3),
+                            ],
+                            cursorColor: Theme.of(context).colorScheme.onSecondary,
+                            decoration: InputDecoration(
+                            hintText: 'add interval...',
+                            hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary, fontWeight: FontWeight.bold),
+                            border: InputBorder.none,
+                            ),
+                            textAlign: TextAlign.right, // Add this line to align the text to the right
+                            style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          ),
+                      ],
+                    )
+                  : Container(),
+                  SizedBox(height:10),
+                  switch (interval) {
+                    1 =>
+                      Text("pick daily start day"),
+                    7 =>
+                      Text("pick weekly start day"),
+                    14 =>
+                      Text("pick bi-weekly start day"),
+                    31 =>
+                      Text("pick monthly start day"),
+                    365 =>
+                      Text("pick yearly start day"),
+                    _ =>
+                      Text("normal date picker"),
+                  },
+              
+              SizedBox(height:30),
+              _buildRefreshText(context, interval),
+              // showCupertinoModalPopup(
+              //   context: context,
+              //   builder: (BuildContext context) {
+              //     return Container(
+              //       color: Theme.of(context).colorScheme.primary,
+              //       height: 400,
+              //       child: CupertinoDatePicker(
+              //         mode: CupertinoDatePickerMode.date,
+              //         initialDateTime:
+              //             now, // Use the same 'now' DateTime object
+              //         minimumDate:
+              //             now, // Use the same 'now' DateTime object
+              //         maximumYear: now.year + 1,
+              //         minimumYear: now.year,
+              //         onDateTimeChanged: (DateTime newDateTime) {
+              //           print(newDateTime);
+              //           setState(() {
+              //             deadline = newDateTime;
+              //           });
+              //         },
+              //       ),
+              //     );
+              //   },
+              // );
             ],
           ),
         ),
@@ -322,11 +474,42 @@ class _NewRoutine extends State<NewRoutine> {
   }
 }
 
-Widget _buildRefreshText(BuildContext context) {
-  int days =
-      refreshDays(); // Call refreshDays() once and use the result to avoid multiple calls
+String _getIntervalStatement(int interval) {
+  switch (interval) {
+    case 1:
+      return 'Daily';
+    case 7:
+      return 'Weekly';
+    case 14:
+      return 'Bi-weekly';
+    case 31:
+      return 'Monthly';
+    case 365:
+      return 'Yearly';
+    default:
+      return 'Custom';
+  }
+}
 
-  if (days <= 0) {
+int _getScrollController(int interval) {
+  switch (interval) {
+    case 1:
+      return 0;
+    case 7:
+      return 1;
+    case 14:
+      return 2;
+    case 31:
+      return 3;
+    case 365:
+      return 4;
+    default:
+      return 5;
+  }
+}
+
+Widget _buildRefreshText(BuildContext context, int days) {
+  if (days <= 0 ) {
     return Container(); // Assuming you want to return an empty Container for case 0
   } else if (days == 1) {
     return Text(
@@ -340,13 +523,8 @@ Widget _buildRefreshText(BuildContext context) {
     print(languageCode);
     return Text(
       languageCode == 'de-DE'
-          ? 'RoutineRefreshVar_txt'.tr +
-              '$days' +
-              'RoutineRefreshVarGermanAdd_txt'.tr // German translation
-          : 'RoutineRefreshVar_txt'.tr +
-              '$days' +
-              ' ' +
-              'days_txt'.tr, // English translation
+          ? '${'RoutineRefreshVar_txt'.tr}$days${'RoutineRefreshVarGermanAdd_txt'.tr}' // German translation
+          : '${'RoutineRefreshVar_txt'.tr}$days ${'days_txt'.tr}', // English translation
       style: Theme.of(context).textTheme.bodySmall,
       textAlign: TextAlign.center,
     );
