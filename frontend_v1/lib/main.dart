@@ -673,7 +673,7 @@ class WelcomeText extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${'welcome_title'.tr}, ${userData['forename'] ?? ''}!',
+              Text('${'welcome_title'.tr}, ${userData['forename'] ?? userData['username']}!',
                   maxLines: 2, style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
