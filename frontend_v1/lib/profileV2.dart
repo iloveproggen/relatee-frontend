@@ -110,18 +110,21 @@ class _ProfileViewState extends State<ProfileView> {
   //get correct next level xp
   @override
   int getLevelProgress() {
-    int level = widget.userData['level'];
-    return levelList[level];
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = widget.userData['level'] ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return level;
   }
 
-  //get correct progress value
-  //1 = 100%
-  //0.1 = 10%
-  //getLevelProgress -> 100%
-  //experience
   double getLevelProgressValue() {
-    int experience = widget.userData['experience'];
-    return (experience / getLevelProgress()).toDouble();
+    int experience = widget.userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return (experience / levelProgress).toDouble();
   }
 
   @override
