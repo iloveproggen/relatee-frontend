@@ -203,6 +203,60 @@ class _DetailedTaskState extends State<DetailedTask> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const BackIconRow(),
+                  IconButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0),
+                      ),
+                      animationDuration: Duration.zero,
+                    ),
+                    onPressed: () async {
+                      print(taskName.text);
+                      print(taskPrice.text);
+                      print(description.text);
+                      if (taskName.text.isEmpty) {
+                        taskName.text = task['name'];
+                      }
+                      if (taskPrice.text.isEmpty) {
+                        taskPrice.text = task['reward'].toString();
+                      }
+                      print(
+                          "${'Task_completed!_txt'.tr} ${task['reward']}");
+                      tasks.removeWhere(
+                              (t) => t['id'] == task['id']);
+                      await completeTask(task['id']);
+                    },
+                    icon: Icon(CupertinoIcons.check_mark,
+                        color: Colors.green),
+                  ),
+                  IconButton(
+                    style: ButtonStyle(
+                      alignment: Alignment.centerRight,
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.all(0),
+                      ),
+                      animationDuration: Duration.zero,
+                    ),
+                    onPressed: () async {
+                      print(taskName.text);
+                      print(taskPrice.text);
+                      print(description.text);
+                      if (taskName.text.isEmpty) {
+                        taskName.text = task['name'];
+                      }
+                      if (taskPrice.text.isEmpty) {
+                        taskPrice.text = task['reward'].toString();
+                      }
+                      await deleteTask(task['id']);
+                      print("deleted task");
+                      Get.back();
+                      print("updating now");
+                      update();
+                    },
+                    icon: const Icon(CupertinoIcons.delete,
+                        color: Colors.red),
+                  ),
                   TextButton(
                     style: ButtonStyle(
                       alignment: Alignment.centerRight,
