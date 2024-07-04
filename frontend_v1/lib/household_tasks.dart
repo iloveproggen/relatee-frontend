@@ -12,6 +12,8 @@ import 'package:frontend_v1/profile_public.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'main.dart';
+
 late List<Map<String, dynamic>> tasks;
 late List<Map<String, dynamic>> users;
 late Map<String, dynamic> userData;
@@ -426,45 +428,142 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                   .toList()
                   .map((task) {
                   return Dismissible(
-                    key: Key(task.toString()),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
-                      showCupertinoDialog(
-                        context: context,
-                        builder: (BuildContext context) => CupertinoAlertDialog(
-                          title: Text('Delete_Task_txt'.tr),
-                          content: Text(
-                              '${'Delete_conf_txt'.tr} "${task['name']}"?'),
-                          actions: [
-                            CupertinoDialogAction(
-                                child: Text('Cancel_txt'.tr,
-                                    style: const TextStyle(color: Colors.blue)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  update();
-                                }),
-                            CupertinoDialogAction(
-                              onPressed: () async {
-                                await main.deleteTask(task['id']);
-                                tasks.removeWhere((t) => t['id'] == task['id']);
-                                Navigator.pop(context);
-                                update();
-                              },
-                              isDestructiveAction: true,
-                              child: Text('Delete_txt'.tr,
-                                  style: const TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      );
+                    direction: DismissDirection
+                        .horizontal,
+                    key: ValueKey(task['id']),
+                    onDismissed:
+                        (direction) async {
+                      if (direction ==
+                          DismissDirection
+                              .endToStart) {
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext
+                          context) =>
+                              CupertinoAlertDialog(
+                                title: Text(
+                                    "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                content: Text(
+                                    'Sure_delete_task?_txt'
+                                        .tr),
+                                actions: [
+                                  CupertinoDialogAction(
+                                      child: Text(
+                                          'Cancel_txt'
+                                              .tr,
+                                          style: const TextStyle(
+                                              color:
+                                              Colors.blue)),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context);
+                                        update();
+                                      }),
+                                  CupertinoDialogAction(
+                                    onPressed:
+                                        () async {
+                                      await deleteTask(
+                                          task[
+                                          'id']);
+                                      Get.back();
+                                      update();
+                                    },
+                                    isDestructiveAction:
+                                    true,
+                                    child: Text(
+                                        'Delete_txt'
+                                            .tr,
+                                        style: const TextStyle(
+                                            color: Colors
+                                                .red)),
+                                  ),
+                                ],
+                              ),
+                        );
+                      } else {
+                        print(
+                            "${'Task_completed!_txt'.tr} ${task['reward']}");
+                        tasks.removeWhere((t) =>
+                        t['id'] ==
+                            task['id']);
+                        completeTask(
+                            task['id']);
+                        // addPoints(
+                        //     task['reward'].toString());
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext
+                          context) {
+                            return CupertinoAlertDialog(
+                              title: Text(
+                                  'Congratulations!_txt'
+                                      .tr),
+                              content:
+                              const Column(
+                                mainAxisAlignment:
+                                MainAxisAlignment
+                                    .center,
+                                children: [
+                                  SizedBox(
+                                      height:
+                                      10),
+                                  // Image.network(
+                                  //   "https://i.giphy.com/media/Wvh1de6cFXcWc/200.gif",
+                                  //   scale: 1.3,
+                                  // ),
+                                ],
+                              ),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text(
+                                      'OK',
+                                      style:
+                                      TextStyle(
+                                        color: Colors
+                                            .blue,
+                                      )),
+                                  onPressed:
+                                      () async {
+                                    Navigator.pop(
+                                        context);
+                                    update();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     },
-                    background: Container(
-                      margin: const EdgeInsets.only(right: 30, bottom: 22),
-                      alignment: Alignment.centerRight,
-                      child: const Icon(CupertinoIcons.delete,
-                          color: Colors.red, size: 30),
+                    secondaryBackground: Container(
+                      margin:
+                      const EdgeInsets.only(
+                          right: 30,
+                          bottom: 22),
+                      alignment:
+                      Alignment.centerRight,
+                      child: const Icon(
+                          CupertinoIcons.delete,
+                          color: Colors.red,
+                          size: 30),
+                    ),background: Container(
+                    margin:
+                    const EdgeInsets.only(
+                        left: 30,
+                        bottom: 22),
+                    alignment:
+                    Alignment.centerLeft,
+                    child: const Icon(
+                        CupertinoIcons
+                            .check_mark,
+                        color: purple,
+                        size: 30),
+                  ),
+                    child: Task(
+                      task: task,
+                      userData: userData,
+                      isRecommended: false,
                     ),
-                    child: MoreDetailsTask(task: task),
                   );
                 }).toList(),
         ),
