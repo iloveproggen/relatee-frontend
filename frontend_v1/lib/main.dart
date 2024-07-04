@@ -215,6 +215,8 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
               task['user'] != null ? task['user']['username'] : null,
           'ownerId': task['owner']['id'],
           'ownerForename': task['owner']['forename'],
+          'ownerSurname': task['owner']['surname'],
+          'ownerUsername': task['owner']['username'],
           'routineId': task['routine'] != null ? task['routine']['id'] : null,
           'routineName':
               task['routine'] != null ? task['routine']['name'] : null,
@@ -260,6 +262,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'ownerId': task['owner']['id'],
                   'ownerForename': task['owner']['forename'],
                   'ownerSurname': task['owner']['surname'],
+                  'ownerUsername': "@${task['owner']['username']}",
                 })
             .toList(),
         'otherTasks': otherTasks
@@ -277,6 +280,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'ownerId': task['owner']['id'],
                   'ownerForename': task['owner']['forename'],
                   'ownerSurname': task['owner']['surname'],
+                  'ownerUsername': "@${task['owner']['username']}"
                 })
             .toList(),
       };
@@ -500,6 +504,8 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.hasError) {
             print(snapshot.error.toString());
             return const Placeholder();
+          } else if (snapshot.data!['userData'].isEmpty) {
+            return const LoginWidget();
           } else if (snapshot.data!['userData']['householdId'] == null) {
             return const JoinHouseholdView();
           } else {
@@ -564,7 +570,9 @@ class _IconRowState extends State<IconRow> {
                     onPressed: () async {
                       var result = await Get.to(
                           () => ProfileView(userData: userData, tasks: tasks));
-                      update();
+                      if (result != null) {
+                        update();
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
