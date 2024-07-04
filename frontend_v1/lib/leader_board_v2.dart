@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
 import 'package:frontend_v1/profileV2.dart';
@@ -244,7 +245,6 @@ class WeeklyInfo extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (leaderboardusers[index]['coins'] != null &&
                       leaderboardusers[index]['level'] != null)
@@ -252,26 +252,45 @@ class WeeklyInfo extends StatelessWidget {
                       children: [
                         Icon(iconData),
                         const SizedBox(width: 8.0),
-                        Text(
-                          //'Name ${index + 1}',
-                          leaderboardusers[index]['forename'] ??
-                              leaderboardusers[index]['surname'] ??
-                              leaderboardusers[index]['username'],
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Container(
+                          width: 100,
+                          child: Text(
+                            //'Name ${index + 1}',
+                            leaderboardusers[index]['forename'] ??
+                                leaderboardusers[index]['surname'] ??
+                                leaderboardusers[index]['username'],
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         ),
                       ],
                     ),
+                  SizedBox(width: 20),
                   if (leaderboardusers[index]['coins'] != null)
-                    Text(
-                      //'$pts pts',
-                      leaderboardusers[index]['coins'].toString(),
-                      style: Theme.of(context).textTheme.bodySmall,
+                    Container(
+                      width: 50,
+                      child: Text(
+                        //'$pts pts',
+                        leaderboardusers[index]['coins'].toString(),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
+                  //SizedBox(width: 5),
+                  SvgPicture.asset(
+                    "assets/images/relatee.svg",
+                    height: 20,
+                    colorFilter: ColorFilter.mode(
+                      userColor ??
+                          Colors
+                              .transparent, // Provide a default color if _colorAnimation.value is null
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  Spacer(),
                   if (leaderboardusers[index]['level'] != null)
                     Row(
                       children: [
-                        Icon(CupertinoIcons.checkmark_circle_fill),
-                        const SizedBox(width: 8.0),
+                        //const Icon(CupertinoIcons.checkmark_circle_fill),
+                        //const SizedBox(width: 8.0),
                         Text(
                           //'$tasks tasks',
                           leaderboardusers[index]['level'].toString(),
