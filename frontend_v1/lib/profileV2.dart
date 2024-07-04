@@ -115,7 +115,28 @@ class _ProfileViewState extends State<ProfileView> {
     int level = widget.userData['level'] ?? 0;
     // Check if `levelList` contains the key before accessing it to prevent a runtime error
     // Provide a default value if the key is not found
-    return level;
+    return levelList[level] ?? 0;
+  }
+
+  int getPreviousLevelProgress() {
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = widget.userData['level'] - 1 ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return levelList[level + 1] - levelList[level] ?? 0;
+  }
+
+  //to get the previous level progress
+  double getPreviousLevelProgressValue() {
+    int experience = widget.userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getPreviousLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return ((experience - levelList[widget.userData['level'] - 1]) /
+            levelProgress)
+        .toDouble();
   }
 
   double getLevelProgressValue() {
@@ -459,10 +480,12 @@ class _ProfileViewState extends State<ProfileView> {
                       padding: const EdgeInsets.only(left: 30, right: 30),
                       child: LinearProgressIndicator(
                         //dreisatz für das berechnen des values
-                        value: getLevelProgressValue(),
+                        value: widget.userData['level'] <= 1
+                            ? getLevelProgressValue()
+                            : getPreviousLevelProgressValue(),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
-                        valueColor: AlwaysStoppedAnimation<Color>(colorPrimary),
+                        valueColor: AlwaysStoppedAnimation<Color>(userColor),
                       ),
                     ),
                     //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
@@ -592,7 +615,6 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                
                 if (getTo != null) {
                   print(getTo ?? "no widget found");
                   Get.offAll(() => getTo!);
@@ -601,7 +623,7 @@ class BackIconRow extends StatelessWidget {
                   if (pUpdateNeeded) {
                     Get.back(result: true);
                   } else {
-                  Get.back();
+                    Get.back();
                   }
                 }
               },
