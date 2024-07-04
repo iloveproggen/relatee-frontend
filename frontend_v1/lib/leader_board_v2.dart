@@ -11,17 +11,57 @@ purpose: This file contains the leaderboard view of the app.
 author: Maurice
 date: 17.05.2024
 */
-class MainLeaderboardView extends StatelessWidget {
+
+late List<Map<String, dynamic>> leaderboardusers;
+
+class MainLeaderboardView extends StatefulWidget {
   const MainLeaderboardView({super.key, required this.users});
 
   final List<Map<String, dynamic>> users;
 
   @override
+  State<MainLeaderboardView> createState() => _MainLeaderboardViewState();
+}
+
+class _MainLeaderboardViewState extends State<MainLeaderboardView> {
+  String sortBy = "coins";
+
+  void _refreshView(String newFilterBy) {
+    sortBy = newFilterBy;
+  }
+
+  void resort(List<Map<String, dynamic>> list) {
+    list.sort((a, b) {
+      if (a[sortBy] == null && b[sortBy] == null) {
+        return 0;
+      } else if (a[sortBy] == null) {
+        return 1;
+      } else if (b[sortBy] == null) {
+        return -1;
+      } else {
+        return b[sortBy].compareTo(a[sortBy]);
+      }
+    });
+  }
+
+  void _changeSort(String newSortBy) {
+    setState(() {
+      sortBy = newSortBy;
+      resort(leaderboardusers);
+    });
+  }
+
+  void _reverseView() {
+    setState(() {
+      leaderboardusers = leaderboardusers.reversed.toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> leaderboardusers =
-        users.where((user) => user['coins'] != null).toList();
-    leaderboardusers
-        .sort((a, b) => (b['coins'] ?? 0).compareTo(a['coins'] ?? 0));
+    leaderboardusers =
+        widget.users.where((user) => user['coins'] != null).toList();
+    resort(leaderboardusers); // Sort the list here
     leaderboardusers = leaderboardusers.take(3).toList();
     if (leaderboardusers.length < 3) {
       while (leaderboardusers.length < 3) {
@@ -45,7 +85,76 @@ class MainLeaderboardView extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.left,
                   ),
-                  const SizedBox(width: 160.0),
+                  Spacer(),
+                  TextButton(
+                    style: ButtonStyle(
+                        alignment: Alignment.centerLeft,
+                        animationDuration: Duration.zero,
+                        padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.all(0),
+                        )),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: userColor, width: 1.5),
+                          borderRadius: BorderRadius.circular(100)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 3, horizontal: 10),
+                        child: Text('Sort',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: userColor)),
+                      ),
+                    ),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoActionSheet(
+                            title: const Text('Sort leaderboard by...'),
+                            actions: [
+                              for (var sortOption in [
+                                'Coins (default)',
+                                'Level',
+                                'Tasks',
+                              ])
+                                CupertinoActionSheetAction(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    switch (sortOption) {
+                                      case 'Coins (default)':
+                                        _changeSort('coins');
+                                        print("sort by coins");
+                                      case 'Level':
+                                        _changeSort('level');
+                                        print("sort by level");
+                                      case 'Tasks':
+                                        _changeSort('tasks');
+                                        print("sort by tasks");
+                                      default:
+                                        _changeSort('deadline');
+                                        print("sort by deadline");
+                                    }
+                                  },
+                                  child: Text(sortOption,
+                                      style:
+                                          const TextStyle(color: Colors.blue)),
+                                ),
+                            ],
+                            cancelButton: CupertinoActionSheetAction(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Cancel',
+                                  style: TextStyle(color: Colors.red)),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  //SizedBox(width: 10),
                   TextButton(
                     style: ButtonStyle(
                         alignment: Alignment.centerRight,
@@ -60,9 +169,7 @@ class MainLeaderboardView extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 30),
-              ChartLeaderboard(
-                leaderboardusers: leaderboardusers,
-              ),
+              ChartLeaderboard(),
               WeeklyInfo(
                 leaderboardusers: leaderboardusers,
               ),
@@ -81,12 +188,15 @@ date: 17.05.2024
 */
 
 // ignore: must_be_immutable
-class ChartLeaderboard extends StatelessWidget {
-  List<Map<String, dynamic>> leaderboardusers;
-
+class ChartLeaderboard extends StatefulWidget {
   //müssen noch ab deb Farben von den themes angepasst werden
-  ChartLeaderboard({super.key, required this.leaderboardusers});
+  ChartLeaderboard({Key? key}) : super(key: key);
 
+  @override
+  _ChartLeaderboardState createState() => _ChartLeaderboardState();
+}
+
+class _ChartLeaderboardState extends State<ChartLeaderboard> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -213,23 +323,26 @@ author: Maurice
 date: 17.05.2024
 */
 
-// ignore: must_be_immutable
-class WeeklyInfo extends StatelessWidget {
+class WeeklyInfo extends StatefulWidget {
   List<Map<String, dynamic>> leaderboardusers;
 
-  WeeklyInfo({super.key, required this.leaderboardusers});
+  WeeklyInfo({Key? key, required this.leaderboardusers}) : super(key: key);
 
+  @override
+  State<WeeklyInfo> createState() => _WeeklyInfoState();
+}
+
+class _WeeklyInfoState extends State<WeeklyInfo> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    print(leaderboardusers);
+    print(widget.leaderboardusers);
     return SizedBox(
       width: width,
       height: height * 0.2,
       child: ListView.builder(
-        //dynamisch machen
         itemCount: 3,
         itemBuilder: (context, index) {
           IconData iconData;
@@ -246,8 +359,8 @@ class WeeklyInfo extends StatelessWidget {
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Row(
                 children: [
-                  if (leaderboardusers[index]['coins'] != null &&
-                      leaderboardusers[index]['level'] != null)
+                  if (widget.leaderboardusers[index]['coins'] != null &&
+                      widget.leaderboardusers[index]['level'] != null)
                     Row(
                       children: [
                         Icon(iconData),
@@ -256,21 +369,21 @@ class WeeklyInfo extends StatelessWidget {
                           width: 100,
                           child: Text(
                             //'Name ${index + 1}',
-                            leaderboardusers[index]['forename'] ??
-                                leaderboardusers[index]['surname'] ??
-                                leaderboardusers[index]['username'],
+                            widget.leaderboardusers[index]['forename'] ??
+                                widget.leaderboardusers[index]['surname'] ??
+                                widget.leaderboardusers[index]['username'],
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
                       ],
                     ),
                   SizedBox(width: 20),
-                  if (leaderboardusers[index]['coins'] != null)
+                  if (widget.leaderboardusers[index]['coins'] != null)
                     Container(
                       width: 50,
                       child: Text(
                         //'$pts pts',
-                        leaderboardusers[index]['coins'].toString(),
+                        widget.leaderboardusers[index]['coins'].toString(),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -286,14 +399,14 @@ class WeeklyInfo extends StatelessWidget {
                     ),
                   ),
                   Spacer(),
-                  if (leaderboardusers[index]['level'] != null)
+                  if (widget.leaderboardusers[index]['level'] != null)
                     Row(
                       children: [
                         //const Icon(CupertinoIcons.checkmark_circle_fill),
                         //const SizedBox(width: 8.0),
                         Text(
                           //'$tasks tasks',
-                          leaderboardusers[index]['level'].toString(),
+                          widget.leaderboardusers[index]['level'].toString(),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],

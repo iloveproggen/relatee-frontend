@@ -124,12 +124,10 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
     });
   }
 
-
   void filter() {
     setState(() {
-      filteredTasks = tasks.where((task) => 
-        task['name'].contains(search.text)
-      ).toList();
+      filteredTasks =
+          tasks.where((task) => task['name'].contains(search.text)).toList();
     });
   }
 
@@ -137,8 +135,10 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
     super.initState();
     resort(filteredTasks);
     searchBar = FocusNode();
-    search.addListener(() {filter();
-    print(search.text);});
+    search.addListener(() {
+      filter();
+      print(search.text);
+    });
 
     // Add the listener
     searchBar.addListener(() {
@@ -147,7 +147,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
       }
     });
   }
-  
+
   void _refreshView(String newFilterBy) {
     setState(() {
       sortBy = newFilterBy;
@@ -176,14 +176,13 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
     });
   }
 
-    @override
+  @override
   void dispose() {
     // Remove the listener and dispose of the focus node
     searchBar.removeListener(_closeSearchBar);
     searchBar.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -245,173 +244,170 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                 Text("Tasks", style: Theme.of(context).textTheme.bodyMedium),
                 IconButton(
                   onPressed: () async {
-                    var result = await Get.to(() => NewTaskMain(userData: userData));
+                    var result =
+                        await Get.to(() => NewTaskMain(userData: userData));
                     if (result != null) {
                       update();
                     }
                   },
-                  icon: Icon(CupertinoIcons.add,
-                      color: main.userColor, size: 30),
+                  icon:
+                      Icon(CupertinoIcons.add, color: main.userColor, size: 30),
                 ),
               ],
             ),
-            tasks.where((task) => task['completed'] == false).isEmpty ? Container()
-            : isSearchBarOpen
-                ? Row(children: [
-                    SizedBox(
-                      height: 40,
-                      width: 240,
-                      child: TextField(
-                        controller: search,
-                        focusNode: searchBar,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.only(left: 20),
-                          hintText: 'Search tasks',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: main.userColor,
+            tasks.where((task) => task['completed'] == false).isEmpty
+                ? Container()
+                : isSearchBarOpen
+                    ? Row(children: [
+                        SizedBox(
+                          height: 40,
+                          width: 240,
+                          child: TextField(
+                            controller: search,
+                            focusNode: searchBar,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(left: 20),
+                              hintText: 'Search tasks',
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: main.userColor,
+                                  ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide(
-                              color: main.userColor,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide(
+                                  color: main.userColor,
+                                ),
+                              ),
+                              focusColor: main.userColor.withOpacity(0.5),
                             ),
-                          ),
-                          focusColor: main.userColor
-                              .withOpacity(0.5),
-                        ),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: main.userColor),
-                      ),
-                    ),
-                    TextButton(
-                      style: ButtonStyle(
-                          animationDuration: Duration.zero,
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                            const EdgeInsets.all(0),
-                          )),
-                        onPressed: () {
-                          _closeSearchBar();
-                        },
-                        child: Icon(CupertinoIcons.xmark,
-                            color:main.userColor,
-                            size: 20))
-                  ])
-                : Row(
-                    children: [
-                      TextButton(
-                        style: ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            animationDuration: Duration.zero,
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              const EdgeInsets.all(0),
-                            )),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  color:
-                                      main.userColor,
-                                  width: 1.5),
-                              borderRadius: BorderRadius.circular(100)),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 3, horizontal: 10),
-                            child: Text('Sort',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: main.userColor
-                                    )),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: main.userColor),
                           ),
                         ),
-                        onPressed: () {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CupertinoActionSheet(
-                                title: const Text('Sort tasks by...'),
-                                actions: [
-                                  for (var sortOption in [
-                                    'Deadline (default)',
-                                    'Reward',
-                                    'Assigned to',
-                                    'Task name'
-                                  ])
-                                    CupertinoActionSheetAction(
+                        TextButton(
+                            style: ButtonStyle(
+                                animationDuration: Duration.zero,
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0),
+                                )),
+                            onPressed: () {
+                              _closeSearchBar();
+                            },
+                            child: Icon(CupertinoIcons.xmark,
+                                color: main.userColor, size: 20))
+                      ])
+                    : Row(
+                        children: [
+                          TextButton(
+                            style: ButtonStyle(
+                                alignment: Alignment.centerLeft,
+                                animationDuration: Duration.zero,
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0),
+                                )),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: main.userColor, width: 1.5),
+                                  borderRadius: BorderRadius.circular(100)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 3, horizontal: 10),
+                                child: Text('Sort',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(color: main.userColor)),
+                              ),
+                            ),
+                            onPressed: () {
+                              showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CupertinoActionSheet(
+                                    title: const Text('Sort tasks by...'),
+                                    actions: [
+                                      for (var sortOption in [
+                                        'Deadline (default)',
+                                        'Reward',
+                                        'Assigned to',
+                                        'Task name'
+                                      ])
+                                        CupertinoActionSheetAction(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            switch (sortOption) {
+                                              case 'Deadline (default)':
+                                                _refreshView('deadline');
+                                                print("sort by deadline");
+                                              case 'Reward':
+                                                _refreshView('reward');
+                                                print("sort by reward");
+                                              case 'Assigned to':
+                                                _refreshView('userId');
+                                                print("sort by assigned to");
+                                              case 'Task name':
+                                                _refreshView('name');
+                                                print("sort by task name");
+                                              default:
+                                                _refreshView('deadline');
+                                                print("sort by deadline");
+                                            }
+                                          },
+                                          child: Text(sortOption,
+                                              style: const TextStyle(
+                                                  color: Colors.blue)),
+                                        ),
+                                    ],
+                                    cancelButton: CupertinoActionSheetAction(
                                       onPressed: () {
                                         Navigator.pop(context);
-                                        switch (sortOption) {
-                                          case 'Deadline (default)':
-                                            _refreshView('deadline');
-                                            print("sort by deadline");
-                                          case 'Reward':
-                                            _refreshView('reward');
-                                            print("sort by reward");
-                                          case 'Assigned to':
-                                            _refreshView('userId');
-                                            print("sort by assigned to");
-                                          case 'Task name':
-                                            _refreshView('name');
-                                            print("sort by task name");
-                                          default:
-                                            _refreshView('deadline');
-                                            print("sort by deadline");
-                                        }
                                       },
-                                      child: Text(sortOption,
-                                          style: const TextStyle(
-                                              color: Colors.blue)),
+                                      child: const Text('Cancel',
+                                          style: TextStyle(color: Colors.red)),
                                     ),
-                                ],
-                                cancelButton: CupertinoActionSheetAction(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Cancel',
-                                      style: TextStyle(color: Colors.red)),
-                                ),
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                      ),
-                      TextButton(
-                        style: ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            animationDuration: Duration.zero,
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              const EdgeInsets.all(0),
-                            )),
-                        child: Icon(CupertinoIcons.arrow_up_arrow_down,
-                            color: main.userColor,
-                            size: 25),
-                        onPressed: () {
-                          _reverseView();
-                        },
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        style: ButtonStyle(
-                            alignment: Alignment.centerRight,
-                            animationDuration: Duration.zero,
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              const EdgeInsets.all(0),
-                            )),
-                        child: Icon(CupertinoIcons.search,
-                            color: main.userColor,
-                            size: 25),
-                        onPressed: () {
-                          _openSearchBar();
-                        },
-                      ),
-                      const SizedBox(width: 10)
-                    ],
-                  )
+                          ),
+                          TextButton(
+                            style: ButtonStyle(
+                                alignment: Alignment.centerLeft,
+                                animationDuration: Duration.zero,
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0),
+                                )),
+                            child: Icon(CupertinoIcons.arrow_up_arrow_down,
+                                color: main.userColor, size: 25),
+                            onPressed: () {
+                              _reverseView();
+                            },
+                          ),
+                          const Spacer(),
+                          TextButton(
+                            style: ButtonStyle(
+                                alignment: Alignment.centerRight,
+                                animationDuration: Duration.zero,
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  const EdgeInsets.all(0),
+                                )),
+                            child: Icon(CupertinoIcons.search,
+                                color: main.userColor, size: 25),
+                            onPressed: () {
+                              _openSearchBar();
+                            },
+                          ),
+                          const SizedBox(width: 10)
+                        ],
+                      )
           ],
         ),
         const SizedBox(height: 10),
@@ -482,7 +478,10 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                   CompletedTaskList(tasks: completedTasks, userData: users));
             },
             child: Text('See_completed_Tasks_txt'.tr,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.tertiary))),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.tertiary))),
         const SizedBox(height: 40)
       ],
     );
@@ -674,7 +673,7 @@ class UserPoints extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(15)),
-        color:Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -777,21 +776,17 @@ class MoreDetailsTask extends StatelessWidget {
                 Container(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
-                      border: Border.all(
-                          width: 1,
-                          color:main.userColor),
+                      border: Border.all(width: 1, color: main.userColor),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       child: Container(
                         child: Text(task['reward'].toString() + " pts",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color:main.userColor,
-                                )),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: main.userColor,
+                                    )),
                       ),
                     )),
               ],
@@ -821,10 +816,10 @@ class InviteButton extends StatelessWidget {
           Text('Invite_Members_txt'.tr,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.tertiary,
-                    )),
+                  )),
           const SizedBox(width: 10),
           Icon(CupertinoIcons.arrow_right,
-              color:Theme.of(context).colorScheme.tertiary, size: 20)
+              color: Theme.of(context).colorScheme.tertiary, size: 20)
         ],
       ),
     );
