@@ -564,11 +564,7 @@ class _IconRowState extends State<IconRow> {
                     onPressed: () async {
                       var result = await Get.to(
                           () => ProfileView(userData: userData, tasks: tasks));
-                      if (result != null) {
-                        setState(() {
-                          userData = result;
-                        },);
-                      }
+                      update();
                     },
                     child: Container(
                       decoration: BoxDecoration(
