@@ -70,6 +70,8 @@ class _NewShopItemState extends State<NewShopItem> {
   TextEditingController description = TextEditingController();
   TextEditingController stock = TextEditingController();
 
+  FocusNode _descriptionFocusNode = FocusNode();
+
   bool required = false;
 
   String? emojiDisplay;
@@ -361,6 +363,7 @@ class _NewShopItemState extends State<NewShopItem> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: TextField(
+                        focusNode: _descriptionFocusNode,
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
                         maxLines: 4,
                         maxLength: 100,
