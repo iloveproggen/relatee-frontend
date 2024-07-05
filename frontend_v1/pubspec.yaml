@@ -33,7 +33,6 @@ dependencies:
   google_fonts: ^6.2.1
   postgres: ^2.3.2
   intl: any
-  flutter_gravatar: any
   keyboard_emoji_picker: ^1.0.3
   #^0.17.0
 

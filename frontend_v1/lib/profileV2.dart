@@ -504,7 +504,7 @@ class _ProfileViewState extends State<ProfileView> {
                               text: '"${widget.userData['householdName']}"',
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  Get.to(() => MainHouseholdOverview(
+                                  Get.to(() => ht.MainHouseholdOverview(
                                       pUserData: widget.userData));
                                 },
                               style: Theme.of(context)
