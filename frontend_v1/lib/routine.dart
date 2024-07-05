@@ -71,7 +71,7 @@ class Routine extends StatelessWidget {
                 ));
           },
           style: ButtonStyle(
-              padding: WidgetStateProperty.all<EdgeInsets>(
+              padding: MaterialStateProperty.all<EdgeInsets>(
                   const EdgeInsets.all(0))),
           child: Text('No_routines_found_txt'.tr,
               style: Theme.of(context).textTheme.bodySmall));
@@ -128,7 +128,7 @@ class RoutineItem extends StatelessWidget {
               IconButton(
                   style: ButtonStyle(
                     animationDuration: Duration.zero,
-                    padding: WidgetStateProperty.all(EdgeInsets.all(0)),
+                    padding: MaterialStateProperty.all(EdgeInsets.all(0)),
                     alignment: Alignment.centerRight
                   ),
                   onPressed: () {

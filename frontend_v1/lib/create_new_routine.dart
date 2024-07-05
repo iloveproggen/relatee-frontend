@@ -142,7 +142,7 @@ class _NewRoutine extends State<NewRoutine> {
                     style: ButtonStyle(
                       alignment: Alignment.centerRight,
                       animationDuration: Duration.zero,
-                      padding: WidgetStateProperty.all<EdgeInsets>(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
                         const EdgeInsets.all(0),
                       ),
                     ),
@@ -242,7 +242,7 @@ class _NewRoutine extends State<NewRoutine> {
                       }
                     },
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     child: emojiDisplay == null
@@ -288,7 +288,7 @@ class _NewRoutine extends State<NewRoutine> {
                   TextButton(
                     style: ButtonStyle(
                       alignment: Alignment.centerRight,
-                      padding: WidgetStateProperty.all(EdgeInsets.zero),
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
                     onPressed: () {
                       showCupertinoModalPopup(

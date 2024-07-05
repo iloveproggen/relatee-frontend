@@ -291,7 +291,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const Spacer(),
                   IconButton(
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.sparkles,
@@ -303,7 +303,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.gear_solid,
@@ -325,7 +325,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     onPressed: () {
@@ -417,7 +417,7 @@ class _ProfileViewState extends State<ProfileView> {
                         }
                       },
                       style: ButtonStyle(
-                        padding: WidgetStateProperty.all<EdgeInsets>(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0)),
                       ),
                       child: Container(

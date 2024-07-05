@@ -948,7 +948,7 @@ class _AssignToState extends State<AssignTo> {
         TextButton(
             style: ButtonStyle(
               alignment: Alignment.centerRight,
-              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
             ),
             onPressed: () {
               showCupertinoModalPopup(

@@ -568,7 +568,7 @@ class _IconRowState extends State<IconRow> {
                   width: 45,
                   child: TextButton(
                     style: ButtonStyle(
-                        padding: WidgetStateProperty.all<EdgeInsets>(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
                             EdgeInsets.zero)),
                     onPressed: () async {
                       var result = await Get.to(
@@ -1404,7 +1404,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     TextButton(
                       style: ButtonStyle(
-                          padding: WidgetStateProperty.all<EdgeInsets>(
+                          padding: MaterialStateProperty.all<EdgeInsets>(
                               const EdgeInsets.all(0))),
                       onPressed: () => _toggleRoutines(),
                       child: Row(
@@ -1596,7 +1596,7 @@ class _OtherTasksState extends State<OtherTasks> {
                 children: [
                   TextButton(
                     style: ButtonStyle(
-                        padding: WidgetStateProperty.all<EdgeInsets>(
+                        padding: MaterialStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0))),
                     onPressed: () {
                       setState(() {

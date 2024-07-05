@@ -5,8 +5,6 @@ PODS:
   - devicelocale (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_local_notifications (0.0.1):
-    - Flutter
   - keyboard_emoji_picker (0.0.1):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -22,7 +20,6 @@ DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - Flutter (from `Flutter`)
-  - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - keyboard_emoji_picker (from `.symlinks/plugins/keyboard_emoji_picker/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share (from `.symlinks/plugins/share/ios`)
@@ -35,8 +32,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/devicelocale/ios"
   Flutter:
     :path: Flutter
-  flutter_local_notifications:
-    :path: ".symlinks/plugins/flutter_local_notifications/ios"
   keyboard_emoji_picker:
     :path: ".symlinks/plugins/keyboard_emoji_picker/ios"
   path_provider_foundation:
@@ -50,7 +45,6 @@ SPEC CHECKSUMS:
   connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
   devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   keyboard_emoji_picker: efd8498af617ba0d1c5329406a0a8e5c7dd50b46
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
