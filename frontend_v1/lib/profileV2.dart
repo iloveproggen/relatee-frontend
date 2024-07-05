@@ -12,6 +12,8 @@ import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import 'household_tasks.dart';
+
 String getDueDaysInText(int days) {
   if (days == 1) {
     return 'day_txt'.tr;
@@ -307,13 +309,13 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(CupertinoIcons.gear_solid,
                         size: iconSize, color: userColor),
                     onPressed: () async {
-                      Get.to(() => Settings(userData: userData));
+                      Get.to(() => Settings(userData: ht.userData));
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       if (prefs.getBool('useUserColor') == true) {
                         userColor = Color.lerp(
-                            hexToColor(userData['colorPrimary']),
-                            hexToColor(userData['colorSecondary']),
+                            hexToColor(ht.userData['colorPrimary']),
+                            hexToColor(ht.userData['colorSecondary']),
                             0.5)!;
                       } else {
                         userColor = Theme.of(context).colorScheme.tertiary;
