@@ -212,8 +212,9 @@ class _ProfileViewState extends State<ProfileView> {
                   onColorChanged: ((value) {
                     setState(() {
                       colorPrimary = value;
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -231,8 +232,9 @@ class _ProfileViewState extends State<ProfileView> {
                     print(value);
                     setState(() {
                       colorSecondary = value; // Changed to colorSecondary
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -469,8 +471,8 @@ class _ProfileViewState extends State<ProfileView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
                       child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(10),
-                      minHeight: 10,
+                        borderRadius: BorderRadius.circular(10),
+                        minHeight: 10,
                         //dreisatz für das berechnen des values
                         value: widget.userData['level'] <= 1
                             ? getLevelProgressValue()
@@ -504,7 +506,7 @@ class _ProfileViewState extends State<ProfileView> {
                               text: '"${widget.userData['householdName']}"',
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  Get.to(() => MainHouseholdOverview(
+                                  Get.to(() => ht.MainHouseholdOverview(
                                       pUserData: widget.userData));
                                 },
                               style: Theme.of(context)
@@ -679,16 +681,14 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (didUserDataChange){
+                if (didUserDataChange) {
                   print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
-                    avatar, formattedColorPrimary, formattedColorSecondary);
+                      avatar, formattedColorPrimary, formattedColorSecondary);
                   Get.back(result: newUserData);
-                }
-                else {
+                } else {
                   Get.back();
                 }
-                
               },
               child: Row(
                 children: [
