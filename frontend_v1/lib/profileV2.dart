@@ -212,8 +212,9 @@ class _ProfileViewState extends State<ProfileView> {
                   onColorChanged: ((value) {
                     setState(() {
                       colorPrimary = value;
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -231,8 +232,9 @@ class _ProfileViewState extends State<ProfileView> {
                     print(value);
                     setState(() {
                       colorSecondary = value; // Changed to colorSecondary
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -468,17 +470,37 @@ class _ProfileViewState extends State<ProfileView> {
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
-                      child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(10),
-                      minHeight: 10,
-                        //dreisatz für das berechnen des values
-                        value: widget.userData['level'] <= 1
-                            ? getLevelProgressValue()
-                            : getPreviousLevelProgressValue(),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        valueColor: AlwaysStoppedAnimation<Color>(userColor),
-                      ),
+                      child: Stack(
+    children: <Widget>[
+      Container(
+        height: 10,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiary, // White background for the empty part
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          double progressWidth = constraints.maxWidth * (widget.userData['level'] <= 1 ? getLevelProgressValue() : getPreviousLevelProgressValue()); // Calculate width based on progress
+          return Container(
+            width: progressWidth,
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  colorPrimary,
+                  colorSecondary,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          );
+        },
+      ),
+    ],
+  ),
                     ),
                     SizedBox(height: 5),
                     //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
@@ -679,16 +701,14 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (didUserDataChange){
+                if (didUserDataChange) {
                   print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
-                    avatar, formattedColorPrimary, formattedColorSecondary);
+                      avatar, formattedColorPrimary, formattedColorSecondary);
                   Get.back(result: newUserData);
-                }
-                else {
+                } else {
                   Get.back();
                 }
-                
               },
               child: Row(
                 children: [

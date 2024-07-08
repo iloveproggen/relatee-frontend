@@ -51,6 +51,8 @@ class Routine extends StatelessWidget {
   final List<Map<String, dynamic>> tasks = householdData['tasks'];
   final List<Map<String, dynamic>> users = householdData['users'];
 
+  print("all tasks??? $tasks");
+
     if (routines.isNotEmpty) {
       print(routines);
       return Column(

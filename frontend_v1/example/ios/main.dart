@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
-import 'package:frontend_v1/introduction.dart';
 import 'package:frontend_v1/join_household.dart';
 import 'package:frontend_v1/routine.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -116,10 +115,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             routine {
               id
               name
-              emoji
-              refreshDate
-              startDate
-              interval
             }
           }
           rewards {
@@ -227,8 +222,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'routineId': task['routine'] != null ? task['routine']['id'] : null,
           'routineName':
               task['routine'] != null ? task['routine']['name'] : null,
-          'routineEmoji':
-              task['routine'] != null ? task['routine']['emoji'] : null,
         };
       }).toList();
 
@@ -239,9 +232,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'id': routine['id'],
           'name': routine['name'],
           'emoji': routine['emoji'],
-          'refreshDate': routine['refreshDate'],
-          'startDate': routine['startDate'],
-          'interval': routine['interval'],
         };
       }).toList();
 
@@ -358,6 +348,7 @@ Future<void> deleteTask(int taskId) async {
   try {
     final result =
         await client.mutate(options).timeout(const Duration(seconds: 10));
+    print(result.data);
     if (result.hasException) {
       print('GraphQL error: ${result.exception.toString()}');
     }
@@ -467,23 +458,9 @@ class MainWidget extends StatefulWidget {
 class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
-  Future<void> checkIfTutorialSeen() async {
-    print("checking for intro screen");
-    final prefs = await SharedPreferences.getInstance();
-    final allPrefs = prefs.getKeys();
-    for (var key in allPrefs) {
-      final value = prefs.get(key);
-      print('$key: $value');
-    }
-    if (prefs.getBool('seenIntro') != true) {
-      Get.to(() => const IntroScreen());
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     checkLastLoginDate();
-    checkIfTutorialSeen();
     return const Scaffold(body: MainView());
   }
 }
@@ -631,8 +608,7 @@ class _IconRowState extends State<IconRow> {
                 padding: EdgeInsets.zero,
                 iconSize: size,
                 onPressed: () async {
-                  bool? result =
-                      await Get.to(() => MainShopView(userData: userData));
+                  bool? result = await Get.to(() => MainShopView(userData: userData));
                   if (result == true) {
                     print("main page was updated");
                     update();
@@ -686,10 +662,8 @@ class WelcomeText extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                  '${'welcome_title'.tr}, ${userData['forename'] ?? userData['username']}!',
-                  maxLines: 2,
-                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('${'welcome_title'.tr}, ${userData['forename'] ?? userData['username']}!',
+                  maxLines: 2, style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
             ],
@@ -1267,7 +1241,7 @@ class _TaskState extends State<TaskOverview> {
                                                     thickness: 2,
                                                   ),
                                                 ],
-                                              ));
+                                              )); 
                                         } else {
                                           return MapEntry(
                                               index,
@@ -1461,9 +1435,7 @@ class _TaskState extends State<TaskOverview> {
                     ),
                   ],
                 ),
-                showRoutines
-                    ? Routine(householdData: householdData)
-                    : Container(),
+                showRoutines ? Routine(householdData: householdData) : Container(),
                 const SizedBox(height: 30),
                 const SizedBox(height: 50),
               ],

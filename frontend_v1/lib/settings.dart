@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/introduction.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
@@ -69,6 +70,25 @@ class _SettingsState extends State<Settings> {
                   padding: const EdgeInsets.only(
                       top: 10, bottom: 10, left: 15, right: 15),
                   child: Text('Change_Mode_txt'.tr,
+                      style: Theme.of(context).textTheme.bodySmall),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Get.to(() => const IntroScreen());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 10, bottom: 10, left: 15, right: 15),
+                  child: Text('Restart Tutorial',
                       style: Theme.of(context).textTheme.bodySmall),
                 ),
               ),

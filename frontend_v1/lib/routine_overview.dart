@@ -29,15 +29,14 @@ class RoutineOverview extends StatelessWidget {
               const BackIconRow(),
               Text(routine['name'],
                   style: Theme.of(context).textTheme.bodyLarge),
-              Text("Routine description",
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text("started on ${routine['startDate']?? 'unknown'}",
+                  style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(height: 30),
               tasks.isEmpty
                   ? Text("No tasks found.",
                       style: Theme.of(context).textTheme.bodySmall)
                   : Column(
                       children: tasks
-                          .where((task) => task['completed'] == false)
                           .map((task) {
                         return RoutineTask(
                             task: task, users: users, userData: userData);
