@@ -246,7 +246,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             controller: _forenameController,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z]')),
+                                  RegExp(r'[a-zA-ZäÄöÖüÜ]')),
                             ],
                             decoration: InputDecoration(
                               hintText: 'forename_txt'.tr,
@@ -295,7 +295,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             controller: _surnameController,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z]')),
+                                  RegExp(r'[a-zA-ZäÄöÖüÜ]')),
                             ],
                             decoration: InputDecoration(
                               hintText: 'surname_txt'.tr,

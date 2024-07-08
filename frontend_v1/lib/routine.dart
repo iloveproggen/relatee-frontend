@@ -11,15 +11,15 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 Future<void> deleteRoutine(int id) async {
   final client = await getGraphQLClient();
-  print("deleting task $id");
+  print("deleting routine $id");
   final MutationOptions options = MutationOptions(
     document: gql('''
-      mutation DeleteRoutine(\$id: Int!) {
-        deleteRoutine(id: \$id)
+      mutation deleteRoutine(\$routineId: Int!) {
+        deleteRoutine(routineId: \$id)
       }
     '''),
     variables: <String, dynamic>{
-      'id': id,
+      'routineId': id,
     },
   );
   try {
@@ -34,19 +34,26 @@ Future<void> deleteRoutine(int id) async {
     print('Unexpected error: $e');
     // Handle other errors
   }
-  print("deleted?");
 }
 
 class Routine extends StatelessWidget {
-  const Routine({super.key, required this.userData});
+  const Routine({super.key, required this.householdData});
 
-  final Map<String, dynamic> userData;
+
+  final Map<String, dynamic> householdData;
+
 
   @override
   Widget build(BuildContext context) {
-    if (userData['routines'] != null) {
-      List<Map<String, dynamic>> routines = userData['routines'];
-      List<Map<String, dynamic>> users = userData['users'];
+
+  final Map<String, dynamic> userData = householdData['userData'];
+  final List<Map<String, dynamic>> routines = householdData['routines'];
+  final List<Map<String, dynamic>> tasks = householdData['tasks'];
+  final List<Map<String, dynamic>> users = householdData['users'];
+
+  print("all tasks??? $tasks");
+
+    if (routines.isNotEmpty) {
       print(routines);
       return Column(
         children: routines.map((routine) {
@@ -66,7 +73,7 @@ class Routine extends StatelessWidget {
                 ));
           },
           style: ButtonStyle(
-              padding: MaterialStateProperty.all<EdgeInsets>(
+              padding: WidgetStateProperty.all<EdgeInsets>(
                   const EdgeInsets.all(0))),
           child: Text('No_routines_found_txt'.tr,
               style: Theme.of(context).textTheme.bodySmall));
@@ -82,10 +89,6 @@ class RoutineItem extends StatelessWidget {
       required this.tasks,
       required this.userData});
 
-  final Color colLight = const Color.fromARGB(255, 243, 243, 243);
-  final Color colMid = const Color.fromARGB(255, 204, 198, 196);
-  final Color colText = const Color(0xFF4A4646);
-
   final Map<String, dynamic> routine;
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> users;
@@ -98,81 +101,57 @@ class RoutineItem extends StatelessWidget {
       onDismissed: (direction) {
         deleteRoutine(routine['id']);
       },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        margin: const EdgeInsets.all(0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.secondary,
-              offset: const Offset(5.0, 5.0),
-              blurRadius: 10.0,
-              spreadRadius: 2.0,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 180),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Text(routine['name'],
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 180),
-                    child: Text(
-                      'Routine_description_txt'.tr,
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 204, 198, 196),
-                          fontSize: 20,
-                          fontFamily: "Karla"),
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          margin: const EdgeInsets.all(0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.secondary,
+                offset: const Offset(5.0, 5.0),
+                blurRadius: 10.0,
+                spreadRadius: 2.0,
               ),
-            ),
-            Padding(
-                padding: const EdgeInsets.all(5),
-                child: IconButton(
-                    style: ButtonStyle(
-                      animationDuration: Duration.zero,
-                      padding: MaterialStateProperty.all(EdgeInsets.all(0)),
-                    ),
-                    onPressed: () {
-                      print(tasks);
-                      Get.to(() => RoutineOverview(
-                            routine: routine,
-                            users: users,
-                            tasks: tasks
-                                .where((task) =>
-                                    task['routineId'] == routine['id'])
-                                .toList(),
-                            userData: userData,
-                          ));
-                    },
-                    icon: Icon(
-                      CupertinoIcons.info,
-                      size: 25,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    )))
-          ],
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("${routine['emoji']} ${routine['name']}",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+              IconButton(
+                  style: ButtonStyle(
+                    animationDuration: Duration.zero,
+                    padding: WidgetStateProperty.all(EdgeInsets.all(0)),
+                    alignment: Alignment.centerRight
+                  ),
+                  onPressed: () {
+                    print(tasks);
+                    Get.to(() => RoutineOverview(
+                          routine: routine,
+                          users: users,
+                          tasks: tasks
+                              .where((task) =>
+                                  task['routineId'] == routine['id'])
+                              .toList(),
+                          userData: userData,
+                        ));
+                  },
+                  icon: Icon(
+                    CupertinoIcons.info,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ))
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend_v1/household_tasks.dart' as ht;
@@ -18,6 +19,8 @@ String getDueDaysInText(int days) {
     return 'days_txt'.tr;
   }
 }
+
+late bool didUserDataChange;
 
 Future<Map<String, dynamic>> updateUserProfile(
     String emoji, String colorPrimary, String colorSecondary) async {
@@ -50,7 +53,6 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
-    print(result.data!['updateUserStyle']);
     return result.data!['updateUserStyle'];
   }
 }
@@ -71,9 +73,85 @@ class _ProfileViewState extends State<ProfileView> {
   late Color colorSecondary;
   bool useSecondaryColor = false;
 
+//brauchen wir für die Levle
+//main usercolor gemischte Farbe -> usercolor
+  final List<int> levelList = [
+    0,
+    200,
+    400,
+    600,
+    800,
+    1000,
+    1300,
+    1600,
+    1900,
+    2200,
+    2400,
+    2700,
+    3000,
+    3400,
+    3800,
+    4200,
+    4600,
+    5000,
+    5500,
+    6000,
+    6500,
+    7000,
+    7600,
+    8200,
+    8800,
+    9400,
+    10000,
+    11000,
+    12000,
+    13500,
+  ];
+
+  //get correct next level xp
+  int getLevelProgress() {
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = widget.userData['level'] ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return levelList[level];
+  }
+
+  int getPreviousLevelProgress() {
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = widget.userData['level'] - 1 ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return levelList[level + 1] - levelList[level];
+  }
+
+  //to get the previous level progress
+  double getPreviousLevelProgressValue() {
+    int experience = widget.userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getPreviousLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return ((experience - levelList[widget.userData['level'] - 1]) /
+            levelProgress)
+        .toDouble();
+  }
+
+  double getLevelProgressValue() {
+    int experience = widget.userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return (experience / levelProgress).toDouble();
+  }
+
   @override
   void initState() {
     super.initState();
+    didUserDataChange = false;
     avatar = widget.userData['emoji'];
     colorPrimary = hexToColor(widget.userData['colorPrimary']);
     colorSecondary = hexToColor(widget.userData['colorSecondary']);
@@ -86,16 +164,17 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   void openColorPicker() {
+    didUserDataChange = true;
     Color oldColorPrimary = colorPrimary;
     Color oldColorSecondary = colorSecondary;
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
         return CupertinoActionSheet(
-          title: const Text("Choose your profile's colors"),
+          title: Text('ChooseProfileColor_txt'.tr),
           actions: [
             CupertinoActionSheetAction(
-              child: const Text('Save changes',
+              child: Text('SaveChanges_txt'.tr,
                   style: TextStyle(color: Colors.blue)),
               onPressed: () {
                 setState(() {
@@ -104,10 +183,11 @@ class _ProfileViewState extends State<ProfileView> {
               },
             ),
             CupertinoActionSheetAction(
-              child: const Text('Discard Changes',
+              child: Text('DiscardChanges_txt'.tr,
                   style: TextStyle(color: Colors.red)),
               onPressed: () {
                 setState(() {
+                  didUserDataChange = false;
                   colorPrimary = oldColorPrimary;
                   colorSecondary = oldColorSecondary;
                   Get.back();
@@ -130,9 +210,12 @@ class _ProfileViewState extends State<ProfileView> {
                       const BorderRadius.all(Radius.circular(20)),
                   pickerColor: colorPrimary,
                   onColorChanged: ((value) {
-                    print(value);
                     setState(() {
                       colorPrimary = value;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      }
                     });
                   }),
                 ),
@@ -149,6 +232,10 @@ class _ProfileViewState extends State<ProfileView> {
                     print(value);
                     setState(() {
                       colorSecondary = value; // Changed to colorSecondary
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      }
                     });
                   }),
                 ),
@@ -186,7 +273,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final double iconSize = 30;
+    const double iconSize = 30;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -204,7 +291,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const Spacer(),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.sparkles,
@@ -216,7 +303,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.gear_solid,
@@ -238,7 +325,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     onPressed: () {
@@ -297,19 +384,12 @@ class _ProfileViewState extends State<ProfileView> {
                   SizedBox(
                     height: 200,
                     width: 200,
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //   width: 7,
-                    //   color: Theme.of(context).colorScheme.onPrimary,
-                    //   strokeAlign: BorderSide.strokeAlignOutside
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(100),
-                    // ),
                     child: TextButton(
                       onPressed: () async {
                         final hasEmojiKeyboard =
                             await KeyboardEmojiPicker().checkHasEmojiKeyboard();
                         if (hasEmojiKeyboard) {
+                          didUserDataChange = true;
                           final pickedEmoji =
                               await KeyboardEmojiPicker().pickEmoji();
                           setState(() {
@@ -337,7 +417,7 @@ class _ProfileViewState extends State<ProfileView> {
                         }
                       },
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0)),
                       ),
                       child: Container(
@@ -388,6 +468,46 @@ class _ProfileViewState extends State<ProfileView> {
                         '${widget.userData['forename']} ${widget.userData['surname']}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: Stack(
+    children: <Widget>[
+      Container(
+        height: 10,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiary, // White background for the empty part
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          double progressWidth = constraints.maxWidth * (widget.userData['level'] <= 1 ? getLevelProgressValue() : getPreviousLevelProgressValue()); // Calculate width based on progress
+          return Container(
+            width: progressWidth,
+            height: 10,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  colorPrimary,
+                  colorSecondary,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          );
+        },
+      ),
+    ],
+  ),
+                    ),
+                    SizedBox(height: 5),
+                    //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
+                    Text(
+                        '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
+                        style: Theme.of(context).textTheme.labelSmall),
+                    const SizedBox(height: 20),
                     Text(
                       '@${widget.userData['username']}',
                       style: Theme.of(context)
@@ -404,6 +524,11 @@ class _ProfileViewState extends State<ProfileView> {
                               style: Theme.of(context).textTheme.bodySmall),
                           TextSpan(
                               text: '"${widget.userData['householdName']}"',
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Get.to(() => ht.MainHouseholdOverview(
+                                      pUserData: widget.userData));
+                                },
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -422,7 +547,10 @@ class _ProfileViewState extends State<ProfileView> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
@@ -435,11 +563,10 @@ class _ProfileViewState extends State<ProfileView> {
                                   color: userColor,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  '${widget.userData['coins']}',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                ),
+                                Text('${widget.userData['coins']}',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium),
                               ],
                             ),
                           ),
@@ -450,15 +577,16 @@ class _ProfileViewState extends State<ProfileView> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 27, vertical: 9),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.3),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),
                             ),
-                            child: Text(
-                              'lvl ${widget.userData['level']}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium
-                            ),
+                            child: Text('lvl ${widget.userData['level']}',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium),
                           ),
                         ),
                       ],
@@ -481,14 +609,20 @@ class _ProfileViewState extends State<ProfileView> {
 }
 
 class BackIconRow extends StatelessWidget {
-  const BackIconRow({super.key});
+  const BackIconRow({super.key, this.getTo, this.updateNeeded});
 
+  final Widget? getTo;
+  final bool? updateNeeded;
   final double padding = 20;
   final double size = 40;
   final Color col = const Color.fromARGB(255, 204, 198, 196);
 
   @override
   Widget build(BuildContext context) {
+    bool pUpdateNeeded = false;
+    if (updateNeeded != null && updateNeeded == true) {
+      pUpdateNeeded = true;
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -501,7 +635,17 @@ class BackIconRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Get.back();
+                if (getTo != null) {
+                  print(getTo ?? "no widget found");
+                  Get.offAll(() => getTo!);
+                } else {
+                  print(pUpdateNeeded);
+                  if (pUpdateNeeded) {
+                    Get.back(result: true);
+                  } else {
+                    Get.back();
+                  }
+                }
               },
               child: Row(
                 children: [
@@ -542,9 +686,9 @@ class BackAndUpdateIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedColorPrimary =
-        '#' + colorPrimary.split('(0xff')[1].split(')')[0];
+        '#${colorPrimary.split('(0xff')[1].split(')')[0]}';
     String formattedColorSecondary =
-        '#' + colorSecondary.split('(0xff')[1].split(')')[0];
+        '#${colorSecondary.split('(0xff')[1].split(')')[0]}';
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -557,9 +701,14 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                Map<String, dynamic> newUserData = await updateUserProfile(
-                    avatar, formattedColorPrimary, formattedColorSecondary);
-                Get.back(result: newUserData);
+                if (didUserDataChange) {
+                  print(didUserDataChange);
+                  Map<String, dynamic> newUserData = await updateUserProfile(
+                      avatar, formattedColorPrimary, formattedColorSecondary);
+                  Get.back(result: newUserData);
+                } else {
+                  Get.back();
+                }
               },
               child: Row(
                 children: [

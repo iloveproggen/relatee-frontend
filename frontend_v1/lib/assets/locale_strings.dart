@@ -127,6 +127,11 @@ class LocaleString extends Translations {
           'Emoji_Disabled_txt': 'Emoji Keyboard Disabled',
           'EnableEmojiKeyboard_txt':
               'Please enable the emoji keyboard in your device settings.',
+          'ChooseProfileColor_txt': 'Choose your profile\'s colors',
+          'SaveChanges_txt': 'Save changes',
+          'DiscardChanges_txt': 'Discard changes',
+          'Progress_1_txt': 'You got ',
+          'Progress_2_txt': 'of ',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -193,7 +198,8 @@ class LocaleString extends Translations {
           'December_txt': 'Dezember',
           'Routine_description_txt': 'Routine Beschreibung.',
           'No_tasks_found_txt': 'Keine Aufgaben gefunden.',
-          'No_routines_found_txt': 'Keine Routinen gefunden. Klick hier, um eine zu erstellen.',
+          'No_routines_found_txt':
+              'Keine Routinen gefunden. Klick hier, um eine zu erstellen.',
           'routine_description_txt': 'Routine Beschreibung.',
           'Invite_Members_txt': 'Mitglieder einladen',
           'Send_Invitation_txt':
@@ -247,6 +253,14 @@ class LocaleString extends Translations {
               'Die Routine wird jeden Tag aktualisiert. Sie können Aufgaben hinzufügen.',
           'RoutineRefreshVar_txt': 'Die Routine wird jede ',
           'RoutineRefreshVarGermanAdd_txt': ' Tage wiederholt.',
+          'Emoji_Disabled_txt': 'Emoji-Tastatur deaktiviert',
+          'EnableEmojiKeyboard_txt':
+              'Bitte aktivieren Sie die Emoji-Tastatur in den Geräteeinstellungen.',
+          'ChooseProfileColor_txt': 'Wählen Sie die Farben Ihres Profils',
+          'SaveChanges_txt': 'Änderungen speichern',
+          'DiscardChanges_txt': 'Änderungen verwerfen',
+          'Progress_1_txt': 'Du hast ',
+          'Progress_2_txt': 'von ',
         }
       };
 }

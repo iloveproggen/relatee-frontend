@@ -69,7 +69,8 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: const Scaffold(body: MainWidget()));
+              home: const Scaffold(body: MainWidget())
+              );
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -202,6 +203,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
         error['message'] =
             jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
+      //Get.to(() => const LoginWidget());
     }
     setState(() {
       isLoading = true;

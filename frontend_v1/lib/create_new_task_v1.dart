@@ -12,6 +12,52 @@ import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 double paddingRight = 10;
 double iconSize = 30;
 
+class ShowCupertinoDateTimePicker extends StatelessWidget {
+  const ShowCupertinoDateTimePicker(
+      {super.key, required this.onDateTimeChanged});
+
+  final Function(DateTime) onDateTimeChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 300, // Specify the height for the CupertinoDatePicker
+      child: CupertinoDatePicker(
+        mode: CupertinoDatePickerMode.dateAndTime,
+        minuteInterval: 30,
+        initialDateTime: DateTime.now().subtract(Duration(minutes: DateTime.now().minute % 30)),
+        maximumYear: DateTime.now().year + 3,
+        minimumYear: DateTime.now().year,
+        onDateTimeChanged: (DateTime newDateTime) {
+          onDateTimeChanged(newDateTime);
+        },
+      ),
+    );
+  }
+}
+
+class ShowCupertinoDatePicker extends StatelessWidget {
+  const ShowCupertinoDatePicker({super.key, required this.onDateTimeChanged});
+
+  final Function(DateTime) onDateTimeChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 300, // Specify the height for the CupertinoDatePicker
+      child: CupertinoDatePicker(
+        mode: CupertinoDatePickerMode.date,
+        initialDateTime: DateTime.now(),
+        maximumYear: DateTime.now().year + 3,
+        minimumYear: DateTime.now().year,
+        onDateTimeChanged: (DateTime newDateTime) {
+          onDateTimeChanged(newDateTime);
+        },
+      ),
+    );
+  }
+}
+
 class MaxLengthNumberInputFormatter extends TextInputFormatter {
   final int maxDigits;
 
@@ -39,6 +85,7 @@ Map<String, dynamic> nullUser = {
 Map<String, dynamic> nullRoutine = {
   'name': 'none',
   'id': null,
+  'emoji': ""
 };
 
 Map<String, dynamic> pickedRoutine = nullRoutine;
@@ -149,8 +196,8 @@ class NewTaskFuture extends StatelessWidget {
               .addAll(List<Map<String, dynamic>>.from(snapshot.data!['users']));
           List<Map<String, dynamic>> routines = [];
           routines.add(nullRoutine);
-          // routines.addAll(
-          //     List<Map<String, dynamic>>.from(snapshot.data!['routines']));
+          routines.addAll(
+              List<Map<String, dynamic>>.from(snapshot.data!['routines']));
           return NewTask(
               userData: userData,
               householdUsers: householdUsers,
@@ -184,7 +231,7 @@ class _NewTaskState extends State<NewTask> {
   TextEditingController description = TextEditingController();
 
   String? emojiDisplay;
-  bool useTime = true;
+  bool useTime = false;
 
   void _updateRequired() {
     setState(() {
@@ -200,6 +247,7 @@ class _NewTaskState extends State<NewTask> {
   void initState() {
     super.initState();
     emojiDisplay = null;
+    useTime = false;
     // Add listener to text controllers to update required variable
     taskName.addListener(_updateRequired);
     taskPrice.addListener(_updateRequired);
@@ -213,6 +261,12 @@ class _NewTaskState extends State<NewTask> {
   void changePermanent() {
     setState(() {});
     isPermanent = !isPermanent;
+  }
+
+  void updateDeadline(DateTime newDateTime) {
+    setState(() {
+      deadline = newDateTime;
+    });
   }
 
   @override
@@ -574,33 +628,90 @@ class _NewTaskState extends State<NewTask> {
                     ),
                     onPressed: () {
                       showCupertinoModalPopup(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Container(
-                            color: Theme.of(context).colorScheme.background,
-                            height: 400,
-                            child: CupertinoDatePicker(
-                              mode: useTime
-                                  ? CupertinoDatePickerMode.dateAndTime
-                                  : CupertinoDatePickerMode.date,
-                              initialDateTime: DateTime.now(),
-                              maximumYear: DateTime.now().year + 3,
-                              minimumYear: DateTime.now().year,
-                              onDateTimeChanged: (DateTime newDateTime) {
-                                print(newDateTime);
-                                setState(() {
-                                  deadline = newDateTime;
-                                });
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StatefulBuilder(
+                              // Wrap with StatefulBuilder
+                              builder: (BuildContext context,
+                                  StateSetter setModalState) {
+                                return Container(
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                  height: 400,
+                                  child: Column(
+                                    children: [
+                                      useTime
+                                          ? ShowCupertinoDateTimePicker(
+                                              onDateTimeChanged: updateDeadline,
+                                            )
+                                          : ShowCupertinoDatePicker(
+                                              onDateTimeChanged:
+                                                  updateDeadline),
+                                      
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            bottom: 0, left: 40, right: 40),
+                                        child: Row(
+                                          children: [
+                                            // Icon(CupertinoIcons.clock,
+                                            //     size: iconSize,
+                                            //     color: Theme.of(context)
+                                            //         .colorScheme
+                                            //         .tertiary),
+                                            Text("include time?",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall),
+                                            const Spacer(),
+                                            CupertinoCheckbox(
+                                              value: useTime,
+                                              activeColor: userColor,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  setModalState(() {
+                                                    useTime = value ?? false;
+                                                  });
+                                                });
+                                              },
+                                            ),
+                                            // IconButton(
+                                            //   alignment: Alignment.centerRight,
+                                            //   padding: EdgeInsets.zero,
+                                            //   style: ButtonStyle(
+                                            //     overlayColor: MaterialStateProperty
+                                            //         .all(Colors
+                                            //             .transparent), // Removes ripple effect
+                                            //   ),
+                                            //   icon: Icon(
+                                            //       useTime
+                                            //           ? CupertinoIcons.checkmark
+                                            //           : CupertinoIcons.xmark,
+                                            //       size: 20),
+                                            //   onPressed: () {
+                                            //     setState(() {
+                                            //       setModalState(() {
+                                            //       useTime = !useTime;
+                                            //       });
+                                            //     });
+                                            //   },
+                                            // )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               },
-                            ),
-                          );
-                        },
-                      );
+                            );
+                          });
                     },
                     child: Text(
                         deadline != null
-                            ? DateFormat('dd-MM-yyyy').format(deadline!)
+                            ? useTime
+                                ? DateFormat('d-M-yy\n H:mm').format(deadline!)
+                                : DateFormat('d-M-yy').format(deadline!)
                             : 'none_txt'.tr,
+                        textAlign: TextAlign.end,
                         style: deadline != null
                             ? Theme.of(context)
                                 .textTheme
@@ -628,30 +739,7 @@ class _NewTaskState extends State<NewTask> {
                       : Container(),
                 ],
               ),
-              Row(
-                children: [
-                  Icon(CupertinoIcons.clock,
-                      size: iconSize,
-                      color: Theme.of(context).colorScheme.tertiary),
-                  SizedBox(width: paddingRight),
-                  Text("Use time?",
-                      style: Theme.of(context).textTheme.bodySmall),
-                  Spacer(),
-                  IconButton(
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.zero,
-                    style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.all(Colors.transparent), // Removes ripple effect
-                    ),
-                    icon: Icon(useTime ? CupertinoIcons.checkmark : CupertinoIcons.xmark, size: 20),
-                    onPressed: () {
-                      setState(() {
-                        useTime = !useTime;
-                      });
-                    },
-                  )
-                ],
-              ),
+
               Column(
                 children: [
                   Row(
@@ -700,7 +788,7 @@ class _NewTaskState extends State<NewTask> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                       maxLength: 100,
                     ),
-                  )
+                  ),
                 ],
               ),
             ],
@@ -871,7 +959,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
                           50, // Increase the item extent to make the items bigger
                       onSelectedItemChanged: (int index) {
                         print(
-                            'Selected routine: ${widget.routines[index]['name'] ?? ''}');
+                            'Selected routine: ${pickedRoutine['emoji'] ?? ""} ${widget.routines[index]['name'] ?? ''}');
                         setState(() {
                           pickedRoutine = widget.routines[index];
                           widget.callback;
@@ -880,7 +968,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
                       children: widget.routines.map((routine) {
                         return Center(
                           child: Text(
-                            routine['name'],
+                            "${routine['name']} ${routine['emoji'] ?? ""}",
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         );
@@ -893,7 +981,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
             child: Text(
                 pickedRoutine['name'] == null
                     ? 'none_txt'.tr
-                    : "${pickedRoutine['name']}",
+                    : "${pickedRoutine['name']} ${pickedRoutine['emoji'] ?? ""}",
                 textAlign: TextAlign.end,
                 style: pickedRoutine['name'] == null
                     ? Theme.of(context)
@@ -901,8 +989,7 @@ class _RoutinePickerState extends State<RoutinePicker> {
                         .bodySmall
                         ?.copyWith(fontWeight: FontWeight.bold)
                     : Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiary))),
+                        fontWeight: FontWeight.bold))),
       ],
     );
   }
@@ -948,7 +1035,7 @@ class _AssignToState extends State<AssignTo> {
         TextButton(
             style: ButtonStyle(
               alignment: Alignment.centerRight,
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
             ),
             onPressed: () {
               showCupertinoModalPopup(
