@@ -7,7 +7,6 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
 late Map<String, dynamic> userData;
@@ -413,8 +412,8 @@ class _NewRoutine extends State<NewRoutine> {
                             height: 300,
                             child: CupertinoPicker(
                               scrollController: FixedExtentScrollController(
-                                  initialItem: _getScrollController(interval ??
-                                      0)), // Set the initial item to 0
+                                  initialItem: _getScrollController(interval
+                                      )), // Set the initial item to 0
                               itemExtent:
                                   50, // Increase the item extent to make the items bigger
                               onSelectedItemChanged: (int index) {

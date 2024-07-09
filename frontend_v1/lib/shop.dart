@@ -504,7 +504,9 @@ class _ItemCardState extends State<ItemCard> {
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(width: 5),
@@ -520,16 +522,19 @@ class _ItemCardState extends State<ItemCard> {
                           width: 10,
                         ),
                         widget.reward['stock'] == -1
-                            ? Text("")
+                            ? const Text("")
                             : widget.reward['stock'] == 0
                                 ? Text("out of stock!",
                                     style:
-                                        Theme.of(context).textTheme.bodySmall)
+                                        Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red, fontWeight: FontWeight.bold))
                                 : Text("${widget.reward['stock'].toString()}x",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
                                         ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
                                             fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -537,24 +542,19 @@ class _ItemCardState extends State<ItemCard> {
                             widget.reward['description'] == null
                         ? Container(height: 10)
                         : Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: SizedBox(
-                              child: Text(
-                                "\'${widget.reward['description']}\'",
-                                maxLines: 5,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                    ),
-                                textAlign: TextAlign.start,
-                              ),
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: SizedBox(
+                            child: Text(
+                              "\'${widget.reward['description']}\'",
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall,
+                              textAlign: TextAlign.start,
                             ),
-                          )
+                          ),
+                        )
                   ],
                 ),
               ),

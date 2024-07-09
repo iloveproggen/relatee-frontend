@@ -8,7 +8,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 bool changedColorSetting = false;
-bool useUserColor = false;
+late bool useUserColor;
+double userColorRatio = 0.5;
 
 class Settings extends StatefulWidget {
   const Settings({super.key, required this.userData});
@@ -22,9 +23,17 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    loadSharedPrefs();
     changedColorSetting = false;
+  }
+
+  Future<void> loadSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool localUseUserColor = prefs.getBool('useUserColor') ?? false;
+    setState(() {
+      useUserColor = localUseUserColor;
+    });
   }
 
   @override
@@ -112,20 +121,24 @@ class _SettingsState extends State<Settings> {
                             children: [
                               const Text(
                                   'This setting changes the accent colors of this app to those from your profile picture. If you disable this setting, the app will use the default colors.'),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(CupertinoIcons.bell_fill,
                                       color: userColor, size: 40),
-                                  SizedBox(width: 15),
+                                  const SizedBox(width: 15),
                                   Icon(CupertinoIcons.heart_fill,
                                       color: userColor, size: 40),
-                                  SizedBox(width: 15),
+                                  const SizedBox(width: 15),
                                   Icon(CupertinoIcons.gear_solid,
                                       color: userColor, size: 40),
                                 ],
-                              )
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                "Warning: Depending on your color, this could make some Icons or Texts hard to see.",
+                              ),
                             ],
                           ),
                           actions: <Widget>[
@@ -148,47 +161,55 @@ class _SettingsState extends State<Settings> {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-                FutureBuilder<bool>(
-                  future: SharedPreferences.getInstance()
-                      .then((prefs) => prefs.getBool('useUserColor') ?? false),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container();
-                    } else {
-                      bool useUserColor = snapshot.data ?? false;
-                      return CupertinoSwitch(
-                        trackColor: Theme.of(context).colorScheme.tertiary,
-                        thumbColor: Theme.of(context).colorScheme.primary,
-                        value: useUserColor,
-                        activeColor: Color.lerp(
+                CupertinoSwitch(
+                  trackColor: Theme.of(context).colorScheme.tertiary,
+                  thumbColor: Theme.of(context).colorScheme.primary,
+                  value: useUserColor,
+                  activeColor: Color.lerp(hexToColor(userData['colorPrimary']),
+                      hexToColor(userData['colorSecondary']), userColorRatio)!,
+                  onChanged: (value) async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setBool('useUserColor', value);
+                    setState(() {
+                      changedColorSetting = true;
+                      useUserColor = value;
+                      if (value) {
+                        userColor = Color.lerp(
                             hexToColor(userData['colorPrimary']),
                             hexToColor(userData['colorSecondary']),
-                            0.5)!,
+                            userColorRatio)!;
+                      } else {
+                        userColor = Theme.of(context).colorScheme.tertiary;
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            useUserColor ? const SizedBox(height: 20) : SizedBox(),
+            useUserColor
+                ? Container(
+                    width: double.infinity,
+                    child: CupertinoSlider(
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        value: userColorRatio,
+                        divisions: 6,
+                        max: 1,
+                        min: 0,
+                        activeColor: userColor,
                         onChanged: (value) async {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
-                          await prefs.setBool('useUserColor', value);
+                          prefs.setDouble('colorRatio', value);
+                          print(value);
                           setState(() {
-                            changedColorSetting = true;
-                            useUserColor = value;
-                            if (value) {
-                              userColor = Color.lerp(
-                                  hexToColor(userData['colorPrimary']),
-                                  hexToColor(userData['colorSecondary']),
-                                  0.5)!;
-                            } else {
-                              userColor =
-                                  Theme.of(context).colorScheme.tertiary;
-                            }
+                            userColorRatio = value;
                           });
-                        },
-                      );
-                    }
-                  },
-                )
-              ],
-            ),
-            SizedBox(height: 80),
+                        }),
+                  )
+                : SizedBox(),
+            const SizedBox(height: 80),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -267,7 +288,7 @@ leaveHouseholdConfimation(BuildContext context) {
             child: const Text('Leave', style: TextStyle(color: Colors.red)),
             onPressed: () async {
               await leaveHousehold();
-              Get.offAll(() => MainWidget());
+              Get.offAll(() => const MainWidget());
             },
           ),
         ],

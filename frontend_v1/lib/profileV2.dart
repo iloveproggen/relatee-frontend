@@ -53,6 +53,7 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
+    print("updated!");
     return result.data!['updateUserStyle'];
   }
 }
@@ -309,6 +310,13 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(CupertinoIcons.gear_solid,
                         size: iconSize, color: userColor),
                     onPressed: () async {
+                      userData['colorPrimary'] = '#${colorPrimary.toString().split('(0xff')[1].split(')')[0]}';
+                      userData['colorSecondary'] = '#${colorSecondary.toString().split('(0xff')[1].split(')')[0]}';
+                      print(userData);
+                      print(userData['colorPrimary']);
+                      print(userData['colorSecondary']);
+                      print(userData['emoji']);
+                      await updateUserProfile(avatar ?? userData['emoji'], userData['colorPrimary'], userData['colorSecondary']);
                       Get.to(() => Settings(userData: userData));
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
