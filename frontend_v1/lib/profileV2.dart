@@ -53,6 +53,7 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
+    print("updated!");
     return result.data!['updateUserStyle'];
   }
 }
@@ -294,8 +295,8 @@ class _ProfileViewState extends State<ProfileView> {
                       padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
-                    icon: Icon(CupertinoIcons.sparkles,
-                        size: iconSize, color: userColor),
+                    icon: Icon(CupertinoIcons.paintbrush_fill,
+                        size: iconSize - 2, color: userColor),
                     onPressed: () {
                       openColorPicker();
                     },
@@ -309,6 +310,13 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(CupertinoIcons.gear_solid,
                         size: iconSize, color: userColor),
                     onPressed: () async {
+                      userData['colorPrimary'] = '#${colorPrimary.toString().split('(0xff')[1].split(')')[0]}';
+                      userData['colorSecondary'] = '#${colorSecondary.toString().split('(0xff')[1].split(')')[0]}';
+                      print(userData);
+                      print(userData['colorPrimary']);
+                      print(userData['colorSecondary']);
+                      print(userData['emoji']);
+                      await updateUserProfile(avatar ?? userData['emoji'], userData['colorPrimary'], userData['colorSecondary']);
                       Get.to(() => Settings(userData: userData));
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
@@ -471,36 +479,42 @@ class _ProfileViewState extends State<ProfileView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
                       child: Stack(
-    children: <Widget>[
-      Container(
-        height: 10,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiary, // White background for the empty part
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          double progressWidth = constraints.maxWidth * (widget.userData['level'] <= 1 ? getLevelProgressValue() : getPreviousLevelProgressValue()); // Calculate width based on progress
-          return Container(
-            width: progressWidth,
-            height: 10,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              gradient: LinearGradient(
-                colors: [
-                  colorPrimary,
-                  colorSecondary,
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-          );
-        },
-      ),
-    ],
-  ),
+                        children: <Widget>[
+                          Container(
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary, // White background for the empty part
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          LayoutBuilder(
+                            builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              double progressWidth = constraints.maxWidth *
+                                  (widget.userData['level'] <= 1
+                                      ? getLevelProgressValue()
+                                      : getPreviousLevelProgressValue()); // Calculate width based on progress
+                              return Container(
+                                width: progressWidth,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      colorPrimary,
+                                      colorSecondary,
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 5),
                     //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),

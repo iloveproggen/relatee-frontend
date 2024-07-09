@@ -145,44 +145,100 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                   )
                 ],
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Form(
-                  child: Column(
-                    children: [
-                      TextField(
-                          cursorColor:
-                              Theme.of(context).colorScheme.onSecondary,
-                          controller: taskName,
-                          maxLength: 30,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            counterText: "",
-                            hintText: 'new_item_txt'.tr,
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                  color:
-                                      const Color.fromARGB(255, 204, 198, 196),
-                                ),
-                          ),
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ],
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  TextFormField(
+                    controller: taskName,
+                    cursorColor: Theme.of(context).colorScheme.onSecondary,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: "",
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    maxLength: 30,
                   ),
-                ),
+                  IgnorePointer(
+                    child: Visibility(
+                      visible: taskName.text.isEmpty,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: ('new_item_txt'.tr),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                  ),
+                            ),
+                            TextSpan(
+                              text: ' *',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.red.withOpacity(0.5),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
               //const SliderWidget(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        EdgeInsets.only(top: 10, bottom: 10, right: paddingRight),
+                    child: Icon(
+                      CupertinoIcons.money_dollar_circle,
+                      size: iconSize,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'price_txt'.tr,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Expanded(
+                    child: TextField(
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        textAlign: TextAlign.end,
+                        controller: taskPrice,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          MaxLengthNumberInputFormatter(10),
+                        ],
+                        decoration: InputDecoration(
+                            hintText: 'add_price_txt'.tr,
+                            hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 20),
+                            border: InputBorder.none),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        EdgeInsets.only(top: 10, bottom: 10, right: paddingRight),
                     child: Icon(
                       CupertinoIcons.smiley,
-                      size: 40,
+                      size: iconSize,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
@@ -232,8 +288,7 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                         ? Text(
                             "add icon",
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 20,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                           )
                         : Text(
@@ -241,7 +296,7 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 40,
+                              fontSize: 30,
                             ),
                           ),
                   ),
@@ -263,10 +318,10 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                        EdgeInsets.only(top: 10, bottom: 10, right: paddingRight),
                     child: Icon(
                       CupertinoIcons.add_circled,
-                      size: 40,
+                      size: iconSize,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
@@ -296,56 +351,17 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                   ),
                 ],
               ),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 10, bottom: 10, right: 20),
-                    child: Icon(
-                      CupertinoIcons.money_dollar_circle,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                  Text(
-                    'price_txt'.tr,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Expanded(
-                    child: TextField(
-                        cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        textAlign: TextAlign.end,
-                        controller: taskPrice,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          MaxLengthNumberInputFormatter(10),
-                        ],
-                        decoration: InputDecoration(
-                            hintText: 'add_price_txt'.tr,
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 20),
-                            border: InputBorder.none),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
               Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10, bottom: 10, right: 20),
+                        padding: EdgeInsets.only(
+                            top: 10, bottom: 10, right: paddingRight),
                         child: Icon(
                           CupertinoIcons.text_aligncenter,
-                          size: 40,
+                          size: iconSize,
                           color: Theme.of(context).colorScheme.tertiary,
                         ),
                       ),
@@ -369,8 +385,7 @@ class _UpdateShopItemState extends State<UpdateShopItem> {
                             counterText: "",
                             hintText: 'add_description_txt'.tr,
                             hintStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 20),
+                                color: Theme.of(context).colorScheme.tertiary),
                             border: InputBorder.none),
                         style: Theme.of(context)
                             .textTheme

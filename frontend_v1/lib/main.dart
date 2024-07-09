@@ -299,9 +299,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
       };
 
       final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool('useUserColor') == true) {
+      if (prefs.getBool('useUserColor') != false) {
         userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']),
-            hexToColor(mappedUserData['colorSecondary']), 0.5)!;
+            hexToColor(mappedUserData['colorSecondary']), prefs.getDouble("colorRatio") ?? 0.5)!;
       } else {
         userColor = Theme.of(context).colorScheme.tertiary;
       }
@@ -370,6 +370,44 @@ Future<void> deleteTask(int taskId) async {
   } catch (e) {
     print('Unexpected error: $e');
     // Handle other errors
+  }
+}
+
+Future<void> assignMyselfToTask(int id) async {
+  final Map<String, dynamic> input = {
+    'taskId': id, 
+    'userId': userData['id'],
+  };
+
+  final Map<String, dynamic> variables = {
+    'input': input,
+  };
+
+  final client = await getGraphQLClient();
+  final QueryOptions options = QueryOptions(
+    document: gql(r'''mutation UpdateTask($input: UpdateTaskInput!) {
+  updateTask(input: $input) {
+    id
+    user {
+      id
+    }
+  }
+}
+'''),
+    variables: variables,
+  );
+  try {
+    final QueryResult result = await client.query(options);
+    if (result.hasException) {
+      print(result.exception.toString());
+    } else if (result.isLoading) {
+      print('Loading');
+    } else {
+      // Handle the result
+      print(result.data);
+    }
+  } catch (e) {
+    print(e);
   }
 }
 
@@ -519,7 +557,7 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
-    updateWithoutReload = _updateWithoutReload;
+   //updateWithoutReload = _updateWithoutReload;
     return FutureBuilder<Map<String, dynamic>>(
         future: _futureUserData,
         builder: (BuildContext context,
@@ -928,6 +966,7 @@ class _TaskState extends State<TaskOverview> {
 
   @override
   Widget build(BuildContext context) {
+    updateWithoutReload = _refreshState;
     otherTasks.sort((a, b) {
       if (a['deadline'] == null && b['deadline'] == null) {
         return 0;
@@ -1561,9 +1600,10 @@ class _MainTaskState extends State<Task> {
                     const SizedBox(height: 10),
                     Container(
                         decoration: BoxDecoration(
+                          color: userColor,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(width: 2, color: userColor),
+                          //border: Border.all(width: 2, color: userColor),
                         ),
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -1574,7 +1614,8 @@ class _MainTaskState extends State<Task> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color: userColor,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                             ))),
                   ],
@@ -1718,6 +1759,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                       "${'Task_completed!_txt'.tr} ${task['reward']}");
                                   tasks.removeWhere(
                                       (t) => t['id'] == task['id']);
+                                  await assignMyselfToTask(task['id']);
                                   completeTask(task['id']);
                                   // addPoints(
                                   //     task['reward'].toString());
