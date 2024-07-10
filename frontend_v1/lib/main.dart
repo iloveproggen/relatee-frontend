@@ -281,7 +281,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
         'otherTasks': otherTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
-                  'userId': null,
+                  'userId': task['user'] != null ? task['user']['id'] : null,
                   'name': task['name'],
                   'deadline': task['deadline'],
                   'description': task['description'],
@@ -300,8 +300,10 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
 
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('useUserColor') != false) {
-        userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']),
-            hexToColor(mappedUserData['colorSecondary']), prefs.getDouble("colorRatio") ?? 0.5)!;
+        userColor = Color.lerp(
+            hexToColor(mappedUserData['colorPrimary']),
+            hexToColor(mappedUserData['colorSecondary']),
+            prefs.getDouble("colorRatio") ?? 0.5)!;
       } else {
         userColor = Theme.of(context).colorScheme.tertiary;
       }
@@ -375,7 +377,7 @@ Future<void> deleteTask(int taskId) async {
 
 Future<void> assignMyselfToTask(int id) async {
   final Map<String, dynamic> input = {
-    'taskId': id, 
+    'taskId': id,
     'userId': userData['id'],
   };
 
@@ -401,10 +403,8 @@ Future<void> assignMyselfToTask(int id) async {
     if (result.hasException) {
       print(result.exception.toString());
     } else if (result.isLoading) {
-      print('Loading');
     } else {
       // Handle the result
-      print(result.data);
     }
   } catch (e) {
     print(e);
@@ -506,13 +506,7 @@ class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
   Future<void> checkIfTutorialSeen() async {
-    print("checking for intro screen");
     final prefs = await SharedPreferences.getInstance();
-    final allPrefs = prefs.getKeys();
-    for (var key in allPrefs) {
-      final value = prefs.get(key);
-      print('$key: $value');
-    }
     if (prefs.getBool('seenIntro') != true) {
       Get.to(() => const IntroScreen());
     }
@@ -557,7 +551,7 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
-   //updateWithoutReload = _updateWithoutReload;
+    //updateWithoutReload = _updateWithoutReload;
     return FutureBuilder<Map<String, dynamic>>(
         future: _futureUserData,
         builder: (BuildContext context,
@@ -565,7 +559,6 @@ class _MainViewState extends State<MainView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            print(snapshot.error.toString());
             return const Placeholder();
           } else if (snapshot.data!['userData'].isEmpty) {
             return const LoginWidget();
@@ -575,7 +568,6 @@ class _MainViewState extends State<MainView> {
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
-            print(householdData['routines']);
             return SingleChildScrollView(
                 child: Padding(
                     padding:
@@ -672,7 +664,6 @@ class _IconRowState extends State<IconRow> {
                   bool? result =
                       await Get.to(() => MainShopView(userData: userData));
                   if (result == true) {
-                    print("main page was updated");
                     update();
                   }
                 },
@@ -961,7 +952,7 @@ class _TaskState extends State<TaskOverview> {
         });
 
   List<Map<String, dynamic>> otherTasks = userData['otherTasks']
-      .where((task) => task['completed'] == false)
+      .where((task) => task['completed'] == false && task['userId'] == null)
       .toList();
 
   @override
@@ -1297,6 +1288,7 @@ class _TaskState extends State<TaskOverview> {
                                                       task: task,
                                                       userData: userData,
                                                       isRecommended: true,
+                                                      showAssignedUser: false,
                                                     ),
                                                   ),
                                                   Divider(
@@ -1368,8 +1360,7 @@ class _TaskState extends State<TaskOverview> {
                                                           ),
                                                         );
                                                       } else {
-                                                        print(
-                                                            "${'Task_completed!_txt'.tr} ${task['reward']}");
+                                                        
                                                         tasks.removeWhere((t) =>
                                                             t['id'] ==
                                                             task['id']);
@@ -1446,6 +1437,7 @@ class _TaskState extends State<TaskOverview> {
                                                       task: task,
                                                       userData: userData,
                                                       isRecommended: false,
+                                                      showAssignedUser: false,
                                                     ),
                                                   ),
                                                 ],
@@ -1519,11 +1511,13 @@ class Task extends StatefulWidget {
       {super.key,
       required this.task,
       required this.userData,
-      required this.isRecommended});
+      required this.isRecommended,
+      required this.showAssignedUser});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
   final bool isRecommended;
+  final bool showAssignedUser;
 
   @override
   State<Task> createState() => _MainTaskState();
@@ -1597,6 +1591,16 @@ class _MainTaskState extends State<Task> {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(fontWeight: FontWeight.bold))),
+                    widget.showAssignedUser
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // ignore: prefer_interpolation_to_compose_strings
+                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] != null ? "@" + widget.task['userUsername'] : "Anyone",
+                                  style: Theme.of(context).textTheme.bodySmall),
+                            ],
+                          )
+                        : Container(),
                     const SizedBox(height: 10),
                     Container(
                         decoration: BoxDecoration(
@@ -1615,7 +1619,8 @@ class _MainTaskState extends State<Task> {
                                   .bodySmall
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                             ))),
                   ],
@@ -1814,6 +1819,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                 task: task,
                                 userData: userData,
                                 isRecommended: false,
+                                showAssignedUser: false,
                               ),
                             ),
                           ],

@@ -778,6 +778,7 @@ class TaskOverview extends StatelessWidget {
                     task: task,
                     userData: userData,
                     isRecommended: false,
+                                showAssignedUser: false,
                   );
                 }).toList(),
               )
