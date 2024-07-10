@@ -150,7 +150,8 @@ class TaskWidget extends StatelessWidget {
               children: tasks.map((task) {
               return Dismissible(
                     key: ValueKey(task['id']),
-                    child: main.Task(task: task, userData: userData, isRecommended: false,),
+                    child: main.Task(task: task, userData: userData, isRecommended: false,
+                                showAssignedUser: false,),
                     onDismissed: (direction) {
                       showCupertinoDialog(
                         context: context,
