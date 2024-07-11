@@ -451,7 +451,7 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ForgotPasswordForm()),
+                                                    ForgotPasswordScaffold()),
                                           );
                                         },
                                       ),
