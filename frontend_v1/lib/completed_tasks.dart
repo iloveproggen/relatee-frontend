@@ -135,7 +135,7 @@ class CompletedTaskDetailedView extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: userData['forename'] == null
-                          ? 'completed by someone'
+                          ? 'someone'
                           : '${userData['forename']}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                     ),

@@ -12,8 +12,6 @@ import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-import 'household_tasks.dart';
-
 String getDueDaysInText(int days) {
   if (days == 1) {
     return 'day_txt'.tr;
@@ -55,6 +53,7 @@ Future<Map<String, dynamic>> updateUserProfile(
     return {};
   } else {
     // Handle the updated user data
+    print("updated!");
     return result.data!['updateUserStyle'];
   }
 }
@@ -214,8 +213,9 @@ class _ProfileViewState extends State<ProfileView> {
                   onColorChanged: ((value) {
                     setState(() {
                       colorPrimary = value;
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -233,8 +233,9 @@ class _ProfileViewState extends State<ProfileView> {
                     print(value);
                     setState(() {
                       colorSecondary = value; // Changed to colorSecondary
-                      if(userColor != Theme.of(context).colorScheme.tertiary){
-                        userColor = Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+                      if (userColor != Theme.of(context).colorScheme.tertiary) {
+                        userColor =
+                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
                       }
                     });
                   }),
@@ -291,11 +292,11 @@ class _ProfileViewState extends State<ProfileView> {
                   const Spacer(),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
-                    icon: Icon(CupertinoIcons.sparkles,
-                        size: iconSize, color: userColor),
+                    icon: Icon(CupertinoIcons.paintbrush_fill,
+                        size: iconSize - 2, color: userColor),
                     onPressed: () {
                       openColorPicker();
                     },
@@ -303,19 +304,26 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     icon: Icon(CupertinoIcons.gear_solid,
                         size: iconSize, color: userColor),
                     onPressed: () async {
-                      Get.to(() => Settings(userData: ht.userData));
+                      userData['colorPrimary'] = '#${colorPrimary.toString().split('(0xff')[1].split(')')[0]}';
+                      userData['colorSecondary'] = '#${colorSecondary.toString().split('(0xff')[1].split(')')[0]}';
+                      print(userData);
+                      print(userData['colorPrimary']);
+                      print(userData['colorSecondary']);
+                      print(userData['emoji']);
+                      await updateUserProfile(avatar ?? userData['emoji'], userData['colorPrimary'], userData['colorSecondary']);
+                      Get.to(() => Settings(userData: userData));
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       if (prefs.getBool('useUserColor') == true) {
                         userColor = Color.lerp(
-                            hexToColor(ht.userData['colorPrimary']),
-                            hexToColor(ht.userData['colorSecondary']),
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
                             0.5)!;
                       } else {
                         userColor = Theme.of(context).colorScheme.tertiary;
@@ -325,7 +333,7 @@ class _ProfileViewState extends State<ProfileView> {
                   const SizedBox(width: 5),
                   IconButton(
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsets>(
+                      padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
                     onPressed: () {
@@ -417,7 +425,7 @@ class _ProfileViewState extends State<ProfileView> {
                         }
                       },
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0)),
                       ),
                       child: Container(
@@ -470,16 +478,42 @@ class _ProfileViewState extends State<ProfileView> {
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
-                      child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(10),
-                      minHeight: 10,
-                        //dreisatz für das berechnen des values
-                        value: widget.userData['level'] <= 1
-                            ? getLevelProgressValue()
-                            : getPreviousLevelProgressValue(),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        valueColor: AlwaysStoppedAnimation<Color>(userColor),
+                      child: Stack(
+                        children: <Widget>[
+                          Container(
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary, // White background for the empty part
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          LayoutBuilder(
+                            builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              double progressWidth = constraints.maxWidth *
+                                  (widget.userData['level'] <= 1
+                                      ? getLevelProgressValue()
+                                      : getPreviousLevelProgressValue()); // Calculate width based on progress
+                              return Container(
+                                width: progressWidth,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      colorPrimary,
+                                      colorSecondary,
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 5),
@@ -506,7 +540,7 @@ class _ProfileViewState extends State<ProfileView> {
                               text: '"${widget.userData['householdName']}"',
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  Get.to(() => MainHouseholdOverview(
+                                  Get.to(() => ht.MainHouseholdOverview(
                                       pUserData: widget.userData));
                                 },
                               style: Theme.of(context)
@@ -681,16 +715,14 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (didUserDataChange){
+                if (didUserDataChange) {
                   print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
-                    avatar, formattedColorPrimary, formattedColorSecondary);
+                      avatar, formattedColorPrimary, formattedColorSecondary);
                   Get.back(result: newUserData);
-                }
-                else {
+                } else {
                   Get.back();
                 }
-                
               },
               child: Row(
                 children: [
@@ -746,6 +778,7 @@ class TaskOverview extends StatelessWidget {
                     task: task,
                     userData: userData,
                     isRecommended: false,
+                                showAssignedUser: false,
                   );
                 }).toList(),
               )

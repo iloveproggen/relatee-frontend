@@ -33,30 +33,31 @@ dependencies:
   google_fonts: ^6.2.1
   postgres: ^2.3.2
   intl: any
-  flutter_gravatar: any
   keyboard_emoji_picker: ^1.0.3
   #^0.17.0
-
-  #to get the share interface of the device
+  introduction_screen: ^3.1.14
+#to get the share interface of the device
   share: ^2.0.4
 
-
+  
   #for the translations
   flutter_localizations:
     sdk: flutter
   devicelocale: ^0.7.1
 
   flutter_svg: ^2.0.5
-
+  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
-  get:
+  get: 
   shared_preferences: ^2.2.3
   graphql_flutter: ^5.2.0-beta.6
   http: ^1.2.1
   confetti: ^0.7.0
   flutter_colorpicker: ^1.1.0
+  flutter_local_notifications: ^17.2.1
+  easy_localization: ^3.0.7
 
 
 dev_dependencies:
@@ -83,12 +84,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/green.svg
-    - assets/images/yellow.svg
-    - assets/images/red.svg
-    - assets/images/gray.svg
-    - assets/images/relatee.svg
-    - assets/images/relatee_coin.png
+     - assets/images/green.svg
+     - assets/images/yellow.svg
+     - assets/images/red.svg
+     - assets/images/gray.svg
+     - assets/images/relatee.svg
+     - assets/images/relatee_coin.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -102,22 +103,25 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Sedan
-      fonts:
-        - asset: assets\fonts\Sedan-Italic.ttf
-          style: italic
-        - asset: assets\fonts\Sedan-Regular.ttf
-    - family: Karla
-      fonts:
-        - asset: assets\fonts\Karla-Bold.ttf
-          weight: 700
-        - asset: assets\fonts\Karla-Italic.ttf
-          style: italic
-        - asset: assets\fonts\Karla-Light.ttf
-          weight: 300
-        - asset: assets\fonts\Karla-Medium.ttf
-          weight: 500
-        - asset: assets\fonts\Karla-Regular.ttf
-  #
+  - family: Sedan
+    fonts:
+    - asset: assets/fonts/Sedan-Italic.ttf
+      style: italic
+    - asset: assets/fonts/Sedan-Regular.ttf
+  - family: Karla
+    fonts:
+    - asset: assets/fonts/Karla-Bold.ttf
+      weight: 700
+    - asset: assets/fonts/Karla-Italic.ttf
+      style: italic
+    - asset: assets/fonts/Karla-Light.ttf
+      weight: 300
+    - asset: assets/fonts/Karla-Medium.ttf
+      weight: 500
+    - asset: assets/fonts/Karla-Regular.ttf
+  - family: Wittgenstein
+    fonts:
+    - asset: assets/fonts/Wittgenstein-Bold.ttf
+      weight: 700
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

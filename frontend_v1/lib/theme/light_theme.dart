@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 ThemeData lighttheme = ThemeData(
     brightness: Brightness.light,
@@ -14,7 +15,7 @@ ThemeData lighttheme = ThemeData(
             fontSize: 30,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 74, 70, 70),
-            fontFamily: "Sedan",
+            fontFamily: "Wittgenstein",
             letterSpacing: 0),
         bodyMedium: TextStyle(
             letterSpacing: -1,

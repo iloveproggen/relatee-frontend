@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:keyboard_emoji_picker/keyboard_emoji_picker.dart';
 
 DateTime? deadline;
+List<Map<String, dynamic>> routines = [];
 
 double paddingRight = 10;
 double iconSize = 30;
@@ -93,7 +94,7 @@ class DetailedTaskView extends StatelessWidget {
   const DetailedTaskView({super.key,
       required this.task,
       required this.userData,
-      required this.assigned});
+      required this.assigned,});
 
 
   final Map<String, dynamic> task;
@@ -113,7 +114,9 @@ class DetailedTaskView extends StatelessWidget {
         } else if (snapshot.hasData) {
           print(snapshot.data!);
           users = snapshot.data!['users'];
+          routines = snapshot.data!['routines'];
           users.insert(0, nullUser);
+          routines.insert(0, nullRoutine);
           return Scaffold(
             body: DetailedTask(
               task: task,
@@ -410,7 +413,7 @@ class _DetailedTaskState extends State<DetailedTask> {
               // ),
               Text("created by ${task['ownerForename'] ?? task['ownerSurname'] ?? task['ownerUsername'] ?? 'user not found'}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.tertiary,
+                      color: userColor,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               Row(
@@ -611,7 +614,75 @@ class _DetailedTaskState extends State<DetailedTask> {
                               )),
                 ],
               ),
-              
+              Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Padding(
+              padding:
+                  EdgeInsets.only(top: 10, right: paddingRight, bottom: 10),
+              child: Icon(
+                CupertinoIcons.archivebox,
+                size: iconSize,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+            Text(('routine:'.tr), style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+        TextButton(
+            style: ButtonStyle(
+              alignment: Alignment.centerRight,
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+            ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    height: 300,
+                    child: CupertinoPicker(
+                      scrollController:
+                          FixedExtentScrollController(initialItem: 0),
+
+                      itemExtent:
+                          50, // Increase the item extent to make the items bigger
+                      onSelectedItemChanged: (int index) {
+                        print(
+                            'Selected routine: ${pickedRoutine['emoji'] ?? ""} ${routines[index]['name'] ?? ''}');
+                        setState(() {
+                          pickedRoutine = routines[index];
+                        });
+                      },
+                      children: routines.map((routine) {
+                        return Center(
+                          child: Text(
+                            "${routine['name']} ${routine['emoji'] ?? ""}",
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text(
+                pickedRoutine['name'] == null
+                    ? 'none_txt'.tr
+                    : "${pickedRoutine['name']} ${pickedRoutine['emoji'] ?? ""}",
+                textAlign: TextAlign.end,
+                style: pickedRoutine['name'] == null
+                    ? Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontWeight: FontWeight.bold)
+                    : Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold))),
+      ],
+    ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
