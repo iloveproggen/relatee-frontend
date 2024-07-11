@@ -48,8 +48,8 @@ class _SettingsState extends State<Settings> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const BackIconRow(getTo: MainWidget()),
             const SettingsWidget(),
-            MediaQuery.of(context).platformBrightness == Brightness.light
-                ? Row(
+           // MediaQuery.of(context).platformBrightness == Brightness.light
+                 Row(
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(12),
@@ -72,7 +72,10 @@ class _SettingsState extends State<Settings> {
                                 userColorRatio)!
                             : Theme.of(context).colorScheme.tertiary,
                         value: isDarkMode,
-                        onChanged: (value) {
+                        onChanged: (value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString('brightness', value ? 'dark' : 'light');
                           setState(() {
                             if (value) {
                               Get.changeThemeMode(ThemeMode.dark);
@@ -85,8 +88,8 @@ class _SettingsState extends State<Settings> {
                         },
                       ),
                     ],
-                  )
-                : Container(),
+                  ),
+                //: Container(),
             const SizedBox(height: 10),
             Row(
               children: [

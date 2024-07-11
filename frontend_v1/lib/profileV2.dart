@@ -72,7 +72,13 @@ class _ProfileViewState extends State<ProfileView> {
   String? avatar;
   late Color colorPrimary;
   late Color colorSecondary;
+
   bool useSecondaryColor = false;
+
+  bool isColorPickerOpen = false;
+
+  late Color oldColorPrimary;
+  late Color oldColorSecondary;
 
 //brauchen wir für die Levle
 //main usercolor gemischte Farbe -> usercolor
@@ -153,9 +159,13 @@ class _ProfileViewState extends State<ProfileView> {
   void initState() {
     super.initState();
     didUserDataChange = false;
+    isColorPickerOpen = false;
     avatar = widget.userData['emoji'];
     colorPrimary = hexToColor(widget.userData['colorPrimary']);
     colorSecondary = hexToColor(widget.userData['colorSecondary']);
+
+    oldColorPrimary = colorPrimary;
+    oldColorSecondary = colorSecondary;
   }
 
   @override
@@ -164,113 +174,113 @@ class _ProfileViewState extends State<ProfileView> {
     super.dispose();
   }
 
-  void openColorPicker() {
-    didUserDataChange = true;
-    Color oldColorPrimary = colorPrimary;
-    Color oldColorSecondary = colorSecondary;
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoActionSheet(
-          title: Text('ChooseProfileColor_txt'.tr),
-          actions: [
-            CupertinoActionSheetAction(
-              child: Text('SaveChanges_txt'.tr,
-                  style: TextStyle(color: Colors.blue)),
-              onPressed: () {
-                setState(() {
-                  Get.back();
-                });
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: Text('DiscardChanges_txt'.tr,
-                  style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                setState(() {
-                  didUserDataChange = false;
-                  colorPrimary = oldColorPrimary;
-                  colorSecondary = oldColorSecondary;
-                  Get.back();
-                });
-              },
-            ),
-          ],
-          message: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const SizedBox(height: 10),
-                ColorPicker(
-                  paletteType: PaletteType.hsv,
-                  labelTypes: const [],
-                  pickerAreaHeightPercent: 0.35,
-                  enableAlpha: false,
-                  pickerAreaBorderRadius:
-                      const BorderRadius.all(Radius.circular(20)),
-                  pickerColor: colorPrimary,
-                  onColorChanged: ((value) {
-                    setState(() {
-                      colorPrimary = value;
-                      if (userColor != Theme.of(context).colorScheme.tertiary) {
-                        userColor =
-                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
-                      }
-                    });
-                  }),
-                ),
-                const SizedBox(height: 20),
-                ColorPicker(
-                  paletteType: PaletteType.hsv,
-                  labelTypes: [],
-                  pickerAreaHeightPercent: 0.35,
-                  enableAlpha: false,
-                  pickerAreaBorderRadius:
-                      const BorderRadius.all(Radius.circular(15)),
-                  pickerColor: colorSecondary, // Changed to colorSecondary
-                  onColorChanged: ((value) {
-                    print(value);
-                    setState(() {
-                      colorSecondary = value; // Changed to colorSecondary
-                      if (userColor != Theme.of(context).colorScheme.tertiary) {
-                        userColor =
-                            Color.lerp(colorPrimary, colorSecondary, 0.5)!;
-                      }
-                    });
-                  }),
-                ),
-                // Row(
-                //   children: [
-                //     TextButton(
-                //       onPressed: () {
-                //         setState(() {
-                //           Get.back();
-                //         });
-                //       },
-                //       child: const Text('Save',
-                //           style: TextStyle(color: Colors.blue)),
-                //     ),
-                //     TextButton(
-                //       onPressed: () {
-                //         setState(() {
-                //           colorPrimary = oldColorPrimary;
-                //           colorSecondary = oldColorSecondary;
-                //           Get.back();
-                //         });
-                //       },
-                //       child: const Text('Back',
-                //           style: TextStyle(color: Colors.red)),
-                //     ),
-                //   ],
-                // ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void openColorPicker() {
+  //   didUserDataChange = true;
+  //   Color oldColorPrimary = colorPrimary;
+  //   Color oldColorSecondary = colorSecondary;
+  //   showCupertinoModalPopup(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return CupertinoActionSheet(
+  //         title: Text('ChooseProfileColor_txt'.tr),
+  //         actions: [
+  //           CupertinoActionSheetAction(
+  //             child: Text('SaveChanges_txt'.tr,
+  //                 style: TextStyle(color: Colors.blue)),
+  //             onPressed: () {
+  //               setState(() {
+  //                 Get.back();
+  //               });
+  //             },
+  //           ),
+  //           CupertinoActionSheetAction(
+  //             child: Text('DiscardChanges_txt'.tr,
+  //                 style: TextStyle(color: Colors.red)),
+  //             onPressed: () {
+  //               setState(() {
+  //                 didUserDataChange = false;
+  //                 colorPrimary = oldColorPrimary;
+  //                 colorSecondary = oldColorSecondary;
+  //                 Get.back();
+  //               });
+  //             },
+  //           ),
+  //         ],
+  //         message: Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 40),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.end,
+  //             children: [
+  //               const SizedBox(height: 10),
+  //               ColorPicker(
+  //                 paletteType: PaletteType.hsv,
+  //                 labelTypes: const [],
+  //                 pickerAreaHeightPercent: 0.35,
+  //                 enableAlpha: false,
+  //                 pickerAreaBorderRadius:
+  //                     const BorderRadius.all(Radius.circular(20)),
+  //                 pickerColor: colorPrimary,
+  //                 onColorChanged: ((value) {
+  //                   setState(() {
+  //                     colorPrimary = value;
+  //                     if (userColor != Theme.of(context).colorScheme.tertiary) {
+  //                       userColor =
+  //                           Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+  //                     }
+  //                   });
+  //                 }),
+  //               ),
+  //               const SizedBox(height: 20),
+  //               ColorPicker(
+  //                 paletteType: PaletteType.hsv,
+  //                 labelTypes: [],
+  //                 pickerAreaHeightPercent: 0.35,
+  //                 enableAlpha: false,
+  //                 pickerAreaBorderRadius:
+  //                     const BorderRadius.all(Radius.circular(15)),
+  //                 pickerColor: colorSecondary, // Changed to colorSecondary
+  //                 onColorChanged: ((value) {
+  //                   print(value);
+  //                   setState(() {
+  //                     colorSecondary = value; // Changed to colorSecondary
+  //                     if (userColor != Theme.of(context).colorScheme.tertiary) {
+  //                       userColor =
+  //                           Color.lerp(colorPrimary, colorSecondary, 0.5)!;
+  //                     }
+  //                   });
+  //                 }),
+  //               ),
+  //               Row(
+  //                 children: [
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         isColorPickerOpen = false;
+  //                       });
+  //                     },
+  //                     child: Text('Save',
+  //                         style: Theme.of(context).textTheme.bodySmall),
+  //                   ),
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         colorPrimary = oldColorPrimary;
+  //                         colorSecondary = oldColorSecondary;
+  //                         isColorPickerOpen = false;
+  //                       });
+  //                     },
+  //                     child: Text('Back',
+  //                         style: Theme.of(context).textTheme.bodySmall),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -298,7 +308,10 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(CupertinoIcons.paintbrush_fill,
                         size: iconSize - 2, color: userColor),
                     onPressed: () {
-                      openColorPicker();
+                      //openColorPicker();
+                      setState(() {
+                        isColorPickerOpen = !isColorPickerOpen;
+                      });
                     },
                   ),
                   const SizedBox(width: 5),
@@ -310,13 +323,12 @@ class _ProfileViewState extends State<ProfileView> {
                     icon: Icon(CupertinoIcons.gear_solid,
                         size: iconSize, color: userColor),
                     onPressed: () async {
-                      userData['colorPrimary'] = '#${colorPrimary.toString().split('(0xff')[1].split(')')[0]}';
-                      userData['colorSecondary'] = '#${colorSecondary.toString().split('(0xff')[1].split(')')[0]}';
-                      print(userData);
-                      print(userData['colorPrimary']);
-                      print(userData['colorSecondary']);
-                      print(userData['emoji']);
-                      await updateUserProfile(avatar ?? userData['emoji'], userData['colorPrimary'], userData['colorSecondary']);
+                      userData['colorPrimary'] =
+                          '#${colorPrimary.toString().split('(0xff')[1].split(')')[0]}';
+                      userData['colorSecondary'] =
+                          '#${colorSecondary.toString().split('(0xff')[1].split(')')[0]}';
+                      await updateUserProfile(avatar ?? userData['emoji'],
+                          userData['colorPrimary'], userData['colorSecondary']);
                       Get.to(() => Settings(userData: userData));
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
@@ -466,148 +478,248 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ),
-              Column(children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 30),
-                    Text(
-                        '${widget.userData['forename']} ${widget.userData['surname']}',
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 30, right: 30),
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary, // White background for the empty part
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          LayoutBuilder(
-                            builder: (BuildContext context,
-                                BoxConstraints constraints) {
-                              double progressWidth = constraints.maxWidth *
-                                  (widget.userData['level'] <= 1
-                                      ? getLevelProgressValue()
-                                      : getPreviousLevelProgressValue()); // Calculate width based on progress
-                              return Container(
-                                width: progressWidth,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      colorPrimary,
-                                      colorSecondary,
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
-                    Text(
-                        '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
-                        style: Theme.of(context).textTheme.labelSmall),
-                    const SizedBox(height: 20),
-                    Text(
-                      '@${widget.userData['username']}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                              text: ('part_household'.tr),
-                              style: Theme.of(context).textTheme.bodySmall),
-                          TextSpan(
-                              text: '"${widget.userData['householdName']}"',
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Get.to(() => ht.MainHouseholdOverview(
-                                      pUserData: widget.userData));
-                                },
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+              isColorPickerOpen
+                  ? Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50, right: 10),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.3),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/images/relatee.svg",
-                                  height: 20,
-                                  width: 20,
-                                  color: userColor,
-                                ),
-                                const SizedBox(width: 5),
-                                Text('${widget.userData['coins']}',
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium),
-                              ],
-                            ),
+                        SizedBox(height: 10),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: userColor, width: 1),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.3),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            child: Text('lvl ${widget.userData['level']}',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const SizedBox(height: 10),
+                              ColorPicker(
+                                paletteType: PaletteType.hsv,
+                                labelTypes: const [],
+                                pickerAreaHeightPercent: 0.35,
+                                enableAlpha: false,
+                                pickerAreaBorderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
+                                pickerColor: colorPrimary,
+                                onColorChanged: ((value) {
+                                  setState(() {
+                                    colorPrimary = value;
+                                    if (userColor !=
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .tertiary) {
+                                      userColor = Color.lerp(
+                                          colorPrimary, colorSecondary, 0.5)!;
+                                    }
+                                  });
+                                }),
+                              ),
+                              ColorPicker(
+                                paletteType: PaletteType.hsv,
+                                labelTypes: [],
+                                pickerAreaHeightPercent: 0.35,
+                                enableAlpha: false,
+                                pickerAreaBorderRadius:
+                                    const BorderRadius.all(Radius.circular(15)),
+                                pickerColor:
+                                    colorSecondary, // Changed to colorSecondary
+                                onColorChanged: ((value) {
+                                  print(value);
+                                  setState(() {
+                                    colorSecondary =
+                                        value; // Changed to colorSecondary
+                                    if (userColor !=
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .tertiary) {
+                                      userColor = Color.lerp(
+                                          colorPrimary, colorSecondary, 0.5)!;
+                                    }
+                                  });
+                                }),
+                              ),
+                              Divider(
+                                color: userColor,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        colorPrimary = oldColorPrimary;
+                                        colorSecondary = oldColorSecondary;
+                                        userColor = Color.lerp(
+                                            colorPrimary, colorSecondary, 0.5)!;
+                                        isColorPickerOpen = false;
+                                      });
+                                    },
+                                    child: Text('Back',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isColorPickerOpen = false;
+                                      });
+                                    },
+                                    child: Text('Save',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 30),
+                        Text(
+                            '${widget.userData['forename']} ${widget.userData['surname']}',
+                            style: Theme.of(context).textTheme.bodyLarge),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 30, right: 30),
+                          child: Stack(
+                            children: <Widget>[
+                              Container(
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiary, // White background for the empty part
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              LayoutBuilder(
+                                builder: (BuildContext context,
+                                    BoxConstraints constraints) {
+                                  double progressWidth = constraints.maxWidth *
+                                      (widget.userData['level'] <= 1
+                                          ? getLevelProgressValue()
+                                          : getPreviousLevelProgressValue()); // Calculate width based on progress
+                                  return Container(
+                                    width: progressWidth,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          colorPrimary,
+                                          colorSecondary,
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
+                        Text(
+                            '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
+                            style: Theme.of(context).textTheme.labelSmall),
+                        const SizedBox(height: 20),
+                        Text(
+                          '@${widget.userData['username']}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontStyle: FontStyle.italic),
+                          textAlign: TextAlign.center,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: ('part_household'.tr),
+                                  style: Theme.of(context).textTheme.bodySmall),
+                              TextSpan(
+                                  text: '"${widget.userData['householdName']}"',
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Get.to(() => ht.MainHouseholdOverview(
+                                          pUserData: widget.userData));
+                                    },
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 50, right: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 27, vertical: 9),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiary
+                                      .withOpacity(0.3),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      "assets/images/relatee.svg",
+                                      height: 20,
+                                      width: 20,
+                                      color: userColor,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text('${widget.userData['coins']}',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 50),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 27, vertical: 9),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiary
+                                      .withOpacity(0.3),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: Text('lvl ${widget.userData['level']}',
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                )
-              ]),
               // const Divider(
               //     color: Color.fromARGB(238, 126, 126, 126),
               //     height: 100,
@@ -778,7 +890,7 @@ class TaskOverview extends StatelessWidget {
                     task: task,
                     userData: userData,
                     isRecommended: false,
-                                showAssignedUser: false,
+                    showAssignedUser: false,
                   );
                 }).toList(),
               )
