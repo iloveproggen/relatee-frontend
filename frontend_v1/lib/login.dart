@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/assets/locale_strings.dart';
+import 'package:frontend_v1/forgot_password.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
@@ -446,6 +447,12 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                                                 .bodySmall),
                                         onPressed: () {
                                           Navigator.of(context).pop();
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ForgotPasswordForm()),
+                                          );
                                         },
                                       ),
                                       CupertinoDialogAction(
