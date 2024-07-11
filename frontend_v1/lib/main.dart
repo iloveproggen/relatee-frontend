@@ -20,8 +20,30 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const CheckLoggedIn());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(CheckLoggedIn(brightness: await getBrightness()));
+}
+
+Future<bool?> getBrightness() async {
+  final prefs = await SharedPreferences.getInstance();
+  final brightnessString = prefs.getString('brightness');
+
+  // Print all preferences for debugging
+  final allPrefs = prefs.getKeys();
+  for (var key in allPrefs) {
+    final value = prefs.get(key);
+    print('$key: $value');
+  }
+
+  // Check the value of 'brightness' and assign accordingly
+  bool? brightness;
+  if (brightnessString != null) {
+    brightness = brightnessString == 'light' ? true : false;
+  } else {
+    brightness = null; // Or assign a default value if needed
+  }
+  return brightness;
 }
 
 late Color userColor;
@@ -516,6 +538,7 @@ class _MainWidgetState extends State<MainWidget> {
   Widget build(BuildContext context) {
     checkLastLoginDate();
     checkIfTutorialSeen();
+    //setAppMode();
     return const Scaffold(body: MainView());
   }
 }
