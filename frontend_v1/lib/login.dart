@@ -69,8 +69,7 @@ class CheckLoggedIn extends StatelessWidget {
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: const Scaffold(body: MainWidget())
-              );
+              home: const Scaffold(body: MainWidget()));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
@@ -419,6 +418,59 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all<Color>(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CupertinoAlertDialog(
+                                    title: Text('Reset Password',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium),
+                                    content: Text(
+                                        'Do you want to reset your password?'),
+                                    actions: [
+                                      CupertinoDialogAction(
+                                        child: Text('Yes',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      CupertinoDialogAction(
+                                        child: Text('No',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                });
+                          },
+                          child: Text(
+                            'forgotpassword_txt'.tr,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -473,111 +525,113 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
               // ),
               const SizedBox(height: 40),
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: requiredFields
-                            ? BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: requiredFields
+                          ? BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              color: const Color.fromARGB(255, 74, 70, 70),
+                              border: Border.all(
                                 color: const Color.fromARGB(255, 74, 70, 70),
-                                border: Border.all(
-                                  color: const Color.fromARGB(255, 74, 70, 70),
-                                  width: 2,
-                                ),
-                              )
-                            : BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 2,
-                                ),
+                                width: 2,
                               ),
-                        child: TextButton(
-                          onPressed: requiredFields
-                              ? () async {
-                                  String username = _usernameController.text;
-                                  String password = _passwordController.text;
-                                  _login();
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  print(
-                                      "Username: $username, Password: $password");
-                                }
-                              : null,
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10, bottom: 10, left: 15, right: 15),
-                              child: Text(
-                                'Log_In_txt'.tr,
-                                style: requiredFields
-                                    ? Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            fontWeight: FontWeight.bold)
-                                    : Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .tertiary),
+                            )
+                          : BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                width: 2,
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Container(
-                        width: 140,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          color: Theme.of(context).colorScheme.tertiary,
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            width: 2,
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            error = {
-                              'hasError': false,
-                              'message': '',
-                            };
-                            Get.to(() => SignUpScreen());
-                          },
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10, bottom: 10, left: 15, right: 15),
-                              child: Text('Sign Up!',
-                                  style: Theme.of(context)
+                      child: TextButton(
+                        onPressed: requiredFields
+                            ? () async {
+                                String username = _usernameController.text;
+                                String password = _passwordController.text;
+                                _login();
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                print(
+                                    "Username: $username, Password: $password");
+                              }
+                            : null,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 15, right: 15),
+                            child: Text(
+                              'Log_In_txt'.tr,
+                              style: requiredFields
+                                  ? Theme.of(context)
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                          fontWeight: FontWeight.bold,
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .primary)),
+                                              .primary,
+                                          fontWeight: FontWeight.bold)
+                                  : Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ]),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      width: 140,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
+                        color: Theme.of(context).colorScheme.tertiary,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2,
+                        ),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          error = {
+                            'hasError': false,
+                            'message': '',
+                          };
+                          Get.to(() => SignUpScreen());
+                        },
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 10, bottom: 10, left: 15, right: 15),
+                            child: Text('Sign Up!',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ]),
