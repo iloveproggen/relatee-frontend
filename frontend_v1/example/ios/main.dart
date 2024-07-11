@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
-import 'package:frontend_v1/introduction.dart';
 import 'package:frontend_v1/join_household.dart';
 import 'package:frontend_v1/routine.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -116,10 +115,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             routine {
               id
               name
-              emoji
-              refreshDate
-              startDate
-              interval
             }
           }
           rewards {
@@ -227,8 +222,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'routineId': task['routine'] != null ? task['routine']['id'] : null,
           'routineName':
               task['routine'] != null ? task['routine']['name'] : null,
-          'routineEmoji':
-              task['routine'] != null ? task['routine']['emoji'] : null,
         };
       }).toList();
 
@@ -239,9 +232,6 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'id': routine['id'],
           'name': routine['name'],
           'emoji': routine['emoji'],
-          'refreshDate': routine['refreshDate'],
-          'startDate': routine['startDate'],
-          'interval': routine['interval'],
         };
       }).toList();
 
@@ -281,7 +271,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
         'otherTasks': otherTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
-                  'userId': task['user'] != null ? task['user']['id'] : null,
+                  'userId': null,
                   'name': task['name'],
                   'deadline': task['deadline'],
                   'description': task['description'],
@@ -299,11 +289,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
       };
 
       final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool('useUserColor') != false) {
-        userColor = Color.lerp(
-            hexToColor(mappedUserData['colorPrimary']),
-            hexToColor(mappedUserData['colorSecondary']),
-            prefs.getDouble("colorRatio") ?? 0.5)!;
+      if (prefs.getBool('useUserColor') == true) {
+        userColor = Color.lerp(hexToColor(mappedUserData['colorPrimary']),
+            hexToColor(mappedUserData['colorSecondary']), 0.5)!;
       } else {
         userColor = Theme.of(context).colorScheme.tertiary;
       }
@@ -360,6 +348,7 @@ Future<void> deleteTask(int taskId) async {
   try {
     final result =
         await client.mutate(options).timeout(const Duration(seconds: 10));
+    print(result.data);
     if (result.hasException) {
       print('GraphQL error: ${result.exception.toString()}');
     }
@@ -372,42 +361,6 @@ Future<void> deleteTask(int taskId) async {
   } catch (e) {
     print('Unexpected error: $e');
     // Handle other errors
-  }
-}
-
-Future<void> assignMyselfToTask(int id) async {
-  final Map<String, dynamic> input = {
-    'taskId': id,
-    'userId': userData['id'],
-  };
-
-  final Map<String, dynamic> variables = {
-    'input': input,
-  };
-
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql(r'''mutation UpdateTask($input: UpdateTaskInput!) {
-  updateTask(input: $input) {
-    id
-    user {
-      id
-    }
-  }
-}
-'''),
-    variables: variables,
-  );
-  try {
-    final QueryResult result = await client.query(options);
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-    } else {
-      // Handle the result
-    }
-  } catch (e) {
-    print(e);
   }
 }
 
@@ -505,17 +458,9 @@ class MainWidget extends StatefulWidget {
 class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
 
-  Future<void> checkIfTutorialSeen() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('seenIntro') != true) {
-      Get.to(() => const IntroScreen());
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     checkLastLoginDate();
-    checkIfTutorialSeen();
     return const Scaffold(body: MainView());
   }
 }
@@ -551,7 +496,7 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
-    //updateWithoutReload = _updateWithoutReload;
+    updateWithoutReload = _updateWithoutReload;
     return FutureBuilder<Map<String, dynamic>>(
         future: _futureUserData,
         builder: (BuildContext context,
@@ -559,6 +504,7 @@ class _MainViewState extends State<MainView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            print(snapshot.error.toString());
             return const Placeholder();
           } else if (snapshot.data!['userData'].isEmpty) {
             return const LoginWidget();
@@ -568,6 +514,7 @@ class _MainViewState extends State<MainView> {
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
+            print(householdData['routines']);
             return SingleChildScrollView(
                 child: Padding(
                     padding:
@@ -661,9 +608,9 @@ class _IconRowState extends State<IconRow> {
                 padding: EdgeInsets.zero,
                 iconSize: size,
                 onPressed: () async {
-                  bool? result =
-                      await Get.to(() => MainShopView(userData: userData));
+                  bool? result = await Get.to(() => MainShopView(userData: userData));
                   if (result == true) {
+                    print("main page was updated");
                     update();
                   }
                 },
@@ -715,10 +662,8 @@ class WelcomeText extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                  '${'welcome_title'.tr}, ${userData['forename'] ?? userData['username']}!',
-                  maxLines: 2,
-                  style: Theme.of(context).textTheme.bodyLarge),
+              Text('${'welcome_title'.tr}, ${userData['forename'] ?? userData['username']}!',
+                  maxLines: 2, style: Theme.of(context).textTheme.bodyLarge),
               Text('welcome_message'.tr,
                   style: Theme.of(context).textTheme.bodySmall),
             ],
@@ -952,12 +897,11 @@ class _TaskState extends State<TaskOverview> {
         });
 
   List<Map<String, dynamic>> otherTasks = userData['otherTasks']
-      .where((task) => task['completed'] == false && task['userId'] == null)
+      .where((task) => task['completed'] == false)
       .toList();
 
   @override
   Widget build(BuildContext context) {
-    updateWithoutReload = _refreshState;
     otherTasks.sort((a, b) {
       if (a['deadline'] == null && b['deadline'] == null) {
         return 0;
@@ -1288,7 +1232,6 @@ class _TaskState extends State<TaskOverview> {
                                                       task: task,
                                                       userData: userData,
                                                       isRecommended: true,
-                                                      showAssignedUser: false,
                                                     ),
                                                   ),
                                                   Divider(
@@ -1298,7 +1241,7 @@ class _TaskState extends State<TaskOverview> {
                                                     thickness: 2,
                                                   ),
                                                 ],
-                                              ));
+                                              )); 
                                         } else {
                                           return MapEntry(
                                               index,
@@ -1360,7 +1303,8 @@ class _TaskState extends State<TaskOverview> {
                                                           ),
                                                         );
                                                       } else {
-                                                        
+                                                        print(
+                                                            "${'Task_completed!_txt'.tr} ${task['reward']}");
                                                         tasks.removeWhere((t) =>
                                                             t['id'] ==
                                                             task['id']);
@@ -1437,7 +1381,6 @@ class _TaskState extends State<TaskOverview> {
                                                       task: task,
                                                       userData: userData,
                                                       isRecommended: false,
-                                                      showAssignedUser: false,
                                                     ),
                                                   ),
                                                 ],
@@ -1492,9 +1435,7 @@ class _TaskState extends State<TaskOverview> {
                     ),
                   ],
                 ),
-                showRoutines
-                    ? Routine(householdData: householdData)
-                    : Container(),
+                showRoutines ? Routine(householdData: householdData) : Container(),
                 const SizedBox(height: 30),
                 const SizedBox(height: 50),
               ],
@@ -1511,13 +1452,11 @@ class Task extends StatefulWidget {
       {super.key,
       required this.task,
       required this.userData,
-      required this.isRecommended,
-      required this.showAssignedUser});
+      required this.isRecommended});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
   final bool isRecommended;
-  final bool showAssignedUser;
 
   @override
   State<Task> createState() => _MainTaskState();
@@ -1591,23 +1530,12 @@ class _MainTaskState extends State<Task> {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(fontWeight: FontWeight.bold))),
-                    widget.showAssignedUser
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // ignore: prefer_interpolation_to_compose_strings
-                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] != null ? "@" + widget.task['userUsername'] : "Anyone",
-                                  style: Theme.of(context).textTheme.bodySmall),
-                            ],
-                          )
-                        : Container(),
                     const SizedBox(height: 10),
                     Container(
                         decoration: BoxDecoration(
-                          color: userColor,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
-                          //border: Border.all(width: 2, color: userColor),
+                          border: Border.all(width: 2, color: userColor),
                         ),
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -1618,9 +1546,7 @@ class _MainTaskState extends State<Task> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: userColor,
                                   ),
                             ))),
                   ],
@@ -1764,7 +1690,6 @@ class _OtherTasksState extends State<OtherTasks> {
                                       "${'Task_completed!_txt'.tr} ${task['reward']}");
                                   tasks.removeWhere(
                                       (t) => t['id'] == task['id']);
-                                  await assignMyselfToTask(task['id']);
                                   completeTask(task['id']);
                                   // addPoints(
                                   //     task['reward'].toString());
@@ -1819,7 +1744,6 @@ class _OtherTasksState extends State<OtherTasks> {
                                 task: task,
                                 userData: userData,
                                 isRecommended: false,
-                                showAssignedUser: false,
                               ),
                             ),
                           ],
