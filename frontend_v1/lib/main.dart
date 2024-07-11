@@ -1360,7 +1360,6 @@ class _TaskState extends State<TaskOverview> {
                                                           ),
                                                         );
                                                       } else {
-                                                        
                                                         tasks.removeWhere((t) =>
                                                             t['id'] ==
                                                             task['id']);
@@ -1596,7 +1595,11 @@ class _MainTaskState extends State<Task> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // ignore: prefer_interpolation_to_compose_strings
-                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] != null ? "@" + widget.task['userUsername'] : "Anyone",
+                              Text(
+                                  widget.task['userForename'] ??
+                                      widget.task['userSurname'] ??
+                                      widget.task['userUsername'] ??
+                                      "Anyone",
                                   style: Theme.of(context).textTheme.bodySmall),
                             ],
                           )
