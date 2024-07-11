@@ -13,10 +13,13 @@ date: 17.05.2024
 */
 
 late List<Map<String, dynamic>> leaderboardusers;
+late List<Map<String, dynamic>> leaderboardtasks;
 
 class MainLeaderboardView extends StatefulWidget {
-  const MainLeaderboardView({super.key, required this.users});
+  const MainLeaderboardView(
+      {super.key, required this.users, required this.tasks});
 
+  final List<Map<String, dynamic>> tasks;
   final List<Map<String, dynamic>> users;
 
   @override
@@ -59,6 +62,11 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
 
   @override
   Widget build(BuildContext context) {
+    leaderboardtasks =
+        widget.tasks.where((task) => task['completed'] == true).toList();
+    // print('Here sind die tasks (liste)');
+    // print(leaderboardtasks);
+
     leaderboardusers =
         widget.users.where((user) => user['coins'] != null).toList();
     resort(leaderboardusers); // Sort the list here

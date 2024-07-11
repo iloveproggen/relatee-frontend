@@ -222,7 +222,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                     },
                   );
                 } else {
-                  Get.to(() => MainLeaderboardView(users: users));
+                  Get.to(() => MainLeaderboardView(users: users, tasks: tasks));
                 }
               },
               icon: Icon(
