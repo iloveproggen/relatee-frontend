@@ -51,7 +51,6 @@ late Color userColor;
 late VoidCallback update;
 late VoidCallback updateWithoutReload;
 
-const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
 
@@ -241,7 +240,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
               task['user'] != null ? task['user']['forename'] : null,
           'userSurname': task['user'] != null ? task['user']['surname'] : null,
           'userUsername':
-              task['user'] != null ? task['user']['username'] : null,
+              task['user'] != null ? '@${task['user']['username']}' : null,
           'ownerId': task['owner']['id'],
           'ownerForename': task['owner']['forename'],
           'ownerSurname': task['owner']['surname'],
@@ -1301,10 +1300,10 @@ class _TaskState extends State<TaskOverview> {
                                                               bottom: 22),
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                           CupertinoIcons
                                                               .check_mark,
-                                                          color: purple,
+                                                          color: userColor,
                                                           size: 30),
                                                     ),
                                                     child: Task(
@@ -1450,10 +1449,10 @@ class _TaskState extends State<TaskOverview> {
                                                               bottom: 22),
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                           CupertinoIcons
                                                               .check_mark,
-                                                          color: purple,
+                                                          color: userColor,
                                                           size: 30),
                                                     ),
                                                     child: Task(
@@ -1619,7 +1618,7 @@ class _MainTaskState extends State<Task> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // ignore: prefer_interpolation_to_compose_strings
-                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] != null ? "@" + widget.task['userUsername'] : "Anyone",
+                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] ?? "Anyone",
                                   style: Theme.of(context).textTheme.bodySmall),
                             ],
                           )
@@ -1835,8 +1834,8 @@ class _OtherTasksState extends State<OtherTasks> {
                                 margin:
                                     const EdgeInsets.only(left: 30, bottom: 22),
                                 alignment: Alignment.centerLeft,
-                                child: const Icon(CupertinoIcons.check_mark,
-                                    color: purple, size: 30),
+                                child: Icon(CupertinoIcons.check_mark,
+                                    color: userColor, size: 30),
                               ),
                               child: Task(
                                 task: task,
