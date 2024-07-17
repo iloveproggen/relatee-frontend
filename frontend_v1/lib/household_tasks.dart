@@ -508,8 +508,8 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                     background: Container(
                       margin: const EdgeInsets.only(left: 30, bottom: 22),
                       alignment: Alignment.centerLeft,
-                      child: const Icon(CupertinoIcons.check_mark,
-                          color: purple, size: 30),
+                      child: Icon(CupertinoIcons.check_mark,
+                          color: userColor, size: 30),
                     ),
                     child: Task(
                         task: task,

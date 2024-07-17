@@ -116,7 +116,7 @@ class IntroScreen extends StatelessWidget {
       controlsPadding: EdgeInsets.only(bottom: 50, left: 20, right: 20),
       dotsFlex: 2,
       dotsDecorator: DotsDecorator(
-        activeColor: purple,
+        activeColor: userColor,
         color: Theme.of(context).colorScheme.tertiary
       ),
       pages: introPages,

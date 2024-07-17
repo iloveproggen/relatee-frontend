@@ -20,8 +20,30 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const CheckLoggedIn());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(CheckLoggedIn(brightness: await getBrightness()));
+}
+
+Future<bool?> getBrightness() async {
+  final prefs = await SharedPreferences.getInstance();
+  final brightnessString = prefs.getString('brightness');
+
+  // Print all preferences for debugging
+  final allPrefs = prefs.getKeys();
+  for (var key in allPrefs) {
+    final value = prefs.get(key);
+    print('$key: $value');
+  }
+
+  // Check the value of 'brightness' and assign accordingly
+  bool? brightness;
+  if (brightnessString != null) {
+    brightness = brightnessString == 'light' ? true : false;
+  } else {
+    brightness = null; // Or assign a default value if needed
+  }
+  return brightness;
 }
 
 late Color userColor;
@@ -29,7 +51,6 @@ late Color userColor;
 late VoidCallback update;
 late VoidCallback updateWithoutReload;
 
-const Color purple = Color(0xFF7C4ACA);
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
 
@@ -219,7 +240,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
               task['user'] != null ? task['user']['forename'] : null,
           'userSurname': task['user'] != null ? task['user']['surname'] : null,
           'userUsername':
-              task['user'] != null ? task['user']['username'] : null,
+              task['user'] != null ? '@${task['user']['username']}' : null,
           'ownerId': task['owner']['id'],
           'ownerForename': task['owner']['forename'],
           'ownerSurname': task['owner']['surname'],
@@ -516,6 +537,7 @@ class _MainWidgetState extends State<MainWidget> {
   Widget build(BuildContext context) {
     checkLastLoginDate();
     checkIfTutorialSeen();
+    //setAppMode();
     return const Scaffold(body: MainView());
   }
 }
@@ -1278,10 +1300,10 @@ class _TaskState extends State<TaskOverview> {
                                                               bottom: 22),
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                           CupertinoIcons
                                                               .check_mark,
-                                                          color: purple,
+                                                          color: userColor,
                                                           size: 30),
                                                     ),
                                                     child: Task(
@@ -1426,10 +1448,10 @@ class _TaskState extends State<TaskOverview> {
                                                               bottom: 22),
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                           CupertinoIcons
                                                               .check_mark,
-                                                          color: purple,
+                                                          color: userColor,
                                                           size: 30),
                                                     ),
                                                     child: Task(
@@ -1815,8 +1837,8 @@ class _OtherTasksState extends State<OtherTasks> {
                                 margin:
                                     const EdgeInsets.only(left: 30, bottom: 22),
                                 alignment: Alignment.centerLeft,
-                                child: const Icon(CupertinoIcons.check_mark,
-                                    color: purple, size: 30),
+                                child: Icon(CupertinoIcons.check_mark,
+                                    color: userColor, size: 30),
                               ),
                               child: Task(
                                 task: task,

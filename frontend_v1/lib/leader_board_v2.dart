@@ -325,6 +325,7 @@ author: Maurice
 date: 17.05.2024
 */
 
+// ignore: must_be_immutable
 class WeeklyInfo extends StatefulWidget {
   List<Map<String, dynamic>> leaderboardusers;
 
@@ -418,9 +419,7 @@ class _WeeklyInfoState extends State<WeeklyInfo> {
                     "assets/images/relatee.svg",
                     height: 20,
                     colorFilter: ColorFilter.mode(
-                      userColor ??
-                          Colors
-                              .transparent, // Provide a default color if _colorAnimation.value is null
+                      userColor, // Provide a default color if _colorAnimation.value is null
                       BlendMode.srcIn,
                     ),
                   ),
