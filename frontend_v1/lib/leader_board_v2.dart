@@ -1,4 +1,3 @@
-// ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -27,6 +26,36 @@ class MainLeaderboardView extends StatefulWidget {
 }
 
 class _MainLeaderboardViewState extends State<MainLeaderboardView> {
+  //list with all tasks (completed) of all users
+  //Step 2 combine it with leaderboardusers
+
+  Map<String, int> countCompletedTasksPerUser(
+      List<Map<String, dynamic>> tasks) {
+    final Map<String, int> completedTasksCount = {};
+
+    for (var task in tasks) {
+      if (task['completed'] == true) {
+        String userId = task['userId'].toString();
+        if (!completedTasksCount.containsKey(userId)) {
+          completedTasksCount[userId] = 1;
+        } else {
+          completedTasksCount[userId] = (completedTasksCount[userId] ?? 0) + 1;
+        }
+      }
+    }
+    return completedTasksCount;
+  }
+
+  void assignCompletedTasksToUsers(List<Map<String, dynamic>> tasks,
+      List<Map<String, dynamic>> leaderboardusers) {
+    Map<String, int> completedTasksPerUser = countCompletedTasksPerUser(tasks);
+
+    for (var user in leaderboardusers) {
+      String userId = user['id'].toString();
+      user['completedTasks'] = completedTasksPerUser[userId] ?? 0;
+    }
+  }
+
   String sortBy = "coins";
 
   void _refreshView(String newFilterBy) {
@@ -60,12 +89,8 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    leaderboardtasks =
-        widget.tasks.where((task) => task['completed'] == true).toList();
-    // print('Here sind die tasks (liste)');
-    // print(leaderboardtasks);
+  void initState() {
+    super.initState();
 
     leaderboardusers =
         widget.users.where((user) => user['coins'] != null).toList();
@@ -77,6 +102,19 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
       }
     }
 
+    assignCompletedTasksToUsers(widget.tasks, leaderboardusers);
+    // Map<String, dynamic> completedTasksPerUser =
+    //     countCompletedTasksPerUser(widget.tasks);
+    // leaderboardusers.add(completedTasksPerUser);
+
+    //print(completedTasksPerUser);
+    // completedTasksPerUser.forEach((userId, completedTasksCount) {
+    //   print('User $userId hat $completedTasksCount Aufgaben abgeschlossen.');
+    // });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.primary,
       child: SingleChildScrollView(
@@ -138,7 +176,7 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
                                         _changeSort('level');
                                         print("sort by level");
                                       case 'Tasks':
-                                        _changeSort('tasks');
+                                        _changeSort('completedtasks');
                                         print("sort by tasks");
                                       default:
                                         _changeSort('deadline');
