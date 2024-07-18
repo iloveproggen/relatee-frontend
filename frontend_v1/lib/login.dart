@@ -59,7 +59,10 @@ class CheckLoggedIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool systemBrightness = brightness ?? MediaQuery.of(context).platformBrightness == Brightness.light ? true : false;
+    bool systemBrightness = brightness ??
+            MediaQuery.of(context).platformBrightness == Brightness.light
+        ? true
+        : false;
     return FutureBuilder<String?>(
       future: getPrefs(),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
@@ -465,13 +468,14 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
                                   );
                                 });
                           },
-                          child: Text(
-                            'forgotpassword_txt'.tr,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.red),
-                          ),
+                          child: Text('forgotpassword_txt'.tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.red)
+                                  .copyWith(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.red)),
                         ),
                       ],
                     ),
