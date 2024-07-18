@@ -413,7 +413,7 @@ class RoutineTask extends StatelessWidget {
       child: TextButton(
         style: ButtonStyle(
             animationDuration: Duration.zero,
-            padding: WidgetStateProperty.all<EdgeInsets>(
+            padding: MaterialStateProperty.all<EdgeInsets>(
               const EdgeInsets.all(0),
             )),
         onPressed: () => Get.to(() => detailed_task_view.DetailedTaskView(

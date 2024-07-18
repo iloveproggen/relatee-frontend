@@ -538,9 +538,6 @@ class _ProfileViewState extends State<ProfileView> {
                                   });
                                 }),
                               ),
-                              Divider(
-                                color: userColor,
-                              ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
@@ -558,7 +555,8 @@ class _ProfileViewState extends State<ProfileView> {
                                     child: Text('Back',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall),
+                                            .bodySmall?.copyWith(color: Colors.red)
+                                            ),
                                   ),
                                   TextButton(
                                     onPressed: () {
@@ -569,10 +567,11 @@ class _ProfileViewState extends State<ProfileView> {
                                     child: Text('Save',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall),
+                                            .bodySmall?.copyWith(color: Colors.blue)),
                                   ),
                                 ],
                               ),
+                              SizedBox(height:5)
                             ],
                           ),
                         ),

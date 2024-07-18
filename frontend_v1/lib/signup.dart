@@ -33,6 +33,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool isConfirmed = true; // Define a new boolean variable
   bool _isButtonEnabled = false;
+  bool _isPasswordVisible = false;
+
 
   FocusNode? _forename;
   FocusNode? _surname;
@@ -424,8 +426,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       autocorrect: false,
                       cursorColor: Theme.of(context).colorScheme.onSecondary,
                       controller: _passwordController,
-                      obscureText:
-                        true, // Add this line to make the text field hideable
+                      obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                       hintText: 'Password_txt'.tr,
                       hintStyle: Theme.of(context)
@@ -450,6 +451,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: 2,
                         ),
                       ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: TextButton(
+                            style: ButtonStyle(
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                    const EdgeInsets.all(0)),
+                                animationDuration: Duration.zero),
+                            child: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: const Color.fromARGB(
+                                  255, 204, 198, 196), // Set the color to grey
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                        ),
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
