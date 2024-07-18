@@ -52,29 +52,30 @@ Future<String?> getPrefs() async {
 // }
 
 class CheckLoggedIn extends StatelessWidget {
-  const CheckLoggedIn({super.key});
+  const CheckLoggedIn({super.key, this.brightness});
+
+  final bool? brightness;
 
   @override
   Widget build(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
+    bool systemBrightness = brightness ?? MediaQuery.of(context).platformBrightness == Brightness.light ? true : false;
     return FutureBuilder<String?>(
       future: getPrefs(),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.hasData) {
           return GetMaterialApp(
               darkTheme: darktheme,
-              theme: brightness == Brightness.light ? lighttheme : darktheme,
+              theme: systemBrightness == true ? lighttheme : darktheme,
               translations: LocaleString(),
               locale: const Locale('en-Us'),
               fallbackLocale: const Locale('en-US'),
               debugShowCheckedModeBanner: false,
               title: 'Relatee',
-              home: const Scaffold(body: MainWidget())
-              );
+              home: const Scaffold(body: MainWidget()));
         } else {
           return GetMaterialApp(
               darkTheme: darktheme,
-              theme: brightness == Brightness.light ? lighttheme : darktheme,
+              theme: systemBrightness == true ? lighttheme : darktheme,
               translations: LocaleString(),
               locale: const Locale('en-Us'),
               fallbackLocale: const Locale('en-US'),
@@ -89,11 +90,6 @@ class CheckLoggedIn extends StatelessWidget {
 
 void checkLastLoginDate() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //String? lastLoginDate = prefs.getString('lastLoginDate');
-// for (String key in prefs.getKeys()) {
-//   var value = prefs.get(key);
-//   print('$key: $value');
-// }
   String? lastLoginDate = prefs.getString('lastLoginDate');
   DateTime now = DateTime.now();
   DateTime yesterday = now.subtract(const Duration(days: 1));

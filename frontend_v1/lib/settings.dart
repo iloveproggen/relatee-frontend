@@ -8,8 +8,9 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 bool changedColorSetting = false;
-late bool useUserColor;
+bool useUserColor = true;
 double userColorRatio = 0.5;
+bool isDarkMode = Get.isDarkMode;
 
 class Settings extends StatefulWidget {
   const Settings({super.key, required this.userData});
@@ -30,9 +31,10 @@ class _SettingsState extends State<Settings> {
 
   Future<void> loadSharedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final bool localUseUserColor = prefs.getBool('useUserColor') ?? false;
+    final bool localUseUserColor = prefs.getBool('useUserColor') ?? true;
     setState(() {
       useUserColor = localUseUserColor;
+      userColorRatio = prefs.getDouble('colorRatio') ?? 0.5;
     });
   }
 
@@ -46,69 +48,53 @@ class _SettingsState extends State<Settings> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const BackIconRow(getTo: MainWidget()),
             const SettingsWidget(),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  cupertinoBuildDialog(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10, bottom: 10, left: 15, right: 15),
-                  child: Text('Change_Language_txt'.tr,
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  cupertinoModeDialog(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10, bottom: 10, left: 15, right: 15),
-                  child: Text('Change_Mode_txt'.tr,
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  Get.to(() => const IntroScreen());
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      top: 10, bottom: 10, left: 15, right: 15),
-                  child: Text('Restart Tutorial',
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+           // MediaQuery.of(context).platformBrightness == Brightness.light
+                 Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(CupertinoIcons.moon_fill,
+                            color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Use Dark Mode?",
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        trackColor: Theme.of(context).colorScheme.tertiary,
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        activeColor: useUserColor
+                            ? Color.lerp(
+                                hexToColor(userData['colorPrimary']),
+                                hexToColor(userData['colorSecondary']),
+                                userColorRatio)!
+                            : Theme.of(context).colorScheme.tertiary,
+                        value: isDarkMode,
+                        onChanged: (value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString('brightness', value ? 'dark' : 'light');
+                          setState(() {
+                            if (value) {
+                              Get.changeThemeMode(ThemeMode.dark);
+                              isDarkMode = true;
+                            } else {
+                              Get.changeThemeMode(ThemeMode.light);
+                              isDarkMode = false;
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                //: Container(),
+            const SizedBox(height: 10),
             Row(
               children: [
                 IconButton(
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
-                  ),
+                  padding: EdgeInsets.zero,
                   icon: Icon(CupertinoIcons.question_circle,
                       color: Theme.of(context).colorScheme.tertiary),
                   onPressed: () {
@@ -126,13 +112,22 @@ class _SettingsState extends State<Settings> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(CupertinoIcons.bell_fill,
-                                      color: userColor, size: 40),
+                                      color: Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            userColorRatio)!, size: 40),
                                   const SizedBox(width: 15),
                                   Icon(CupertinoIcons.heart_fill,
-                                      color: userColor, size: 40),
+                                      color: Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            userColorRatio)!, size: 40),
                                   const SizedBox(width: 15),
                                   Icon(CupertinoIcons.gear_solid,
-                                      color: userColor, size: 40),
+                                      color: Color.lerp(
+                            hexToColor(userData['colorPrimary']),
+                            hexToColor(userData['colorSecondary']),
+                            userColorRatio)!, size: 40),
                                 ],
                               ),
                               const SizedBox(height: 10),
@@ -190,26 +185,82 @@ class _SettingsState extends State<Settings> {
             useUserColor ? const SizedBox(height: 20) : SizedBox(),
             useUserColor
                 ? Container(
+                    height: 15,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      gradient: LinearGradient(
+                        colors: [
+                          hexToColor(userData['colorPrimary']),
+                          hexToColor(userData['colorSecondary']),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
                     width: double.infinity,
                     child: CupertinoSlider(
                         thumbColor: Theme.of(context).colorScheme.primary,
                         value: userColorRatio,
-                        divisions: 6,
                         max: 1,
                         min: 0,
-                        activeColor: userColor,
-                        onChanged: (value) async {
+                        activeColor: Colors.transparent,
+                        onChangeEnd: (value) async{
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           prefs.setDouble('colorRatio', value);
                           print(value);
+                        },
+                        onChanged: (value) {
                           setState(() {
                             userColorRatio = value;
                           });
                         }),
                   )
                 : SizedBox(),
-            const SizedBox(height: 80),
+            const SizedBox(height: 25),
+            Divider(
+              color: Theme.of(context).colorScheme.tertiary,
+              thickness: 1,
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  cupertinoBuildDialog(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 10, bottom: 10, left: 15, right: 15),
+                  child: Text('Change_Language_txt'.tr,
+                      style: Theme.of(context).textTheme.bodySmall),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Get.to(() => const IntroScreen());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 10, bottom: 10, left: 15, right: 15),
+                  child: Text('Restart Tutorial',
+                      style: Theme.of(context).textTheme.bodySmall),
+                ),
+              ),
+            ),
+            const SizedBox(height: 50),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -247,7 +298,7 @@ class SettingsWidget extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 50, top: 10),
+          padding: const EdgeInsets.only(bottom: 20, top: 10),
           child: SizedBox(
               width: double.infinity,
               child: Column(
