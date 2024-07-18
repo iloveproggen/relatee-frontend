@@ -103,14 +103,6 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
     }
 
     assignCompletedTasksToUsers(widget.tasks, leaderboardusers);
-    // Map<String, dynamic> completedTasksPerUser =
-    //     countCompletedTasksPerUser(widget.tasks);
-    // leaderboardusers.add(completedTasksPerUser);
-
-    //print(completedTasksPerUser);
-    // completedTasksPerUser.forEach((userId, completedTasksCount) {
-    //   print('User $userId hat $completedTasksCount Aufgaben abgeschlossen.');
-    // });
   }
 
   @override
@@ -176,7 +168,7 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
                                         _changeSort('level');
                                         print("sort by level");
                                       case 'Tasks':
-                                        _changeSort('completedtasks');
+                                        _changeSort('completedTasks');
                                         print("sort by tasks");
                                       default:
                                         _changeSort('deadline');
