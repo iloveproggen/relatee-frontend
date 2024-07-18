@@ -491,6 +491,7 @@ class _ProfileViewState extends State<ProfileView> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              SizedBox(height: 10),
                               const SizedBox(height: 10),
                               ColorPicker(
                                 paletteType: PaletteType.hsv,
