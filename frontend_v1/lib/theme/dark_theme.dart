@@ -17,7 +17,7 @@ ThemeData darktheme = ThemeData(
             fontSize: 30,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 183, 177, 175),
-            fontFamily: "Wittgenstein",
+            fontFamily: "Karla",
             letterSpacing: 0),
         bodyMedium: TextStyle(
             letterSpacing: -1,
