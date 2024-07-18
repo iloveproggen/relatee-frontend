@@ -528,9 +528,15 @@ class _MainWidgetState extends State<MainWidget> {
 
   Future<void> checkIfTutorialSeen() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('seenIntro') != true) {
+      if (prefs.getBool('useUserColor') != false) {
+        userColor = Color.lerp(
+            hexToColor(userData['colorPrimary']),
+            hexToColor(userData['colorSecondary']),
+            prefs.getDouble("colorRatio") ?? 0.5)!;
+      } else {
+        userColor = Theme.of(context).colorScheme.tertiary;
+      }
       Get.to(() => const IntroScreen());
-    }
   }
 
   @override
