@@ -108,6 +108,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             id
             name
             emoji
+            startDate
+            refreshDate
+            interval
           }
           tasks {
             id
@@ -263,6 +266,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'refreshDate': routine['refreshDate'],
           'startDate': routine['startDate'],
           'interval': routine['interval'],
+          'tasks': mappedTasks.where((task) {
+            return task['routineId'] == routine['id'];
+          }).toList(),
         };
       }).toList();
 

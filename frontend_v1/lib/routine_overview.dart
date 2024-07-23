@@ -119,15 +119,17 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                 ],
               ),
               Text(
-                  "start on ${widget.routine['startDate'] != null ? DateFormat("dd-MM-yyy").format(widget.routine['startDate']) : 'unknown'}",
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: userColor,
-                      )),
-              Text(
-                  "next refresh on ${widget.routine['refreshDate'] != null ? DateFormat("dd-MM-yyy").format(widget.routine['refreshDate']) : 'unknown'}",
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: userColor,
-                      )),
+  "start on ${widget.routine['startDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['startDate'])) : 'unknown'}",
+  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: userColor,
+      ),
+),
+Text(
+  "next refresh on ${widget.routine['refreshDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['refreshDate'])) : 'unknown'}",
+  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: userColor,
+      ),
+),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -108,8 +108,7 @@ class RoutineItem extends StatelessWidget {
         showCupertinoDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            title: const Text(
-                "Delete Routine?"),
+            title: const Text("Delete Routine?"),
             content: Text(
                 "Are you sure you want to delete this routine? The tasks assigned to this won't be deleted."
                     .tr),
@@ -170,9 +169,13 @@ class RoutineItem extends StatelessWidget {
                           .textTheme
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold)),
-                  Text("${routine['refreshDate'] != null ? DateFormat("dd-MM-yyy").format(routine['refreshDate']) : 'No refresh date set'}",
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(fontWeight: FontWeight.bold, color: userColor))
+                  Text(
+                    "${routine['refreshDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(routine['refreshDate'])) : 'No refresh date set'}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: userColor,
+                        ),
+                  ),
                 ],
               ),
               IconButton(
