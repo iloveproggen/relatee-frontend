@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/rendering.dart';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
@@ -22,7 +21,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  debugPaintSizeEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(CheckLoggedIn(brightness: await getBrightness()));
 }
@@ -592,9 +590,9 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.hasError) {
             print('error');
             return const Placeholder();
-          // } else if (snapshot.data!['userData']['id'] == null) {
-          //   print('no userData, going to login view');
-          //  return const LoginWidget();
+            // } else if (snapshot.data!['userData']['id'] == null) {
+            //   print('no userData, going to login view');
+            //  return const LoginWidget();
           } else if (snapshot.data!['userData']['householdId'] == null) {
             print('household ID: ${snapshot.data!['userData']['householdId']}');
             // if (snapshot.data!['userData']['forename'] == null) {
@@ -603,7 +601,8 @@ class _MainViewState extends State<MainView> {
             // }
             return const JoinHouseholdView();
           } else {
-            print('logged in sucessfully ${snapshot.data!['userData']['householdId']}');
+            print(
+                'logged in sucessfully ${snapshot.data!['userData']['householdId']}');
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
@@ -818,7 +817,12 @@ class ButtonRecommended extends StatelessWidget {
                                   random.nextInt(completedTasks.length)]['name']
                               : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary)),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary)),
                     ),
                   ),
                 ),
@@ -1159,8 +1163,13 @@ class _TaskState extends State<TaskOverview> {
                                               const EdgeInsets.all(0))),
                                   child: Text(
                                     'NoTaskCreateOne_txt'.tr,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary),
                                   ),
                                   onPressed: () async {
                                     var result = await Get.to(
