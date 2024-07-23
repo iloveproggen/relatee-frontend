@@ -45,51 +45,51 @@ class _SettingsState extends State<Settings> {
         child: Padding(
           padding: const EdgeInsets.only(top: 80, left: 40, right: 40),
           child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             const BackIconRow(getTo: MainWidget()),
             const SettingsWidget(),
-           // MediaQuery.of(context).platformBrightness == Brightness.light
-                 Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(CupertinoIcons.moon_fill,
-                            color: Theme.of(context).colorScheme.tertiary),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "Use Dark Mode?",
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                      CupertinoSwitch(
-                        trackColor: Theme.of(context).colorScheme.tertiary,
-                        thumbColor: Theme.of(context).colorScheme.primary,
-                        activeColor: useUserColor
-                            ? Color.lerp(
-                                hexToColor(userData['colorPrimary']),
-                                hexToColor(userData['colorSecondary']),
-                                userColorRatio)!
-                            : Theme.of(context).colorScheme.tertiary,
-                        value: isDarkMode,
-                        onChanged: (value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          prefs.setString('brightness', value ? 'dark' : 'light');
-                          setState(() {
-                            if (value) {
-                              Get.changeThemeMode(ThemeMode.dark);
-                              isDarkMode = true;
-                            } else {
-                              Get.changeThemeMode(ThemeMode.light);
-                              isDarkMode = false;
-                            }
-                          });
-                        },
-                      ),
-                    ],
+            // MediaQuery.of(context).platformBrightness == Brightness.light
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(CupertinoIcons.moon_fill,
+                      color: Theme.of(context).colorScheme.tertiary),
+                ),
+                Expanded(
+                  child: Text(
+                    "Use Dark Mode?",
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-                //: Container(),
+                ),
+                CupertinoSwitch(
+                  trackColor: Theme.of(context).colorScheme.tertiary,
+                  thumbColor: Theme.of(context).colorScheme.primary,
+                  activeColor: useUserColor
+                      ? Color.lerp(
+                          hexToColor(userData['colorPrimary']),
+                          hexToColor(userData['colorSecondary']),
+                          userColorRatio)!
+                      : Theme.of(context).colorScheme.tertiary,
+                  value: isDarkMode,
+                  onChanged: (value) async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setString('brightness', value ? 'dark' : 'light');
+                    setState(() {
+                      if (value) {
+                        Get.changeThemeMode(ThemeMode.dark);
+                        isDarkMode = true;
+                      } else {
+                        Get.changeThemeMode(ThemeMode.light);
+                        isDarkMode = false;
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            //: Container(),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -113,21 +113,27 @@ class _SettingsState extends State<Settings> {
                                 children: [
                                   Icon(CupertinoIcons.bell_fill,
                                       color: Color.lerp(
-                            hexToColor(userData['colorPrimary']),
-                            hexToColor(userData['colorSecondary']),
-                            userColorRatio)!, size: 40),
+                                          hexToColor(userData['colorPrimary']),
+                                          hexToColor(
+                                              userData['colorSecondary']),
+                                          userColorRatio)!,
+                                      size: 40),
                                   const SizedBox(width: 15),
                                   Icon(CupertinoIcons.heart_fill,
                                       color: Color.lerp(
-                            hexToColor(userData['colorPrimary']),
-                            hexToColor(userData['colorSecondary']),
-                            userColorRatio)!, size: 40),
+                                          hexToColor(userData['colorPrimary']),
+                                          hexToColor(
+                                              userData['colorSecondary']),
+                                          userColorRatio)!,
+                                      size: 40),
                                   const SizedBox(width: 15),
                                   Icon(CupertinoIcons.gear_solid,
                                       color: Color.lerp(
-                            hexToColor(userData['colorPrimary']),
-                            hexToColor(userData['colorSecondary']),
-                            userColorRatio)!, size: 40),
+                                          hexToColor(userData['colorPrimary']),
+                                          hexToColor(
+                                              userData['colorSecondary']),
+                                          userColorRatio)!,
+                                      size: 40),
                                 ],
                               ),
                               const SizedBox(height: 10),
@@ -204,7 +210,7 @@ class _SettingsState extends State<Settings> {
                         max: 1,
                         min: 0,
                         activeColor: Colors.transparent,
-                        onChangeEnd: (value) async{
+                        onChangeEnd: (value) async {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           prefs.setDouble('colorRatio', value);
@@ -260,30 +266,65 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
             ),
-            const SizedBox(height: 50),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
-                //border: Border.all(color: Colors.red),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  leaveHouseholdConfimation(context);
-                },
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 10, bottom: 10, left: 15, right: 15),
-                    child: Text(
-                      'Leave Household'.tr,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.red,
-                          ),
-                    )),
-              ),
-            ),
+            const SizedBox(height: 150),
+            // Container(
+            //   width: double.infinity,
+            //   decoration: BoxDecoration(
+            //     borderRadius: const BorderRadius.all(Radius.circular(10)),
+            //     color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+            //     //border: Border.all(color: Colors.red),
+            //   ),
+            //   child: TextButton(
+            //     onPressed: () {
+            //       leaveHouseholdConfimation(context);
+            //     },
+            //     child: Padding(
+            //         padding: const EdgeInsets.only(
+            //             top: 10, bottom: 10, left: 15, right: 15),
+            //         child: Text(
+            //           'Leave Household'.tr,
+            //           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            //                 color: Colors.red,
+            //               ),
+            //         )),
+            //   ),
+            // ),
+            TextButton(
+              child: Text("About Relatee",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          decoration: TextDecoration.underline,
+                  )),
+              onPressed: () {
+                Get.to(() => const Impressum());
+              },
+            )
           ]),
+        ),
+      ),
+    );
+  }
+}
+
+class Impressum extends StatelessWidget {
+  const Impressum({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.only(left: 40, top: 80, right: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BackIconRow(),
+            Text(('About Relatee'.tr),
+                style: Theme.of(context).textTheme.bodyLarge),
+            Padding(
+              padding: const EdgeInsets.only(left:60, right:60, top: 60, bottom: 20),
+              child: Image.asset('assets/images/rhinebytes_dark.png'),
+            ),
+          ],
         ),
       ),
     );

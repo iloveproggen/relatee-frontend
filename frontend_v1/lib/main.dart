@@ -110,6 +110,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             id
             name
             emoji
+            startDate
+            refreshDate
+            interval
           }
           tasks {
             id
@@ -265,6 +268,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'refreshDate': routine['refreshDate'],
           'startDate': routine['startDate'],
           'interval': routine['interval'],
+          'tasks': mappedTasks.where((task) {
+            return task['routineId'] == routine['id'];
+          }).toList(),
         };
       }).toList();
 
@@ -584,12 +590,20 @@ class _MainViewState extends State<MainView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            print('error');
             return const Placeholder();
-          } else if (snapshot.data!['userData'].isEmpty) {
-            return const LoginWidget();
+          // } else if (snapshot.data!['userData']['id'] == null) {
+          //   print('no userData, going to login view');
+          //  return const LoginWidget();
           } else if (snapshot.data!['userData']['householdId'] == null) {
+            print('household ID: ${snapshot.data!['userData']['householdId']}');
+            // if (snapshot.data!['userData']['forename'] == null) {
+            //   print('no userData, going to login view');
+            //   return const LoginWidget();
+            // }
             return const JoinHouseholdView();
           } else {
+            print('logged in sucessfully ${snapshot.data!['userData']['householdId']}');
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
@@ -804,7 +818,7 @@ class ButtonRecommended extends StatelessWidget {
                                   random.nextInt(completedTasks.length)]['name']
                               : '${'No_tasks_found_txt'.tr} \n ${'Nice_day!_txt'.tr}',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary)),
                     ),
                   ),
                 ),
@@ -1146,7 +1160,7 @@ class _TaskState extends State<TaskOverview> {
                                   child: Text(
                                     'NoTaskCreateOne_txt'.tr,
                                     style:
-                                        Theme.of(context).textTheme.bodySmall,
+                                        Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary),
                                   ),
                                   onPressed: () async {
                                     var result = await Get.to(
@@ -1648,7 +1662,7 @@ class _MainTaskState extends State<Task> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w900,
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                   ),
