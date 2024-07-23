@@ -267,28 +267,28 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             const SizedBox(height: 150),
-            // Container(
-            //   width: double.infinity,
-            //   decoration: BoxDecoration(
-            //     borderRadius: const BorderRadius.all(Radius.circular(10)),
-            //     color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
-            //     //border: Border.all(color: Colors.red),
-            //   ),
-            //   child: TextButton(
-            //     onPressed: () {
-            //       leaveHouseholdConfimation(context);
-            //     },
-            //     child: Padding(
-            //         padding: const EdgeInsets.only(
-            //             top: 10, bottom: 10, left: 15, right: 15),
-            //         child: Text(
-            //           'Leave Household'.tr,
-            //           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            //                 color: Colors.red,
-            //               ),
-            //         )),
-            //   ),
-            // ),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                //border: Border.all(color: Colors.red),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  leaveHouseholdConfimation(context);
+                },
+                child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 10, bottom: 10, left: 15, right: 15),
+                    child: Text(
+                      'Leave Household'.tr,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.red,
+                          ),
+                    )),
+              ),
+            ),
             TextButton(
               child: Text("About Relatee",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -392,37 +392,19 @@ leaveHouseholdConfimation(BuildContext context) {
 // WIP - not working rn
 
 Future<Map<String, dynamic>> leaveHousehold() async {
-  final Map<String, dynamic> variables = {
-    'input': {
-      'household': {
-        'id': null,
-      },
-      'level': 1,
-      'coins': 0,
-      'experience': 0,
-      'prestige': 0,
-      'loginStreak': 0,
-    }
-  };
 
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql(r'''
-  mutation UpdateUserStyle($input: UpdateUserStyleInput!) {
-    updateUserStyle(input: $input) {
-      household {
-        id,
-      },
-      level,
-      coins,
-      experience,
-      prestige,
-      loginStreak,
+final client = await getGraphQLClient();
+final QueryOptions options = QueryOptions(
+  document: gql(r'''
+  mutation kickUserFromHousehold($userId: Int!) {
+    kickUserFromHousehold(userId: $userId) {
     }
   }
 '''),
-    variables: variables,
-  );
+  variables: <String, dynamic>{
+    'userId': userData['id'],
+  },
+);
 
   final QueryResult result = await client.query(options);
 
