@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,10 @@ class CheckLoggedIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool systemBrightness = brightness ?? MediaQuery.of(context).platformBrightness == Brightness.light ? true : false;
+    bool systemBrightness = brightness ??
+            MediaQuery.of(context).platformBrightness == Brightness.light
+        ? true
+        : false;
     return FutureBuilder<String?>(
       future: getPrefs(),
       builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
@@ -164,6 +168,11 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
 
   //bool _staySignedIn = false;
 
+  void _deleteToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
   void _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
@@ -179,26 +188,38 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
     http.Response response = http.Response('Error', 500);
     try {
       response = await http
-          .post(
-            Uri.parse('http://85.215.50.29:3000/login'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode(<String, String>{
-              'email': _usernameController.text,
-              'password': _passwordController.text,
-            }),
-          )
-          .timeout(const Duration(seconds: 10));
+        .post(
+        Uri.parse('http://85.215.50.29:3000/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': _usernameController.text,
+          'password': _passwordController.text,
+        }),
+        )
+        .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw TimeoutException('Request timed out');
+        });
     } catch (e) {
+      if (e is TimeoutException) {
+      print('Request timed out');
+      setState(() {
+        isLoading = false;
+        timeOut = true;
+        error['hasError'] = true;
+        error['message'] = 'Request timed out';
+      });
+      } else {
       print('Error: $e');
       setState(() {
         isLoading = false;
         timeOut = true;
         error['hasError'] = true;
         error['message'] =
-            jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
+          jsonDecode(response.body)['error'][0]['message'].split("\"")[1];
       });
+      }
       //Get.to(() => const LoginWidget());
     }
     setState(() {
@@ -248,7 +269,6 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-
     error = {
       'hasError': false,
       'message': '',
@@ -268,8 +288,6 @@ class LoginWidgetState extends State<LoginWidget> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Check if there is a token saved in SharedPreferences
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Padding(

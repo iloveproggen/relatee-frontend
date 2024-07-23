@@ -145,11 +145,12 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                       Spacer(),
                       TextButton(
                           onPressed: () {},
-                          child: Text("pick icon",
+                          child: Text(widget.routine['emoji'] ?? "🎉",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
+                                    fontSize: 30,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .tertiary,

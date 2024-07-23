@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,56 @@ import 'package:shared_preferences/shared_preferences.dart';
 bool _isButtonEnabled = false;
 bool isLoading = false;
 
+String? errorCode;
+
+late Function updateLoading;
+
+Future<void> checkInvite(String code) async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation joinHouseholdByCode(\$code: String!) {
+      joinHouseholdByCode(code: \$code) {}
+      }
+    '''),
+    variables: <String, dynamic>{
+      'code': code,
+    },
+  );
+  try {
+    final result =
+        await client.mutate(options).timeout(const Duration(seconds: 5));
+    if (result.hasException) {
+      if (result.exception!.graphqlErrors
+          .any((error) => error.message.contains('Unique constraint failed'))) {
+        print('An invite for this email already exists.');
+        // Handle the unique constraint error specifically
+      } else {
+        print('GraphQL error: ${result.exception.toString()}');
+        if (result.hasException && result.exception!.graphqlErrors.isNotEmpty) {
+          errorCode = result.exception!.graphqlErrors.first.message;
+        } else {
+          errorCode = result.exception.toString();
+        }
+        isLoading = false;
+      }
+    } else {
+      Get.offAll(() => const MainWidget());
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    isLoading = false;
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    isLoading = false;
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    isLoading = false;
+    // Handle other errors
+  }
+}
 
 Future<Map<String, dynamic>> getUserData() async {
   final client = await getGraphQLClient();
@@ -56,7 +108,6 @@ Future<Map<String, dynamic>> getUserData() async {
       if (mappedResult['points'] == null) {
         mappedResult['points'] = 0;
       }
-
 
       return mappedResult;
     }
@@ -122,13 +173,18 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
   bool _isButtonEnabled = false;
   bool isLoading = false;
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _inviteCode = TextEditingController();
   late Future<Map<String, dynamic>> _userDataFuture;
 
   @override
   void initState() {
     super.initState();
+    updateLoading = setState;
     _nameController.addListener(_updateButtonState);
     _userDataFuture = getUserData();
+
+    errorCode = "";
+    isLoading = false;
   }
 
   void _updateButtonState() {
@@ -140,6 +196,7 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
   @override
   void dispose() {
     _nameController.dispose();
+    _inviteCode.dispose();
     super.dispose();
   }
 
@@ -153,7 +210,7 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
             future: _userDataFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
@@ -161,17 +218,19 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const BackIconSignOut(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const BackIconSignOut(),
-                        TextButton(
-                          style: ButtonStyle(
+                        Text('Join Household',
+                            style: Theme.of(context).textTheme.bodyLarge),
+                        IconButton(
+                            padding: EdgeInsets.zero,
+                          style: const ButtonStyle(
                             alignment: Alignment.centerRight,
                             animationDuration: Duration.zero,
-                            padding: MaterialStateProperty.all(EdgeInsets.zero),
                           ),
-                          child: Icon(
+                          icon: Icon(
                             CupertinoIcons.info,
                             color: Theme.of(context).colorScheme.tertiary,
                           ),
@@ -180,9 +239,9 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                               context: context,
                               builder: (BuildContext context) {
                                 return CupertinoAlertDialog(
-                                  title: const Text("You're creating a household"),
+                                  title: const Text("Join a Household"),
                                   content: const Text(
-                                      'To join an existing household instead, ask a member to send you an invitation. Once you receive it, click the link to join.'),
+                                      'To use Relatee, you need to be in a Household. Here, you can either create one by entering a name for your household below, or join another household with the code you received from a member.'),
                                   actions: [
                                     CupertinoDialogAction(
                                       child: const Text('OK',
@@ -199,14 +258,122 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                         ),
                       ],
                     ),
-                    Text('Create Household',
-                        style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
                     Text(
-                      "Hi ${userData['forename']}! \nTo get the most out of Relatee, you need to join a household. Create one now!",
+                      "Hi ${userData['forename']}! \nTo get the most out of Relatee, you need to join a household.",
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 40),
+                    TextField(
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(8),
+                          UpperCaseTextFormatter()
+                        ],
+                        controller: _inviteCode,
+                        autocorrect: false,
+                        cursorColor: Theme.of(context).colorScheme.onSecondary,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        decoration: InputDecoration(
+                          hintText: 'Invite Code',
+                          hintStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary),
+                          border: InputBorder.none,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              width: 2,
+                            ),
+                          ),
+                        )),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        if (_inviteCode.text.isEmpty ||
+                            _inviteCode.text.length != 8) {
+                          errorCode = 'Please enter an invite code.';
+                          isLoading = false;
+                          updateLoading();
+                          return;
+                        } else {
+                          errorCode = "";
+                          setState(() {});
+                          await checkInvite(_inviteCode.text);
+                          setState(() {});
+                          isLoading = false;
+                        }
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color.fromARGB(255, 74, 70, 70)),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    side: const BorderSide(
+                                        color: Colors.transparent))),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Submit_txt'.tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ),
+                    // IconButton(
+                    //     onPressed: () async {
+                    //       setState(() {
+                    //         isLoading = true;
+                    //       });
+                    //       await checkInvite(_inviteCode.text);
+                    //     },
+                    //     icon: Icon(CupertinoIcons.airplane)),
+                    const SizedBox(height: 40),
+                    isLoading == true
+                        ? const Center(child: CupertinoActivityIndicator())
+                        : const SizedBox(),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Text(
+                          errorCode ?? '',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    Text(
+                      "Create one instead",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _nameController,
                       autocorrect: false,
@@ -217,11 +384,11 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                             .textTheme
                             .bodySmall
                             ?.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary),
+                                color: Theme.of(context).colorScheme.tertiary),
                         border: InputBorder.none,
                         enabledBorder: OutlineInputBorder(
                           borderRadius:
-                          const BorderRadius.all(Radius.circular(10)),
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onPrimary,
                             width: 2,
@@ -229,7 +396,7 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius:
-                          const BorderRadius.all(Radius.circular(10)),
+                              const BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSecondary,
                             width: 2,
@@ -238,58 +405,68 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 20), // Add this line to add space between the TextFormField and the Button
-                    ElevatedButton(
+                    const SizedBox(
+                        height:
+                            20), // Add this line to add space between the TextFormField and the Button
+                    TextButton(
                       onPressed: _isButtonEnabled
                           ? () async {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        String name = _nameController.text;
-                        await createHousehold(name);
-                        Get.to(() => Scaffold(body: MainView()));
-                        setState(() {
-                          isLoading = false;
-                        });
-                      }
+                              setState(() {
+                                isLoading = true;
+                              });
+                              String name = _nameController.text;
+                              await createHousehold(name);
+                              Get.to(() => const Scaffold(body: MainView()));
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                           : null,
                       style: _isButtonEnabled
                           ? ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            const Color.fromARGB(255, 74, 70, 70)),
-                        shape:
-                        MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: const BorderSide(
-                                    color: Colors.transparent))),
-                      )
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  const Color.fromARGB(255, 74, 70, 70)),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      side: const BorderSide(
+                                          color: Colors.transparent))),
+                            )
                           : ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Theme.of(context).colorScheme.primary),
-                        shape:
-                        MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: BorderSide(
-                                    width: 2,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary))),
-                      ),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Theme.of(context).colorScheme.primary),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      side: BorderSide(
+                                          width: 2,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary))),
+                            ),
                       child: Center(
                         child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 15, bottom: 15, left: 15, right: 15),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
                               'Submit_txt'.tr,
                               style: _isButtonEnabled
-                                  ? Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold)
-                                  : Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color:
-                                  Theme.of(context).colorScheme.tertiary),
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontWeight: FontWeight.bold)
+                                  : Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary),
                             )),
                       ),
                     ),
@@ -303,7 +480,6 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
     );
   }
 }
-
 
 class BackIconSignOut extends StatelessWidget {
   const BackIconSignOut({super.key});
@@ -329,21 +505,25 @@ class BackIconSignOut extends StatelessWidget {
                   builder: (BuildContext context) {
                     return CupertinoAlertDialog(
                       title: const Text('Confirm Logout'),
-                      content: const Text('Are you sure you want to log out? Your changes will not be saved'),
+                      content: const Text(
+                          'Are you sure you want to log out? Your changes will not be saved'),
                       actions: [
                         CupertinoDialogAction(
-                          child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                          child: const Text('Cancel',
+                              style: TextStyle(color: Colors.blue)),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
                         CupertinoDialogAction(
-
-                          child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                          child: const Text('Logout',
+                              style: TextStyle(color: Colors.red)),
                           onPressed: () async {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
                             await prefs.remove('token');
-                            print("logging out user ${prefs.getString('token')}");
+                            print(
+                                "logging out user ${prefs.getString('token')}");
                             Get.off(() => const LoginWidget());
                           },
                         ),
@@ -371,6 +551,3 @@ class BackIconSignOut extends StatelessWidget {
     );
   }
 }
-
-
-
