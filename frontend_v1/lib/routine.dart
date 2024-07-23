@@ -81,7 +81,7 @@ class _RoutineState extends State<Routine> {
               padding:
                   WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(0))),
           child: Text('No_routines_found_txt'.tr,
-              style: Theme.of(context).textTheme.bodySmall));
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.tertiary)));
     }
   }
 }
