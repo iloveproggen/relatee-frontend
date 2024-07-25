@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/rendering.dart';
+import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
@@ -55,6 +56,7 @@ late VoidCallback updateWithoutReload;
 
 late Map<String, dynamic> userData;
 late List<Map<String, dynamic>> tasks;
+late List<Map<String, dynamic>> users;
 
 late Map<String, dynamic> householdData;
 
@@ -105,6 +107,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             emoji
             colorPrimary
             colorSecondary
+            loginStreak
           }
           routines {
             id
@@ -169,6 +172,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           emoji
           colorPrimary
           colorSecondary
+          loginStreak
         }
       }
     '''),
@@ -224,6 +228,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'colorSecondary': user['colorSecondary'],
           'householdName': householdData['name'],
           'householdId': result.data!['household']['id'],
+          'streak': user['loginStreak'],
         };
       }).toList();
 
@@ -289,6 +294,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
         'colorSecondary': userData['colorSecondary'],
         'householdName': householdData['name'],
         'householdId': result.data!['household']['id'],
+        'streak' : userData['loginStreak'],
         'tasks': myTasks
             .map<Map<String, dynamic>>((task) => {
                   'id': task['id'],
@@ -298,7 +304,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'description': task['description'],
                   'reward': task['reward'],
                   'completed': task['completed'],
-                  'completed_at': task['completedAt'],
+                  'completedAt': task['completedAt'],
                   'emoji': task['emoji'],
                   'private': task['private'],
                   'ownerId': task['owner']['id'],
@@ -321,7 +327,7 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'description': task['description'],
                   'reward': task['reward'],
                   'completed': task['completed'],
-                  'completed_at': task['completedAt'],
+                  'completedAt': task['completedAt'],
                   'emoji': task['emoji'],
                   'private': task['private'],
                   'ownerId': task['owner']['id'],
@@ -612,6 +618,7 @@ class _MainViewState extends State<MainView> {
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
+            users = householdData['users'];
             return SingleChildScrollView(
                 child: Padding(
                     padding:
@@ -923,11 +930,17 @@ class ButtonRow extends StatelessWidget {
               onTap: () {
                 // Navigate to another screen
               },
-              child: ButtonShort(
-                number: tasks == []
-                    ? '0'
-                    : (tasks.length - countToDo(tasks)).toString(),
-                textBelow: 'doneThisWeek_txt'.tr,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  Get.to(() => CompletedTaskList(tasks: tasks, userData: users));
+                },
+                icon: ButtonShort(
+                  number: tasks == []
+                      ? '0'
+                      : (tasks.length - countToDo(tasks)).toString(),
+                  textBelow: 'doneThisWeek_txt'.tr,
+                ),
               ),
             ),
           ),

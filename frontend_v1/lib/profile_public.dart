@@ -15,10 +15,83 @@ String getDueDaysInText(int days) {
 }
 
 class PublicProfile extends StatelessWidget {
-  const PublicProfile({super.key, required this.userData, required this.tasks});
+  PublicProfile({super.key, required this.userData, required this.tasks});
 
   final Map<String, dynamic> userData;
   final List<Map<String, dynamic>> tasks;
+
+  final List<int> levelList = [
+    0,
+    200,
+    400,
+    600,
+    800,
+    1000,
+    1300,
+    1600,
+    1900,
+    2200,
+    2400,
+    2700,
+    3000,
+    3400,
+    3800,
+    4200,
+    4600,
+    5000,
+    5500,
+    6000,
+    6500,
+    7000,
+    7600,
+    8200,
+    8800,
+    9400,
+    10000,
+    11000,
+    12000,
+    13500,
+  ];
+
+  //get correct next level xp
+  int getLevelProgress() {
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = userData['level'] ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return levelList[level];
+  }
+
+  int getPreviousLevelProgress() {
+    // Use the null-aware operator `??` to provide a default value if `widget.userData['level']` is null
+    int level = userData['level'] - 1 ?? 0;
+    // Check if `levelList` contains the key before accessing it to prevent a runtime error
+    // Provide a default value if the key is not found
+    return levelList[level + 1] - levelList[level];
+  }
+
+  //to get the previous level progress
+  double getPreviousLevelProgressValue() {
+    int experience = userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getPreviousLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return ((experience - levelList[userData['level'] - 1]) /
+            levelProgress)
+        .toDouble();
+  }
+
+  double getLevelProgressValue() {
+    int experience = userData['experience'] ?? 0;
+    // Ensure `getLevelProgress` does not return null or 0 to avoid division by zero error
+    int levelProgress = getLevelProgress();
+    if (levelProgress == 0) {
+      return 0.0; // Return 0.0 or handle appropriately if level progress is 0 to avoid division by zero
+    }
+    return (experience / levelProgress).toDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +159,52 @@ class PublicProfile extends StatelessWidget {
                         '${userData['forename'] ?? ""} ${userData['surname'] ?? ""}',
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 20),
+                    
+                    // Padding(
+                    //       padding: const EdgeInsets.only(left: 30, right: 30),
+                    //       child: Stack(
+                    //         children: <Widget>[
+                    //           Container(
+                    //             height: 10,
+                    //             decoration: BoxDecoration(
+                    //               color: Theme.of(context)
+                    //                   .colorScheme
+                    //                   .tertiary, // White background for the empty part
+                    //               borderRadius: BorderRadius.circular(10),
+                    //             ),
+                    //           ),
+                              
+                    //           LayoutBuilder(
+                    //             builder: (BuildContext context,
+                    //                 BoxConstraints constraints) {
+                    //               double progressWidth = constraints.maxWidth *
+                    //                   (userData['level'] <= 1
+                    //                       ? getLevelProgressValue()
+                    //                       : getPreviousLevelProgressValue()); // Calculate width based on progress
+                    //               return Container(
+                    //                 width: progressWidth,
+                    //                 height: 10,
+                    //                 decoration: BoxDecoration(
+                    //                   borderRadius: BorderRadius.circular(10),
+                    //                   gradient: LinearGradient(
+                    //                     colors: [
+                    //                       colorPrimary,
+                    //                       colorSecondary,
+                    //                     ],
+                    //                     begin: Alignment.centerLeft,
+                    //                     end: Alignment.centerRight,
+                    //                   ),
+                    //                 ),
+                    //               );
+                    //             },
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     Text(
+                    //         '${'Progress_1_txt'.tr}${userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
+                    //         style: Theme.of(context).textTheme.labelSmall),
+                    //     const SizedBox(height: 20),
                     Text(
                       '@${userData['username']}',
                       style: Theme.of(context)
@@ -110,58 +229,64 @@ class PublicProfile extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 30),
+                    userData['streak'] >= 1 
+                      ? Text(
+                          "🔥${(userData['forename'] != null && userData['forename'] != '') ? userData['forename'] + " has" : "They have"} a streak of ${userData['streak'].toString()}! 🔥",
+                          style: Theme.of(context).textTheme.bodySmall,
+                        )
+                      : Container(),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50, right: 10),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/images/relatee.svg",
-                                  height: 20,
-                                  width: 20,
-                                  color: Color.lerp(
-                                      hexToColor(userData['colorPrimary']),
-                                      hexToColor(userData['colorSecondary']),
-                                      0.5)!,
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  '${userData['coins']}',
-                                  textAlign: TextAlign.center,
-                                  style:Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 27, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                "assets/images/relatee.svg",
+                                height: 20,
+                                width: 20,
+                                color: Color.lerp(
+                                    hexToColor(userData['colorPrimary']),
+                                    hexToColor(userData['colorSecondary']),
+                                    0.5)!,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                '${userData['coins']}',
+                                textAlign: TextAlign.center,
+                                style:Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 50),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 27, vertical: 9),
-                            decoration:  BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            child: Text(
-                              'lvl ${userData['level']}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium
-                            ),
+                        SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 27, vertical: 9),
+                          decoration:  BoxDecoration(
+                            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Text(
+                            'lvl ${userData['level']}',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium
                           ),
                         ),
+                        SizedBox(height: 5),
+                        
+                        //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
+                        
                       ],
                     ),
                   ],

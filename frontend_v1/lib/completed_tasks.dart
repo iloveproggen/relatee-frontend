@@ -33,7 +33,7 @@ String formatDateWithOrdinal(DateTime date) {
   final day = date.day;
   final dayWithSuffix = '$day${ordinal(day)}';
   final month = DateFormat('MMMM').format(date);
-  return '$dayWithSuffix $month';
+  return '$dayWithSuffix $month ${date.year}';
 }
 
 class CompletedTaskList extends StatelessWidget {

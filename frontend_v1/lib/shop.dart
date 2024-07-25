@@ -149,7 +149,7 @@ class _ShopIconState extends State<ShopIcon>
     );
     _colorAnimation = ColorTween(
       begin: const Color.fromARGB(255, 204, 198, 196), // Initial color
-      end: const Color.fromARGB(255, 112, 80, 228), // Target color
+      end: userColor // Target color
     ).animate(_controller);
     _controller.addListener(() {
       setState(() {}); // Trigger rebuild when animation value changes
@@ -264,8 +264,8 @@ class ShopViewState extends State<ShopView> {
                     children: [
                       Row(
                         children: [
-                          // ShopIcon(),
-                          // SizedBox(width: 10),
+                          ShopIcon(),
+                          const SizedBox(width: 10),
                           Text('Shop_title'.tr,
                               style: Theme.of(context).textTheme.bodyLarge),
                         ],
@@ -376,6 +376,7 @@ class ShopViewState extends State<ShopView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
+                        
                         padding: const EdgeInsets.symmetric(
                             horizontal: 27, vertical: 9),
                         decoration: BoxDecoration(
@@ -394,12 +395,17 @@ class ShopViewState extends State<ShopView> {
                               color: userColor,
                             ),
                             const SizedBox(width: 5),
-                            Text(
-                              coins.toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontSize: 25),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 100,
+                              ),
+                              child: Text(
+                                maxLines: 1,
+                                coins.toString(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium,
+                              ),
                             ),
                           ],
                         ),
@@ -419,8 +425,7 @@ class ShopViewState extends State<ShopView> {
                           "lvl ${userData['level'].toString()}",
                           style: Theme.of(context)
                               .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontSize: 25),
+                              .bodyMedium,
                         ),
                       ),
                     ],
@@ -676,16 +681,11 @@ class _ItemCardState extends State<ItemCard> {
                             alignment: Alignment.center,
                             child: Text(
                               "BUY",
-                              style: TextStyle(
-                                  fontFamily: "Karla",
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: buyable && widget.reward['stock'] != 0
                                       ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .tertiary
-                                          .withOpacity(0.5)),
+                                      : Theme.of(context).colorScheme.tertiary,
+                                  fontWeight: FontWeight.bold)
                             )))),
               )
             ],

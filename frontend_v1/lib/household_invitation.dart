@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:share/share.dart';
 
@@ -170,12 +171,14 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                       color: Theme.of(context).colorScheme.tertiary),
                   enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.tertiary)),
+                          color: Theme.of(context).colorScheme.tertiary),
+                    borderRadius: BorderRadius.circular(10),),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                       width: 2,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
@@ -246,7 +249,7 @@ class _HouseholdInvitationState extends State<HouseholdInvitation> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(inviteCode ?? '',
-                                    style: Theme.of(context).textTheme.bodyLarge),
+                                    style: GoogleFonts.courierPrime().copyWith(fontSize: 30)),
                                 IconButton(
                                   onPressed: () {
                                     final RenderBox box =

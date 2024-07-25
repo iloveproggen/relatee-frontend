@@ -39,7 +39,7 @@ Map<String, dynamic> assignedToUser = nullUser;
 late List<Map<String, dynamic>> users;
 
 Future<void> updateTask(int id, String name, String? description, int reward,
-    int? routineId, int assignTo, String emoji, DateTime? deadline) async {
+    int? routineId, int? assignTo, String emoji, DateTime? deadline) async {
   // Update task to match the GraphQL schema
   final Map<String, dynamic> input = {
     'taskId': id, // Use 'taskId' instead of 'id'
