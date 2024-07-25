@@ -132,6 +132,7 @@ class LocaleString extends Translations {
           'DiscardChanges_txt': 'Discard changes',
           'Progress_1_txt': 'You got ',
           'Progress_2_txt': 'of ',
+          'forgotpassword_txt': 'Forgot Password?',
         },
         'de-DE': {
           'welcome_title': 'Willkommen',
@@ -261,6 +262,7 @@ class LocaleString extends Translations {
           'DiscardChanges_txt': 'Änderungen verwerfen',
           'Progress_1_txt': 'Du hast ',
           'Progress_2_txt': 'von ',
+          'forgotpassword_txt': 'Passwort vergessen?',
         }
       };
 }

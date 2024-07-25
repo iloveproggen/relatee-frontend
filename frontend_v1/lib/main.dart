@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/rendering.dart';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
 import 'package:frontend_v1/detailed_task_view.dart';
@@ -20,7 +21,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async{
+void main() async {
+  debugPaintSizeEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(CheckLoggedIn(brightness: await getBrightness()));
 }
@@ -108,6 +110,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
             id
             name
             emoji
+            startDate
+            refreshDate
+            interval
           }
           tasks {
             id
@@ -263,6 +268,9 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
           'refreshDate': routine['refreshDate'],
           'startDate': routine['startDate'],
           'interval': routine['interval'],
+          'tasks': mappedTasks.where((task) {
+            return task['routineId'] == routine['id'];
+          }).toList(),
         };
       }).toList();
 
@@ -297,6 +305,11 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'ownerForename': task['owner']['forename'],
                   'ownerSurname': task['owner']['surname'],
                   'ownerUsername': "@${task['owner']['username']}",
+                  'routineName': task['routine'] != null
+                      ? task['routine']['name']
+                      : null,
+                  'routineEmoji': task['routine'] != null ? task['routine']['emoji'] : null,
+                  'routineId': task['routine'] != null ? task['routine']['id'] : null,
                 })
             .toList(),
         'otherTasks': otherTasks
@@ -528,10 +541,10 @@ class _MainWidgetState extends State<MainWidget> {
 
   Future<void> checkIfTutorialSeen() async {
     final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool('seenIntro') != true) {
-        userColor = Colors.blue;
-        Get.to(() => const IntroScreen());
-      }
+    if (prefs.getBool('seenIntro') != true) {
+      userColor = Colors.blue;
+      Get.to(() => const IntroScreen());
+    }
   }
 
   @override
@@ -643,39 +656,41 @@ class _IconRowState extends State<IconRow> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: padding),
-                child: SizedBox(
-                  height: 45,
-                  width: 45,
-                  child: TextButton(
-                    style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
-                            EdgeInsets.zero)),
-                    onPressed: () async {
-                      var result = await Get.to(
-                          () => ProfileView(userData: userData, tasks: tasks));
-                      if (result != null) {
-                        update();
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [colorPrimary, colorSecondary],
+          Expanded(
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(right: padding),
+                  child: SizedBox(
+                    height: 45,
+                    width: 45,
+                    child: TextButton(
+                      style: ButtonStyle(
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                              EdgeInsets.zero)),
+                      onPressed: () async {
+                        var result = await Get.to(() =>
+                            ProfileView(userData: userData, tasks: tasks));
+                        if (result != null) {
+                          update();
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [colorPrimary, colorSecondary],
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: ClipOval(
-                        child: Center(
-                          child: Text(
-                            userData['emoji'],
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 28,
+                        child: ClipOval(
+                          child: Center(
+                            child: Text(
+                              userData['emoji'],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 28,
+                              ),
                             ),
                           ),
                         ),
@@ -683,8 +698,8 @@ class _IconRowState extends State<IconRow> {
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Row(
             children: [
@@ -967,6 +982,7 @@ class _TaskState extends State<TaskOverview> {
   void _refreshState() {
     setState(() {});
   }
+
 
   List<Map<String, dynamic>> toDo =
       tasks.where((task) => task['completed'] == false).toList()
@@ -1391,7 +1407,6 @@ class _TaskState extends State<TaskOverview> {
                                                           ),
                                                         );
                                                       } else {
-                                                        
                                                         tasks.removeWhere((t) =>
                                                             t['id'] ==
                                                             task['id']);
@@ -1627,7 +1642,11 @@ class _MainTaskState extends State<Task> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // ignore: prefer_interpolation_to_compose_strings
-                              Text(widget.task['userForename'] ?? widget.task['userSurname'] ?? widget.task['userUsername'] ?? "Anyone",
+                              Text(
+                                  widget.task['userForename'] ??
+                                      widget.task['userSurname'] ??
+                                      widget.task['userUsername'] ??
+                                      "Anyone",
                                   style: Theme.of(context).textTheme.bodySmall),
                             ],
                           )

@@ -293,6 +293,7 @@ class _NewTaskState extends State<NewTask> {
                         print(taskPrice.text);
                         print(assignedToUser);
                         print(description.text);
+                        print(pickedRoutine);
                         await createNewTask(
                             assignedToUser['id'],
                             taskName.text,

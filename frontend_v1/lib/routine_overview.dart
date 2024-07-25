@@ -119,15 +119,17 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                 ],
               ),
               Text(
-                  "start on ${widget.routine['startDate'] != null ? DateFormat("dd-MM-yyy").format(widget.routine['startDate']) : 'unknown'}",
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: userColor,
-                      )),
+                "start on ${widget.routine['startDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['startDate'])) : 'unknown'}",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: userColor,
+                    ),
+              ),
               Text(
-                  "next refresh on ${widget.routine['refreshDate'] != null ? DateFormat("dd-MM-yyy").format(widget.routine['refreshDate']) : 'unknown'}",
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: userColor,
-                      )),
+                "next refresh on ${widget.routine['refreshDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['refreshDate'])) : 'unknown'}",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: userColor,
+                    ),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -150,7 +152,7 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    fontSize: 30,
+                                      fontSize: 30,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .tertiary,
@@ -304,13 +306,17 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                                                     "This routine will be paused indefinitely. To start it again, return to this view."),
                                             actions: [
                                               CupertinoDialogAction(
-                                                child: Text('Cancel', style: TextStyle(color: Colors.red)),
+                                                child: Text('Cancel',
+                                                    style: TextStyle(
+                                                        color: Colors.red)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
                                               ),
                                               CupertinoDialogAction(
-                                                child: Text('OK', style: TextStyle(color: Colors.blue)),
+                                                child: Text('OK',
+                                                    style: TextStyle(
+                                                        color: Colors.blue)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                   togglePausePicker();
@@ -383,10 +389,12 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                       style: Theme.of(context).textTheme.bodySmall)
                   : Column(
                       children: widget.tasks.map((task) {
-                        return RoutineTask(
-                            task: task,
-                            users: widget.users,
-                            userData: widget.userData);
+                        return Task(
+                          task: task,
+                          userData: widget.userData,
+                          isRecommended: false,
+                          showAssignedUser: true,
+                        );
                       }).toList(),
                     ),
               const SizedBox(height: 30),
@@ -396,94 +404,94 @@ class _RoutineOverviewState extends State<RoutineOverview> {
   }
 }
 
-class RoutineTask extends StatelessWidget {
-  const RoutineTask(
-      {super.key,
-      required this.task,
-      required this.users,
-      required this.userData});
+// class RoutineTask extends StatelessWidget {
+//   const RoutineTask(
+//       {super.key,
+//       required this.task,
+//       required this.users,
+//       required this.userData});
 
-  final Map<String, dynamic> task;
-  final Map<String, dynamic> userData;
-  final List<Map<String, dynamic>> users;
+//   final Map<String, dynamic> task;
+//   final Map<String, dynamic> userData;
+//   final List<Map<String, dynamic>> users;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextButton(
-        style: ButtonStyle(
-            animationDuration: Duration.zero,
-            padding: MaterialStateProperty.all<EdgeInsets>(
-              const EdgeInsets.all(0),
-            )),
-        onPressed: () => Get.to(() => detailed_task_view.DetailedTaskView(
-              task: task,
-              userData: userData,
-              assigned: users.firstWhere((user) => user['id'] == task['userId'],
-                  orElse: () => {'forename': null})['forename'],
-            )),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(25)),
-            color: Theme.of(context).colorScheme.primary,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.secondary,
-                offset: const Offset(5.0, 5.0),
-                blurRadius: 10.0,
-                spreadRadius: 2.0,
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 240),
-                  child: Text(task['name'],
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          )),
-                ),
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 180),
-                  child: (users.firstWhere(
-                              (user) => user['id'] == task['userId'],
-                              orElse: () => {'forename': null})['forename']) ==
-                          null
-                      ? Text('anyone',
-                          style: Theme.of(context).textTheme.bodySmall)
-                      : Text(
-                          "${users.firstWhere((user) => user['id'] == task['userId'], orElse: () => {
-                                'forename': null
-                              })['forename']}",
-                          style: Theme.of(context).textTheme.bodySmall),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(15)),
-                      border: Border.all(
-                          color: Theme.of(context).colorScheme.tertiary),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: Container(
-                        child: Text(task['reward'].toString() + " pts",
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ),
-                    )),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 15),
+//       child: TextButton(
+//         style: ButtonStyle(
+//             animationDuration: Duration.zero,
+//             padding: MaterialStateProperty.all<EdgeInsets>(
+//               const EdgeInsets.all(0),
+//             )),
+//         onPressed: () => Get.to(() => detailed_task_view.DetailedTaskView(
+//               task: task,
+//               userData: userData,
+//               assigned: users.firstWhere((user) => user['id'] == task['userId'],
+//                   orElse: () => {'forename': null})['forename'],
+//             )),
+//         child: Container(
+//           width: double.infinity,
+//           decoration: BoxDecoration(
+//             borderRadius: const BorderRadius.all(Radius.circular(25)),
+//             color: Theme.of(context).colorScheme.primary,
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Theme.of(context).colorScheme.secondary,
+//                 offset: const Offset(5.0, 5.0),
+//                 blurRadius: 10.0,
+//                 spreadRadius: 2.0,
+//               ),
+//             ],
+//           ),
+//           child: Padding(
+//             padding: const EdgeInsets.all(30),
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.start,
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Container(
+//                   constraints: const BoxConstraints(maxWidth: 240),
+//                   child: Text(task['name'],
+//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                             fontWeight: FontWeight.bold,
+//                           )),
+//                 ),
+//                 Container(
+//                   constraints: const BoxConstraints(maxWidth: 180),
+//                   child: (users.firstWhere(
+//                               (user) => user['id'] == task['userId'],
+//                               orElse: () => {'forename': null})['forename']) ==
+//                           null
+//                       ? Text('anyone',
+//                           style: Theme.of(context).textTheme.bodySmall)
+//                       : Text(
+//                           "${users.firstWhere((user) => user['id'] == task['userId'], orElse: () => {
+//                                 'forename': null
+//                               })['forename']}",
+//                           style: Theme.of(context).textTheme.bodySmall),
+//                 ),
+//                 const SizedBox(height: 10),
+//                 Container(
+//                     decoration: BoxDecoration(
+//                       borderRadius: const BorderRadius.all(Radius.circular(15)),
+//                       border: Border.all(
+//                           color: Theme.of(context).colorScheme.tertiary),
+//                     ),
+//                     child: Padding(
+//                       padding: const EdgeInsets.symmetric(
+//                           horizontal: 10, vertical: 5),
+//                       child: Container(
+//                         child: Text(task['reward'].toString() + " pts",
+//                             style: Theme.of(context).textTheme.bodySmall),
+//                       ),
+//                     )),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

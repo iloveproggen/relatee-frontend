@@ -199,14 +199,18 @@ class _NewRoutine extends State<NewRoutine> {
           height: 300,
           child: CupertinoPicker(
             scrollController: FixedExtentScrollController(
-                initialItem: DateTime.now().weekday -
-                    1), // Set the initial item to the current day
+                initialItem: DateTime.now().weekday-1), // Set the initial item to the current day
             itemExtent: 50, // Increase the item extent to make the items bigger
             onSelectedItemChanged: (int index) {
               print(index);
               setState(() {
-                startDate = DateTime.now().add(Duration(days: index));
-                weekday = getWeekdayFromInt(index + 1);
+                if (DateTime.now().add(Duration(days: index-1)).isAfter(DateTime.now())) {
+                  startDate = DateTime.now().add(Duration(days: index-1));
+                } else {
+                  startDate = DateTime.now().add(Duration(days: index-1)).add(Duration(days: 7));
+                }
+                //startDate = DateTime.now().add(Duration(days: index-1));
+                weekday = getWeekdayFromInt(index);
               });
               print(startDate);
             },

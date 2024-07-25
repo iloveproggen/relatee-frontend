@@ -1,4 +1,3 @@
-// ignore: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -13,10 +12,13 @@ date: 17.05.2024
 */
 
 late List<Map<String, dynamic>> leaderboardusers;
+late List<Map<String, dynamic>> leaderboardtasks;
 
 class MainLeaderboardView extends StatefulWidget {
-  const MainLeaderboardView({super.key, required this.users});
+  const MainLeaderboardView(
+      {super.key, required this.users, required this.tasks});
 
+  final List<Map<String, dynamic>> tasks;
   final List<Map<String, dynamic>> users;
 
   @override
@@ -24,6 +26,36 @@ class MainLeaderboardView extends StatefulWidget {
 }
 
 class _MainLeaderboardViewState extends State<MainLeaderboardView> {
+  //list with all tasks (completed) of all users
+  //Step 2 combine it with leaderboardusers
+
+  Map<String, int> countCompletedTasksPerUser(
+      List<Map<String, dynamic>> tasks) {
+    final Map<String, int> completedTasksCount = {};
+
+    for (var task in tasks) {
+      if (task['completed'] == true) {
+        String userId = task['userId'].toString();
+        if (!completedTasksCount.containsKey(userId)) {
+          completedTasksCount[userId] = 1;
+        } else {
+          completedTasksCount[userId] = (completedTasksCount[userId] ?? 0) + 1;
+        }
+      }
+    }
+    return completedTasksCount;
+  }
+
+  void assignCompletedTasksToUsers(List<Map<String, dynamic>> tasks,
+      List<Map<String, dynamic>> leaderboardusers) {
+    Map<String, int> completedTasksPerUser = countCompletedTasksPerUser(tasks);
+
+    for (var user in leaderboardusers) {
+      String userId = user['id'].toString();
+      user['completedTasks'] = completedTasksPerUser[userId] ?? 0;
+    }
+  }
+
   String sortBy = "coins";
 
   void _refreshView(String newFilterBy) {
@@ -57,18 +89,24 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+
     leaderboardusers =
         widget.users.where((user) => user['coins'] != null).toList();
     resort(leaderboardusers); // Sort the list here
-    leaderboardusers = leaderboardusers.take(3).toList();
+    leaderboardusers = leaderboardusers.toList();
     if (leaderboardusers.length < 3) {
       while (leaderboardusers.length < 3) {
         leaderboardusers.add({});
       }
     }
 
+    assignCompletedTasksToUsers(widget.tasks, leaderboardusers);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.primary,
       child: SingleChildScrollView(
@@ -130,7 +168,7 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
                                         _changeSort('level');
                                         print("sort by level");
                                       case 'Tasks':
-                                        _changeSort('tasks');
+                                        _changeSort('completedTasks');
                                         print("sort by tasks");
                                       default:
                                         _changeSort('deadline');
@@ -155,17 +193,6 @@ class _MainLeaderboardViewState extends State<MainLeaderboardView> {
                     },
                   ),
                   //SizedBox(width: 10),
-                  TextButton(
-                    style: ButtonStyle(
-                        alignment: Alignment.centerRight,
-                        animationDuration: Duration.zero,
-                        padding: MaterialStateProperty.all<EdgeInsets>(
-                          const EdgeInsets.all(0),
-                        )),
-                    child: Icon(CupertinoIcons.arrow_up_arrow_down,
-                        color: userColor, size: 25),
-                    onPressed: () {},
-                  ),
                 ],
               ),
               SizedBox(height: 30),
@@ -202,14 +229,18 @@ class _ChartLeaderboardState extends State<ChartLeaderboard> {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    final List<Color> colorPrimaryList =
-        leaderboardusers.where((user) => user['username'] != null).map((user) {
+    final List<Color> colorPrimaryList = leaderboardusers
+        .take(3)
+        .where((user) => user['username'] != null)
+        .map((user) {
       String colorCode = user['colorPrimary'].replaceAll('#', '');
       return Color(int.parse('0xFF$colorCode'));
     }).toList();
 
-    final List<Color> colorSecondaryList =
-        leaderboardusers.where((user) => user['username'] != null).map((user) {
+    final List<Color> colorSecondaryList = leaderboardusers
+        .take(3)
+        .where((user) => user['username'] != null)
+        .map((user) {
       String colorCode = user['colorSecondary'].replaceAll('#', '');
       return Color(int.parse('0xFF$colorCode'));
     }).toList();
@@ -219,7 +250,8 @@ class _ChartLeaderboardState extends State<ChartLeaderboard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
-        children: leaderboardusers.asMap().entries.map((entry) {
+        children:
+            leaderboardusers.take(3).toList().asMap().entries.map((entry) {
           final index = leaderboardusers[entry.key]['username'] != null
               ? entry.key
               : null;
@@ -344,16 +376,14 @@ class _WeeklyInfoState extends State<WeeklyInfo> {
       width: width,
       height: height * 0.2,
       child: ListView.builder(
-        itemCount: 3,
+        itemCount: leaderboardusers.length,
         itemBuilder: (context, index) {
-          IconData iconData;
-          if (index == 0) {
-            iconData = Icons.looks_one;
-          } else if (index == 1) {
-            iconData = Icons.looks_two;
-          } else {
-            iconData = Icons.looks_3;
-          }
+          List<IconData> iconDataList = [
+            Icons.looks_one,
+            Icons.looks_two,
+            Icons.looks_3,
+          ];
+
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Padding(
@@ -364,7 +394,33 @@ class _WeeklyInfoState extends State<WeeklyInfo> {
                       widget.leaderboardusers[index]['level'] != null)
                     Row(
                       children: [
-                        Icon(iconData),
+                        if (index < 3)
+                          Icon(iconDataList[index])
+                        else
+                          Stack(
+                            children: [
+                              Container(
+                                height: 20,
+                                width: 20,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                              ),
+                              Positioned(
+                                right: 6,
+                                bottom: -0.5,
+                                child: Text('${index + 1}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(fontSize: 15)),
+                              )
+                            ],
+                          ),
                         const SizedBox(width: 8.0),
                         Container(
                           width: 100,
@@ -381,7 +437,7 @@ class _WeeklyInfoState extends State<WeeklyInfo> {
                   SizedBox(width: 20),
                   if (widget.leaderboardusers[index]['coins'] != null)
                     Container(
-                      width: 50,
+                      width: 80,
                       child: Text(
                         //'$pts pts',
                         widget.leaderboardusers[index]['coins'].toString(),
