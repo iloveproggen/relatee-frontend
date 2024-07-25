@@ -303,6 +303,11 @@ Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
                   'ownerForename': task['owner']['forename'],
                   'ownerSurname': task['owner']['surname'],
                   'ownerUsername': "@${task['owner']['username']}",
+                  'routineName': task['routine'] != null
+                      ? task['routine']['name']
+                      : null,
+                  'routineEmoji': task['routine'] != null ? task['routine']['emoji'] : null,
+                  'routineId': task['routine'] != null ? task['routine']['id'] : null,
                 })
             .toList(),
         'otherTasks': otherTasks
@@ -973,6 +978,7 @@ class _TaskState extends State<TaskOverview> {
   void _refreshState() {
     setState(() {});
   }
+
 
   List<Map<String, dynamic>> toDo =
       tasks.where((task) => task['completed'] == false).toList()

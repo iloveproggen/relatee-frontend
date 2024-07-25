@@ -97,10 +97,13 @@ class CheckLoggedIn extends StatelessWidget {
 void checkLastLoginDate() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? lastLoginDate = prefs.getString('lastLoginDate');
-  DateTime now = DateTime.now();
-  DateTime yesterday = now.subtract(const Duration(days: 1));
+  DateTime now = DateTime.now().subtract(Duration(
+    hours: DateTime.now().hour,
+    minutes: DateTime.now().minute,
+    seconds: (DateTime.now().second-1),
+  ));
 
-   // updateStreak();
+  // updateStreak();
   if (lastLoginDate == null) {
     // First time login, set streak to 1 and save today's date
     prefs.setInt('streak', 1);
@@ -109,7 +112,7 @@ void checkLastLoginDate() async {
     updateStreak();
   } else {
     DateTime lastLogin = DateTime.parse(lastLoginDate);
-    if (lastLogin.isBefore(yesterday)) {
+    if (lastLogin.isBefore(now)) {
       // Last login was yesterday, increment streak by 1 and save today's date
       int streak = prefs.getInt('streak') ?? 0;
       prefs.setInt('streak', streak + 1);
