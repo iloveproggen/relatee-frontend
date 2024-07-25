@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:frontend_v1/signup.dart';
 import 'package:frontend_v1/theme/dark_theme.dart';
 import 'package:frontend_v1/theme/light_theme.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,22 +98,28 @@ class CheckLoggedIn extends StatelessWidget {
 void checkLastLoginDate() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? lastLoginDate = prefs.getString('lastLoginDate');
-  DateTime now = DateTime.now();
-  DateTime yesterday = now.subtract(const Duration(days: 1));
+  DateTime now = DateTime.now().subtract(Duration(
+    hours: DateTime.now().hour,
+    minutes: DateTime.now().minute,
+    seconds: (DateTime.now().second-1),
+  ));
 
+  // updateStreak();
   if (lastLoginDate == null) {
     // First time login, set streak to 1 and save today's date
     prefs.setInt('streak', 1);
     prefs.setString('lastLoginDate', now.toString());
     print('First time login. Streak set to 1.');
+    updateStreak();
   } else {
     DateTime lastLogin = DateTime.parse(lastLoginDate);
-    if (lastLogin.isBefore(yesterday)) {
+    if (lastLogin.isBefore(now)) {
       // Last login was yesterday, increment streak by 1 and save today's date
       int streak = prefs.getInt('streak') ?? 0;
       prefs.setInt('streak', streak + 1);
       prefs.setString('lastLoginDate', now.toString());
       print('Last login was yesterday. Streak incremented to ${streak + 1}.');
+      updateStreak();
     } else {
       // Last login was today, do nothing
       print('Last login was today.');
@@ -119,6 +127,35 @@ void checkLastLoginDate() async {
   }
 }
 
+Future<void> updateStreak() async {
+  final client = await getGraphQLClient();
+  final MutationOptions options = MutationOptions(
+    document: gql('''
+      mutation updateLoginStreak() {
+        updateLoginStreak() {}
+      }
+    '''),
+  );
+  try {
+    final result =
+        await client.mutate(options).timeout(const Duration(seconds: 10));
+    if (result.hasException) {
+      print('GraphQL error: ${result.exception.toString()}');
+    }
+    else {
+      print('++++++++ Streak updated successfully. ++++++++');
+    }
+  } on SocketException catch (e) {
+    print('Network error: $e');
+    // Handle network error
+  } on TimeoutException catch (e) {
+    print('Request timed out: $e');
+    // Handle timeout
+  } catch (e) {
+    print('Unexpected error: $e');
+    // Handle other errors
+  }
+}
 // class LoginApp extends StatefulWidget {
 //   const LoginApp({super.key});
 
