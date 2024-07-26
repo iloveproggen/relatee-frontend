@@ -1347,6 +1347,7 @@ class _TaskState extends State<TaskOverview> {
                                                       userData: userData,
                                                       isRecommended: true,
                                                       showAssignedUser: false,
+                                                      refreshFunction: update,
                                                     ),
                                                   ),
                                                   Divider(
@@ -1495,6 +1496,7 @@ class _TaskState extends State<TaskOverview> {
                                                       userData: userData,
                                                       isRecommended: false,
                                                       showAssignedUser: false,
+                                                      refreshFunction: update,
                                                     ),
                                                   ),
                                                 ],
@@ -1569,12 +1571,14 @@ class Task extends StatefulWidget {
       required this.task,
       required this.userData,
       required this.isRecommended,
-      required this.showAssignedUser});
+      required this.showAssignedUser,
+      required this.refreshFunction});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
   final bool isRecommended;
   final bool showAssignedUser;
+  final Function? refreshFunction;
 
   @override
   State<Task> createState() => _MainTaskState();
@@ -1602,8 +1606,8 @@ class _MainTaskState extends State<Task> {
                 userData: widget.userData,
                 assigned: widget.userData['forename'],
               ));
-          if (result != null) {
-            update();
+          if (result != null && widget.refreshFunction != null) {
+            widget.refreshFunction!();
           }
         },
         child: Container(
@@ -1881,6 +1885,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                 userData: userData,
                                 isRecommended: false,
                                 showAssignedUser: false,
+                                refreshFunction: update,
                               ),
                             ),
                           ],

@@ -397,6 +397,7 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                           userData: widget.userData,
                           isRecommended: false,
                           showAssignedUser: true,
+                          refreshFunction: initState,
                         );
                       }).toList(),
                     ),
