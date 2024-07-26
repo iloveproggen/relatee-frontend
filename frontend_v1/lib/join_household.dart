@@ -8,6 +8,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:frontend_v1/login.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -272,7 +273,7 @@ class _JoinHouseholdViewState extends State<JoinHouseholdView> {
                         controller: _inviteCode,
                         autocorrect: false,
                         cursorColor: Theme.of(context).colorScheme.onSecondary,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: GoogleFonts.courierPrime(),
                         decoration: InputDecoration(
                           hintText: 'Invite Code',
                           hintStyle: Theme.of(context)

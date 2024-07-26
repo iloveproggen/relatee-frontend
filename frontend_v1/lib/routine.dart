@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/routine_overview.dart';
@@ -170,7 +171,8 @@ class RoutineItem extends StatelessWidget {
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold)),
                   Text(
-                    "${routine['refreshDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(routine['refreshDate'])) : 'No refresh date set'}",
+                    "${routine['refreshDate'] != null ? formatDateWithOrdinal(
+                                  DateTime.parse(routine['refreshDate'])) : 'No refresh date set'}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: userColor,

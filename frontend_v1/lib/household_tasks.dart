@@ -199,25 +199,27 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
             IconButton(
               onPressed: () {
                 if (users.length == 1) {
-                  showDialog(
+                  showCupertinoDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return AlertDialog(
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                            Text('LeaderBoardMessage_txt'.tr),
-                          ],
-                        ),
+                      return CupertinoAlertDialog(
+                        title: Text('LeaderBoardMessage_txt'.tr),
+                        actions: [
+                          CupertinoDialogAction(
+                            child: Text('Okay',  style: TextStyle(color: Colors.blue)),
+                            onPressed: () {
+                              Get.back();
+                            },
+                          ),
+                          CupertinoDialogAction(
+                            child: Text('Invite More!', style: TextStyle(color: Colors.blue)),
+                            onPressed: () async {
+                              Get.back();
+                              await Get.to(() => const HouseholdInvitation());
+                              update();
+                            },
+                          ),
+                        ],
                       );
                     },
                   );
@@ -862,6 +864,7 @@ class InviteButton extends StatelessWidget {
       onPressed: () async {
         // TODO: Implement invite functionality
         await Get.to(() => const HouseholdInvitation());
+        update();
       },
       style: ButtonStyle(
         padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(0)),
