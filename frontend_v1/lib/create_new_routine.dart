@@ -266,7 +266,7 @@ class _NewRoutine extends State<NewRoutine> {
                     onPressed: () async {
                       if (required) {
                         await createRoutine(
-                            name.text, emojiDisplay ?? "", DateTime.now());
+                            name.text, emojiDisplay ?? "", startDate.add(Duration(days: interval)));
                         Get.back(result: 'Task_created_txt'.tr);
                       } else {
                         Get.back();

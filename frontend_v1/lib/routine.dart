@@ -25,7 +25,8 @@ Future<void> deleteRoutine(int id) async {
     },
   );
   try {
-    await client.mutate(options).timeout(const Duration(seconds: 10));
+    final result = await client.mutate(options).timeout(const Duration(seconds: 10));
+    print(result);
   } on SocketException catch (e) {
     print('Network error: $e');
     // Handle network error
