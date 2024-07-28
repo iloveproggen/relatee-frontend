@@ -836,14 +836,9 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (didUserDataChange) {
-                  print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
                       avatar, formattedColorPrimary, formattedColorSecondary);
                   Get.back(result: newUserData);
-                } else {
-                  Get.back();
-                }
               },
               child: Row(
                 children: [
