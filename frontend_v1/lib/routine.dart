@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend_v1/completed_tasks.dart';
@@ -9,7 +8,6 @@ import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/routine_overview.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
 
 Future<void> deleteRoutine(int id) async {
   final client = await getGraphQLClient();
@@ -172,8 +170,11 @@ class RoutineItem extends StatelessWidget {
                           .bodySmall
                           ?.copyWith(fontWeight: FontWeight.bold)),
                   Text(
-                    "${routine['refreshDate'] != null ? formatDateWithOrdinal(
-                                  DateTime.parse(routine['refreshDate'])) : 'No refresh date set'}",
+                    routine['refreshDate'] != null 
+                      ? (routine['refreshDate'] is String 
+                          ? formatDateWithOrdinal(DateTime.parse(routine['refreshDate'])) 
+                          : formatDateWithOrdinal(routine['refreshDate'])) 
+                      : 'unknown',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: userColor,

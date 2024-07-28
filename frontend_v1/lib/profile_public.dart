@@ -100,7 +100,6 @@ class PublicProfile extends StatelessWidget {
         Color(int.parse('0xFF' + userData['colorPrimary'].replaceAll('#', '')));
     final Color colorSecondary = Color(
         int.parse('0xFF' + userData['colorSecondary'].replaceAll('#', '')));
-    print(userData);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SingleChildScrollView(
@@ -356,7 +355,8 @@ class PublicTaskOverview extends StatelessWidget {
                     task: task,
                     userData: userData,
                     isRecommended: false,
-                                showAssignedUser: false,
+                    showAssignedUser: false,
+                    refreshFunction: null,
                   );
                 }).toList(),
               )

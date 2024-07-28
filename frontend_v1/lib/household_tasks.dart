@@ -517,7 +517,7 @@ class _HouseholdWidgetState extends State<HouseholdWidget> {
                         task: task,
                         userData: userData,
                         isRecommended: false,
-                        showAssignedUser: true),
+                        showAssignedUser: true, refreshFunction: update,),
                   );
                 }).toList(),
         ),

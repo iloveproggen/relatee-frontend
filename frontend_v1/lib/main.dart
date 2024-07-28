@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/rendering.dart';
 import 'package:frontend_v1/completed_tasks.dart';
 import 'package:frontend_v1/create_new_routine.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
@@ -23,7 +22,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  debugPaintSizeEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(CheckLoggedIn(brightness: await getBrightness()));
 }
@@ -1349,6 +1347,7 @@ class _TaskState extends State<TaskOverview> {
                                                       userData: userData,
                                                       isRecommended: true,
                                                       showAssignedUser: false,
+                                                      refreshFunction: update,
                                                     ),
                                                   ),
                                                   Divider(
@@ -1497,6 +1496,7 @@ class _TaskState extends State<TaskOverview> {
                                                       userData: userData,
                                                       isRecommended: false,
                                                       showAssignedUser: false,
+                                                      refreshFunction: update,
                                                     ),
                                                   ),
                                                 ],
@@ -1571,12 +1571,14 @@ class Task extends StatefulWidget {
       required this.task,
       required this.userData,
       required this.isRecommended,
-      required this.showAssignedUser});
+      required this.showAssignedUser,
+      required this.refreshFunction});
 
   final Map<String, dynamic> task;
   final Map<String, dynamic> userData;
   final bool isRecommended;
   final bool showAssignedUser;
+  final Function? refreshFunction;
 
   @override
   State<Task> createState() => _MainTaskState();
@@ -1604,8 +1606,8 @@ class _MainTaskState extends State<Task> {
                 userData: widget.userData,
                 assigned: widget.userData['forename'],
               ));
-          if (result != null) {
-            update();
+          if (result != null && widget.refreshFunction != null) {
+            widget.refreshFunction!();
           }
         },
         child: Container(
@@ -1883,6 +1885,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                 userData: userData,
                                 isRecommended: false,
                                 showAssignedUser: false,
+                                refreshFunction: update,
                               ),
                             ),
                           ],
