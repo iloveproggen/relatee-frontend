@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -613,7 +615,7 @@ class _ProfileViewState extends State<ProfileView> {
                                           ? getLevelProgressValue()
                                           : getPreviousLevelProgressValue()); // Calculate width based on progress
                                   return Container(
-                                    width: progressWidth,
+                                    width: max(0, progressWidth),
                                     height: 10,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
