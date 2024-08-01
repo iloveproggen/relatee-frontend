@@ -1276,6 +1276,8 @@ class _TaskState extends State<TaskOverview> {
                                                           context: context,
                                                           builder: (BuildContext
                                                               context) {
+                                                                completeTask(
+                                                            task['id']);
                                                             return CupertinoAlertDialog(
                                                               title: Text(
                                                                   'Congratulations!_txt'
