@@ -1,20 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:frontend_v1/create_new_task_v1.dart';
-import 'package:frontend_v1/detailed_task_view.dart' as detailed_task_view;
 import 'package:frontend_v1/main.dart';
 import 'package:frontend_v1/profileV2.dart';
-import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
 Future<void> updateRoutine(
     DateTime? startDate, DateTime? refreshDate, int routineId) async {
+  startDate = startDate?.subtract(Duration(
+      hours: startDate.hour,
+      minutes: startDate.minute,
+      seconds: startDate.second,
+      milliseconds: startDate.millisecond,
+      microseconds: startDate.microsecond));
   final Map<String, dynamic> input = {
     'routineId': routineId,
-    'startDate': startDate,
-    'refreshDate': refreshDate,
+    'startDate': '${startDate?.toIso8601String().split('.')[0]}Z',
+    'refreshDate': '${refreshDate?.toIso8601String().split('.')[0]}Z',
   };
 
   final Map<String, dynamic> variables = {
@@ -119,13 +122,13 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                 ],
               ),
               Text(
-                "start on ${widget.routine['startDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['startDate'])) : 'unknown'}",
+                "start on ${widget.routine['startDate'] != null ? (widget.routine['startDate'] is String ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['startDate'])) : DateFormat("dd-MM-yyyy").format(widget.routine['startDate'])) : 'unknown'}",
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: userColor,
                     ),
               ),
               Text(
-                "next refresh on ${widget.routine['refreshDate'] != null ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['refreshDate'])) : 'unknown'}",
+                "next refresh on ${widget.routine['refreshDate'] != null ? (widget.routine['refreshDate'] is String ? DateFormat("dd-MM-yyyy").format(DateTime.parse(widget.routine['refreshDate'])) : DateFormat("dd-MM-yyyy").format(widget.routine['refreshDate'])) : 'unknown'}",
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: userColor,
                     ),
@@ -144,7 +147,7 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                       ),
                       Text("icon:",
                           style: Theme.of(context).textTheme.bodySmall),
-                      Spacer(),
+                      const Spacer(),
                       TextButton(
                           onPressed: () {},
                           child: Text(widget.routine['emoji'] ?? "🎉",
@@ -173,7 +176,7 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                                 Text("start date:",
                                     style:
                                         Theme.of(context).textTheme.bodySmall),
-                                Spacer(),
+                                const Spacer(),
                                 TextButton(
                                     style: ButtonStyle(
                                       padding:
@@ -306,15 +309,15 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                                                     "This routine will be paused indefinitely. To start it again, return to this view."),
                                             actions: [
                                               CupertinoDialogAction(
-                                                child: Text('Cancel',
-                                                    style: TextStyle(
+                                                child: const Text('Cancel',
+                                                    style: const TextStyle(
                                                         color: Colors.red)),
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
                                               ),
                                               CupertinoDialogAction(
-                                                child: Text('OK',
+                                                child: const Text('OK',
                                                     style: TextStyle(
                                                         color: Colors.blue)),
                                                 onPressed: () {
@@ -394,6 +397,7 @@ class _RoutineOverviewState extends State<RoutineOverview> {
                           userData: widget.userData,
                           isRecommended: false,
                           showAssignedUser: true,
+                          refreshFunction: initState,
                         );
                       }).toList(),
                     ),

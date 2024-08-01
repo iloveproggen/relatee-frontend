@@ -348,6 +348,7 @@ class _ProfileViewState extends State<ProfileView> {
                       padding: WidgetStateProperty.all<EdgeInsets>(
                           const EdgeInsets.all(0)),
                     ),
+            
                     onPressed: () {
                       showCupertinoDialog(
                         context: context,
@@ -585,7 +586,11 @@ class _ProfileViewState extends State<ProfileView> {
                         Text(
                             '${widget.userData['forename']} ${widget.userData['surname']}',
                             style: Theme.of(context).textTheme.bodyLarge),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
+                         widget.userData['streak'] > 0 ? Text("🔥 You have a streak of ${widget.userData['streak'].toString()}! 🔥",
+                            style: Theme.of(context).textTheme.bodySmall)
+                            : const SizedBox.shrink(),
+                        const SizedBox(height: 10),
                         Padding(
                           padding: const EdgeInsets.only(left: 30, right: 30),
                           child: Stack(
@@ -599,6 +604,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
+                              
                               LayoutBuilder(
                                 builder: (BuildContext context,
                                     BoxConstraints constraints) {
@@ -627,11 +633,13 @@ class _ProfileViewState extends State<ProfileView> {
                           ),
                         ),
                         SizedBox(height: 5),
+                        
                         //Text('Progress_txt'.tr(args: {'Experience': '20', 'Total': '100'}),
                         Text(
                             '${'Progress_1_txt'.tr}${widget.userData['experience']} xp ${'Progress_2_txt'.tr}${getLevelProgress()} xp.',
                             style: Theme.of(context).textTheme.labelSmall),
                         const SizedBox(height: 20),
+                       
                         Text(
                           '@${widget.userData['username']}',
                           style: Theme.of(context)
@@ -661,6 +669,7 @@ class _ProfileViewState extends State<ProfileView> {
                           ),
                           textAlign: TextAlign.center,
                         ),
+                        
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -827,14 +836,9 @@ class BackAndUpdateIcon extends StatelessWidget {
                 padding: EdgeInsets.zero,
               ),
               onPressed: () async {
-                if (didUserDataChange) {
-                  print(didUserDataChange);
                   Map<String, dynamic> newUserData = await updateUserProfile(
                       avatar, formattedColorPrimary, formattedColorSecondary);
                   Get.back(result: newUserData);
-                } else {
-                  Get.back();
-                }
               },
               child: Row(
                 children: [
@@ -890,7 +894,7 @@ class TaskOverview extends StatelessWidget {
                     task: task,
                     userData: userData,
                     isRecommended: false,
-                    showAssignedUser: false,
+                    showAssignedUser: false,refreshFunction: null,
                   );
                 }).toList(),
               )
