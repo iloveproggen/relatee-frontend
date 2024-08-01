@@ -931,7 +931,8 @@ class ButtonRow extends StatelessWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () {
-                  Get.to(() => CompletedTaskList(tasks: tasks, userData: users));
+                  filteredTasks = tasks.where((task) => task['completed'] == true).toList();  
+                  Get.to(() => CompletedTaskList(tasks: filteredTasks, userData: users));
                 },
                 icon: ButtonShort(
                   number: tasks == []
