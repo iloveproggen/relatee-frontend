@@ -1,6 +1,6 @@
 # relatee-frontend
 
-Repository für das Software-Engineering an der IU mit unserem Lieblingsprof Prof. Dr. Nicolai Krüger
+Der (ambitionierte) Versuch, den originalen Code der Relatee App aus dem 3. Semester mithilfe von 50k Tokens zu refactorn.
 
 ## Inhalt
 - [The Idea](#the_idea)
