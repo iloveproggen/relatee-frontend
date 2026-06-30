@@ -1,486 +1,113 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
-import 'package:frontend_v1/completed_tasks.dart';
-import 'package:frontend_v1/create_new_routine.dart';
-import 'package:frontend_v1/create_new_task_v1.dart';
-import 'package:frontend_v1/detailed_task_view.dart';
-import 'package:frontend_v1/introduction.dart';
-import 'package:frontend_v1/join_household.dart';
-import 'package:frontend_v1/routine.dart';
+import 'package:frontend_v1/core/logging/app_logger.dart';
+import 'package:frontend_v1/core/network/graphql_client_factory.dart';
+import 'package:frontend_v1/core/services/household_service.dart';
+import 'package:frontend_v1/core/services/task_service.dart';
+import 'package:frontend_v1/core/state/app_state.dart';
+import 'package:frontend_v1/core/utils/color_utils.dart';
+import 'package:frontend_v1/core/utils/task_utils.dart';
+import 'package:frontend_v1/assets/locale_strings.dart';
+import 'package:frontend_v1/theme/dark_theme.dart';
+import 'package:frontend_v1/theme/light_theme.dart';
+import 'package:frontend_v1/tasks/completed_tasks.dart';
+import 'package:frontend_v1/routines/create_new_routine.dart';
+import 'package:frontend_v1/tasks/create_new_task_v1.dart';
+import 'package:frontend_v1/tasks/detailed_task_view.dart';
+import 'package:frontend_v1/onboarding/introduction.dart';
+import 'package:frontend_v1/household/join_household.dart';
+import 'package:frontend_v1/routines/routine.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:frontend_v1/household_tasks.dart';
-import 'package:frontend_v1/login.dart';
-import 'package:frontend_v1/profileV2.dart';
-import 'package:frontend_v1/shop.dart';
+import 'package:frontend_v1/household/household_tasks.dart';
+import 'package:frontend_v1/auth/login.dart';
+import 'package:frontend_v1/profile/profile_v2.dart';
+import 'package:frontend_v1/rewards/shop.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+const Map<String, dynamic> _emptyHouseholdPayload = {
+  'users': [],
+  'tasks': [],
+  'routines': [],
+  'userData': {},
+  'rewards': [],
+};
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(CheckLoggedIn(brightness: await getBrightness()));
+  runApp(RelateeApp(initialBrightness: await getBrightness()));
 }
 
 Future<bool?> getBrightness() async {
   final prefs = await SharedPreferences.getInstance();
   final brightnessString = prefs.getString('brightness');
 
-  // Print all preferences for debugging
-  final allPrefs = prefs.getKeys();
-  for (var key in allPrefs) {
-    final value = prefs.get(key);
-    print('$key: $value');
+  if (brightnessString == null) {
+    return null;
   }
 
-  // Check the value of 'brightness' and assign accordingly
-  bool? brightness;
-  if (brightnessString != null) {
-    brightness = brightnessString == 'light' ? true : false;
-  } else {
-    brightness = null; // Or assign a default value if needed
-  }
-  return brightness;
+  return brightnessString == 'light';
 }
 
-late Color userColor;
+Color get userColor => AppState.userColor;
+set userColor(Color value) => AppState.userColor = value;
 
-late VoidCallback update;
-late VoidCallback updateWithoutReload;
+VoidCallback get update => AppState.update;
+set update(VoidCallback value) => AppState.update = value;
 
-late Map<String, dynamic> userData;
-late List<Map<String, dynamic>> tasks;
-late List<Map<String, dynamic>> users;
+VoidCallback get updateWithoutReload => AppState.updateWithoutReload;
+set updateWithoutReload(VoidCallback value) =>
+    AppState.updateWithoutReload = value;
 
-late Map<String, dynamic> householdData;
+Map<String, dynamic> get userData => AppState.userData;
+set userData(Map<String, dynamic> value) => AppState.userData = value;
 
-http.Client httpClient = http.Client();
-bool _taskView = true;
+List<Map<String, dynamic>> get tasks => AppState.tasks;
+set tasks(List<Map<String, dynamic>> value) => AppState.tasks = value;
+
+List<Map<String, dynamic>> get users => AppState.users;
+set users(List<Map<String, dynamic>> value) => AppState.users = value;
+
+Map<String, dynamic> get householdData => AppState.householdData;
+set householdData(Map<String, dynamic> value) => AppState.householdData = value;
+
 final random = Random();
 
-Future<GraphQLClient> getGraphQLClient() async {
-  String? token;
-  final prefs = await SharedPreferences.getInstance();
-
-  final httpLink = HttpLink(
-    'http://85.215.50.29:3000/graphql',
-    httpClient: httpClient,
-  );
-
-  final AuthLink authLink = AuthLink(
-    getToken: () async {
-      token = prefs.getString('token');
-      return 'Bearer $token';
-    },
-  );
-
-  final Link link = authLink.concat(httpLink);
-  return GraphQLClient(
-    cache: GraphQLCache(),
-    link: link,
-  );
-}
+Future<GraphQLClient> getGraphQLClient() => GraphqlClientFactory.create();
 
 Future<Map<String, dynamic>> getHouseholdData(BuildContext context) async {
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql('''
-      query CombinedQuery {
-        household {
-          id
-          name
-          emoji
-          users {
-            id
-            forename
-            surname
-            username
-            email
-            level
-            coins
-            emoji
-            colorPrimary
-            colorSecondary
-            loginStreak
-          }
-          routines {
-            id
-            name
-            emoji
-            startDate
-            refreshDate
-            interval
-          }
-          tasks {
-            id
-            name
-            emoji
-            deadline
-            description
-            reward
-            completed
-            completedAt
-            private
-            user {
-              id
-              forename
-              surname
-              username
-              email
-              level
-              coins
-            }
-            owner {
-              id
-              forename
-              surname
-              username
-            }
-            routine {
-              id
-              name
-              emoji
-              refreshDate
-              startDate
-              interval
-            }
-          }
-          rewards {
-            id
-            name
-            price
-            emoji
-            stock
-            description
-          }
-        }
-        me {
-          id
-          username
-          forename
-          surname
-          email
-          coins
-          experience
-          level
-          emoji
-          colorPrimary
-          colorSecondary
-          loginStreak
-        }
-      }
-    '''),
-  );
-  try {
-    final result =
-        await client.query(options).timeout(const Duration(seconds: 10));
-
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else {
-      final householdData = result.data!['household'];
-      final userData = result.data!['me'];
-
-      // Extracting users, tasks, and routines from household data
-      final users = householdData['users'];
-      final tasks = householdData['tasks'];
-      final routines = householdData['routines'];
-
-      final rewardsData = result.data!['household']['rewards'] ?? [];
-      final List<Map<String, dynamic>> mappedRewards =
-          rewardsData.map<Map<String, dynamic>>((reward) {
-        return {
-          'id': reward['id'],
-          'name': reward['name'],
-          'price': reward['price'],
-          'stock': reward['stock'] ??
-              '0', // Provide a default value for stock if null
-          'emoji': reward['emoji'] ?? '0',
-          'description': reward['description'] ??
-              '', // Provide a default value for description if null
-        };
-      }).toList();
-      // Filtering tasks for the logged-in user
-      final myTasks =
-          tasks.where((task) => task['user']?['id'] == userData['id']).toList();
-      final otherTasks =
-          tasks.where((task) => task['user']?['id'] != userData['id']).toList();
-
-      // Mapping users to a new structure
-      final List<Map<String, dynamic>> mappedUsers =
-          users.map<Map<String, dynamic>>((user) {
-        return {
-          'id': user['id'],
-          'forename': user['forename'],
-          'surname': user['surname'],
-          'username': user['username'],
-          'email': user['email'],
-          'level': user['level'],
-          'coins': user['coins'],
-          'emoji': user['emoji'],
-          'colorPrimary': user['colorPrimary'],
-          'colorSecondary': user['colorSecondary'],
-          'householdName': householdData['name'],
-          'householdId': result.data!['household']['id'],
-          'streak': user['loginStreak'],
-        };
-      }).toList();
-
-      // Mapping tasks to a new structure
-      final List<Map<String, dynamic>> mappedTasks =
-          tasks.map<Map<String, dynamic>>((task) {
-        return {
-          'id': task['id'],
-          'name': task['name'],
-          'emoji': task['emoji'],
-          'deadline': task['deadline'],
-          'description': task['description'],
-          'reward': task['reward'],
-          'completed': task['completed'],
-          'completedAt': task['completedAt'],
-          'private': task['private'],
-          'userId': task['user'] != null ? task['user']['id'] : null,
-          'userForename':
-              task['user'] != null ? task['user']['forename'] : null,
-          'userSurname': task['user'] != null ? task['user']['surname'] : null,
-          'userUsername':
-              task['user'] != null ? '@${task['user']['username']}' : null,
-          'ownerId': task['owner']['id'],
-          'ownerForename': task['owner']['forename'],
-          'ownerSurname': task['owner']['surname'],
-          'ownerUsername': task['owner']['username'],
-          'routineId': task['routine'] != null ? task['routine']['id'] : null,
-          'routineName':
-              task['routine'] != null ? task['routine']['name'] : null,
-          'routineEmoji':
-              task['routine'] != null ? task['routine']['emoji'] : null,
-        };
-      }).toList();
-
-      // Mapping routines to a new structure
-      final List<Map<String, dynamic>> mappedRoutines =
-          routines.map<Map<String, dynamic>>((routine) {
-        return {
-          'id': routine['id'],
-          'name': routine['name'],
-          'emoji': routine['emoji'],
-          'refreshDate': routine['refreshDate'],
-          'startDate': routine['startDate'],
-          'interval': routine['interval'],
-          'tasks': mappedTasks.where((task) {
-            return task['routineId'] == routine['id'];
-          }).toList(),
-        };
-      }).toList();
-
-      // Mapping the logged-in user's data
-      final mappedUserData = {
-        'id': userData['id'],
-        'forename': userData['forename'],
-        'surname': userData['surname'],
-        'username': userData['username'],
-        'email': userData['email'],
-        'coins': userData['coins'],
-        'experience': userData['experience'],
-        'level': userData['level'],
-        'emoji': userData['emoji'],
-        'colorPrimary': userData['colorPrimary'],
-        'colorSecondary': userData['colorSecondary'],
-        'householdName': householdData['name'],
-        'householdId': result.data!['household']['id'],
-        'streak': userData['loginStreak'],
-        'tasks': myTasks
-            .map<Map<String, dynamic>>((task) => {
-                  'id': task['id'],
-                  'userId': userData['id'],
-                  'name': task['name'],
-                  'deadline': task['deadline'],
-                  'description': task['description'],
-                  'reward': task['reward'],
-                  'completed': task['completed'],
-                  'completedAt': task['completedAt'],
-                  'emoji': task['emoji'],
-                  'private': task['private'],
-                  'ownerId': task['owner']['id'],
-                  'ownerForename': task['owner']['forename'],
-                  'ownerSurname': task['owner']['surname'],
-                  'ownerUsername': "@${task['owner']['username']}",
-                  'routineName':
-                      task['routine'] != null ? task['routine']['name'] : null,
-                  'routineEmoji':
-                      task['routine'] != null ? task['routine']['emoji'] : null,
-                  'routineId':
-                      task['routine'] != null ? task['routine']['id'] : null,
-                })
-            .toList(),
-        'otherTasks': otherTasks
-            .map<Map<String, dynamic>>((task) => {
-                  'id': task['id'],
-                  'userId': task['user'] != null ? task['user']['id'] : null,
-                  'name': task['name'],
-                  'deadline': task['deadline'],
-                  'description': task['description'],
-                  'reward': task['reward'],
-                  'completed': task['completed'],
-                  'completedAt': task['completedAt'],
-                  'emoji': task['emoji'],
-                  'private': task['private'],
-                  'ownerId': task['owner']['id'],
-                  'ownerForename': task['owner']['forename'],
-                  'ownerSurname': task['owner']['surname'],
-                  'ownerUsername': "@${task['owner']['username']}"
-                })
-            .toList(),
-      };
-
-      final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool('useUserColor') != false) {
-        userColor = Color.lerp(
-            hexToColor(mappedUserData['colorPrimary']),
-            hexToColor(mappedUserData['colorSecondary']),
-            prefs.getDouble("colorRatio") ?? 0.5)!;
-      } else {
-        userColor = Theme.of(context).colorScheme.tertiary;
-      }
-
-      return {
-        'users': mappedUsers,
-        'tasks': mappedTasks,
-        'routines': mappedRoutines,
-        'userData': mappedUserData,
-        'rewards': mappedRewards,
-      };
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
+  final fallbackUserColor = Theme.of(context).colorScheme.tertiary;
+  final payload = await HouseholdService.fetchCombinedQueryData();
+  if (payload.isEmpty) {
+    return _emptyHouseholdPayload;
   }
-  return {
-    'users': [],
-    'tasks': [],
-    'routines': [],
-    'userData': {},
-    'rewards': [],
-  };
+
+  final mappedUserData = payload['userData'] as Map<String, dynamic>;
+  final prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool('useUserColor') != false) {
+    userColor = Color.lerp(
+      hexToColor(mappedUserData['colorPrimary']),
+      hexToColor(mappedUserData['colorSecondary']),
+      prefs.getDouble('colorRatio') ?? 0.5,
+    )!;
+  } else {
+    userColor = fallbackUserColor;
+  }
+
+  return payload;
 }
 
-int countToDo(List<Map<String, dynamic>> tasks) {
-  int count = 0;
-  for (var task in tasks) {
-    if (task['completed'] == false) {
-      count++;
-    }
-  }
-  return count;
-}
+int countToDo(List<Map<String, dynamic>> tasks) => TaskUtils.countToDo(tasks);
 
-Future<void> deleteTask(int taskId) async {
-  final client = await getGraphQLClient();
-  final MutationOptions options = MutationOptions(
-    document: gql('''
-      mutation DeleteTask(\$taskId: Int!) {
-        deleteTask(taskId: \$taskId)
-      }
-    '''),
-    variables: <String, dynamic>{
-      'taskId': taskId,
-    },
-  );
-  try {
-    final result =
-        await client.mutate(options).timeout(const Duration(seconds: 10));
-    if (result.hasException) {
-      print('GraphQL error: ${result.exception.toString()}');
-    }
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-}
+Future<void> deleteTask(int taskId) => TaskService.deleteTask(taskId);
 
-Future<void> assignMyselfToTask(int id) async {
-  final Map<String, dynamic> input = {
-    'taskId': id,
-    'userId': userData['id'],
-  };
+Future<void> assignMyselfToTask(int id) =>
+    TaskService.assignTaskToUser(taskId: id, userId: userData['id']);
 
-  final Map<String, dynamic> variables = {
-    'input': input,
-  };
-
-  final client = await getGraphQLClient();
-  final QueryOptions options = QueryOptions(
-    document: gql(r'''mutation UpdateTask($input: UpdateTaskInput!) {
-  updateTask(input: $input) {
-    id
-    user {
-      id
-    }
-  }
-}
-'''),
-    variables: variables,
-  );
-  try {
-    final QueryResult result = await client.query(options);
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-    } else {
-      // Handle the result
-    }
-  } catch (e) {
-    print(e);
-  }
-}
-
-Future<void> completeTask(int taskId) async {
-  final client = await getGraphQLClient();
-  final MutationOptions options = MutationOptions(
-    document: gql('''
-    mutation CompleteTask(\$taskId: Int!) {
-      completeTask(taskId: \$taskId) {
-      }
-    }
-  '''),
-    variables: <String, dynamic>{
-      'taskId': taskId,
-    },
-  );
-  try {
-    final result =
-        await client.mutate(options).timeout(const Duration(seconds: 10));
-    if (result.hasException) {
-      print(result.exception.toString());
-    } else if (result.isLoading) {
-    } else {}
-  } on SocketException catch (e) {
-    print('Network error: $e');
-    // Handle network error
-  } on TimeoutException catch (e) {
-    print('Request timed out: $e');
-    // Handle timeout
-  } catch (e) {
-    print('Unexpected error: $e');
-    // Handle other errors
-  }
-}
+Future<void> completeTask(int taskId) => TaskService.completeTask(taskId);
 
 Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
   DateTime now = DateTime.now();
@@ -492,7 +119,7 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
       deadline = DateTime.parse(task['deadline']);
     } catch (e) {
       // Handle the case where 'deadline' cannot be parsed into a DateTime
-      print('Error parsing deadline: $e');
+      AppLogger.error('Failed to parse task deadline', e);
       // Return a default widget or handle the error appropriately
       return Builder(builder: (context) => const Text('Invalid deadline'));
     }
@@ -528,10 +155,51 @@ Builder getIndicator(Map<String, dynamic> task, BuildContext context) {
 }
 
 Color hexToColor(String hexString) {
-  final buffer = StringBuffer();
-  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-  buffer.write(hexString.replaceFirst('#', ''));
-  return Color(int.parse(buffer.toString(), radix: 16));
+  return ColorUtils.hexToColor(hexString);
+}
+
+class RelateeApp extends StatelessWidget {
+  const RelateeApp({super.key, this.initialBrightness});
+
+  final bool? initialBrightness;
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthBootstrapGate(initialBrightness: initialBrightness);
+  }
+}
+
+class AuthBootstrapGate extends StatelessWidget {
+  const AuthBootstrapGate({super.key, this.initialBrightness});
+
+  final bool? initialBrightness;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool systemBrightness = initialBrightness ??
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.light;
+
+    return FutureBuilder<String?>(
+      future: getPrefs(),
+      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+        final Widget home = snapshot.hasData
+            ? const Scaffold(body: MainWidget())
+            : const Scaffold(body: LoginWidget());
+
+        return GetMaterialApp(
+          darkTheme: darktheme,
+          theme: systemBrightness ? lighttheme : darktheme,
+          translations: LocaleString(),
+          locale: const Locale('en-Us'),
+          fallbackLocale: const Locale('en-US'),
+          debugShowCheckedModeBanner: false,
+          title: 'Relatee',
+          home: home,
+        );
+      },
+    );
+  }
 }
 
 class MainWidget extends StatefulWidget {
@@ -543,9 +211,28 @@ class MainWidget extends StatefulWidget {
 
 class _MainWidgetState extends State<MainWidget> {
   final Color colLight = const Color.fromARGB(255, 243, 243, 243);
+  bool _startupChecksScheduled = false;
 
-  Future<void> checkIfTutorialSeen() async {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _startupChecksScheduled) {
+        return;
+      }
+
+      _startupChecksScheduled = true;
+      checkLastLoginDate();
+      _checkIfTutorialSeen();
+    });
+  }
+
+  Future<void> _checkIfTutorialSeen() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) {
+      return;
+    }
+
     if (prefs.getBool('seenIntro') != true) {
       userColor = Colors.blue;
       Get.to(() => const IntroScreen());
@@ -554,11 +241,13 @@ class _MainWidgetState extends State<MainWidget> {
 
   @override
   Widget build(BuildContext context) {
-    checkLastLoginDate();
-    checkIfTutorialSeen();
     //setAppMode();
     return const Scaffold(body: MainView());
   }
+}
+
+class CheckLoggedIn extends RelateeApp {
+  const CheckLoggedIn({super.key, super.initialBrightness});
 }
 
 class MainView extends StatefulWidget {
@@ -585,10 +274,6 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  void _updateWithoutReload() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     update = _updateUserData;
@@ -600,21 +285,21 @@ class _MainViewState extends State<MainView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            print('error');
+            AppLogger.error('MainView FutureBuilder error', snapshot.error);
             return const Placeholder();
             // } else if (snapshot.data!['userData']['id'] == null) {
             //   print('no userData, going to login view');
             //  return const LoginWidget();
           } else if (snapshot.data!['userData']['householdId'] == null) {
-            print('household ID: ${snapshot.data!['userData']['householdId']}');
+            AppLogger.info(
+                'No household connected for current user, routing to join view.');
             // if (snapshot.data!['userData']['forename'] == null) {
             //   print('no userData, going to login view');
             //   return const LoginWidget();
             // }
             return const JoinHouseholdView();
           } else {
-            print(
-                'logged in sucessfully ${snapshot.data!['userData']['householdId']}');
+            AppLogger.info('User and household loaded successfully.');
             householdData = snapshot.data!;
             userData = householdData['userData'];
             tasks = userData['tasks'];
@@ -673,7 +358,7 @@ class _IconRowState extends State<IconRow> {
                     width: 45,
                     child: TextButton(
                       style: ButtonStyle(
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                               EdgeInsets.zero)),
                       onPressed: () async {
                         var result = await Get.to(() =>
@@ -922,7 +607,7 @@ class ButtonRow extends StatelessWidget {
                 // Navigate to another screen
               },
               child: ButtonShort(
-                number: tasks == [] ? '0' : countToDo(tasks).toString(),
+                number: tasks.isEmpty ? '0' : countToDo(tasks).toString(),
                 textBelow: 'left_to_do_txt'.tr,
               ),
             ),
@@ -944,7 +629,7 @@ class ButtonRow extends StatelessWidget {
                       CompletedTaskList(tasks: filteredTasks, userData: users));
                 },
                 icon: ButtonShort(
-                  number: tasks == []
+                  number: tasks.isEmpty
                       ? '0'
                       : (tasks.length - countToDo(tasks)).toString(),
                   textBelow: 'doneThisWeek_txt'.tr,
@@ -991,12 +676,6 @@ class _TaskState extends State<TaskOverview> {
   void _toggleRoutines() {
     setState(() {
       showRoutines = !showRoutines;
-    });
-  }
-
-  void _toggleOtherTasks() {
-    setState(() {
-      showOtherTasks = !showOtherTasks;
     });
   }
 
@@ -1047,7 +726,7 @@ class _TaskState extends State<TaskOverview> {
             children: [
               TextButton(
                 style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
+                    padding: WidgetStateProperty.all<EdgeInsets>(
                         const EdgeInsets.all(0))),
                 onPressed: () {
                   _toggleTasks();
@@ -1181,7 +860,7 @@ class _TaskState extends State<TaskOverview> {
                                 TextButton(
                                   style: ButtonStyle(
                                       padding:
-                                          MaterialStateProperty.all<EdgeInsets>(
+                                          WidgetStateProperty.all<EdgeInsets>(
                                               const EdgeInsets.all(0))),
                                   child: Text(
                                     'NoTaskCreateOne_txt'.tr,
@@ -1244,7 +923,7 @@ class _TaskState extends State<TaskOverview> {
                                                                   context) =>
                                                               CupertinoAlertDialog(
                                                             title: Text(
-                                                                "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                                                "${'Delete_Task_txt'.tr} ${task['name']}?"),
                                                             content: Text(
                                                                 'Sure_delete_task?_txt'
                                                                     .tr),
@@ -1536,7 +1215,7 @@ class _TaskState extends State<TaskOverview> {
                   children: [
                     TextButton(
                       style: ButtonStyle(
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                               const EdgeInsets.all(0))),
                       onPressed: () => _toggleRoutines(),
                       child: Row(
@@ -1602,18 +1281,18 @@ class Task extends StatefulWidget {
 
 class _MainTaskState extends State<Task> {
   @override
-  @override
   void initState() {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextButton(
         style: ButtonStyle(
             animationDuration: Duration.zero,
-            padding: MaterialStateProperty.all<EdgeInsets>(
+            padding: WidgetStateProperty.all<EdgeInsets>(
               const EdgeInsets.all(0),
             )),
         onPressed: () async {
@@ -1751,7 +1430,7 @@ class _OtherTasksState extends State<OtherTasks> {
                 children: [
                   TextButton(
                     style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
+                        padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.all(0))),
                     onPressed: () {
                       setState(() {
@@ -1815,7 +1494,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                     builder: (BuildContext context) =>
                                         CupertinoAlertDialog(
                                       title: Text(
-                                          "${"${'Delete_Task_txt'.tr} " + task['name']}?"),
+                                          "${'Delete_Task_txt'.tr} ${task['name']}?"),
                                       content: Text('Sure_delete_task?_txt'.tr),
                                       actions: [
                                         CupertinoDialogAction(
@@ -1841,7 +1520,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                     ),
                                   );
                                 } else {
-                                  print(
+                                  AppLogger.info(
                                       "${'Task_completed!_txt'.tr} ${task['reward']}");
                                   tasks.removeWhere(
                                       (t) => t['id'] == task['id']);
@@ -1849,6 +1528,7 @@ class _OtherTasksState extends State<OtherTasks> {
                                   completeTask(task['id']);
                                   // addPoints(
                                   //     task['reward'].toString());
+                                  if (!context.mounted) return;
                                   showCupertinoDialog(
                                     context: context,
                                     builder: (BuildContext context) {

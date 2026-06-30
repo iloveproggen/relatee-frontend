@@ -41,11 +41,11 @@ ThemeData darktheme = ThemeData(
             fontFamily: "Karla",
             fontWeight: FontWeight.bold)),
     colorScheme: const ColorScheme.light(
-      background: Color.fromARGB(255, 50, 48, 48),
+      surface: Color.fromARGB(255, 50, 48, 48),
       primary: Color.fromARGB(255, 50, 48, 48),
       secondary: Color.fromARGB(168, 0, 0, 0),
       tertiary: Color.fromARGB(255, 183, 177, 175),
-      onPrimary: Color.fromARGB(255, 74, 70, 70) ,
-      onSecondary:Color.fromARGB(255, 204, 198, 196),
+      onPrimary: Color.fromARGB(255, 74, 70, 70),
+      onSecondary: Color.fromARGB(255, 204, 198, 196),
       inversePrimary: Color(0xFF4A4646),
     ));

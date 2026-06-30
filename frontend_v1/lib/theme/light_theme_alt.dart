@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ThemeData lighttheme = ThemeData(
@@ -38,11 +37,11 @@ ThemeData lighttheme = ThemeData(
             fontFamily: "Karla",
             fontWeight: FontWeight.bold)),
     colorScheme: const ColorScheme.light(
-      background: Color.fromARGB(255, 255, 255, 255),
+      surface: Color.fromARGB(255, 255, 255, 255),
       primary: Color.fromARGB(255, 255, 255, 255),
       secondary: Color.fromARGB(60, 83, 76, 76),
       tertiary: Color.fromARGB(255, 130, 92, 206),
-      onPrimary:Color.fromARGB(255, 210, 194, 241),
-      onSecondary:Color.fromARGB(255, 130, 92, 206),
+      onPrimary: Color.fromARGB(255, 210, 194, 241),
+      onSecondary: Color.fromARGB(255, 130, 92, 206),
       inversePrimary: Color(0xFF4A4646),
     ));

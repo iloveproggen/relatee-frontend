@@ -2,6 +2,14 @@
 
 Der (ambitionierte) Versuch, den originalen Code der Relatee App aus dem 3. Semester mithilfe von 50k Tokens zu refactorn.
 
+## Starten der Flutter-App
+
+Die Flutter-App liegt im Unterordner `frontend_v1`. Bitte dort starten oder den Root-Launcher verwenden:
+
+```powershell
+./run-frontend.ps1
+```
+
 ## Inhalt
 - [The Idea](#the_idea)
 - [Our Team](#our_team)
